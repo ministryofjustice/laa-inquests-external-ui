@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
 
       - name: Setup Node and Dependencies
         uses: ./.github/actions/setup-node
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
 
       - name: Setup Node and Dependencies
         uses: ./.github/actions/setup-node
@@ -53,11 +53,22 @@ jobs:
   snyk:
     name: Snyk scan docker image
     runs-on: ubuntu-latest
-    env:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
+
+      - name: Get Snyk OAuth Token
+        id: snyk-auth
+        run: |
+          TOKEN=$(curl -s -X POST "https://api.snyk.io/oauth2/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=${{ secrets.SNYK_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.SNYK_CLIENT_SECRET }}" \
+            | jq -r '.access_token')
+
+          echo "SNYK_OAUTH_TOKEN=$TOKEN" >> $GITHUB_ENV
 
       - name: Build local Docker image
         run: |
@@ -65,19 +76,19 @@ jobs:
             --tag laa-inquests-ui:scan \
             --file Dockerfile .
 
-      - name: Run Snyk to scan Docker image 
-        uses: snyk/actions/docker@master
+      - name: Run Snyk to scan Docker image
+        uses: snyk/actions/docker@c75628d834bd4a804426e1cb7b31a9aa43a54c31
         with:
           image: laa-inquests-ui:scan
           args: --docker --severity-threshold=high --policy-path=.snyk
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_OAUTH_TOKEN: ${{ env.SNYK_OAUTH_TOKEN }}
 
       - name: Monitor docker image using Snyk
         continue-on-error: true
-        uses: snyk/actions/docker@master
+        uses: snyk/actions/docker@c75628d834bd4a804426e1cb7b31a9aa43a54c31
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_OAUTH_TOKEN: ${{ env.SNYK_OAUTH_TOKEN }}
         with:
           command: monitor
           image: laa-inquests-ui:scan
@@ -104,7 +115,7 @@ jobs:
       - snyk
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
       - name: Deploy to uat
         uses: ./.github/actions/deploy
         with:
