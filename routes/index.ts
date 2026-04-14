@@ -1,6 +1,9 @@
 import express from 'express';
 import type { Request, Response } from 'express';
 
+import createApplicationRouter from "#routes/application.router.js";
+import { applicationDisplayAdaptor } from "#src/adaptors/presenters/application/application-display.adaptor.js";
+
 // Create a new router
 const router = express.Router();
 const SUCCESSFUL_REQUEST = 200;
@@ -28,5 +31,9 @@ router.get('/error', (req: Request, res: Response): void => {
 	// Simulate an error
 	res.set('X-Error-Tag', 'TEST_500_ALERT').status(UNSUCCESSFUL_REQUEST).send('Internal Server Error');
 });
+
+router.use("/applications", [
+  createApplicationRouter(express.Router(), applicationDisplayAdaptor),
+]);
 
 export default router;
