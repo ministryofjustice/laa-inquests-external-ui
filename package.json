@@ -19,7 +19,7 @@
     "tsc": "tsc --noEmit",
     "build:ts": "tsc",
     "test": "yarn test:unit && yarn test:e2e",
-    "test:unit": "./node_modules/.bin/mocha",
+    "test:unit": "yarn build && mocha",
     "test:e2e": "yarn playwright test --config=tests/playwright/playwright.config.ts",
     "coverage": "c8 yarn test:unit --check-coverage"
   },
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ministryofjustice/frontend": "^6.0.0",
-    "axios": "1.14.0",
+    "axios": "^1.15.0",
     "body-parser": "^2.2.1",
     "chalk": "^5.6.2",
     "compression": "^1.8.1",
@@ -50,7 +50,8 @@
     "moment": "^2.30.1",
     "morgan": "~1.10.1",
     "nunjucks": "^3.2.4",
-    "validator": "^13.15.22"
+    "validator": "^13.15.22",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
