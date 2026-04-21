@@ -1,4 +1,4 @@
-# Default values for laa-inquests-ui.
+# Default values for laa-inquests-external-ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -49,12 +49,12 @@ ingress:
   enabled: true
   className: modsec-non-prod
   hosts:
-    - host: laa-inquests-ui-uat.apps.live.cloud-platform.service.justice.gov.uk
+    - host: laa-inquests-external-ui-uat.apps.live.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
           pathType: Prefix
   annotations:
-    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-ui-laa-inquests-ui-uat-green"
+    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-external-ui-laa-inquests-external-ui-uat-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/enable-owasp-core-rules: "true"
@@ -62,9 +62,6 @@ ingress:
     nginx.ingress.kubernetes.io/modsecurity-snippet: |
       SecRuleEngine On
       SecDefaultAction "phase:2,pass,log,tag:github_team=laa-inquests"
-      SecRule REMOTE_ADDR "!@ipMatch 35.176.93.186/32" "id:1001,deny,status:403,tag:github_team=laa-inquests"    
-    # VPN IP range. Taken from: https://github.com/ministryofjustice/moj-ip-addresses/blob/main/moj-cidr-addresses.yml#L267
-    # Note this is just the GlobalProtect VPN range. We may need to support other VPNs in future.
 
 resources:
   limits:
@@ -110,7 +107,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-# Additional volumes on the output Deployment definition.
+  # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo
 #   secret:

@@ -1,4 +1,6 @@
-# Legal Aid Agency - Inquests Internal UI
+# Legal Aid Agency - Inquests External UI
+
+Inquests UI for providers.
 
 [![Standards Icon]][Standards Link]
 
@@ -97,13 +99,13 @@ Prerequisites, Docker Desktop
 - To build the docker image
 
   ```shell
-  docker build -t laa-inquests-ui:latest .
+  docker build -t laa-inquests-external-ui:latest .
   ```
 
 - To run the docker image
 
   ```shell
-  docker run -d -p 8888:3000 laa-inquests-ui:latest
+  docker run -d -p 8888:3000 laa-inquests-external-ui:latest
   ```
 
   (The application should be running at http://localhost:8888)
