@@ -2,11 +2,11 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ingress-dashboard
-  namespace: laa-inquests-ui-uat
+  namespace: laa-inquests-external-ui-uat
   labels:
     grafana_dashboard: ""
 data:
-  laa-inquests-ui-ingress-dashboard.json: |
+  laa-inquests-external-ui-ingress-dashboard.json: |
     {
       "annotations": {
         "list": [
@@ -30,7 +30,7 @@ data:
           }
         ]
       },
-      "description": "laa-inquests-ui Ingress",
+      "description": "laa-inquests-external-ui Ingress",
       "editable": true,
       "fiscalYearStartMonth": 0,
       "graphTooltip": 1,
@@ -663,8 +663,8 @@ data:
           {
             "current": {
               "selected": false,
-              "text": "laa-inquests-ui-uat",
-              "value": "laa-inquests-ui-uat"
+              "text": "laa-inquests-external-ui-uat",
+              "value": "laa-inquests-external-ui-uat"
             },
             "datasource": {
               "type": "prometheus",
@@ -681,7 +681,7 @@ data:
               "refId": "Prometheus-namespace-Variable-Query"
             },
             "refresh": 1,
-            "regex": "/^laa-inquests-ui/",
+            "regex": "/^laa-inquests-external-ui/",
             "skipUrlSync": false,
             "sort": 1,
             "tagValuesQuery": "",
@@ -692,8 +692,8 @@ data:
           {
             "current": {
               "selected": false,
-              "text": "laa-inquests-ui",
-              "value": "laa-inquests-ui"
+              "text": "laa-inquests-external-ui",
+              "value": "laa-inquests-external-ui"
             },
             "datasource": {
               "type": "prometheus",
@@ -749,8 +749,7 @@ data:
         ]
       },
       "timezone": "browser",
-      "title": "laa-inquests-ui Ingress",
-      "uid": "cfgywnc7onrpcd",
+      "title": "laa-inquests-external-ui Ingress",
       "version": 3,
       "weekStart": ""
     }
