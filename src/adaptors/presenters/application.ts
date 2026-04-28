@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
-import type { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.js";
+import type { ApplicationApiAdaptor } from "#src/adaptors/source/api/application.js";
 
 export class ApplicationDisplayAdaptor {
-  applicationDataStore: ApplicationDataStoreAdaptor;
+  applicationApi: ApplicationApiAdaptor;
 
-  constructor(applicationDataStore: ApplicationDataStoreAdaptor) {
-    this.applicationDataStore = applicationDataStore;
+  constructor(applicationApi: ApplicationApiAdaptor) {
+    this.applicationApi = applicationApi;
   }
 
   async renderApplicationPage(
@@ -14,7 +14,7 @@ export class ApplicationDisplayAdaptor {
     applicationId: string,
   ): Promise<void> {
     const displayApplication =
-      await this.applicationDataStore.getApplication(applicationId);
+      await this.applicationApi.getApplicationById(applicationId);
     console.log(displayApplication);
     res.render("application/index", {
       displayApplication,
