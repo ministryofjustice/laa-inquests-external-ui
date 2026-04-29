@@ -1,0 +1,97 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">      
+      <div class="govuk-grid-column-one-half">
+        <h2 class="govuk-heading-l">Enter your client's details</h2>
+        <form data-testid="client-details-form" action="/apply/client-details/nino" method="post">
+          {{ govukInput({
+            label: {
+              text: "First name",
+              classes: "govuk-label--s"
+            },
+            id: "first-name",
+            name: "first-name"
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Last name",
+              classes: "govuk-label--s"
+            },
+            id: "last-name",
+            name: "last-name"
+          }) }}
+
+          {{ govukRadios({
+            name: "name-change",
+            fieldset: {
+              legend: {
+                text: "Has your client ever changed their last name?",
+                classes: "govuk-fieldset__legend--s"
+              }
+            },
+            items: [
+              {
+                value: true,
+                text: "Yes",
+                conditional: {
+                  html:  govukInput({
+                    id: "last-name-at-birth",
+                    name: "last-name-at-birth",
+                    type: "text",
+                    spellcheck: false,
+                    classes: "govuk-!-width-one-half",
+                    label: {
+                      text: "What was your client's last name at birth?"
+                    }
+                  }) 
+                }
+              },
+              {
+                value: false,
+                text: "No"
+              }
+            ]
+          }) }}
+
+          {{ govukDateInput({
+            id: "dob",
+            namePrefix: "dob",
+            fieldset: {
+              legend: {
+                text: "Date of birth",
+                classes: "govuk-fieldset__legend--s"
+              }
+            },
+            hint: {
+              text: "For example 31 3 1980"
+            }
+          }) }}
+
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+
+
+
+{% endblock %}

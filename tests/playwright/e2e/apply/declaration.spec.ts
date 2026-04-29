@@ -22,7 +22,7 @@ import describe from "@playwright/test"
       page.goto("/apply")
       const startButton = page.getByRole("button", { name: "Agree and continue"})
       await expect(startButton).toBeVisible()
-      await expect(startButton).toHaveAttribute("href", "/apply/client-details")
+      await expect(startButton).toHaveAttribute("href", "/apply/basic-client-details")
       await startButton.click()
 
   })

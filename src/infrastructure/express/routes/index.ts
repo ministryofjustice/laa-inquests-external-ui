@@ -20,6 +20,10 @@ router.get("/apply", (req: Request, res: Response): void => {
   res.render("apply/declaration")
 })
 
+router.get("/apply/basic-client-details", (req: Request, res: Response): void => {
+  res.render("apply/client-details/basic-details")
+})
+
 // liveness and readiness probes for Helm deployments
 router.get("/status", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).send("OK");
