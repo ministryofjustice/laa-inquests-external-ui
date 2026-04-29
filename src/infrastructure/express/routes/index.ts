@@ -16,12 +16,9 @@ router.get("/", (req: Request, res: Response): void => {
   res.render("main/index");
 });
 
-router.get(
-  "/application/:applicationId",
-  (req: Request, res: Response): void => {
-    res.render("application/index");
-  },
-);
+router.get("/apply", (req: Request, res: Response): void => {
+  res.render("apply/declaration")
+})
 
 // liveness and readiness probes for Helm deployments
 router.get("/status", (req: Request, res: Response): void => {
@@ -51,5 +48,7 @@ const applicationDisplayAdaptor = new ApplicationDisplayAdaptor(
 router.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
+
+
 
 export default router;

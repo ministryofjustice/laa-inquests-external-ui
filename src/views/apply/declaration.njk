@@ -1,0 +1,23 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% block content %}
+<h2 class="govuk-heading-l">Declaration</h2>
+<p class="govuk-body">
+  By continuing, you agree that:
+</p>
+<ul class="govuk-list">
+  <li>
+    <p class="govuk-body">Your client has instructed you to represent them</p>
+  </li>
+  <li>
+    <p class="govuk-body">You'll go through all parts of the application with your client</p>
+  </li>
+  <li>
+    <p class="govuk-body">You'll provide complete and correct information</p>
+  </li>
+</ul>
+{{ govukButton({
+        text: "Agree and continue",
+        href: "/apply/client-details"
+    }) }}
+{% endblock %}
