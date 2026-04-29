@@ -11,7 +11,7 @@ function createApplicationRouter(
       const {
         params: { applicationId },
       } = req;
-      const applicationIdParam: string = applicationId;
+      const applicationIdParam: string = applicationId as string;
       try {
         await applicationDisplayAdaptor.renderApplicationPage(
           req,
