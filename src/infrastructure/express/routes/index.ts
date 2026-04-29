@@ -2,8 +2,8 @@ import express from "express";
 import type { Request, Response } from "express";
 
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
-import { ApplicationDisplayAdaptor } from "#src/adaptors/application.js";
-import { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.js";
+import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
+import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import axios from "axios";
 
 // Create a new router
@@ -40,12 +40,12 @@ router.get("/error", (req: Request, res: Response): void => {
     .send("Internal Server Error");
 });
 
-const applicationDataStoreAdaptor = new ApplicationDataStoreAdaptor(
+const applicationInquestsApiAdaptor = new ApplicationInquestsApiAdaptor(
   axios,
   "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
 );
 const applicationDisplayAdaptor = new ApplicationDisplayAdaptor(
-  applicationDataStoreAdaptor,
+  applicationInquestsApiAdaptor,
 );
 
 router.use("/applications", [

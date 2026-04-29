@@ -1,7 +1,7 @@
 import sinon from "sinon";
 import axios from "axios";
 import { assert } from "chai";
-import { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.js";
+import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { Application } from "#src/adaptors/models/application.types.js";
 
 const axiosGetStub = sinon.stub(axios, "get");
@@ -14,7 +14,7 @@ describe("Test Application API Adaptor", () => {
   it("Test get Applications calls axios", async () => {
     const baseUrl = "https://www.gov.uk";
     const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ApplicationDataStoreAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationInquestsApiAdaptor(fakeAxios, baseUrl);
     const expectedApplication = {
       id: "123",
       status: "Open",
@@ -40,7 +40,7 @@ describe("Test Application API Adaptor", () => {
       date_submitted: "13/04/2026",
     };
     const fakeAxios = { get: axiosGetStub } as any;
-    const adaptor = new ApplicationDataStoreAdaptor(fakeAxios, baseUrl);
+    const adaptor = new ApplicationInquestsApiAdaptor(fakeAxios, baseUrl);
 
     axiosGetStub.resolves({
       data: expectedApplication,
