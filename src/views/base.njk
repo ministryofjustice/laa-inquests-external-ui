@@ -1,5 +1,6 @@
 {% extends "govuk/template.njk" %}
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{%- from "moj/components/header/macro.njk" import mojHeader -%}
 
 {% block pageTitle %}{{config.SERVICE_NAME}} – GOV.UK{% endblock %}
 
@@ -16,12 +17,28 @@
   {# cookie policy #}
 {% endblock %}
 
-{% block govukHeader %}
-  {{ govukHeader({
-    homepageUrl: "#",
-    serviceName: config.SERVICE_NAME,
-    serviceUrl: "#"
-  }) }}
+{% block govukHeader%}
+{{ mojHeader({
+  organisationLabel: {
+    text: "Legal Aid Agency",
+    href: "#"
+  },
+  serviceLabel: {
+    text: "Inquests",
+    href: "#"
+  },
+  navigation: {
+    label: "Account navigation",
+    items: [{
+      text: "Account name",
+      href: "#",
+      active: true
+    }, {
+      text: "Sign out",
+      href: "#"
+    }]
+  }
+}) }}
 {% endblock %}
 
 {% block headerEnd %}

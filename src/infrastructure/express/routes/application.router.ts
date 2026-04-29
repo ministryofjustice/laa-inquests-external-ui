@@ -11,7 +11,7 @@ function createApplicationRouter(
       const {
         params: { applicationId },
       } = req;
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- throws error for string | string[] type if not cast
+
       const applicationIdParam: string = applicationId as string;
       try {
         await applicationDisplayAdaptor.renderApplicationPage(
