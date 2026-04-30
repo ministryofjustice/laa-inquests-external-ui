@@ -17,12 +17,15 @@ router.get("/", (req: Request, res: Response): void => {
 });
 
 router.get("/apply", (req: Request, res: Response): void => {
-  res.render("apply/declaration")
-})
+  res.render("apply/declaration");
+});
 
-router.get("/apply/basic-client-details", (req: Request, res: Response): void => {
-  res.render("apply/client-details/basic-details")
-})
+router.get(
+  "/apply/basic-client-details",
+  (req: Request, res: Response): void => {
+    res.render("apply/client-details/basic-details");
+  },
+);
 
 // liveness and readiness probes for Helm deployments
 router.get("/status", (req: Request, res: Response): void => {
@@ -52,7 +55,5 @@ const applicationDisplayAdaptor = new ApplicationDisplayAdaptor(
 router.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
-
-
 
 export default router;
