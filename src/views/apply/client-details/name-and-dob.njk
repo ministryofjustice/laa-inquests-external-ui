@@ -16,7 +16,8 @@
     <div class="govuk-grid-row">      
       <div class="govuk-grid-column-one-half">
         <h2 class="govuk-heading-l">Enter your client's details</h2>
-        <form data-testid="client-details-form" action="/apply/client-details/nino" method="post">
+        <form data-testid="client-details-form" action="/apply/client-details/name-and-dob" method="post">
+          <input type="hidden" name="_csrf" value={{csrfToken}} />
           {{ govukInput({
             label: {
               text: "First name",

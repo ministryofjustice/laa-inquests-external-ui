@@ -6,6 +6,9 @@ declare global {
     interface Request {
       axiosMiddleware: AxiosInstanceWrapper;
       locale: ExpressLocaleLoader;
+      locals: {
+        csrfToken?: string;
+      };
     }
   }
 }
