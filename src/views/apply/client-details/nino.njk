@@ -18,7 +18,7 @@
         <form data-testid="nino-form" action="/apply/client-details/nino" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukRadios({
-            name: "nino",
+            name: "has-nino",
             fieldset: {
               legend: {
                 text: "Does your client have a National Insurance number?",
