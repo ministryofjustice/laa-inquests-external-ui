@@ -41,7 +41,7 @@ test("renders button to start application journey ", async ({ page }) => {
   await expect(startButton).toBeVisible();
   await expect(startButton).toHaveAttribute(
     "href",
-    "/apply/basic-client-details",
+    "/apply/client-details/name-and-dob",
   );
   await startButton.click();
 });

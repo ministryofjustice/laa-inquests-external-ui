@@ -21,9 +21,16 @@ router.get("/apply", (req: Request, res: Response): void => {
 });
 
 router.get(
-  "/apply/basic-client-details",
+  "/apply/client-details/name-and-dob",
   (req: Request, res: Response): void => {
     res.render("apply/client-details/basic-details");
+  },
+);
+
+router.post(
+  "/apply/client-details/name-and-dob",
+  (req: Request, res: Response): void => {
+    console.log(req.body)
   },
 );
 

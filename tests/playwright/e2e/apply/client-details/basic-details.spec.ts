@@ -2,7 +2,7 @@ import { test, expect } from "../../../fixtures/index.js";
 import describe from "@playwright/test";
 
 test("renders basic details header and back link", async ({ page }) => {
-  page.goto("/apply/basic-client-details");
+  page.goto("/apply/client-details/name-and-dob");
   const clientDetailsHeading = await page.getByRole("heading", {
     level: 2,
     name: "Enter your client's details",
@@ -16,7 +16,7 @@ test("renders basic details header and back link", async ({ page }) => {
 });
 
 test("renders basic client details form", async ({ page }) => {
-  page.goto("/apply/basic-client-details");
+  page.goto("/apply/client-details/name-and-dob");
 
   const basicDetailsForm = await page.getByTestId("client-details-form");
   const firstNameLabel = basicDetailsForm.getByLabel("First name");
