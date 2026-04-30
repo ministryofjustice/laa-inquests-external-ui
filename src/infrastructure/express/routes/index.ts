@@ -23,14 +23,14 @@ router.get("/apply", (req: Request, res: Response): void => {
 router.get(
   "/apply/client-details/name-and-dob",
   (req: Request, res: Response): void => {
-    res.render("apply/client-details/basic-details");
+    res.render("apply/client-details/name-and-dob");
   },
 );
 
 router.post(
   "/apply/client-details/name-and-dob",
   (req: Request, res: Response): void => {
-    console.log(req.body)
+    console.log(req.body);
   },
 );
 
