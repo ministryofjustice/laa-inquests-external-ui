@@ -23,7 +23,11 @@ router.get("/apply", (req: Request, res: Response): void => {
 router.get(
   "/apply/client-details/name-and-dob",
   (req: Request, res: Response): void => {
-    res.render("apply/client-details/name-and-dob");
+    console.log(res);
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Temporary disable
+    const { csrfToken } = res.locals;
+    console.log(csrfToken);
+    res.render("apply/client-details/name-and-dob", { csrfToken });
   },
 );
 
@@ -31,6 +35,24 @@ router.post(
   "/apply/client-details/name-and-dob",
   (req: Request, res: Response): void => {
     console.log(req.body);
+    res.redirect("/apply/client-details/nino");
+  },
+);
+
+router.get(
+  "/apply/client-details/nino",
+  (req: Request, res: Response): void => {
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Temporary disable
+    const { csrfToken } = res.locals;
+    res.render("apply/client-details/nino", { csrfToken });
+  },
+);
+
+router.post(
+  "/apply/client-details/nino",
+  (req: Request, res: Response): void => {
+    console.log(req.body);
+    res.redirect("/apply/client-details/legal-aid-request");
   },
 );
 
