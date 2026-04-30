@@ -5,7 +5,7 @@ export function createClientDetailsRouter(clientDetailsRouter: Router
 ): Router {
 
   clientDetailsRouter.get(
-    "/apply/client-details/name-and-dob",
+    "/client-details/name-and-dob",
     (req: Request, res: Response): void => {
       console.log(res);
       // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Temporary disable
@@ -16,7 +16,7 @@ export function createClientDetailsRouter(clientDetailsRouter: Router
   );
 
   clientDetailsRouter.post(
-    "/apply/client-details/name-and-dob",
+    "/client-details/name-and-dob",
     (req: Request, res: Response): void => {
       console.log(req.body);
       res.redirect("/apply/client-details/nino");
@@ -24,7 +24,7 @@ export function createClientDetailsRouter(clientDetailsRouter: Router
   );
 
   clientDetailsRouter.get(
-    "/apply/client-details/nino",
+    "/client-details/nino",
     (req: Request, res: Response): void => {
       // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Temporary disable
       const { csrfToken } = res.locals;
@@ -33,11 +33,23 @@ export function createClientDetailsRouter(clientDetailsRouter: Router
   );
 
   clientDetailsRouter.post(
-    "/apply/client-details/nino",
+    "/client-details/nino",
     (req: Request, res: Response): void => {
       console.log(req.body);
-      res.redirect("/apply/client-details/legal-aid-request");
+      res.redirect("/apply/client-details/has-prev-application");
     },
   );
+
+  clientDetailsRouter.get("/client-details/has-prev-application", (req: Request, res:Response)=> {
+    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Temporary disable
+    const { csrfToken } = res.locals;
+    res.render("apply/client-details/has-prev-application", { csrfToken })
+  })
+
+  clientDetailsRouter.post("/client-details/has-prev-application", (req: Request, res:Response) => {
+    console.log(req.body);
+    res.redirect("/apply/client-details/email");
+  })
+
   return clientDetailsRouter
 }

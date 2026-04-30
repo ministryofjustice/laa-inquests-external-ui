@@ -1,5 +1,4 @@
 import { test, expect } from "../../../fixtures/index.js";
-import describe from "@playwright/test";
 
 test("renders basic details header and back link", async ({ page }) => {
   page.goto("/apply/client-details/name-and-dob");
