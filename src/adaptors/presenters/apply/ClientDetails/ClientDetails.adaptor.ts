@@ -1,12 +1,14 @@
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type { Request, Response } from "express";
 import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
+import { MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export class ClientDetailsAdaptor {
   renderNameForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
     } = res;
+
     res.render("apply/client-details/name-and-dob", { csrfToken });
   }
 
@@ -21,10 +23,24 @@ export class ClientDetailsAdaptor {
         "last-name-at-birth": lastNameAtBirth,
       },
     } = req;
-    req.session.clientFirstName = firstName;
-    req.session.clientLastName = lastName;
-    req.session.clientLastNameAtBirth = lastNameAtBirth;
-    res.redirect("/apply/client-details/nino");
+
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    if(typeof firstName === "string" && firstName === ""){
+      res.render("apply/client-details/name-and-dob", { csrfToken, errorMessage: {text:  "Please enter your client's first name" }});
+    }
+    else if(typeof firstName === "string" && firstName.length > MAX_CHARACTER_LENGTH){
+      const characterLimitErrorMessage = "First name(s) cannot exceed 100 characters";
+      res.render("apply/client-details/name-and-dob", { csrfToken, errorMessage: {text:  characterLimitErrorMessage }});
+    }
+    else {
+      req.session.clientFirstName = firstName;
+      req.session.clientLastName = lastName;
+      req.session.clientLastNameAtBirth = lastNameAtBirth;
+      res.redirect("/apply/client-details/nino");
+    }
   }
 
   renderNinoForm(req: Request, res: Response): void {

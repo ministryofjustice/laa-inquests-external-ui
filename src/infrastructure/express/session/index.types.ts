@@ -4,5 +4,11 @@ declare module "express-session" {
     Record<string, string> | string | boolean | undefined | null
   > {
     // This allows both specific properties and dynamic namespace access
+    error: FormError;
   }
+}
+
+interface FormError
+{
+  message?: string;
 }

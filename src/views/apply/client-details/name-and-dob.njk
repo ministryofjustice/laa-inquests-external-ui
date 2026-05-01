@@ -18,13 +18,18 @@
         <h2 class="govuk-heading-l">Enter your client's details</h2>
         <form data-testid="client-details-form" action="/apply/client-details/name-and-dob" method="post">
           <input type="hidden" name="_csrf" value={{csrfToken}} />
-          {{ govukInput({
-            label: {
-              text: "First name",
-              classes: "govuk-label--s"
-            },
-            id: "first-name",
-            name: "first-name"
+          {{ 
+            govukInput({
+              label: {
+                text: "First name",
+                classes: "govuk-label--s"
+              },
+              id: "first-name",
+              name: "first-name",
+              errorMessage: errorMessage,
+              hint: {
+                text: "First name(s) length must be 100 characters or fewer"
+              }
           }) }}
           {{ govukInput({
             label: {
