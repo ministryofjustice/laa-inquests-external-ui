@@ -1,37 +1,70 @@
-import type { Request, Response } from "express"
+import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
+import type { Request, Response } from "express";
+import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 
 export class ClientDetailsAdaptor {
-  renderNameForm(req : Request, res : Response):void {
-    const { csrfToken } = res.locals;
+  renderNameForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
     res.render("apply/client-details/name-and-dob", { csrfToken });
   }
 
-  processNameForm(req : Request, res : Response):void {
-    req.session.clientFirstName = req.body["first-name"]
-    req.session.clientLastName = req.body["last-name"]
-    req.session.clientLastNameAtBirth = req.body["last-name-at-birth"]
+  processNameForm(
+    req: TypedRequestBody<Partial<ClientDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      body: {
+        "first-name": firstName,
+        "last-name": lastName,
+        "last-name-at-birth": lastNameAtBirth,
+      },
+    } = req;
+    req.session.clientFirstName = firstName;
+    req.session.clientLastName = lastName;
+    req.session.clientLastNameAtBirth = lastNameAtBirth;
     res.redirect("/apply/client-details/nino");
   }
 
-  renderNinoForm(req : Request, res : Response):void {
-    const { csrfToken } = res.locals;
+  renderNinoForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
     res.render("apply/client-details/nino", { csrfToken });
   }
 
-  processNinoForm(req : Request, res : Response):void {
-    req.session.clientNino = req.body["has-nino"] === "true" ? req.body["nino-input"] : null
+  processNinoForm(
+    req: TypedRequestBody<Partial<ClientDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      body: { "has-nino": hasNino, "nino-input": ninoInput },
+    } = req;
+    req.session.clientNino = hasNino === "true" ? ninoInput : null;
     res.redirect("/apply/client-details/has-prev-application");
   }
 
-  renderHasPrevApplicationForm(req : Request, res : Response):void {
-    const { csrfToken } = res.locals;
+  renderHasPrevApplicationForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
     res.render("apply/client-details/has-prev-application", { csrfToken });
   }
 
-  processHasPrevApplicationForm(req : Request, res : Response):void {
-    const hasPrevApplication = req.body["has-prev-application"] === "true"
-    req.session.clientHasPrevApplication = hasPrevApplication
-    req.session.prevLaaReferenceInput = hasPrevApplication ? req.body["prev-laa-reference-input"] : null
+  processHasPrevApplicationForm(
+    req: TypedRequestBody<Partial<ClientDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      body: {
+        "has-prev-application": hasPrevApplication,
+        "prev-laa-reference-input": prevLaaReferenceInput,
+      },
+    } = req;
+    req.session.clientHasPrevApplication = hasPrevApplication === "true";
+    req.session.prevLaaReferenceInput =
+      hasPrevApplication === "true" ? prevLaaReferenceInput : null;
     res.redirect("/apply/proceedings");
   }
 }
