@@ -142,16 +142,13 @@ test.describe("Client details - name and dob", () => {
         characterLimitErrorMessage,
       );
     });
-    test.skip("if no radio selected for last name changed input", async ({
+    test("if no radio selected for last name changed input", async ({
       page,
     }) => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
 
-      // const yesNameChangedLabel = basicDetailsForm.getByLabel("Yes");
-      // const yesNameChangedInputLabel = basicDetailsForm.getByLabel("What was your client's last name at birth?");
-      // const noNameChangedLabel = basicDetailsForm.getByLabel("No");
       const firstNameLabel = basicDetailsForm.getByLabel("First name");
       await firstNameLabel.fill("test name");
       const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
@@ -169,6 +166,61 @@ test.describe("Client details - name and dob", () => {
         noRadioSelectedErrorMessage,
       );
     });
+    test("if radio is selected but birth name is not provided", async ({
+      page,
+    }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = basicDetailsForm.getByRole("button");
+
+      const firstNameLabel = basicDetailsForm.getByLabel("First name");
+      await firstNameLabel.fill("test name");
+      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
+        exact: true,
+      });
+      await lastNameLabel.fill("test last name");
+
+      const yesNameChangedLabel = basicDetailsForm.getByLabel("Yes");
+      await yesNameChangedLabel.click();
+
+      continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(yesNameChangedLabel).toBeChecked();
+      const errorMessageElement = basicDetailsForm.locator(
+        "#last-name-at-birth-error",
+      );
+      const noBirthNameSpecifiedErrorMessage =
+        "Please enter the client's birth name";
+      await expect(errorMessageElement).toBeVisible();
+      await expect(errorMessageElement).toContainText(
+        noBirthNameSpecifiedErrorMessage,
+      );
+    });
+    test("renders partially filled in form entries from session on error", async ({
+      page,
+    }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = await basicDetailsForm.getByRole("button");
+
+      const firstNameLabel = await basicDetailsForm.getByLabel("First name");
+      await firstNameLabel.fill("test name");
+      const lastNameLabel = await basicDetailsForm.getByLabel("Last name", {
+        exact: true,
+      });
+      await lastNameLabel.fill("test last name");
+
+      const yesNameChangedLabel = await basicDetailsForm.getByLabel("Yes");
+      await yesNameChangedLabel.click();
+
+      await continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(firstNameLabel).toHaveValue("test name");
+      await expect(lastNameLabel).toHaveValue("test last name");
+    });
+
     // no last name change yes / no > error message for name change
     // no name input if yes > error message for name change input
     // max 70 characters
@@ -184,6 +236,8 @@ const fillInMinimumFields = async (page: Page) => {
   const dobDayInput = page.getByLabel("Day");
   const dobMonthInput = page.getByLabel("Month");
   const dobYearInput = page.getByLabel("Year");
+  const noNameChangedLabel = page.getByLabel("No");
+  await noNameChangedLabel.click();
 
   await firstNameInput.fill("Test");
   await lastNameInput.fill("User");

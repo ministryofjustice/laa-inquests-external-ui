@@ -20,7 +20,7 @@ export class FormValidator {
           inputValue.length > MAX_CHARACTER_LENGTH;
   }
 
-  validateClientNameAndDob(formBody: Partial<ClientDetailsFormData>): void {
+  validateClientName(formBody: Partial<ClientDetailsFormData>): void {
     // check if keys exist
     //  if key exists
     const {
@@ -31,25 +31,25 @@ export class FormValidator {
     } = formBody;
 
     if (this.validateFormInputValue(firstName)) {
-      this.errorSummaries.noFirstNameProvided = {
+      this.errorSummaries.firstNameInputError = {
         text: "Please enter your client's first name",
       };
     }
 
     if (this.validateFormInputValue(firstName, false)) {
-      this.errorSummaries.maxFirstNameCharacterLengthExceeded = {
+      this.errorSummaries.firstNameInputError = {
         text: "First name(s) cannot exceed 100 characters",
       };
     }
 
     if (this.validateFormInputValue(lastName)) {
-      this.errorSummaries.noLastNameProvided = {
+      this.errorSummaries.lastNameInputError = {
         text: "Please enter your client's last name",
       };
     }
 
     if (this.validateFormInputValue(lastName, false)) {
-      this.errorSummaries.maxLastNameCharacterLengthExceeded = {
+      this.errorSummaries.lastNameInputError = {
         text: "Last name cannot exceed 100 characters",
       };
     }

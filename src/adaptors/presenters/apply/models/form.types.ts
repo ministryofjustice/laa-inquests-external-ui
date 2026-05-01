@@ -15,10 +15,8 @@ export interface FormErrorMessage {
 }
 
 export interface ClientNameDobError {
-  noFirstNameProvided?: FormErrorMessage;
-  noLastNameProvided?: FormErrorMessage;
-  maxFirstNameCharacterLengthExceeded?: FormErrorMessage;
-  maxLastNameCharacterLengthExceeded?: FormErrorMessage;
+  firstNameInputError?: FormErrorMessage;
+  lastNameInputError?: FormErrorMessage;
   noRadioSelected?: FormErrorMessage;
   noBirthNameSpecified?: FormErrorMessage;
 }

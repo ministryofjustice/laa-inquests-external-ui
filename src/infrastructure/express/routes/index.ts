@@ -6,6 +6,7 @@ import { createClientDetailsRouter } from "./apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
+import { FormValidator } from "#src/utils/FormValidator.js";
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
@@ -50,7 +51,8 @@ indexRouter.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
 
-const clientDetailsAdaptor = new ClientDetailsAdaptor();
+const formValidator = new FormValidator();
+const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 indexRouter.use(
   "/apply",
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),

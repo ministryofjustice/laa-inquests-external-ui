@@ -3,7 +3,7 @@ import { FormValidator } from "#src/utils/FormValidator.js";
 
 describe("FormValidator", () => {
   describe("methods", () => {
-    describe.only("validateClientNameAndDob", () => {
+    describe("validateClientName", () => {
       it("add error for no first name input when first name value is empty", () => {
         const formValidator = new FormValidator();
         const formBody = {
@@ -17,9 +17,9 @@ describe("FormValidator", () => {
           "name-change": "false",
         };
         assert.deepEqual(formValidator.errorSummaries, {});
-        formValidator.validateClientNameAndDob(formBody);
+        formValidator.validateClientName(formBody);
         assert.deepEqual(formValidator.errorSummaries, {
-          noFirstNameProvided: {
+          firstNameInputError: {
             text: "Please enter your client's first name",
           },
         });
@@ -37,9 +37,9 @@ describe("FormValidator", () => {
           "name-change": "false",
         };
         assert.deepEqual(formValidator.errorSummaries, {});
-        formValidator.validateClientNameAndDob(formBody);
+        formValidator.validateClientName(formBody);
         assert.deepEqual(formValidator.errorSummaries, {
-          maxFirstNameCharacterLengthExceeded: {
+          firstNameInputError: {
             text: "First name(s) cannot exceed 100 characters",
           },
         });
@@ -57,9 +57,9 @@ describe("FormValidator", () => {
           "name-change": "false",
         };
         assert.deepEqual(formValidator.errorSummaries, {});
-        formValidator.validateClientNameAndDob(formBody);
+        formValidator.validateClientName(formBody);
         assert.deepEqual(formValidator.errorSummaries, {
-          noLastNameProvided: { text: "Please enter your client's last name" },
+          lastNameInputError: { text: "Please enter your client's last name" },
         });
       });
       it("add error message for when last name exceeds max character length", () => {
@@ -75,9 +75,9 @@ describe("FormValidator", () => {
           "name-change": "false",
         };
         assert.deepEqual(formValidator.errorSummaries, {});
-        formValidator.validateClientNameAndDob(formBody);
+        formValidator.validateClientName(formBody);
         assert.deepEqual(formValidator.errorSummaries, {
-          maxLastNameCharacterLengthExceeded: {
+          lastNameInputError: {
             text: "Last name cannot exceed 100 characters",
           },
         });
@@ -94,7 +94,7 @@ describe("FormValidator", () => {
           "dob-year": "2010",
         };
         assert.deepEqual(formValidator.errorSummaries, {});
-        formValidator.validateClientNameAndDob(formBody);
+        formValidator.validateClientName(formBody);
         assert.deepEqual(formValidator.errorSummaries, {
           noRadioSelected: { text: "Please select an option" },
         });
@@ -112,7 +112,7 @@ describe("FormValidator", () => {
           "name-change": "true",
         };
         assert.deepEqual(formValidator.errorSummaries, {});
-        formValidator.validateClientNameAndDob(formBody);
+        formValidator.validateClientName(formBody);
         assert.deepEqual(formValidator.errorSummaries, {
           noBirthNameSpecified: {
             text: "Please enter the client's birth name",

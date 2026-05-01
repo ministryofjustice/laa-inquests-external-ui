@@ -26,7 +26,8 @@
               },
               id: "first-name",
               name: "first-name",
-              errorMessage: errorMessage,
+              value: client.clientFirstName,
+              errorMessage: errorSummaries.firstNameInputError,
               hint: {
                 text: "Character limit: 100"
               }
@@ -38,7 +39,8 @@
             },
             id: "last-name",
             name: "last-name",
-            errorMessage: errorMessage,
+            value: client.clientLastName,
+            errorMessage: errorSummaries.lastNameInputError,
             hint: {
                 text: "Character limit: 100"
               }
@@ -47,6 +49,8 @@
           {{ govukRadios({
             name: "name-change",
             id: "name-change",
+            value: client.hasNameChanged,
+            errorMessage: errorSummaries.noRadioSelected,
             fieldset: {
               legend: {
                 text: "Has your client ever changed their last name?",
@@ -58,11 +62,12 @@
                 value: true,
                 text: "Yes",
                 id: "name-change",
-                errorMessage: errorMessage,
                 conditional: {
                   html:  govukInput({
                     id: "last-name-at-birth",
                     name: "last-name-at-birth",
+                    value: client.clientLastNameAtBirth,
+                    errorMessage: errorSummaries.noBirthNameSpecified,
                     type: "text",
                     spellcheck: false,
                     classes: "govuk-!-width-one-half",
