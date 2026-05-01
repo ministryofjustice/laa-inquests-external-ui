@@ -57,7 +57,7 @@ test.describe("Client details - name and dob", () => {
     await expect(page.url()).toContain("apply/client-details/nino");
   });
 
-  test.describe("validation errors", () => {
+  test.describe("render validation errors", () => {
     test("if first name input is missing", async ({ page }) => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
@@ -83,7 +83,7 @@ test.describe("Client details - name and dob", () => {
 
       const characterLengthHint = basicDetailsForm.locator("#first-name-hint");
       const characterLimitHintMessage =
-        "First name(s) length must be 100 characters or fewer";
+        "Character limit: 100";
       await expect(characterLengthHint).toContainText(
         characterLimitHintMessage,
       );
@@ -99,8 +99,75 @@ test.describe("Client details - name and dob", () => {
         characterLimitErrorMessage,
       );
     });
-    // no last name > error message for last name
-    // also for max over 100
+    test("if last name input is missing", async ({ page }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = basicDetailsForm.getByRole("button");
+      const firstNameLabel = basicDetailsForm.getByLabel("First name");
+      await firstNameLabel.fill("test name");
+
+      continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      const errorMessageElement = basicDetailsForm.locator("#last-name-error");
+      const errorMessageStr = "Please enter your client's last name";
+      await expect(errorMessageElement).toBeVisible();
+      await expect(errorMessageElement).toContainText(errorMessageStr);
+    });
+
+    test("if last name input is more than 100 characters", async ({
+      page,
+    }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = basicDetailsForm.getByRole("button");
+      const firstNameLabel = basicDetailsForm.getByLabel("First name");
+      await firstNameLabel.fill("test name");
+      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {exact: true});
+      await lastNameLabel.fill("a".repeat(101));
+
+      const characterLengthHint = basicDetailsForm.locator("#last-name-hint");
+      const characterLimitHintMessage =
+        "Character limit: 100";
+      await expect(characterLengthHint).toContainText(
+        characterLimitHintMessage,
+      );
+
+      continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      const errorMessageElement = basicDetailsForm.locator("#last-name-error");
+      const characterLimitErrorMessage =
+        "Last name cannot exceed 100 characters";
+      await expect(errorMessageElement).toBeVisible();
+      await expect(errorMessageElement).toContainText(
+        characterLimitErrorMessage,
+      );
+    });
+    test.skip("if no radio selected for last name changed input", async ({page})=> {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = basicDetailsForm.getByRole("button");
+
+      // const yesNameChangedLabel = basicDetailsForm.getByLabel("Yes");
+      // const yesNameChangedInputLabel = basicDetailsForm.getByLabel("What was your client's last name at birth?");
+      // const noNameChangedLabel = basicDetailsForm.getByLabel("No");
+      const firstNameLabel = basicDetailsForm.getByLabel("First name");
+      await firstNameLabel.fill("test name");
+      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {exact: true});
+      await lastNameLabel.fill("test last name");
+
+      continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+      const errorMessageElement = basicDetailsForm.locator("#name-change-error");
+      const noRadioSelectedErrorMessage =
+        "Please select an option";
+      await expect(errorMessageElement).toBeVisible();
+      await expect(errorMessageElement).toContainText(
+        noRadioSelectedErrorMessage,
+      );
+
+    })
     // no last name change yes / no > error message for name change
     // no name input if yes > error message for name change input
     // max 70 characters

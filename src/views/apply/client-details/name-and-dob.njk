@@ -13,12 +13,12 @@
     href: "/apply"
   }) }}
   <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">      
+    <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-half">
         <h2 class="govuk-heading-l">Enter your client's details</h2>
         <form data-testid="client-details-form" action="/apply/client-details/name-and-dob" method="post">
           <input type="hidden" name="_csrf" value={{csrfToken}} />
-          {{ 
+          {{
             govukInput({
               label: {
                 text: "First name",
@@ -28,7 +28,7 @@
               name: "first-name",
               errorMessage: errorMessage,
               hint: {
-                text: "First name(s) length must be 100 characters or fewer"
+                text: "Character limit: 100"
               }
           }) }}
           {{ govukInput({
@@ -37,11 +37,16 @@
               classes: "govuk-label--s"
             },
             id: "last-name",
-            name: "last-name"
+            name: "last-name",
+            errorMessage: errorMessage,
+            hint: {
+                text: "Character limit: 100"
+              }
           }) }}
 
           {{ govukRadios({
             name: "name-change",
+            id: "name-change",
             fieldset: {
               legend: {
                 text: "Has your client ever changed their last name?",
@@ -52,6 +57,8 @@
               {
                 value: true,
                 text: "Yes",
+                id: "name-change",
+                errorMessage: errorMessage,
                 conditional: {
                   html:  govukInput({
                     id: "last-name-at-birth",
@@ -62,7 +69,7 @@
                     label: {
                       text: "What was your client's last name at birth?"
                     }
-                  }) 
+                  })
                 }
               },
               {

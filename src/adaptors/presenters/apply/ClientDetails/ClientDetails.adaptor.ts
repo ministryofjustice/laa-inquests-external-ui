@@ -20,10 +20,11 @@ export class ClientDetailsAdaptor {
       body: {
         "first-name": firstName,
         "last-name": lastName,
-        "last-name-at-birth": lastNameAtBirth,
+        "last-name-at-birth": lastNameAtBirth
+        // "name-change": hasNameChanged
       },
     } = req;
-
+    console.log(req.body, "<------- req body")
     const {
       locals: { csrfToken },
     } = res;
@@ -43,7 +44,32 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorMessage: { text: characterLimitErrorMessage },
       });
-    } else {
+    }
+    else if (typeof lastName === "string" && lastName === "") {
+      res.render("apply/client-details/name-and-dob", {
+        csrfToken,
+        errorMessage: { text: "Please enter your client's last name" },
+      });
+    } else if (
+      typeof lastName === "string" &&
+      lastName.length > MAX_CHARACTER_LENGTH
+    ) {
+      const characterLimitErrorMessage =
+        "Last name cannot exceed 100 characters";
+      res.render("apply/client-details/name-and-dob", {
+        csrfToken,
+        errorMessage: { text: characterLimitErrorMessage },
+      });
+    }
+    // else if (hasNameChanged === undefined) {
+    //   const noRadioSelectedErrorMessage =
+    //     "Please select an option";
+    //   res.render("apply/client-details/name-and-dob", {
+    //     csrfToken,
+    //     errorMessage: { text: noRadioSelectedErrorMessage },
+    //   });
+    // }
+    else {
       req.session.clientFirstName = firstName;
       req.session.clientLastName = lastName;
       req.session.clientLastNameAtBirth = lastNameAtBirth;
