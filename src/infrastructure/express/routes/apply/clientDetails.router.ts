@@ -1,9 +1,7 @@
 import type { Request, Response, Router } from "express";
 // import type { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 
-export function createClientDetailsRouter(clientDetailsRouter: Router
-): Router {
-
+export function createClientDetailsRouter(clientDetailsRouter: Router): Router {
   clientDetailsRouter.get(
     "/client-details/name-and-dob",
     (req: Request, res: Response): void => {
@@ -40,16 +38,22 @@ export function createClientDetailsRouter(clientDetailsRouter: Router
     },
   );
 
-  clientDetailsRouter.get("/client-details/has-prev-application", (req: Request, res:Response)=> {
-    // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Temporary disable
-    const { csrfToken } = res.locals;
-    res.render("apply/client-details/has-prev-application", { csrfToken })
-  })
+  clientDetailsRouter.get(
+    "/client-details/has-prev-application",
+    (req: Request, res: Response) => {
+      // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- Temporary disable
+      const { csrfToken } = res.locals;
+      res.render("apply/client-details/has-prev-application", { csrfToken });
+    },
+  );
 
-  clientDetailsRouter.post("/client-details/has-prev-application", (req: Request, res:Response) => {
-    console.log(req.body);
-    res.redirect("/apply/client-details/proceedings");
-  })
+  clientDetailsRouter.post(
+    "/client-details/has-prev-application",
+    (req: Request, res: Response) => {
+      console.log(req.body);
+      res.redirect("/apply/client-details/proceedings");
+    },
+  );
 
-  return clientDetailsRouter
+  return clientDetailsRouter;
 }

@@ -8,7 +8,7 @@ import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
 // Create a new router
 const indexRouter = express.Router();
-const clientDetailsRouter = express.Router()
+const clientDetailsRouter = express.Router();
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
@@ -20,9 +20,6 @@ indexRouter.get("/", (req: Request, res: Response): void => {
 indexRouter.get("/apply", (req: Request, res: Response): void => {
   res.render("apply/declaration");
 });
-
-
-
 
 // liveness and readiness probes for Helm deployments
 indexRouter.get("/status", (req: Request, res: Response): void => {
@@ -54,6 +51,6 @@ indexRouter.use("/applications", [
 ]);
 
 // const clientDetailsAdaptor = new ClientDetailsAdaptor()
-indexRouter.use("/apply", createClientDetailsRouter(clientDetailsRouter))
+indexRouter.use("/apply", createClientDetailsRouter(clientDetailsRouter));
 
 export default indexRouter;
