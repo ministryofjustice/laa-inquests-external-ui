@@ -52,6 +52,6 @@ test.describe("Previous application", () => {
     await expect(continueButton).toHaveAttribute("type", "submit");
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.url()).toContain("apply/client-details/proceedings");
+    await expect(page.url()).toContain("apply/proceedings");
   });
 });

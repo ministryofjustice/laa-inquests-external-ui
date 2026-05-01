@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import axios from "axios";
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createClientDetailsRouter } from "./apply/clientDetails.router.js";
-// import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
+import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
 // Create a new router
@@ -50,7 +50,10 @@ indexRouter.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
 
-// const clientDetailsAdaptor = new ClientDetailsAdaptor()
-indexRouter.use("/apply", createClientDetailsRouter(clientDetailsRouter));
+const clientDetailsAdaptor = new ClientDetailsAdaptor();
+indexRouter.use(
+  "/apply",
+  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
+);
 
 export default indexRouter;
