@@ -20,11 +20,11 @@ export class ClientDetailsAdaptor {
       body: {
         "first-name": firstName,
         "last-name": lastName,
-        "last-name-at-birth": lastNameAtBirth
+        "last-name-at-birth": lastNameAtBirth,
         // "name-change": hasNameChanged
       },
     } = req;
-    console.log(req.body, "<------- req body")
+    console.log(req.body, "<------- req body");
     const {
       locals: { csrfToken },
     } = res;
@@ -44,8 +44,7 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorMessage: { text: characterLimitErrorMessage },
       });
-    }
-    else if (typeof lastName === "string" && lastName === "") {
+    } else if (typeof lastName === "string" && lastName === "") {
       res.render("apply/client-details/name-and-dob", {
         csrfToken,
         errorMessage: { text: "Please enter your client's last name" },

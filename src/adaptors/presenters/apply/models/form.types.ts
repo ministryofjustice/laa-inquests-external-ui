@@ -8,3 +8,17 @@ export interface ClientDetailsFormData {
   "has-prev-application": string;
   "prev-laa-reference-input": string;
 }
+
+export interface FormErrorMessage {
+  text: string;
+  href?: string;
+}
+
+export interface ClientNameDobError {
+  noFirstNameProvided?: FormErrorMessage;
+  noLastNameProvided?: FormErrorMessage;
+  maxFirstNameCharacterLengthExceeded?: FormErrorMessage;
+  maxLastNameCharacterLengthExceeded?: FormErrorMessage;
+  noRadioSelected?: FormErrorMessage;
+  noBirthNameSpecified?: FormErrorMessage;
+}

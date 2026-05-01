@@ -10,7 +10,7 @@ declare global {
       locals: {
         csrfToken?: string;
       };
-      session: Session & Partial<SessionData>
+      session: Session & Partial<SessionData>;
     }
   }
 }

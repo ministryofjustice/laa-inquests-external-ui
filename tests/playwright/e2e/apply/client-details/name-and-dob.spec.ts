@@ -82,8 +82,7 @@ test.describe("Client details - name and dob", () => {
       await firstNameLabel.fill("a".repeat(101));
 
       const characterLengthHint = basicDetailsForm.locator("#first-name-hint");
-      const characterLimitHintMessage =
-        "Character limit: 100";
+      const characterLimitHintMessage = "Character limit: 100";
       await expect(characterLengthHint).toContainText(
         characterLimitHintMessage,
       );
@@ -115,20 +114,19 @@ test.describe("Client details - name and dob", () => {
       await expect(errorMessageElement).toContainText(errorMessageStr);
     });
 
-    test("if last name input is more than 100 characters", async ({
-      page,
-    }) => {
+    test("if last name input is more than 100 characters", async ({ page }) => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
       const firstNameLabel = basicDetailsForm.getByLabel("First name");
       await firstNameLabel.fill("test name");
-      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {exact: true});
+      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
+        exact: true,
+      });
       await lastNameLabel.fill("a".repeat(101));
 
       const characterLengthHint = basicDetailsForm.locator("#last-name-hint");
-      const characterLimitHintMessage =
-        "Character limit: 100";
+      const characterLimitHintMessage = "Character limit: 100";
       await expect(characterLengthHint).toContainText(
         characterLimitHintMessage,
       );
@@ -144,7 +142,9 @@ test.describe("Client details - name and dob", () => {
         characterLimitErrorMessage,
       );
     });
-    test.skip("if no radio selected for last name changed input", async ({page})=> {
+    test.skip("if no radio selected for last name changed input", async ({
+      page,
+    }) => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -154,20 +154,21 @@ test.describe("Client details - name and dob", () => {
       // const noNameChangedLabel = basicDetailsForm.getByLabel("No");
       const firstNameLabel = basicDetailsForm.getByLabel("First name");
       await firstNameLabel.fill("test name");
-      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {exact: true});
+      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
+        exact: true,
+      });
       await lastNameLabel.fill("test last name");
 
       continueButton.click();
       await page.waitForLoadState("domcontentloaded");
-      const errorMessageElement = basicDetailsForm.locator("#name-change-error");
-      const noRadioSelectedErrorMessage =
-        "Please select an option";
+      const errorMessageElement =
+        basicDetailsForm.locator("#name-change-error");
+      const noRadioSelectedErrorMessage = "Please select an option";
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
         noRadioSelectedErrorMessage,
       );
-
-    })
+    });
     // no last name change yes / no > error message for name change
     // no name input if yes > error message for name change input
     // max 70 characters
