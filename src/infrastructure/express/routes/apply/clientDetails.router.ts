@@ -48,7 +48,7 @@ export function createClientDetailsRouter(clientDetailsRouter: Router
 
   clientDetailsRouter.post("/client-details/has-prev-application", (req: Request, res:Response) => {
     console.log(req.body);
-    res.redirect("/apply/client-details/email");
+    res.redirect("/apply/client-details/proceedings");
   })
 
   return clientDetailsRouter
