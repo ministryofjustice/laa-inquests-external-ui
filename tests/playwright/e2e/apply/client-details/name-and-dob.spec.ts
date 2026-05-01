@@ -65,14 +65,16 @@ test.describe("Client details - name and dob", () => {
 
       continueButton.click();
       await page.waitForLoadState("domcontentloaded");
-      
+
       const errorMessageElement = basicDetailsForm.locator("#first-name-error");
       const errorMessageStr = "Please enter your client's first name";
-      await expect(errorMessageElement).toBeVisible()
+      await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(errorMessageStr);
     });
 
-    test("if first name input is more than 100 characters", async ({ page }) => {
+    test("if first name input is more than 100 characters", async ({
+      page,
+    }) => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -80,26 +82,32 @@ test.describe("Client details - name and dob", () => {
       await firstNameLabel.fill("a".repeat(101));
 
       const characterLengthHint = basicDetailsForm.locator("#first-name-hint");
-      const characterLimitHintMessage = "First name(s) length must be 100 characters or fewer"
-      await expect(characterLengthHint).toContainText(characterLimitHintMessage);
-      
+      const characterLimitHintMessage =
+        "First name(s) length must be 100 characters or fewer";
+      await expect(characterLengthHint).toContainText(
+        characterLimitHintMessage,
+      );
+
       continueButton.click();
       await page.waitForLoadState("domcontentloaded");
-      
+
       const errorMessageElement = basicDetailsForm.locator("#first-name-error");
-      const characterLimitErrorMessage = "First name(s) cannot exceed 100 characters";
-      await expect(errorMessageElement).toBeVisible()
-      await expect(errorMessageElement).toContainText(characterLimitErrorMessage);
+      const characterLimitErrorMessage =
+        "First name(s) cannot exceed 100 characters";
+      await expect(errorMessageElement).toBeVisible();
+      await expect(errorMessageElement).toContainText(
+        characterLimitErrorMessage,
+      );
     });
     // no last name > error message for last name
-        // also for max over 100
-      // no last name change yes / no > error message for name change
-        // no name input if yes > error message for name change input
-          // max 70 characters
-      // no dob > error message for dob
-        // invalid dob > error message for dob (date in future, letters)
-      // continue button > no inputs > error messages 
-  })
+    // also for max over 100
+    // no last name change yes / no > error message for name change
+    // no name input if yes > error message for name change input
+    // max 70 characters
+    // no dob > error message for dob
+    // invalid dob > error message for dob (date in future, letters)
+    // continue button > no inputs > error messages
+  });
 });
 
 const fillInMinimumFields = async (page: Page) => {
@@ -114,5 +122,4 @@ const fillInMinimumFields = async (page: Page) => {
   await dobDayInput.fill("01");
   await dobMonthInput.fill("01");
   await dobYearInput.fill("1990");
-
 };

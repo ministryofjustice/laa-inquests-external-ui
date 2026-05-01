@@ -8,7 +8,6 @@ declare module "express-session" {
   }
 }
 
-interface FormError
-{
+interface FormError {
   message?: string;
 }
