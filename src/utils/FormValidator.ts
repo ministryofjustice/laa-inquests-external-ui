@@ -1,4 +1,3 @@
-import { regex } from "#node_modules/zod/index.cjs";
 import type {
   ClientDetailsFormData,
   ClientNameDobError,
@@ -156,7 +155,7 @@ export class FormValidator {
       };
     }
 
-    const ninoRegex = /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}[0-9]{6}[A-D]{1}/;
+    const ninoRegex = /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
     if (
       typeof hasNino === "string" &&
       hasNino === "true" &&

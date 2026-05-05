@@ -307,7 +307,7 @@ describe("FormValidator", () => {
 
       });
 
-      const InvalidNinoTests = [
+      const invalidNinoTests = [
         { nino: "DF123456A", reason: "D and F cannot be in first 2 letters"},
         { nino: "FD123456A", reason: "D and F cannot be in first 2 letters" },
         { nino: "IQ123456A", reason: "I and Q cannot be in first 2 letters" },
@@ -324,9 +324,8 @@ describe("FormValidator", () => {
         { nino: "PP123456E", reason: "A, B, C or D must be last letter"},
       ];
 
-      InvalidNinoTests.forEach(({nino, reason}) => {
+      invalidNinoTests.forEach(({nino, reason}) => {
         it(`adds error message when nino provided is invalid due to ${reason}`, function () {
-          
           const formValidator = new FormValidator();
           const formBody = {
             _csrf: "abcdefg",
@@ -339,7 +338,6 @@ describe("FormValidator", () => {
               text: CLIENT_DETAILS_ERROR.INVALID_NINO,
             }
           });
-
         });
       });
 
@@ -348,11 +346,12 @@ describe("FormValidator", () => {
         { nino: "PP123456B", reason: "A, B, C or D being last letter"},
         { nino: "PP123456C", reason: "A, B, C or D being last letter"},
         { nino: "PP123456D", reason: "A, B, C or D being last letter"},
+        { nino: "pp123456d", reason: "being case insensitive"},
+        { nino: "PP 123456 A", reason: "allows whitespace between blocks"}
       ];
       
       validNinoTests.forEach(({nino, reason}) => {
         it(`Nino is valid due to ${reason}`, function () {
-          
           const formValidator = new FormValidator();
           const formBody = {
             _csrf: "abcdefg",
