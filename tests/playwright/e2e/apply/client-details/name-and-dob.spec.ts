@@ -1,5 +1,6 @@
 import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
+import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 test.describe("Client details - name and dob", () => {
   test("renders basic details header and back link", async ({ page }) => {
@@ -78,9 +79,10 @@ test.describe("Client details - name and dob", () => {
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#first-name-error");
-      const errorMessageStr = "Please enter your client's first name";
       await expect(errorMessageElement).toBeVisible();
-      await expect(errorMessageElement).toContainText(errorMessageStr);
+      await expect(errorMessageElement).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
+      );
     });
 
     test("if first name input is more than 100 characters", async ({
@@ -101,11 +103,10 @@ test.describe("Client details - name and dob", () => {
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#first-name-error");
-      const characterLimitErrorMessage =
-        "First name(s) cannot exceed 100 characters";
+
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
-        characterLimitErrorMessage,
+        CLIENT_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       );
     });
     test("if last name input is missing", async ({ page }) => {
@@ -118,9 +119,11 @@ test.describe("Client details - name and dob", () => {
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#last-name-error");
-      const errorMessageStr = "Please enter your client's last name";
+
       await expect(errorMessageElement).toBeVisible();
-      await expect(errorMessageElement).toContainText(errorMessageStr);
+      await expect(errorMessageElement).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
+      );
     });
 
     test("if last name input is more than 100 characters", async ({ page }) => {
@@ -144,11 +147,10 @@ test.describe("Client details - name and dob", () => {
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#last-name-error");
-      const characterLimitErrorMessage =
-        "Last name cannot exceed 100 characters";
+
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
-        characterLimitErrorMessage,
+        CLIENT_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       );
     });
     test("if no radio selected for last name changed input", async ({
@@ -168,11 +170,10 @@ test.describe("Client details - name and dob", () => {
 
       const errorMessageElement =
         basicDetailsForm.locator("#name-change-error");
-      const noRadioSelectedErrorMessage = "Please select an option";
 
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
-        noRadioSelectedErrorMessage,
+        CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
       );
     });
     test("if radio is selected but birth name is not provided", async ({
@@ -195,11 +196,10 @@ test.describe("Client details - name and dob", () => {
       const errorMessageElement = basicDetailsForm.locator(
         "#last-name-at-birth-error",
       );
-      const noBirthNameSpecifiedErrorMessage =
-        "Please enter the client's birth name";
+
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
-        noBirthNameSpecifiedErrorMessage,
+        CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
       );
     });
     test("renders partially filled in form entries from session on error", async ({
@@ -231,8 +231,9 @@ test.describe("Client details - name and dob", () => {
 
       const errorMessageElement = basicDetailsForm.locator("#dob-error");
       await expect(errorMessageElement).toBeVisible();
-      const errorMessage = "Please enter date of birth";
-      await expect(errorMessageElement).toContainText(errorMessage);
+      await expect(errorMessageElement).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT,
+      );
     });
     test("shows dob error when non-numeric", async ({ page }) => {
       page.goto("/apply/client-details/name-and-dob");
@@ -250,8 +251,9 @@ test.describe("Client details - name and dob", () => {
 
       const errorMessageElement = basicDetailsForm.locator("#dob-error");
       await expect(errorMessageElement).toBeVisible();
-      const errorMessage = "Please enter date of birth in the format expected";
-      await expect(errorMessageElement).toContainText(errorMessage);
+      await expect(errorMessageElement).toContainText(
+        CLIENT_DETAILS_ERROR.NON_NUMERIC_DATE,
+      );
     });
     test("shows dob error when date is in the future", async ({ page }) => {
       page.goto("/apply/client-details/name-and-dob");
@@ -269,8 +271,9 @@ test.describe("Client details - name and dob", () => {
 
       const errorMessageElement = basicDetailsForm.locator("#dob-error");
       await expect(errorMessageElement).toBeVisible();
-      const errorMessage = "Date of birth must not be in the future";
-      await expect(errorMessageElement).toContainText(errorMessage);
+      await expect(errorMessageElement).toContainText(
+        CLIENT_DETAILS_ERROR.FUTURE_DATE,
+      );
     });
   });
 });

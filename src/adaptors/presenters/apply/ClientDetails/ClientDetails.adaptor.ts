@@ -14,7 +14,18 @@ export class ClientDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/client-details/name-and-dob", { csrfToken });
+    res.render("apply/client-details/name-and-dob", {
+      csrfToken,
+      client: {
+        clientFirstName: req.session.clientFirstName ?? "",
+        clientLastName: req.session.clientLastName ?? "",
+        clientLastNameAtBirth: req.session.clientLastNameAtBirth ?? "",
+        hasNameChanged: req.session.hasNameChanged ?? "",
+        clientDobDay: req.session.clientDobDay ?? "",
+        clientDobMonth: req.session.clientDobMonth ?? "",
+        clientDobYear: req.session.clientDobYear ?? "",
+      },
+    });
   }
 
   processNameForm(
@@ -38,23 +49,29 @@ export class ClientDetailsAdaptor {
     req.session.clientFirstName = firstName;
     req.session.clientLastName = lastName;
     req.session.clientLastNameAtBirth = lastNameAtBirth;
-    req.session.hasNameChanged = hasNameChanged === "true";
+    req.session.hasNameChanged = hasNameChanged;
+    req.session.clientDobDay = dobDay;
+    req.session.clientDobMonth = dobMonth;
+    req.session.clientDobYear = dobYear;
 
-    this.formValidator.validateClientName(req.body);
-    this.formValidator.validateClientDob(req.body);
+    const nameErrors = this.formValidator.validateClientName(req.body);
+    const dobErrors = this.formValidator.validateClientDob(req.body);
 
     if (
-      Object.keys(this.formValidator.errorSummaries).length > EMPTY_ARR_LENGTH
+      Object.keys(nameErrors).length > EMPTY_ARR_LENGTH ||
+      Object.keys(dobErrors).length > EMPTY_ARR_LENGTH
     ) {
       res.render("apply/client-details/name-and-dob", {
         csrfToken,
-        errorSummaries: this.formValidator.errorSummaries,
+        errorSummaries: { ...nameErrors, ...dobErrors },
         client: {
           clientFirstName: req.session.clientFirstName,
           clientLastName: req.session.clientLastName,
           clientLastNameAtBirth: req.session.clientLastNameAtBirth,
           hasNameChanged: req.session.hasNameChanged,
-          clientDob: `${dobYear}/${dobMonth}/${dobDay}`,
+          clientDobDay: req.session.clientDobDay,
+          clientDobMonth: req.session.clientDobMonth,
+          clientDobYear: req.session.clientDobYear,
         },
       });
     } else {

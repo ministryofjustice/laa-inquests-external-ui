@@ -2,14 +2,12 @@ import type {
   ClientDetailsFormData,
   ClientNameDobError,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
-import { MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  CLIENT_DETAILS_ERROR,
+  MAX_CHARACTER_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 
 export class FormValidator {
-  errorSummaries: Partial<ClientNameDobError>;
-  constructor() {
-    this.errorSummaries = {};
-  }
-
   #validateFormInputValue(
     inputValue: string | undefined,
     checkIsEmpty = true,
@@ -40,7 +38,10 @@ export class FormValidator {
     const isYearNaN = isNaN(parseInt(year ?? "", 10));
     return isDayNaN || isMonthNaN || isYearNaN;
   }
-  validateClientDob(formBody: Partial<ClientDetailsFormData>): void {
+  validateClientDob(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientNameDobError> {
+    const errorSummaries: Partial<ClientNameDobError> = {};
     const {
       "dob-day": dateOfBirthDay,
       "dob-month": dateOfBirthMonth,
@@ -59,14 +60,14 @@ export class FormValidator {
     );
 
     if (isDateNaN) {
-      this.errorSummaries.dobInputError = {
-        text: "Please enter date of birth in the format expected",
+      errorSummaries.dobInputError = {
+        text: CLIENT_DETAILS_ERROR.NON_NUMERIC_DATE,
       };
     }
 
     if (isDateEmpty) {
-      this.errorSummaries.dobInputError = {
-        text: "Please enter date of birth",
+      errorSummaries.dobInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT,
       };
     }
 
@@ -75,16 +76,19 @@ export class FormValidator {
         `${dateOfBirthYear}/${dateOfBirthMonth}/${dateOfBirthDay}`,
       );
       if (dateOfBirth > new Date()) {
-        this.errorSummaries.dobInputError = {
-          text: "Date of birth must not be in the future",
+        errorSummaries.dobInputError = {
+          text: CLIENT_DETAILS_ERROR.FUTURE_DATE,
         };
       }
     }
+    return errorSummaries;
   }
 
-  validateClientName(formBody: Partial<ClientDetailsFormData>): void {
-    // check if keys exist
-    //  if key exists
+  validateClientName(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientNameDobError> {
+    const errorSummaries: Partial<ClientNameDobError> = {};
+
     const {
       "first-name": firstName,
       "last-name": lastName,
@@ -93,31 +97,33 @@ export class FormValidator {
     } = formBody;
 
     if (this.#validateFormInputValue(firstName)) {
-      this.errorSummaries.firstNameInputError = {
-        text: "Please enter your client's first name",
+      errorSummaries.firstNameInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
       };
     }
 
     if (this.#validateFormInputValue(firstName, false)) {
-      this.errorSummaries.firstNameInputError = {
-        text: "First name(s) cannot exceed 100 characters",
+      errorSummaries.firstNameInputError = {
+        text: CLIENT_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       };
     }
 
     if (this.#validateFormInputValue(lastName)) {
-      this.errorSummaries.lastNameInputError = {
-        text: "Please enter your client's last name",
+      errorSummaries.lastNameInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
       };
     }
 
     if (this.#validateFormInputValue(lastName, false)) {
-      this.errorSummaries.lastNameInputError = {
-        text: "Last name cannot exceed 100 characters",
+      errorSummaries.lastNameInputError = {
+        text: CLIENT_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       };
     }
 
     if (typeof hasNameChanged !== "string") {
-      this.errorSummaries.noRadioSelected = { text: "Please select an option" };
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      };
     }
 
     if (
@@ -125,9 +131,10 @@ export class FormValidator {
       hasNameChanged === "true" &&
       this.#validateFormInputValue(lastNameAtBirth)
     ) {
-      this.errorSummaries.noBirthNameSpecified = {
-        text: "Please enter the client's birth name",
+      errorSummaries.noBirthNameSpecified = {
+        text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
       };
     }
+    return errorSummaries;
   }
 }

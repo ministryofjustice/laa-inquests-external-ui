@@ -59,7 +59,7 @@
             },
             items: [
               {
-                value: true,
+                value: "true",
                 text: "Yes",
                 id: "name-change",
                 conditional: {
@@ -78,7 +78,7 @@
                 }
               },
               {
-                value: false,
+                value: "false",
                 text: "No"
               }
             ]
@@ -96,10 +96,24 @@
             hint: {
               text: "For example 31 3 1980"
             },
-            value: client.clientDob,
-            errorMessage: errorSummaries.dobInputError
-          }) }}
-
+            errorMessage: errorSummaries.dobInputError,
+            items: [
+                {
+                  classes: "govuk-input--width-2",
+                  name: "day",
+                  value: client.clientDobDay
+                },
+                {
+                  classes: "govuk-input--width-2",
+                  name: "month",
+                  value: client.clientDobMonth
+                },
+                {
+                  classes: "govuk-input--width-4",
+                  name: "year",
+                  value: client.clientDobYear
+                }
+          ]}) }}
           {{ govukButton({
             text: "Continue"
           }) }}
