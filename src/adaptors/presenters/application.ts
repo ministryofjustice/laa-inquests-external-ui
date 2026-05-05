@@ -15,7 +15,6 @@ export class ApplicationDisplayAdaptor {
   ): Promise<void> {
     const displayApplication =
       await this.applicationInquestsApi.getApplication(applicationId);
-    console.log(displayApplication);
     res.render("application/index", {
       displayApplication,
     });

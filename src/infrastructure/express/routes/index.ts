@@ -2,7 +2,7 @@ import express from "express";
 import type { Request, Response } from "express";
 import axios from "axios";
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
-import { createClientDetailsRouter } from "./apply/clientDetails.router.js";
+import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
