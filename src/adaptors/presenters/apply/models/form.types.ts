@@ -7,6 +7,9 @@ export interface ClientDetailsFormData {
   "nino-input": string;
   "has-prev-application": string;
   "prev-laa-reference-input": string;
+  "dob-day": string;
+  "dob-month": string;
+  "dob-year": string;
 }
 
 export interface FormErrorMessage {
@@ -19,4 +22,5 @@ export interface ClientNameDobError {
   lastNameInputError?: FormErrorMessage;
   noRadioSelected?: FormErrorMessage;
   noBirthNameSpecified?: FormErrorMessage;
+  dobInputError?: FormErrorMessage;
 }

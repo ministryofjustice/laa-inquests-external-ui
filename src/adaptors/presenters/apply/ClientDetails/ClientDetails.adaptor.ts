@@ -30,6 +30,9 @@ export class ClientDetailsAdaptor {
         "last-name": lastName,
         "last-name-at-birth": lastNameAtBirth,
         "name-change": hasNameChanged,
+        "dob-day": dobDay,
+        "dob-month": dobMonth,
+        "dob-year": dobYear,
       },
     } = req;
     req.session.clientFirstName = firstName;
@@ -38,6 +41,8 @@ export class ClientDetailsAdaptor {
     req.session.hasNameChanged = hasNameChanged === "true";
 
     this.formValidator.validateClientName(req.body);
+    this.formValidator.validateClientDob(req.body);
+
     if (
       Object.keys(this.formValidator.errorSummaries).length > EMPTY_ARR_LENGTH
     ) {
@@ -49,6 +54,7 @@ export class ClientDetailsAdaptor {
           clientLastName: req.session.clientLastName,
           clientLastNameAtBirth: req.session.clientLastNameAtBirth,
           hasNameChanged: req.session.hasNameChanged,
+          clientDob: `${dobYear}/${dobMonth}/${dobDay}`,
         },
       });
     } else {

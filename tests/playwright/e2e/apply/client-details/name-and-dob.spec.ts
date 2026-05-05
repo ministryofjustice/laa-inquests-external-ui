@@ -221,9 +221,57 @@ test.describe("Client details - name and dob", () => {
       await expect(firstNameInput).toHaveValue("testname");
       await expect(lastNameInput).toHaveValue("testington");
     });
+    test("shows dob error when not provided", async ({ page }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = await basicDetailsForm.getByRole("button");
 
-    // no dob > error message for dob
-    // invalid dob > error message for dob (date in future, letters)
+      await continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      const errorMessageElement = basicDetailsForm.locator("#dob-error");
+      await expect(errorMessageElement).toBeVisible();
+      const errorMessage = "Please enter date of birth";
+      await expect(errorMessageElement).toContainText(errorMessage);
+    });
+    test("shows dob error when non-numeric", async ({ page }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = await basicDetailsForm.getByRole("button");
+
+      await getAndUpdateFormFields(page, {
+        Day: "test",
+        Month: "test",
+        Year: "test",
+      });
+
+      await continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      const errorMessageElement = basicDetailsForm.locator("#dob-error");
+      await expect(errorMessageElement).toBeVisible();
+      const errorMessage = "Please enter date of birth in the format expected";
+      await expect(errorMessageElement).toContainText(errorMessage);
+    });
+    test("shows dob error when date is in the future", async ({ page }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const continueButton = await basicDetailsForm.getByRole("button");
+
+      await getAndUpdateFormFields(page, {
+        Day: "1",
+        Month: "1",
+        Year: "3000",
+      });
+
+      await continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      const errorMessageElement = basicDetailsForm.locator("#dob-error");
+      await expect(errorMessageElement).toBeVisible();
+      const errorMessage = "Date of birth must not be in the future";
+      await expect(errorMessageElement).toContainText(errorMessage);
+    });
   });
 });
 
