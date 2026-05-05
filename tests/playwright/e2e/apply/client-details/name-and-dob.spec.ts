@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
 
 test.describe("Client details - name and dob", () => {
@@ -50,7 +50,18 @@ test.describe("Client details - name and dob", () => {
     await expect(continueButton).toHaveText("Continue");
     await expect(continueButton).toHaveAttribute("type", "submit");
 
-    await fillInMinimumFields(page);
+    await getAndUpdateFormFields(
+      page,
+      {
+        "First name": "Testuser",
+        "Last name": "Surname",
+        Day: "1",
+        Month: "1",
+        Year: "2000",
+        No: "",
+      },
+      ["Last name"],
+    );
 
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
@@ -78,8 +89,7 @@ test.describe("Client details - name and dob", () => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
-      const firstNameLabel = basicDetailsForm.getByLabel("First name");
-      await firstNameLabel.fill("a".repeat(101));
+      getAndUpdateFormFields(page, { "First name": "a".repeat(101) });
 
       const characterLengthHint = basicDetailsForm.locator("#first-name-hint");
       const characterLimitHintMessage = "Character limit: 100";
@@ -102,8 +112,7 @@ test.describe("Client details - name and dob", () => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
-      const firstNameLabel = basicDetailsForm.getByLabel("First name");
-      await firstNameLabel.fill("test name");
+      getAndUpdateFormFields(page, { "First name": "test name" });
 
       continueButton.click();
       await page.waitForLoadState("domcontentloaded");
@@ -118,12 +127,12 @@ test.describe("Client details - name and dob", () => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
-      const firstNameLabel = basicDetailsForm.getByLabel("First name");
-      await firstNameLabel.fill("test name");
-      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
-        exact: true,
-      });
-      await lastNameLabel.fill("a".repeat(101));
+
+      getAndUpdateFormFields(
+        page,
+        { "First name": "test name", "Last name": "a".repeat(101) },
+        ["Last name"],
+      );
 
       const characterLengthHint = basicDetailsForm.locator("#last-name-hint");
       const characterLimitHintMessage = "Character limit: 100";
@@ -148,19 +157,19 @@ test.describe("Client details - name and dob", () => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
-
-      const firstNameLabel = basicDetailsForm.getByLabel("First name");
-      await firstNameLabel.fill("test name");
-      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
-        exact: true,
-      });
-      await lastNameLabel.fill("test last name");
+      getAndUpdateFormFields(
+        page,
+        { "First name": "testname", "Last name": "testington" },
+        ["Last name"],
+      );
 
       continueButton.click();
       await page.waitForLoadState("domcontentloaded");
+
       const errorMessageElement =
         basicDetailsForm.locator("#name-change-error");
       const noRadioSelectedErrorMessage = "Please select an option";
+
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
         noRadioSelectedErrorMessage,
@@ -173,20 +182,16 @@ test.describe("Client details - name and dob", () => {
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
 
-      const firstNameLabel = basicDetailsForm.getByLabel("First name");
-      await firstNameLabel.fill("test name");
-      const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
-        exact: true,
-      });
-      await lastNameLabel.fill("test last name");
-
-      const yesNameChangedLabel = basicDetailsForm.getByLabel("Yes");
-      await yesNameChangedLabel.click();
+      const { Yes: yesNameChangedRadio } = await getAndUpdateFormFields(
+        page,
+        { "First name": "testname", "Last name": "testington", Yes: "" },
+        ["Last name"],
+      );
 
       continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
-      await expect(yesNameChangedLabel).toBeChecked();
+      await expect(yesNameChangedRadio).toBeChecked();
       const errorMessageElement = basicDetailsForm.locator(
         "#last-name-at-birth-error",
       );
@@ -203,45 +208,45 @@ test.describe("Client details - name and dob", () => {
       page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
-
-      const firstNameLabel = await basicDetailsForm.getByLabel("First name");
-      await firstNameLabel.fill("test name");
-      const lastNameLabel = await basicDetailsForm.getByLabel("Last name", {
-        exact: true,
-      });
-      await lastNameLabel.fill("test last name");
-
-      const yesNameChangedLabel = await basicDetailsForm.getByLabel("Yes");
-      await yesNameChangedLabel.click();
+      const { "First name": firstNameInput, "Last name": lastNameInput } =
+        await getAndUpdateFormFields(
+          page,
+          { "First name": "testname", "Last name": "testington", Yes: "" },
+          ["Last name"],
+        );
 
       await continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
-      await expect(firstNameLabel).toHaveValue("test name");
-      await expect(lastNameLabel).toHaveValue("test last name");
+      await expect(firstNameInput).toHaveValue("testname");
+      await expect(lastNameInput).toHaveValue("testington");
     });
 
-    // no last name change yes / no > error message for name change
-    // no name input if yes > error message for name change input
-    // max 70 characters
     // no dob > error message for dob
     // invalid dob > error message for dob (date in future, letters)
-    // continue button > no inputs > error messages
   });
 });
 
-const fillInMinimumFields = async (page: Page) => {
-  const firstNameInput = page.getByLabel("First name");
-  const lastNameInput = page.getByLabel("Last name", { exact: true });
-  const dobDayInput = page.getByLabel("Day");
-  const dobMonthInput = page.getByLabel("Month");
-  const dobYearInput = page.getByLabel("Year");
-  const noNameChangedLabel = page.getByLabel("No");
-  await noNameChangedLabel.click();
-
-  await firstNameInput.fill("Test");
-  await lastNameInput.fill("User");
-  await dobDayInput.fill("01");
-  await dobMonthInput.fill("01");
-  await dobYearInput.fill("1990");
+const getAndUpdateFormFields = async (
+  page: Page,
+  inputLookup: Record<string, string>,
+  exactLabels: string[] = [],
+): Promise<Record<string, Locator>> => {
+  const locatorLookup: Record<string, Locator> = {};
+  for (let label in inputLookup) {
+    if (exactLabels.includes(label)) {
+      const input = page.getByLabel(label, { exact: true });
+      locatorLookup[label] = input;
+      await input.fill(inputLookup[label]);
+    } else if (inputLookup[label] !== "") {
+      const input = page.getByLabel(label);
+      locatorLookup[label] = input;
+      await input.fill(inputLookup[label]);
+    } else {
+      const input = page.getByLabel(label);
+      locatorLookup[label] = input;
+      await input.click();
+    }
+  }
+  return locatorLookup;
 };
