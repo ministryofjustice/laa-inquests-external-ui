@@ -1,7 +1,7 @@
 export interface FormBody {
-  _csrf: string
+  _csrf: string;
 }
-export interface ClientDetailsFormData extends FormBody{
+export interface ClientDetailsFormData extends FormBody {
   "first-name": string;
   "last-name": string;
   "last-name-at-birth": string;

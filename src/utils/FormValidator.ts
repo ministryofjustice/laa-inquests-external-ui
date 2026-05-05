@@ -144,18 +144,16 @@ export class FormValidator {
   ): Partial<ClientNinoError> {
     const errorSummaries: Partial<ClientNinoError> = {};
 
-    const {
-      "has-nino": hasNino,
-      "nino-input": ninoInput
-    } = formBody;
-    
+    const { "has-nino": hasNino, "nino-input": ninoInput } = formBody;
+
     if (typeof hasNino !== "string") {
       errorSummaries.noRadioSelected = {
         text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
       };
     }
 
-    const ninoRegex = /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
+    const ninoRegex =
+      /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
     if (
       typeof hasNino === "string" &&
       hasNino === "true" &&
@@ -164,14 +162,17 @@ export class FormValidator {
       errorSummaries.ninoInputError = {
         text: CLIENT_DETAILS_ERROR.MISSING_NINO,
       };
-    }else if(typeof hasNino === "string" &&
-      hasNino === "true" && typeof ninoInput === "string" && !ninoRegex.test(ninoInput)){
-        errorSummaries.ninoInputError = {
-          text: CLIENT_DETAILS_ERROR.INVALID_NINO,
-        };
+    } else if (
+      typeof hasNino === "string" &&
+      hasNino === "true" &&
+      typeof ninoInput === "string" &&
+      !ninoRegex.test(ninoInput)
+    ) {
+      errorSummaries.ninoInputError = {
+        text: CLIENT_DETAILS_ERROR.INVALID_NINO,
+      };
     }
 
     return errorSummaries;
   }
-
 }
