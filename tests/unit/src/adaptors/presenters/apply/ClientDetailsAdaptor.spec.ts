@@ -61,7 +61,7 @@ describe("Client details adaptor", () => {
     assert.equal(requestStub.session.clientFirstName, "jim");
     assert.equal(requestStub.session.clientLastName, "halpert");
     assert.equal(requestStub.session.clientLastNameAtBirth, "");
-    assert.equal(requestStub.session.hasNameChanged, false);
+    assert.equal(requestStub.session.hasNameChanged, "false");
   });
 
   it("render nino form", () => {
