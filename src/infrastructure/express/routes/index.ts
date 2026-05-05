@@ -1,38 +1,37 @@
 import express from "express";
 import type { Request, Response } from "express";
-
-import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
-import { ApplicationDisplayAdaptor } from "#src/adaptors/application.js";
-import { ApplicationDataStoreAdaptor } from "#src/adaptors/dataStoreApplication.js";
 import axios from "axios";
-
+import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
+import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
+import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
+import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
+import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
+import { FormValidator } from "#src/utils/FormValidator.js";
 // Create a new router
-const router = express.Router();
+const indexRouter = express.Router();
+const clientDetailsRouter = express.Router();
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
 /* GET home page. */
-router.get("/", (req: Request, res: Response): void => {
+indexRouter.get("/", (req: Request, res: Response): void => {
   res.render("main/index");
 });
 
-router.get(
-  "/application/:applicationId",
-  (req: Request, res: Response): void => {
-    res.render("application/index");
-  },
-);
+indexRouter.get("/apply", (req: Request, res: Response): void => {
+  res.render("apply/declaration");
+});
 
 // liveness and readiness probes for Helm deployments
-router.get("/status", (req: Request, res: Response): void => {
+indexRouter.get("/status", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).send("OK");
 });
 
-router.get("/health", (req: Request, res: Response): void => {
+indexRouter.get("/health", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).send("Healthy");
 });
 
-router.get("/error", (req: Request, res: Response): void => {
+indexRouter.get("/error", (req: Request, res: Response): void => {
   // Simulate an error
   res
     .set("X-Error-Tag", "TEST_500_ALERT")
@@ -40,16 +39,23 @@ router.get("/error", (req: Request, res: Response): void => {
     .send("Internal Server Error");
 });
 
-const applicationDataStoreAdaptor = new ApplicationDataStoreAdaptor(
+const applicationInquestsApiAdaptor = new ApplicationInquestsApiAdaptor(
   axios,
   "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
 );
 const applicationDisplayAdaptor = new ApplicationDisplayAdaptor(
-  applicationDataStoreAdaptor,
+  applicationInquestsApiAdaptor,
 );
 
-router.use("/applications", [
+indexRouter.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
 
-export default router;
+const formValidator = new FormValidator();
+const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+indexRouter.use(
+  "/apply",
+  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
+);
+
+export default indexRouter;

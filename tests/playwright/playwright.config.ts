@@ -20,10 +20,10 @@ export const TEST_CONFIG = {
  */
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 2 : 0,
-  workers: process.env.CI === "true" ? 5 : undefined,
+  workers: 1,
   reporter: "html",
   use: {
     baseURL: TEST_CONFIG.BASE_URL,

@@ -1,0 +1,61 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/client-details/nino"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h2 class="govuk-heading-l">Has your client applied for Inquest legal aid before?</h2>
+        <p class="govuk-body">By this, we mean certificated and licensed work. You do not need to tell us about controlled work and family mediation.
+          We'll find any previous records to make sure any contributions we calculate are correct.</p>
+        <form data-testid="has-prev-application-form" action="/apply/client-details/has-prev-application" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "has-prev-application",
+            items: [
+              {
+                value: true,
+                text: "Yes",
+                conditional: {
+                  html:  govukInput({
+                    id: "prev-laa-reference-input",
+                    name: "prev-laa-reference-input",
+                    type: "text",
+                    spellcheck: false,
+                    classes: "govuk-!-width-one-half",
+                    label: {
+                      text: "Give the LAA reference number for any previous application."
+                    }
+                  })
+                }
+              },
+              {
+                value: false,
+                text: "No"
+              }
+            ]
+          }) }}
+          {{ govukButton({
+              text: "Continue"
+            }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+
+
+
+{% endblock %}

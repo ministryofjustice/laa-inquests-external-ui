@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response, Router } from "express";
-import type { ApplicationDisplayAdaptor } from "#src/adaptors/application.js";
+import type { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
 
 function createApplicationRouter(
   applicationRouter: Router,
@@ -11,6 +11,7 @@ function createApplicationRouter(
       const {
         params: { applicationId },
       } = req;
+
       const applicationIdParam: string = applicationId as string;
       try {
         await applicationDisplayAdaptor.renderApplicationPage(

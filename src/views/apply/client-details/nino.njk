@@ -1,0 +1,65 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/client-details/name-and-dob"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">      
+      <div class="govuk-grid-column-two-thirds">
+        <form data-testid="nino-form" action="/apply/client-details/nino" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "has-nino",
+            fieldset: {
+              legend: {
+                text: "Does your client have a National Insurance number?",
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            items: [
+              {
+                value: true,
+                text: "Yes",
+                conditional: {
+                  html:  govukInput({
+                    id: "nino-input",
+                    name: "nino-input",
+                    type: "text",
+                    spellcheck: false,
+                    classes: "govuk-!-width-one-half",
+                    label: {
+                      text: "Enter your client's National Insurance number"
+                    }
+                  }) 
+                }
+              },
+              {
+                value: false,
+                text: "No"
+              }
+            ]
+          }) }}
+          {{ govukButton({
+              text: "Continue"
+            }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+
+
+
+{% endblock %}

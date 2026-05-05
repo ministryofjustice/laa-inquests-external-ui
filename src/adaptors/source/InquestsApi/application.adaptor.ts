@@ -1,8 +1,8 @@
 import axios, { type AxiosResponse, type AxiosStatic } from "axios";
-import type { Application } from "./models/application.types.js";
-import { ApplicationSchema } from "./models/application.schema.js";
+import type { Application } from "../../models/application.types.js";
+import { ApplicationSchema } from "../../models/application.schema.js";
 
-export class ApplicationDataStoreAdaptor {
+export class ApplicationInquestsApiAdaptor {
   constructor(
     private readonly http: AxiosStatic = axios,
     private readonly baseUrl: string,
