@@ -1,6 +1,8 @@
+import { regex } from "#node_modules/zod/index.cjs";
 import type {
   ClientDetailsFormData,
   ClientNameDobError,
+  ClientNinoError,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
@@ -137,4 +139,40 @@ export class FormValidator {
     }
     return errorSummaries;
   }
+
+  validateNino(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientNinoError> {
+    const errorSummaries: Partial<ClientNinoError> = {};
+
+    const {
+      "has-nino": hasNino,
+      "nino-input": ninoInput
+    } = formBody;
+    
+    if (typeof hasNino !== "string") {
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      };
+    }
+
+    const ninoRegex = /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}[0-9]{6}[A-D]{1}/;
+    if (
+      typeof hasNino === "string" &&
+      hasNino === "true" &&
+      this.#validateFormInputValue(ninoInput)
+    ) {
+      errorSummaries.ninoInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_NINO,
+      };
+    }else if(typeof hasNino === "string" &&
+      hasNino === "true" && typeof ninoInput === "string" && !ninoRegex.test(ninoInput)){
+        errorSummaries.ninoInputError = {
+          text: CLIENT_DETAILS_ERROR.INVALID_NINO,
+        };
+    }
+
+    return errorSummaries;
+  }
+
 }
