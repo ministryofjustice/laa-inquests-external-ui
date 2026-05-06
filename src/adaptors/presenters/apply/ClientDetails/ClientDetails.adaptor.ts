@@ -91,10 +91,29 @@ export class ClientDetailsAdaptor {
     res: Response,
   ): void {
     const {
+      locals: { csrfToken },
+    } = res;
+
+    const {
       body: { "has-nino": hasNino, "nino-input": ninoInput },
     } = req;
+
+    req.session.clientHasNino = hasNino;
     req.session.clientNino = hasNino === "true" ? ninoInput : null;
-    res.redirect("/apply/client-details/has-prev-application");
+
+    const ninoErrors = this.formValidator.validateNino(req.body);
+    if (Object.keys(ninoErrors).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/client-details/nino", {
+        csrfToken,
+        errorSummaries: ninoErrors,
+        client: {
+          hasNino: req.session.clientHasNino,
+          clientNino: req.session.clientNino,
+        },
+      });
+    } else {
+      res.redirect("/apply/client-details/has-prev-application");
+    }
   }
 
   renderHasPrevApplicationForm(req: Request, res: Response): void {

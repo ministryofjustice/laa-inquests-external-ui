@@ -26,9 +26,11 @@
                 classes: "govuk-fieldset__legend--l"
               }
             },
+            value: client.hasNino,
+            errorMessage: errorSummaries.noRadioSelected,
             items: [
               {
-                value: true,
+                value: "true",
                 text: "Yes",
                 conditional: {
                   html:  govukInput({
@@ -39,12 +41,13 @@
                     classes: "govuk-!-width-one-half",
                     label: {
                       text: "Enter your client's National Insurance number"
-                    }
+                    },
+                    errorMessage: errorSummaries.ninoInputError
                   }) 
                 }
               },
               {
-                value: false,
+                value: "false",
                 text: "No"
               }
             ]

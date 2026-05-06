@@ -146,6 +146,7 @@ export class FormValidator {
 
     const { "has-nino": hasNino, "nino-input": ninoInput } = formBody;
 
+    console.log(formBody);
     if (typeof hasNino !== "string") {
       errorSummaries.noRadioSelected = {
         text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
