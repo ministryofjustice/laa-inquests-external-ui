@@ -25,9 +25,9 @@ test("homepage should display MoJ header with organisation and service name", as
   await expect(mojHeader.getByRole("link", { name: "Sign out" })).toBeVisible();
 });
 
-test.skip("displays apply button linking to apply journey", async ({ page }) => {
+test("displays apply button linking to apply journey", async ({ page }) => {
   await page.goto("/");
-
+  console.log(await page.content());
   const applyButton = page.getByRole("button", { name: "Apply" });
   await expect(applyButton).toBeVisible();
   await expect(applyButton).toHaveAttribute("href", "/apply");

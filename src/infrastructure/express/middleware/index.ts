@@ -54,7 +54,7 @@ export function setupMiddleware(app: Application): void {
   app.disable("x-powered-by");
   app.use(session(config.session));
 
-  app.use(setupRateLimiter(config));
+  // app.use(setupRateLimiter(config));
   app.use((_: Request, res: Response, next: NextFunction): void => {
     res.locals.config = config;
     next();
