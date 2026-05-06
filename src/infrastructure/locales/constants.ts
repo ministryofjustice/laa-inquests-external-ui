@@ -17,3 +17,6 @@ export const CLIENT_DETAILS_ERROR = {
   MISSING_NINO: "You must enter the client's National Insurance Number",
   INVALID_NINO: "You must enter a valid National Insurance Number",
 };
+
+export const NINO_REGEX =
+  /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;

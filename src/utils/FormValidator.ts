@@ -6,6 +6,7 @@ import type {
 import {
   CLIENT_DETAILS_ERROR,
   MAX_CHARACTER_LENGTH,
+  NINO_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 
 export class FormValidator {
@@ -146,15 +147,12 @@ export class FormValidator {
 
     const { "has-nino": hasNino, "nino-input": ninoInput } = formBody;
 
-    console.log(formBody);
     if (typeof hasNino !== "string") {
       errorSummaries.noRadioSelected = {
         text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
       };
     }
 
-    const ninoRegex =
-      /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
     if (
       typeof hasNino === "string" &&
       hasNino === "true" &&
@@ -167,7 +165,7 @@ export class FormValidator {
       typeof hasNino === "string" &&
       hasNino === "true" &&
       typeof ninoInput === "string" &&
-      !ninoRegex.test(ninoInput)
+      !NINO_REGEX.test(ninoInput)
     ) {
       errorSummaries.ninoInputError = {
         text: CLIENT_DETAILS_ERROR.INVALID_NINO,
