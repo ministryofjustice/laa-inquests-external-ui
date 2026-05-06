@@ -263,5 +263,104 @@ describe("FormValidator", () => {
         });
       });
     });
+    describe("validateNino", () => {
+      it("adds error message when no option is selected", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+        };
+        const errorSummaries = formValidator.validateNino(formBody);
+        assert.deepEqual(errorSummaries, {
+          noRadioSelected: {
+            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+          },
+        });
+      });
+      it("adds error message when yes selected but no nino provided", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "has-nino": "true",
+          "nino-input": "",
+        };
+        const errorSummaries = formValidator.validateNino(formBody);
+        assert.deepEqual(errorSummaries, {
+          ninoInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_NINO,
+          },
+        });
+      });
+
+      it("adds error message when nino provided is invalid format", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "has-nino": "true",
+          "nino-input": "12345679",
+        };
+        const errorSummaries = formValidator.validateNino(formBody);
+        assert.deepEqual(errorSummaries, {
+          ninoInputError: {
+            text: CLIENT_DETAILS_ERROR.INVALID_NINO,
+          },
+        });
+      });
+
+      const invalidNinoTests = [
+        { nino: "DF123456A", reason: "D and F cannot be in first 2 letters" },
+        { nino: "FD123456A", reason: "D and F cannot be in first 2 letters" },
+        { nino: "IQ123456A", reason: "I and Q cannot be in first 2 letters" },
+        { nino: "QI123456A", reason: "I and Q cannot be in first 2 letters" },
+        { nino: "UV123456A", reason: "U and V cannot be in first 2 letters" },
+        { nino: "VU123456A", reason: "U and V cannot be in first 2 letters" },
+        { nino: "BG123456A", reason: "BG cannot be prefix" },
+        { nino: "GB123456A", reason: "GB cannot be prefix" },
+        { nino: "NK123456A", reason: "NK cannot be prefix" },
+        { nino: "KN123456A", reason: "KN cannot be prefix" },
+        { nino: "TN123456A", reason: "TN cannot be prefix" },
+        { nino: "NT123456A", reason: "NT cannot be prefix" },
+        { nino: "ZZ123456A", reason: "ZZ cannot be prefix" },
+        { nino: "PP123456E", reason: "A, B, C or D must be last letter" },
+      ];
+
+      invalidNinoTests.forEach(({ nino, reason }) => {
+        it(`adds error message when nino provided is invalid due to ${reason}`, function () {
+          const formValidator = new FormValidator();
+          const formBody = {
+            _csrf: "abcdefg",
+            "has-nino": "true",
+            "nino-input": nino,
+          };
+          const errorSummaries = formValidator.validateNino(formBody);
+          assert.deepEqual(errorSummaries, {
+            ninoInputError: {
+              text: CLIENT_DETAILS_ERROR.INVALID_NINO,
+            },
+          });
+        });
+      });
+
+      const validNinoTests = [
+        { nino: "PP123456A", reason: "A, B, C or D being last letter" },
+        { nino: "PP123456B", reason: "A, B, C or D being last letter" },
+        { nino: "PP123456C", reason: "A, B, C or D being last letter" },
+        { nino: "PP123456D", reason: "A, B, C or D being last letter" },
+        { nino: "pp123456d", reason: "being case insensitive" },
+        { nino: "PP 123456 A", reason: "allows whitespace between blocks" },
+      ];
+
+      validNinoTests.forEach(({ nino, reason }) => {
+        it(`Nino is valid due to ${reason}`, function () {
+          const formValidator = new FormValidator();
+          const formBody = {
+            _csrf: "abcdefg",
+            "has-nino": "true",
+            "nino-input": nino,
+          };
+          const errorSummaries = formValidator.validateNino(formBody);
+          assert.deepEqual(errorSummaries, {});
+        });
+      });
+    });
   });
 });

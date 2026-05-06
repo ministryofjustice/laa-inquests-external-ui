@@ -1,10 +1,12 @@
 import type {
   ClientDetailsFormData,
   ClientNameDobError,
+  ClientNinoError,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
   MAX_CHARACTER_LENGTH,
+  NINO_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 
 export class FormValidator {
@@ -135,6 +137,41 @@ export class FormValidator {
         text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
       };
     }
+    return errorSummaries;
+  }
+
+  validateNino(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientNinoError> {
+    const errorSummaries: Partial<ClientNinoError> = {};
+
+    const { "has-nino": hasNino, "nino-input": ninoInput } = formBody;
+
+    if (typeof hasNino !== "string") {
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      };
+    }
+
+    if (
+      typeof hasNino === "string" &&
+      hasNino === "true" &&
+      this.#validateFormInputValue(ninoInput)
+    ) {
+      errorSummaries.ninoInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_NINO,
+      };
+    } else if (
+      typeof hasNino === "string" &&
+      hasNino === "true" &&
+      typeof ninoInput === "string" &&
+      !NINO_REGEX.test(ninoInput)
+    ) {
+      errorSummaries.ninoInputError = {
+        text: CLIENT_DETAILS_ERROR.INVALID_NINO,
+      };
+    }
+
     return errorSummaries;
   }
 }

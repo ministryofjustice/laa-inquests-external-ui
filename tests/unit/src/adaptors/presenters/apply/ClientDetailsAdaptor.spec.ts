@@ -84,6 +84,8 @@ describe("Client details adaptor", () => {
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
 
+    requestStub.body = { "has-nino": "true", "nino-input": "PC345678A" };
+
     clientDetailsAdaptor.processNinoForm(requestStub, responseStub);
     assert.equal(responseStub.redirect.callCount, 1);
     const renderArgs = responseStub.redirect.getCall(0).args;

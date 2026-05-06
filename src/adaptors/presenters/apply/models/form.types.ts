@@ -1,4 +1,7 @@
-export interface ClientDetailsFormData {
+export interface FormBody {
+  _csrf: string;
+}
+export interface ClientDetailsFormData extends FormBody {
   "first-name": string;
   "last-name": string;
   "last-name-at-birth": string;
@@ -23,4 +26,9 @@ export interface ClientNameDobError {
   noRadioSelected?: FormErrorMessage;
   noBirthNameSpecified?: FormErrorMessage;
   dobInputError?: FormErrorMessage;
+}
+
+export interface ClientNinoError {
+  noRadioSelected?: FormErrorMessage;
+  ninoInputError?: FormErrorMessage;
 }
