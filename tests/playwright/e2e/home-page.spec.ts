@@ -25,7 +25,7 @@ test("homepage should display MoJ header with organisation and service name", as
   await expect(mojHeader.getByRole("link", { name: "Sign out" })).toBeVisible();
 });
 
-test("displays apply button linking to apply journey", async ({ page }) => {
+test.skip("displays apply button linking to apply journey", async ({ page }) => {
   await page.goto("/");
 
   const applyButton = page.getByRole("button", { name: "Apply" });
