@@ -7,9 +7,12 @@ import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetai
 import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
+const deceasedDetailsRouter = express.Router();
+
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
@@ -53,9 +56,9 @@ indexRouter.use("/applications", [
 
 const formValidator = new FormValidator();
 const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
-indexRouter.use(
-  "/apply",
+indexRouter.use("/apply", [
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
-);
+  createDeceasedDetailsRouter(deceasedDetailsRouter),
+]);
 
 export default indexRouter;
