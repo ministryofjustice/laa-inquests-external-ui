@@ -32,3 +32,8 @@ export interface ClientNinoError {
   noRadioSelected?: FormErrorMessage;
   ninoInputError?: FormErrorMessage;
 }
+
+export interface ClientPrevApplicationRefError {
+  noRadioSelected?: FormErrorMessage;
+  referenceInputError?: FormErrorMessage;
+}

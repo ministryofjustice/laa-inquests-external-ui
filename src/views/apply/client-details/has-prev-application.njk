@@ -22,14 +22,17 @@
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukRadios({
             name: "has-prev-application",
+            value: client.hasPrevApplication,
+            errorMessage: errorSummaries.noRadioSelected,
             items: [
               {
-                value: true,
+                value: "true",
                 text: "Yes",
                 conditional: {
                   html:  govukInput({
                     id: "prev-laa-reference-input",
                     name: "prev-laa-reference-input",
+                    errorMessage: errorSummaries.referenceInputError,
                     type: "text",
                     spellcheck: false,
                     classes: "govuk-!-width-one-half",
@@ -40,7 +43,7 @@
                 }
               },
               {
-                value: false,
+                value: "false",
                 text: "No"
               }
             ]

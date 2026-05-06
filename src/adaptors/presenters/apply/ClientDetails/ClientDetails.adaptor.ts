@@ -128,14 +128,33 @@ export class ClientDetailsAdaptor {
     res: Response,
   ): void {
     const {
+      locals: { csrfToken },
+    } = res;
+    const {
       body: {
         "has-prev-application": hasPrevApplication,
         "prev-laa-reference-input": prevLaaReferenceInput,
       },
     } = req;
-    req.session.clientHasPrevApplication = hasPrevApplication === "true";
+
+    req.session.clientHasPrevApplication = hasPrevApplication;
     req.session.prevLaaReferenceInput =
       hasPrevApplication === "true" ? prevLaaReferenceInput : null;
-    res.redirect("/apply/proceedings");
+
+    const prevApplicationRefErrors =
+      this.formValidator.validatePrevApplicationReference(req.body);
+
+    if (Object.keys(prevApplicationRefErrors).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/client-details/has-prev-application", {
+        csrfToken,
+        errorSummaries: prevApplicationRefErrors,
+        client: {
+          hasPrevApplication: req.session.clientHasPrevApplication,
+          prevLaaReference: req.session.prevLaaReferenceInput,
+        },
+      });
+    } else {
+      res.redirect("/apply/proceedings");
+    }
   }
 }
