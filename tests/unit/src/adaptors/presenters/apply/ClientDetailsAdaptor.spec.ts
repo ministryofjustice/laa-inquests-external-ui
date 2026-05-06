@@ -141,6 +141,11 @@ describe("Client details adaptor", () => {
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
 
+    requestStub.body = {
+      "has-prev-application": "false",
+      "prev-laa-reference-input": "",
+    };
+
     clientDetailsAdaptor.processHasPrevApplicationForm(
       requestStub,
       responseStub,
@@ -166,7 +171,7 @@ describe("Client details adaptor", () => {
       responseStub,
     );
 
-    assert.equal(requestStub.session.clientHasPrevApplication, false);
+    assert.equal(requestStub.session.clientHasPrevApplication, "false");
     assert.equal(requestStub.session.prevLaaReferenceInput, null);
   });
 
@@ -186,7 +191,7 @@ describe("Client details adaptor", () => {
       responseStub,
     );
 
-    assert.equal(requestStub.session.clientHasPrevApplication, true);
+    assert.equal(requestStub.session.clientHasPrevApplication, "true");
     assert.equal(requestStub.session.prevLaaReferenceInput, "123456789");
   });
 });

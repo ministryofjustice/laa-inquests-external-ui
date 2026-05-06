@@ -2,6 +2,7 @@ import type {
   ClientDetailsFormData,
   ClientNameDobError,
   ClientNinoError,
+  ClientPrevApplicationRefError,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
@@ -172,6 +173,45 @@ export class FormValidator {
       };
     }
 
+    return errorSummaries;
+  }
+
+  validatePrevApplicationReference(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientPrevApplicationRefError> {
+    const errorSummaries: Partial<ClientPrevApplicationRefError> = {};
+    const {
+      "has-prev-application": hasPrevApplication,
+      "prev-laa-reference-input": prevApplicationRef,
+    } = formBody;
+
+    if (typeof hasPrevApplication !== "string") {
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      };
+    }
+
+    if (
+      typeof hasPrevApplication === "string" &&
+      hasPrevApplication === "true" &&
+      this.#validateFormInputValue(prevApplicationRef)
+    ) {
+      errorSummaries.referenceInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
+      };
+    }
+
+    const MAX_REF_LENGTH = 35;
+    if (
+      typeof hasPrevApplication === "string" &&
+      hasPrevApplication === "true" &&
+      typeof prevApplicationRef === "string" &&
+      prevApplicationRef.length > MAX_REF_LENGTH
+    ) {
+      errorSummaries.referenceInputError = {
+        text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+      };
+    }
     return errorSummaries;
   }
 }

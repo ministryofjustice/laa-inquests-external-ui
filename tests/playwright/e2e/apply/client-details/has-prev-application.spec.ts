@@ -1,3 +1,4 @@
+import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../../fixtures/index.js";
 
 test.describe("Previous application", () => {
@@ -48,10 +49,81 @@ test.describe("Previous application", () => {
       "has-prev-application-form",
     );
     const continueButton = prevApplicationStatusForm.getByRole("button");
+    const noRadio = prevApplicationStatusForm.getByLabel("No");
+    await noRadio.click();
+
     await expect(continueButton).toHaveText("Continue");
     await expect(continueButton).toHaveAttribute("type", "submit");
+
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
+
     await expect(page.url()).toContain("apply/proceedings");
+  });
+  test("renders error message when no input selected", async ({ page }) => {
+    page.goto("/apply/client-details/has-prev-application");
+    const prevApplicationStatusForm = await page.getByTestId(
+      "has-prev-application-form",
+    );
+    const continueButton = prevApplicationStatusForm.getByRole("button");
+
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+    const errorMessageElement = prevApplicationStatusForm.locator(
+      "#has-prev-application-error",
+    );
+    await expect(errorMessageElement).toBeVisible();
+    await expect(errorMessageElement).toContainText(
+      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+    );
+  });
+  test("renders error message when input selected but no reference provided", async ({
+    page,
+  }) => {
+    page.goto("/apply/client-details/has-prev-application");
+    const prevApplicationStatusForm = await page.getByTestId(
+      "has-prev-application-form",
+    );
+    const yesRadio = prevApplicationStatusForm.getByLabel("Yes");
+    const continueButton = prevApplicationStatusForm.getByRole("button");
+
+    await yesRadio.click();
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    const errorMessageElement = prevApplicationStatusForm.locator(
+      "#prev-laa-reference-input-error",
+    );
+    await expect(errorMessageElement).toBeVisible();
+    await expect(errorMessageElement).toContainText(
+      CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
+    );
+  });
+  test("renders error message when reference provided exceeds max character length", async ({
+    page,
+  }) => {
+    page.goto("/apply/client-details/has-prev-application");
+    const prevApplicationStatusForm = await page.getByTestId(
+      "has-prev-application-form",
+    );
+    const yesRadio = prevApplicationStatusForm.getByLabel("Yes");
+    const continueButton = prevApplicationStatusForm.getByRole("button");
+
+    await yesRadio.click();
+    const prevApplicationRefInput = prevApplicationStatusForm.getByLabel(
+      "Give the LAA reference number for any previous application.",
+    );
+
+    await prevApplicationRefInput.fill("a".repeat(36));
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    const errorMessageElement = prevApplicationStatusForm.locator(
+      "#prev-laa-reference-input-error",
+    );
+    await expect(errorMessageElement).toBeVisible();
+    await expect(errorMessageElement).toContainText(
+      CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+    );
   });
 });

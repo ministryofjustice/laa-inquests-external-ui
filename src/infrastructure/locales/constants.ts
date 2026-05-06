@@ -16,6 +16,10 @@ export const CLIENT_DETAILS_ERROR = {
   INPUT_NOT_SELECTED: "Please select an option",
   MISSING_NINO: "You must enter the client's National Insurance Number",
   INVALID_NINO: "You must enter a valid National Insurance Number",
+  APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Application cannot exceed 35 characters",
+  MISSING_PREV_APPLICATION_REF:
+    "Please enter the reference for the previous application.",
 };
 
 export const NINO_REGEX =

@@ -362,5 +362,50 @@ describe("FormValidator", () => {
         });
       });
     });
+    describe("validatePrevApplicationReference", () => {
+      it("adds error message if no option selected", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+        };
+        const errorSummaries =
+          formValidator.validatePrevApplicationReference(formBody);
+        assert.deepEqual(errorSummaries, {
+          noRadioSelected: {
+            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+          },
+        });
+      });
+      it("adds error message if yes radio is selected but no reference provided", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "has-prev-application": "true",
+          "prev-laa-reference-input": "",
+        };
+        const errorSummaries =
+          formValidator.validatePrevApplicationReference(formBody);
+        assert.deepEqual(errorSummaries, {
+          referenceInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
+          },
+        });
+      });
+      it("adds error message if reference exceeds 35 characters", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "has-prev-application": "true",
+          "prev-laa-reference-input": "a".repeat(36),
+        };
+        const errorSummaries =
+          formValidator.validatePrevApplicationReference(formBody);
+        assert.deepEqual(errorSummaries, {
+          referenceInputError: {
+            text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+          },
+        });
+      });
+    });
   });
 });
