@@ -1,0 +1,63 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{%- from "moj/components/search/macro.njk" import mojSearch -%}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/client-details/has-prev-application"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+        {% if selectedProceedings.length > 0 %}
+            {{ govukSummaryList({
+            attributes: { "data-testid": "proceedings-table"},
+            card: {
+            title: {
+                text: "Proceeding name / type"
+              }
+            },
+            rows: selectedProceedings
+          })
+        }}
+        {% endif %}
+         <form data-testid="add-proceeding-form" action="/apply/proceedings" method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+              {{ govukRadios({
+                name: "proceeding-option",
+                fieldset: {
+                  legend: {
+                    text: t("pages.apply.proceedings.title"),
+                    isPageHeading: true,
+                    classes: "govuk-fieldset__legend--l"
+                  }
+                },
+                hint: {
+                    text: t("pages.apply.proceedings.search.hint")
+                },
+                errorMessage: errorSummaries.noProceedingSelected,
+                value: proceedingOption,
+                items: proceedingOptions
+              })
+            }}
+            {{
+              govukButton({
+                text: "Continue"
+              })
+            }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+
+
+{% endblock %}
