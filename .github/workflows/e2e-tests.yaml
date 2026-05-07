@@ -1,7 +1,8 @@
 name: Playwright Tests
 on:
   workflow_dispatch: # Allow manual triggering only
-  workflow_call: # Allow this workflow to be called by other workflows
+  workflow_call:
+    # Allow this workflow to be called by other workflows
 
 jobs:
   playwright:
@@ -30,9 +31,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key:
-            ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')
-            }}
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock') }}
 
       - name: Run Playwright tests
         run: yarn test:e2e
@@ -51,7 +50,7 @@ jobs:
           CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
           SERVICE_URL: "https://www.gov.uk/legal-aid"
           RATELIMIT_HEADERS_ENABLED: "true"
-          RATE_LIMIT_MAX: "10000"
+          RATE_LIMIT_MAX: "1000"
           RATE_WINDOW_MS: "900000"
       - name: Upload trace artifacts
         if: always()
@@ -65,5 +64,4 @@ jobs:
 
       - name: Notify on test failure
         if: failure()
-        run: echo "::error::Playwright tests failed! Check the test report for
-          details."
+        run: echo "::error::Playwright tests failed! Check the test report for details."
