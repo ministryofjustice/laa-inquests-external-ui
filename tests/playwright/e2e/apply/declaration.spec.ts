@@ -1,5 +1,4 @@
 import { test, expect } from "../../fixtures/index.js";
-import describe from "@playwright/test";
 
 test("renders declaration subheader, copy text and back button", async ({
   page,
