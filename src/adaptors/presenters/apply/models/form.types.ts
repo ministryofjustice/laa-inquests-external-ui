@@ -37,3 +37,13 @@ export interface ClientPrevApplicationRefError {
   noRadioSelected?: FormErrorMessage;
   referenceInputError?: FormErrorMessage;
 }
+
+export interface ProceedingsFormData extends FormBody {
+  "proceeding-option": string;
+  "add-another-proceeding": string;
+}
+
+export interface ProceedingsError {
+  noProceedingSelected?: FormErrorMessage;
+  noConfirmationSelected?: FormErrorMessage;
+}

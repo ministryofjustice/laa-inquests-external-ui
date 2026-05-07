@@ -5,6 +5,7 @@ declare module "express-session" {
   > {
     // This allows both specific properties and dynamic namespace access
     error: FormError;
+    selectedProceedings?: string[];
   }
 }
 
