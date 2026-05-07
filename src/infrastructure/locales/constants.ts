@@ -29,6 +29,9 @@ export const DECEASED_DETAILS_ERROR = {
     "First name(s) cannot exceed 100 characters",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Last name cannot exceed 100 characters",
+  MISSING_DATE_OF_DEATH_INPUT: "Please enter date of death",
+  NON_NUMERIC_DATE: "Please enter date of death in the format expected",
+  FUTURE_DATE: "Date of death must not be in the future",
 };
 
 export const NINO_REGEX =

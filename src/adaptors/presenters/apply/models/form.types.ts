@@ -41,9 +41,16 @@ export interface ClientPrevApplicationRefError {
 export interface DeceasedDetailsFormData extends FormBody {
   "deceased-first-name": string;
   "deceased-last-name": string;
+  "deceased-date-of-death-day": string;
+  "deceased-date-of-death-month": string;
+  "deceased-date-of-death-year": string;
 }
 
 export interface DeceasedNameError {
   firstNameInputError?: FormErrorMessage;
   lastNameInputError?: FormErrorMessage;
+}
+
+export interface DeceasedDateOfDeathError {
+  dateOfDeathInputError?: FormErrorMessage;
 }
