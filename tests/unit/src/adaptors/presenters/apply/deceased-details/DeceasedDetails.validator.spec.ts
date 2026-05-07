@@ -34,7 +34,7 @@ describe("DeceasedDetails.validator", () => {
   it("Adds error when first name is over 100 characters", () => {
     const validator = new DeceasedDetailsValidator();
     const body = {
-      "deceased-first-name": "Testt".repeat(21),
+      "deceased-first-name": "a".repeat(101),
       "deceased-last-name": "Test",
     };
     const errorSummaries = validator.validateName(body);
@@ -49,7 +49,7 @@ describe("DeceasedDetails.validator", () => {
     const validator = new DeceasedDetailsValidator();
     const body = {
       "deceased-first-name": "Test",
-      "deceased-last-name": "Testt".repeat(21),
+      "deceased-last-name": "a".repeat(101),
     };
     const errorSummaries = validator.validateName(body);
     assert.deepEqual(errorSummaries, {
