@@ -47,3 +47,13 @@ export interface DeceasedNameError {
   firstNameInputError?: FormErrorMessage;
   lastNameInputError?: FormErrorMessage;
 }
+
+export interface ProceedingsFormData extends FormBody {
+  "proceeding-option": string;
+  "add-another-proceeding": string;
+}
+
+export interface ProceedingsError {
+  noProceedingSelected?: FormErrorMessage;
+  noConfirmationSelected?: FormErrorMessage;
+}
