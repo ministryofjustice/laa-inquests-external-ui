@@ -51,7 +51,7 @@ jobs:
           CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
           SERVICE_URL: "https://www.gov.uk/legal-aid"
           RATELIMIT_HEADERS_ENABLED: "true"
-          RATE_LIMIT_MAX: "100"
+          RATE_LIMIT_MAX: "10000"
           RATE_WINDOW_MS: "900000"
       - name: Upload trace artifacts
         if: always()
