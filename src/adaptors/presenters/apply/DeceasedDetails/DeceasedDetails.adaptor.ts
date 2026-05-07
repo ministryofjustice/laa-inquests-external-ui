@@ -22,10 +22,20 @@ export class DeceasedDetailsAdaptor {
     req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
     res: Response,
   ): void {
+    const {
+      body: {
+        "deceased-first-name": firstName,
+        "deceased-last-name": lastName,
+      },
+    } = req;
+
     const errorSummaries = this.formValidator.validateName(req.body);
     const {
       locals: { csrfToken },
     } = res;
+
+    req.session.deceasedFirstName = firstName;
+    req.session.deceasedLastName = lastName;
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       res.render("apply/deceased-details/name", { csrfToken, errorSummaries });

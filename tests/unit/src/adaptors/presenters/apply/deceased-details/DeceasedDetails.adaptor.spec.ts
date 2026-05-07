@@ -57,4 +57,25 @@ describe("Deceased details adaptor", () => {
     const errorObject = renderArgs[1] as Object;
     assert.ok(errorObject.hasOwnProperty("errorSummaries"));
   });
+
+  it("process name form adds name data to the session", () => {
+    const formValidator = new DeceasedDetailsValidator();
+    const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    const firstName = "Test first";
+    const lastName = "Test last";
+    requestStub.body = {
+      _csrf: "abcdefg",
+      "deceased-first-name": firstName,
+      "deceased-last-name": lastName,
+    };
+
+    deceasedDetailsAdaptor.processNameForm(requestStub, responseStub);
+
+    assert.equal(requestStub.session.deceasedFirstName, firstName);
+    assert.equal(requestStub.session.deceasedLastName, lastName);
+  });
 });

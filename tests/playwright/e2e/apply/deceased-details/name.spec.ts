@@ -59,4 +59,66 @@ test.describe("Deceased details - name", () => {
       DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
     );
   });
+
+  test("shows errors when first name is over character limit", async ({
+    page,
+  }) => {
+    page.goto("/apply/deceased-details/name");
+
+    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
+    const firstName = deceasedDetailsForm.getByLabel("First name");
+    firstName.fill("a".repeat(101));
+
+    const continueButton = deceasedDetailsForm.getByRole("button");
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    const errorMessage = deceasedDetailsForm.locator(
+      "#deceased-first-name-error",
+    );
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText(
+      DECEASED_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    );
+  });
+
+  test("shows errors when last name is empty", async ({ page }) => {
+    page.goto("/apply/deceased-details/name");
+
+    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
+
+    const continueButton = deceasedDetailsForm.getByRole("button");
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    const errorMessage = deceasedDetailsForm.locator(
+      "#deceased-last-name-error",
+    );
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText(
+      DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
+    );
+  });
+
+  test("shows errors when last name is over character limit", async ({
+    page,
+  }) => {
+    page.goto("/apply/deceased-details/name");
+
+    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
+    const lastName = deceasedDetailsForm.getByLabel("Last name");
+    lastName.fill("a".repeat(101));
+
+    const continueButton = deceasedDetailsForm.getByRole("button");
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    const errorMessage = deceasedDetailsForm.locator(
+      "#deceased-last-name-error",
+    );
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText(
+      DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    );
+  });
 });
