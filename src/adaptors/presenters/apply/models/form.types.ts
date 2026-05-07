@@ -37,3 +37,13 @@ export interface ClientPrevApplicationRefError {
   noRadioSelected?: FormErrorMessage;
   referenceInputError?: FormErrorMessage;
 }
+
+export interface DeceasedDetailsFormData extends FormBody {
+  "deceased-first-name": string;
+  "deceased-last-name": string;
+}
+
+export interface DeceasedNameError {
+  firstNameInputError?: FormErrorMessage;
+  lastNameInputError?: FormErrorMessage;
+}

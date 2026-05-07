@@ -1,12 +1,12 @@
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type { Request, Response } from "express";
 import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
-import type { FormValidator } from "#src/utils/FormValidator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 
 export class ClientDetailsAdaptor {
-  formValidator: FormValidator;
-  constructor(formValidator: FormValidator) {
+  formValidator: ClientDetailsValidator;
+  constructor(formValidator: ClientDetailsValidator) {
     this.formValidator = formValidator;
   }
   renderNameForm(req: Request, res: Response): void {

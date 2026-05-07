@@ -6,10 +6,16 @@ import { createClientDetailsRouter } from "#src/infrastructure/express/routes/ap
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
-import { FormValidator } from "#src/utils/FormValidator.js";
+import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
+import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
+import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
+import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
+
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
+const deceasedDetailsRouter = express.Router();
+
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
@@ -51,11 +57,19 @@ indexRouter.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
 
-const formValidator = new FormValidator();
-const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
-indexRouter.use(
-  "/apply",
-  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
+const clientDetailsFormValidator = new ClientDetailsValidator();
+const clientDetailsAdaptor = new ClientDetailsAdaptor(
+  clientDetailsFormValidator,
 );
+
+const deceasedDetailsFormValidator = new DeceasedDetailsValidator();
+const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(
+  deceasedDetailsFormValidator,
+);
+
+indexRouter.use("/apply", [
+  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
+  createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
+]);
 
 export default indexRouter;

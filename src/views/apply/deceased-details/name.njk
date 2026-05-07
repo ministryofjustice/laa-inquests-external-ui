@@ -1,0 +1,50 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/proceedings"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-half">
+        <h2 class="govuk-heading-l">What is the name of the deceased?</h2>
+        <form data-testid="deceased-details-form" action="/apply/deceased-details/name" method="post">
+          <input type="hidden" name="_csrf" value={{csrfToken}} />
+          {{
+            govukInput({
+              label: {
+                text: "First name",
+                classes: "govuk-label--s"
+              },
+              id: "deceased-first-name",
+              name: "deceased-first-name",
+              errorMessage: errorSummaries.firstNameInputError
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Last name",
+              classes: "govuk-label--s"
+            },
+            id: "deceased-last-name",
+            name: "deceased-last-name",
+            errorMessage: errorSummaries.lastNameInputError
+          }) }}
+
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
