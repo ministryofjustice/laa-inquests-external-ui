@@ -59,10 +59,10 @@ export class ProceedingsAdaptor {
     req.session.proceedingOption = proceedingOption;
 
     req.session.selectedProceedings = [
-      req.session.proceedingOption,
+      proceedingOption!,
       ...(req.session.selectedProceedings ?? []),
     ];
-    const formattedSelectedProceedings = req.session.selectedProceedings?.map(
+    const formattedSelectedProceedings = req.session.selectedProceedings.map(
       (proceeding) => ({
         key: { text: proceeding },
         actions: {
