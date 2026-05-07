@@ -6,8 +6,9 @@ import { createClientDetailsRouter } from "#src/infrastructure/express/routes/ap
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
-import { FormValidator } from "#src/utils/FormValidator.js";
 import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
+import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
+
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
@@ -54,7 +55,7 @@ indexRouter.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
 
-const formValidator = new FormValidator();
+const formValidator = new ClientDetailsValidator();
 const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 indexRouter.use("/apply", [
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),

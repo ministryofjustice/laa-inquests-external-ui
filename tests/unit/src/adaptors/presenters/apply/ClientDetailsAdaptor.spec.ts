@@ -3,11 +3,11 @@ import sinon from "sinon";
 import { type StubbedInstance, stubInterface, stubObject } from "ts-sinon";
 import type { Request, Response, Locals } from "express";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
-import { FormValidator } from "#src/utils/FormValidator.js";
+import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 
 describe("Client details adaptor", () => {
   it("render name and dob form", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
     const responseStub = stubInterface<Response>();
@@ -20,7 +20,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process name and dob form redirects to nino", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
     const responseStub = stubInterface<Response>();
@@ -43,7 +43,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process name and dob form adds client name details to session", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
@@ -65,7 +65,7 @@ describe("Client details adaptor", () => {
   });
 
   it("render nino form", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
     const responseStub = stubInterface<Response>();
@@ -78,7 +78,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process nino form redirects to has prev application", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
     const responseStub = stubInterface<Response>();
@@ -93,7 +93,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process nino form adds nino to session when nino exists", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
@@ -106,7 +106,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process nino form set nino to null in session when nino does not exist", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
@@ -119,7 +119,7 @@ describe("Client details adaptor", () => {
   });
 
   it("render has prev application form", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
     const responseStub = stubInterface<Response>();
@@ -135,7 +135,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process has prev application form redirects to proceedings", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
     const responseStub = stubInterface<Response>();
@@ -156,7 +156,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process has prev application form sets boolean value to false in session when previous application does not exist", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
@@ -176,7 +176,7 @@ describe("Client details adaptor", () => {
   });
 
   it("process has prev application form sets boolean value and reference in session when previous application does exist", () => {
-    const formValidator = new FormValidator();
+    const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();

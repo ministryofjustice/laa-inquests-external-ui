@@ -1,12 +1,12 @@
 import { assert } from "chai";
-import { FormValidator } from "#src/utils/FormValidator.js";
 import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
+import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 
-describe("FormValidator", () => {
+describe("ClientDetailsValidator", () => {
   describe("methods", () => {
     describe("validateClientDob", () => {
       it("adds error when day in dob is not provided", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "",
@@ -25,7 +25,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error when month in dob is not provided", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "",
@@ -44,7 +44,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error when year in dob is not provided", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "",
@@ -64,7 +64,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error when date is non-numeric", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "",
@@ -84,7 +84,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error when date is in the future", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "",
@@ -105,7 +105,7 @@ describe("FormValidator", () => {
     });
     describe("validateClientName", () => {
       it("add error for no first name input when first name value is empty", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "",
@@ -125,7 +125,7 @@ describe("FormValidator", () => {
         });
       });
       it("add error message for when first name exceeds max character length", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "abcde".repeat(21),
@@ -145,7 +145,7 @@ describe("FormValidator", () => {
         });
       });
       it("add error message for no last name input provided when last name value is empty", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "greggs",
@@ -165,7 +165,7 @@ describe("FormValidator", () => {
         });
       });
       it("add error message for when last name exceeds max character length", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "fgdsfg",
@@ -184,7 +184,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error message when no radio button has been selected for name change", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "greggs",
@@ -200,7 +200,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error message when yes radio button has been selected but no previous name has been provided", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "greggs",
@@ -219,7 +219,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error messages for each input when multiple are not populated", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "",
@@ -241,7 +241,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error messages for each input when multiple are exceeding character limit", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "first-name": "a".repeat(101),
@@ -265,7 +265,7 @@ describe("FormValidator", () => {
     });
     describe("validateNino", () => {
       it("adds error message when no option is selected", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
         };
@@ -277,7 +277,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error message when yes selected but no nino provided", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "has-nino": "true",
@@ -292,7 +292,7 @@ describe("FormValidator", () => {
       });
 
       it("adds error message when nino provided is invalid format", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "has-nino": "true",
@@ -325,7 +325,7 @@ describe("FormValidator", () => {
 
       invalidNinoTests.forEach(({ nino, reason }) => {
         it(`adds error message when nino provided is invalid due to ${reason}`, function () {
-          const formValidator = new FormValidator();
+          const formValidator = new ClientDetailsValidator();
           const formBody = {
             _csrf: "abcdefg",
             "has-nino": "true",
@@ -351,7 +351,7 @@ describe("FormValidator", () => {
 
       validNinoTests.forEach(({ nino, reason }) => {
         it(`Nino is valid due to ${reason}`, function () {
-          const formValidator = new FormValidator();
+          const formValidator = new ClientDetailsValidator();
           const formBody = {
             _csrf: "abcdefg",
             "has-nino": "true",
@@ -364,7 +364,7 @@ describe("FormValidator", () => {
     });
     describe("validatePrevApplicationReference", () => {
       it("adds error message if no option selected", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
         };
@@ -377,7 +377,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error message if yes radio is selected but no reference provided", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "has-prev-application": "true",
@@ -392,7 +392,7 @@ describe("FormValidator", () => {
         });
       });
       it("adds error message if reference exceeds 35 characters", () => {
-        const formValidator = new FormValidator();
+        const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "has-prev-application": "true",
