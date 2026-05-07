@@ -8,6 +8,8 @@ import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
 import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
+import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
+import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -55,11 +57,19 @@ indexRouter.use("/applications", [
   createApplicationRouter(express.Router(), applicationDisplayAdaptor),
 ]);
 
-const formValidator = new ClientDetailsValidator();
-const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+const clientDetailsFormValidator = new ClientDetailsValidator();
+const clientDetailsAdaptor = new ClientDetailsAdaptor(
+  clientDetailsFormValidator,
+);
+
+const deceasedDetailsFormValidator = new DeceasedDetailsValidator();
+const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(
+  deceasedDetailsFormValidator,
+);
+
 indexRouter.use("/apply", [
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
-  createDeceasedDetailsRouter(deceasedDetailsRouter),
+  createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
 ]);
 
 export default indexRouter;

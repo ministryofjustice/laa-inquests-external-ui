@@ -1,5 +1,6 @@
 import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
+import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 test.describe("Deceased details - name", () => {
   test("renders basic details header and back link", async ({ page }) => {
@@ -33,8 +34,29 @@ test.describe("Deceased details - name", () => {
     await expect(continueButton).toHaveText("Continue");
     await expect(continueButton).toHaveAttribute("type", "submit");
 
+    await firstNameLabel.fill("Test");
+    await lastNameLabel.fill("Test");
+
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
     await expect(page.url()).toContain("apply/deceased-details/dod");
+  });
+
+  test("shows errors when first name is empty", async ({ page }) => {
+    page.goto("/apply/deceased-details/name");
+
+    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
+
+    const continueButton = deceasedDetailsForm.getByRole("button");
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    const errorMessage = deceasedDetailsForm.locator(
+      "#deceased-first-name-error",
+    );
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText(
+      DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
+    );
   });
 });

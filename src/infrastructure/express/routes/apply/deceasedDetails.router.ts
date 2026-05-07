@@ -1,22 +1,23 @@
+import type { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
 import type { Request, Response, Router } from "express";
 
 export function createDeceasedDetailsRouter(
-  clientDetailsRouter: Router,
+  deceasedDetailsRouter: Router,
+  deceasedDetailsAdaptor: DeceasedDetailsAdaptor,
 ): Router {
-  clientDetailsRouter.get(
+  deceasedDetailsRouter.get(
     "/deceased-details/name",
     (req: Request, res: Response): void => {
-      res.render("apply/deceased-details/name");
+      deceasedDetailsAdaptor.renderNameForm(req, res);
     },
   );
 
-  clientDetailsRouter.post(
+  deceasedDetailsRouter.post(
     "/deceased-details/name",
     (req: Request, res: Response): void => {
-      console.log("!!!!!!!!!!!!!!");
-      res.redirect("/apply/deceased-details/dod");
+      deceasedDetailsAdaptor.processNameForm(req, res);
     },
   );
 
-  return clientDetailsRouter;
+  return deceasedDetailsRouter;
 }
