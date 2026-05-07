@@ -1,6 +1,10 @@
 import { assert } from "chai";
-import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
+import { FormValidator } from "#src/utils/FormValidator.js";
+import {
+  CLIENT_DETAILS_ERROR,
+  PROCEEDING_ERROR,
+} from "#src/infrastructure/locales/constants.js";
 
 describe("ClientDetailsValidator", () => {
   describe("methods", () => {
@@ -403,6 +407,34 @@ describe("ClientDetailsValidator", () => {
         assert.deepEqual(errorSummaries, {
           referenceInputError: {
             text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+          },
+        });
+      });
+    });
+    describe("validateProceedingInput", () => {
+      it("returns expected error message when no proceeding is selected", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+        };
+        const errorSummaries = formValidator.validateProceedingInput(formBody);
+        assert.deepEqual(errorSummaries, {
+          noProceedingSelected: {
+            text: PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
+          },
+        });
+      });
+      it("returns expected error message when no proceeding is selected", () => {
+        const formValidator = new FormValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "proceeding-option": "Mental Health",
+        };
+        const errorSummaries =
+          formValidator.validateAddAnotherProceeding(formBody);
+        assert.deepEqual(errorSummaries, {
+          noConfirmationSelected: {
+            text: PROCEEDING_ERROR.NO_CONFIRMATION_SPECIFIED,
           },
         });
       });
