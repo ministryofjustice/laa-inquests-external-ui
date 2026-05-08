@@ -1,6 +1,7 @@
 {% extends "base.njk" %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
 {% block content %}
 
 <div class="govuk-width-container">
@@ -24,6 +25,9 @@
                             }
                         }
                     }) }}
+                {{ govukButton({
+                    text: "Continue"
+                }) }}
             </form>
         </div>
     </main>
