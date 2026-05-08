@@ -21,7 +21,9 @@ test.describe("Add proceedings", () => {
     await expect(continueButton).toBeVisible();
 
     for (const option of PROCEEDING_OPTIONS) {
-      const radio = await page.getByLabel(option, { exact: true });
+      const radio = await page.getByLabel(option.proceedingDescription, {
+        exact: true,
+      });
       await expect(radio).toBeVisible();
     }
   });

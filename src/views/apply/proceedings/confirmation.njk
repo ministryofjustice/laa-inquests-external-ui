@@ -10,7 +10,7 @@
 <div class="govuk-width-container">
   {{ govukBackLink({
     text: "Back",
-    href: "/apply/proceedings"
+    href: "/apply/client-details/has-prev-application"
   }) }}
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
@@ -32,7 +32,6 @@
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
               {{ govukRadios({
                 name: "add-another-proceeding",
-                value: isAddingAnotherProceeding,
                 errorMessage: errorSummaries.noConfirmationSelected,
                 fieldset: {
                   legend: {
