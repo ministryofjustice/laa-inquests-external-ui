@@ -43,4 +43,8 @@ export class DeceasedDetailsAdaptor {
       res.redirect("/apply/deceased-details/dod");
     }
   }
+
+  renderDateOfDeathForm(req: Request, res: Response): void {
+    res.render("apply/deceased-details/date-of-death");
+  }
 }

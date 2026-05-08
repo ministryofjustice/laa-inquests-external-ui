@@ -6,7 +6,7 @@ import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedD
 import { DeceasedDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 
 describe("Deceased details adaptor", () => {
-  it("render name form", () => {
+  it("renderNameForm renders view", () => {
     const formValidator = new DeceasedDetailsValidator();
     const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
 
@@ -19,63 +19,78 @@ describe("Deceased details adaptor", () => {
     assert.equal(renderArgs[0], "apply/deceased-details/name");
   });
 
-  it("process name form redirects to dod", () => {
-    const formValidator = new DeceasedDetailsValidator();
-    const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
+  describe("processNameForm", () => {
+    it("redirects to date of death on valid input", () => {
+      const formValidator = new DeceasedDetailsValidator();
+      const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
 
-    const responseStub = stubInterface<Response>();
-    const requestStub = stubInterface<Request>();
-    requestStub.body = {
-      _csrf: "abcdefg",
-      "deceased-first-name": "Test",
-      "deceased-last-name": "test",
-    };
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-first-name": "Test",
+        "deceased-last-name": "test",
+      };
 
-    deceasedDetailsAdaptor.processNameForm(requestStub, responseStub);
-    assert.equal(responseStub.redirect.callCount, 1);
-    const renderArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(renderArgs[0], "/apply/deceased-details/dod");
+      deceasedDetailsAdaptor.processNameForm(requestStub, responseStub);
+      assert.equal(responseStub.redirect.callCount, 1);
+      const renderArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(renderArgs[0], "/apply/deceased-details/dod");
+    });
+
+    it("re-renders name on bad input with errors", () => {
+      const formValidator = new DeceasedDetailsValidator();
+      const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-first-name": "",
+        "deceased-last-name": "",
+      };
+
+      deceasedDetailsAdaptor.processNameForm(requestStub, responseStub);
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/name");
+
+      const errorObject = renderArgs[1] as Object;
+      assert.ok(errorObject.hasOwnProperty("errorSummaries"));
+    });
+
+    it("adds name data to the session", () => {
+      const formValidator = new DeceasedDetailsValidator();
+      const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      const firstName = "Test first";
+      const lastName = "Test last";
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-first-name": firstName,
+        "deceased-last-name": lastName,
+      };
+
+      deceasedDetailsAdaptor.processNameForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.deceasedFirstName, firstName);
+      assert.equal(requestStub.session.deceasedLastName, lastName);
+    });
   });
 
-  it("process name re-renders name on bad input with errors", () => {
+  it("renderDateOfDeathForm initiates render of view", () => {
     const formValidator = new DeceasedDetailsValidator();
     const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
 
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
-    requestStub.body = {
-      _csrf: "abcdefg",
-      "deceased-first-name": "",
-      "deceased-last-name": "",
-    };
 
-    deceasedDetailsAdaptor.processNameForm(requestStub, responseStub);
+    deceasedDetailsAdaptor.renderDateOfDeathForm(requestStub, responseStub);
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "apply/deceased-details/name");
-
-    const errorObject = renderArgs[1] as Object;
-    assert.ok(errorObject.hasOwnProperty("errorSummaries"));
-  });
-
-  it("process name form adds name data to the session", () => {
-    const formValidator = new DeceasedDetailsValidator();
-    const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
-
-    const responseStub = stubInterface<Response>();
-    const requestStub = stubInterface<Request>();
-
-    const firstName = "Test first";
-    const lastName = "Test last";
-    requestStub.body = {
-      _csrf: "abcdefg",
-      "deceased-first-name": firstName,
-      "deceased-last-name": lastName,
-    };
-
-    deceasedDetailsAdaptor.processNameForm(requestStub, responseStub);
-
-    assert.equal(requestStub.session.deceasedFirstName, firstName);
-    assert.equal(requestStub.session.deceasedLastName, lastName);
+    assert.equal(renderArgs[0], "apply/deceased-details/date-of-death");
   });
 });
