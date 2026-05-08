@@ -45,6 +45,14 @@ export class DeceasedDetailsAdaptor {
   }
 
   renderDateOfDeathForm(req: Request, res: Response): void {
-    res.render("apply/deceased-details/date-of-death");
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    res.render("apply/deceased-details/date-of-death", { csrfToken });
+  }
+
+  processDateOfDeathForm(req: Request, res: Response): void {
+    res.redirect("/apply/deceased-details/dob");
   }
 }

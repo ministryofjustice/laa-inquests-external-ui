@@ -93,4 +93,18 @@ describe("Deceased details adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/deceased-details/date-of-death");
   });
+
+  it("renderDateOfDeathForm passes csrf token on render view initiation", () => {
+    const formValidator = new DeceasedDetailsValidator();
+    const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    deceasedDetailsAdaptor.renderDateOfDeathForm(requestStub, responseStub);
+    const renderArgs = responseStub.render.getCall(0).args;
+
+    const argsObject = renderArgs[1] as Object;
+    assert.ok(argsObject.hasOwnProperty("csrfToken"));
+  });
 });
