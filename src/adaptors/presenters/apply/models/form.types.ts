@@ -47,3 +47,8 @@ export interface ProceedingsError {
   noProceedingSelected?: FormErrorMessage;
   noConfirmationSelected?: FormErrorMessage;
 }
+
+export interface Option {
+  text: string;
+  value: string;
+}
