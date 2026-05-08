@@ -26,5 +26,12 @@ export function createDeceasedDetailsRouter(
     },
   );
 
+  deceasedDetailsRouter.post(
+    "/deceased-details/dod",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.processDateOfDeathForm(req, res);
+    },
+  );
+
   return deceasedDetailsRouter;
 }
