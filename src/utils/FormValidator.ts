@@ -1,3 +1,4 @@
+import moment from "moment";
 import { MAX_CHARACTER_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export class FormValidator {
@@ -30,5 +31,12 @@ export class FormValidator {
     const isMonthNaN = isNaN(parseInt(month ?? "", 10));
     const isYearNaN = isNaN(parseInt(year ?? "", 10));
     return isDayNaN || isMonthNaN || isYearNaN;
+  }
+  protected checkDateIsValid(
+    day: string | undefined,
+    month: string | undefined,
+    year: string | undefined,
+  ): boolean {
+    return moment(`${year}-${month}-${day}`).isValid();
   }
 }

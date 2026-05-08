@@ -1,16 +1,18 @@
 import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
+import { DeceasedDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import assert from "assert";
 
-describe("DeceasedDetails.validator", () => {
+describe.only("DeceasedDetails.validator", () => {
+  const formValidator = new DeceasedDetailsValidator();
+
   describe("validate names", () => {
     it("Adds error when first name is empty", () => {
-      const validator = new DeceasedDetailsValidator();
       const body = {
         "deceased-first-name": "",
         "deceased-last-name": "Test",
       };
-      const errorSummaries = validator.validateName(body);
+      const errorSummaries = formValidator.validateName(body);
       assert.deepEqual(errorSummaries, {
         firstNameInputError: {
           text: DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
@@ -19,12 +21,11 @@ describe("DeceasedDetails.validator", () => {
     });
 
     it("Adds error when last name is empty", () => {
-      const validator = new DeceasedDetailsValidator();
       const body = {
         "deceased-first-name": "Test",
         "deceased-last-name": "",
       };
-      const errorSummaries = validator.validateName(body);
+      const errorSummaries = formValidator.validateName(body);
       assert.deepEqual(errorSummaries, {
         lastNameInputError: {
           text: DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
@@ -33,12 +34,11 @@ describe("DeceasedDetails.validator", () => {
     });
 
     it("Adds error when first name is over 100 characters", () => {
-      const validator = new DeceasedDetailsValidator();
       const body = {
         "deceased-first-name": "a".repeat(101),
         "deceased-last-name": "Test",
       };
-      const errorSummaries = validator.validateName(body);
+      const errorSummaries = formValidator.validateName(body);
       assert.deepEqual(errorSummaries, {
         firstNameInputError: {
           text: DECEASED_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
@@ -47,12 +47,11 @@ describe("DeceasedDetails.validator", () => {
     });
 
     it("Adds error when last name is over 100 characters", () => {
-      const validator = new DeceasedDetailsValidator();
       const body = {
         "deceased-first-name": "Test",
         "deceased-last-name": "a".repeat(101),
       };
-      const errorSummaries = validator.validateName(body);
+      const errorSummaries = formValidator.validateName(body);
       assert.deepEqual(errorSummaries, {
         lastNameInputError: {
           text: DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
@@ -62,86 +61,90 @@ describe("DeceasedDetails.validator", () => {
   });
 
   describe("validateDeceasedDateOfDeath", () => {
-    it("adds error when day in date of death is not provided", () => {
-      const formValidator = new DeceasedDetailsValidator();
-      const formBody = {
-        _csrf: "abcdefg",
-        "deceased-date-of-death-day": "",
-        "deceased-date-of-death-month": "11",
-        "deceased-date-of-death-year": "1990",
-      };
-      const errorSummaries =
-        formValidator.validateDeceasedDateOfDeath(formBody);
-      assert.deepEqual(errorSummaries, {
-        dateOfDeathInputError: {
-          text: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
-        },
-      });
-    });
-    it("adds error when month in date of death is not provided", () => {
-      const formValidator = new DeceasedDetailsValidator();
-      const formBody = {
-        _csrf: "abcdefg",
-        "deceased-date-of-death-day": "1",
-        "deceased-date-of-death-month": "",
-        "deceased-date-of-death-year": "1990",
-      };
-      const errorSummaries =
-        formValidator.validateDeceasedDateOfDeath(formBody);
-      assert.deepEqual(errorSummaries, {
-        dateOfDeathInputError: {
-          text: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
-        },
-      });
-    });
-    it("adds error when year in date of death is not provided", () => {
-      const formValidator = new DeceasedDetailsValidator();
-      const formBody = {
-        _csrf: "abcdefg",
-        "deceased-date-of-death-day": "1",
-        "deceased-date-of-death-month": "1",
-        "deceased-date-of-death-year": "",
-      };
-      const errorSummaries =
-        formValidator.validateDeceasedDateOfDeath(formBody);
-      assert.deepEqual(errorSummaries, {
-        dateOfDeathInputError: {
-          text: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
-        },
-      });
-    });
-    it("adds error when date is non-numeric", () => {
-      const formValidator = new DeceasedDetailsValidator();
-      const formBody = {
-        _csrf: "abcdefg",
-        "deceased-date-of-death-day": "ab",
-        "deceased-date-of-death-month": "abc",
-        "deceased-date-of-death-year": "abc",
-      };
-      const errorSummaries =
-        formValidator.validateDeceasedDateOfDeath(formBody);
+    const testCases = [
+      {
+        testCase: "day of death not provided",
+        dateOfDeath: "/02/1990",
+        expectedError: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+      },
+      {
+        testCase: "month of death not provided",
+        dateOfDeath: "1//1990",
+        expectedError: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+      },
+      {
+        testCase: "month of death not provided",
+        dateOfDeath: "1//1990",
+        expectedError: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+      },
+      {
+        testCase: "year of death not provided",
+        dateOfDeath: "1/1/",
+        expectedError: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+      },
+      {
+        testCase: "date is non-numeric",
+        dateOfDeath: "abc/abc/abc",
+        expectedError: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE,
+      },
+      {
+        testCase: "date is in year 3000",
+        dateOfDeath: "1/1/3000",
+        expectedError: DECEASED_DETAILS_ERROR.FUTURE_DATE,
+      },
+      {
+        testCase: "day is 32",
+        dateOfDeath: "32/1/2000",
+        expectedError: DECEASED_DETAILS_ERROR.INVALID_DATE,
+      },
+      {
+        testCase: "day is 0",
+        dateOfDeath: "0/1/2000",
+        expectedError: DECEASED_DETAILS_ERROR.INVALID_DATE,
+      },
+      {
+        testCase: "month is 0",
+        dateOfDeath: "1/0/2000",
+        expectedError: DECEASED_DETAILS_ERROR.INVALID_DATE,
+      },
+      {
+        testCase: "month is 13",
+        dateOfDeath: "1/13/2000",
+        expectedError: DECEASED_DETAILS_ERROR.INVALID_DATE,
+      },
+      {
+        testCase: "year is 0",
+        dateOfDeath: "1/13/0",
+        expectedError: DECEASED_DETAILS_ERROR.INVALID_DATE,
+      },
+    ];
 
-      assert.deepEqual(errorSummaries, {
-        dateOfDeathInputError: {
-          text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE,
-        },
+    testCases.forEach(({ testCase, dateOfDeath, expectedError }) => {
+      it(`should set error message to: "${expectedError}" when: ${testCase}`, () => {
+        const dateParts = dateOfDeath.split("/");
+
+        const formBody = {
+          _csrf: "abcdefg",
+          "deceased-date-of-death-day": dateParts[0],
+          "deceased-date-of-death-month": dateParts[1],
+          "deceased-date-of-death-year": dateParts[2],
+        };
+
+        testDateOfDeathInputError(formBody, expectedError);
       });
     });
-    it("adds error when date is in the future", () => {
-      const formValidator = new DeceasedDetailsValidator();
-      const formBody = {
-        _csrf: "abcdefg",
-        "deceased-date-of-death-day": "ab",
-        "deceased-date-of-death-month": "abc",
-        "deceased-date-of-death-year": "3000",
-      };
+
+    const testDateOfDeathInputError = (
+      formBody: Partial<DeceasedDetailsFormData>,
+      expectedErrorMessage: string,
+    ) => {
       const errorSummaries =
         formValidator.validateDeceasedDateOfDeath(formBody);
       assert.deepEqual(errorSummaries, {
         dateOfDeathInputError: {
-          text: DECEASED_DETAILS_ERROR.FUTURE_DATE,
+          text: expectedErrorMessage,
         },
       });
-    });
+    };
   });
 });
