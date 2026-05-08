@@ -87,7 +87,7 @@ describe("Deceased details adaptor", () => {
   });
 
   describe("processsDateOfDeathForm", () => {
-    it("redirects to date of death given valid input", () => {
+    it("redirects to date of birth given valid input", () => {
       requestStub.body = {
         _csrf: "abcdefg",
         "deceased-date-of-death-day": "1",

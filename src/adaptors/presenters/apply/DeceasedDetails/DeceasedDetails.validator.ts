@@ -51,13 +51,13 @@ export class DeceasedDetailsValidator extends FormValidator {
       "deceased-date-of-death-year": dateOfDeathYear,
     } = formBody;
 
-    const isDateEmpty = this.checkDobFieldsAreEmpty(
+    const isDateEmpty = this.checkDateFieldsAreEmpty(
       dateOfDeathDay,
       dateOfDeathMonth,
       dateOfDeathYear,
     );
 
-    const isDateNaN = this.checkDobIsNotANumber(
+    const isDateNaN = this.checkDateIsNotANumber(
       dateOfDeathDay,
       dateOfDeathMonth,
       dateOfDeathYear,

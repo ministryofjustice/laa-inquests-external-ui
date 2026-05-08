@@ -10,7 +10,7 @@ export class FormValidator {
       : typeof inputValue === "string" &&
           inputValue.length > MAX_CHARACTER_LENGTH;
   }
-  protected checkDobFieldsAreEmpty(
+  protected checkDateFieldsAreEmpty(
     day: string | undefined,
     month: string | undefined,
     year: string | undefined,
@@ -21,7 +21,7 @@ export class FormValidator {
 
     return isDayEmpty || isMonthEmpty || isYearEmpty;
   }
-  protected checkDobIsNotANumber(
+  protected checkDateIsNotANumber(
     day: string | undefined,
     month: string | undefined,
     year: string | undefined,
