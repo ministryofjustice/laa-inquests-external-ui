@@ -13,6 +13,7 @@
         <div class="govuk-grid-column-one-half">
             <h2 class="govuk-heading-l">What was their date of death?</h2>
             <form data-testid="deceased-date-of-death-form" action="/apply/deceased-details/dod" method="post">
+                <input type="hidden" name="_csrf" value={{csrfToken}} />
                 {{ govukDateInput({
                         id: "date-of-death",
                         namePrefix: "date-of-death",
