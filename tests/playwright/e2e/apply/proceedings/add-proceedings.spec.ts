@@ -27,7 +27,6 @@ test.describe("Add proceedings", () => {
       await expect(radio).toBeVisible();
     }
   });
-  // renders radio after adding a proceeding
   test("renders error message on clicking continue without selecting a proceeding", async ({
     page,
   }) => {
