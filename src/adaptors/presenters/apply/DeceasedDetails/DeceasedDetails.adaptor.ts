@@ -52,4 +52,50 @@ export class DeceasedDetailsAdaptor {
       res.redirect("/apply/deceased-details/dod");
     }
   }
+
+  renderDateOfDeathForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    res.render("apply/deceased-details/date-of-death", { csrfToken });
+  }
+
+  processDateOfDeathForm(
+    req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    const {
+      body: {
+        "deceased-date-of-death-day": dateOfDeathDay,
+        "deceased-date-of-death-month": dateOfDeathMonth,
+        "deceased-date-of-death-year": dateOfDeathYear,
+      },
+    } = req;
+
+    req.session.deceasedDateOfDeathDay = dateOfDeathDay;
+    req.session.deceasedDateOfDeathMonth = dateOfDeathMonth;
+    req.session.deceasedDateOfDeathYear = dateOfDeathYear;
+
+    const errorSummaries = this.formValidator.validateDeceasedDateOfDeath(
+      req.body,
+    );
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/deceased-details/date-of-death", {
+        csrfToken,
+        errorSummaries,
+        deceasedDetails: {
+          dateOfDeathDay,
+          dateOfDeathMonth,
+          dateOfDeathYear,
+        },
+      });
+    } else {
+      res.redirect("/apply/deceased-details/dob");
+    }
+  }
 }

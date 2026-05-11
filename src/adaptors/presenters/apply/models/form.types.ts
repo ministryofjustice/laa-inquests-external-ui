@@ -41,6 +41,9 @@ export interface ClientPrevApplicationRefError {
 export interface DeceasedDetailsFormData extends FormBody {
   "deceased-first-name": string;
   "deceased-last-name": string;
+  "deceased-date-of-death-day": string;
+  "deceased-date-of-death-month": string;
+  "deceased-date-of-death-year": string;
 }
 
 export interface DeceasedNameError {
@@ -61,4 +64,8 @@ export interface ProceedingsError {
 export interface Option {
   text: string;
   value: string;
+}  
+  
+export interface DeceasedDateOfDeathError {
+  dateOfDeathInputError?: FormErrorMessage;
 }

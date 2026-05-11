@@ -21,12 +21,12 @@ export class ClientDetailsValidator extends FormValidator {
       "dob-year": dateOfBirthYear,
     } = formBody;
 
-    const isDateEmpty = this.checkDobFieldsAreEmpty(
+    const isDateEmpty = this.checkDateFieldsAreEmpty(
       dateOfBirthDay,
       dateOfBirthMonth,
       dateOfBirthYear,
     );
-    const isDateNaN = this.checkDobIsNotANumber(
+    const isDateNaN = this.checkDateIsNotANumber(
       dateOfBirthDay,
       dateOfBirthMonth,
       dateOfBirthYear,

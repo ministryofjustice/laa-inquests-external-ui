@@ -1,6 +1,7 @@
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type {
+  DeceasedDateOfDeathError,
   DeceasedDetailsFormData,
   DeceasedNameError,
 } from "../models/form.types.js";
@@ -34,6 +35,63 @@ export class DeceasedDetailsValidator extends FormValidator {
       errorSummaries.lastNameInputError = {
         text: DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       };
+    }
+
+    return errorSummaries;
+  }
+
+  validateDeceasedDateOfDeath(
+    formBody: Partial<DeceasedDetailsFormData>,
+  ): Partial<DeceasedDateOfDeathError> {
+    const errorSummaries: Partial<DeceasedDateOfDeathError> = {};
+
+    const {
+      "deceased-date-of-death-day": dateOfDeathDay,
+      "deceased-date-of-death-month": dateOfDeathMonth,
+      "deceased-date-of-death-year": dateOfDeathYear,
+    } = formBody;
+
+    const isDateEmpty = this.checkDateFieldsAreEmpty(
+      dateOfDeathDay,
+      dateOfDeathMonth,
+      dateOfDeathYear,
+    );
+
+    const isDateNaN = this.checkDateIsNotANumber(
+      dateOfDeathDay,
+      dateOfDeathMonth,
+      dateOfDeathYear,
+    );
+
+    const isDayAndMonthValid = this.checkDateIsValid(
+      dateOfDeathDay,
+      dateOfDeathMonth,
+      dateOfDeathYear,
+    );
+
+    if (isDateEmpty) {
+      errorSummaries.dateOfDeathInputError = {
+        text: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+      };
+    } else if (isDateNaN) {
+      errorSummaries.dateOfDeathInputError = {
+        text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
+      };
+    } else if (!isDayAndMonthValid) {
+      errorSummaries.dateOfDeathInputError = {
+        text: DECEASED_DETAILS_ERROR.INVALID_DATE,
+      };
+    }
+
+    if (!isDateEmpty || !isDateNaN || !isDayAndMonthValid) {
+      const dateOfBirth = new Date(
+        `${dateOfDeathDay}/${dateOfDeathMonth}/${dateOfDeathYear}`,
+      );
+      if (dateOfBirth > new Date()) {
+        errorSummaries.dateOfDeathInputError = {
+          text: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_DEATH,
+        };
+      }
     }
 
     return errorSummaries;

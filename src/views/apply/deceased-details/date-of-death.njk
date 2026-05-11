@@ -1,0 +1,53 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% block content %}
+
+<div class="govuk-width-container">
+    {{ govukBackLink({
+        text: "Back",
+        href: "/apply/deceased-details/name"
+    }) }}
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <h2 class="govuk-heading-l">What was their date of death?</h2>
+            <form data-testid="deceased-date-of-death-form" action="/apply/deceased-details/dod" method="post">
+                <input type="hidden" name="_csrf" value={{csrfToken}} />
+                {{ govukDateInput({
+                        id: "deceased-date-of-death",
+                        namePrefix: "deceased-date-of-death",
+                        fieldset: {
+                            legend: {
+                                text: "Date of death",
+                                classes: "govuk-fieldset__legend--s"
+                            }
+                        },
+                        errorMessage: errorSummaries.dateOfDeathInputError,
+                        items: [
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "day",
+                                value: deceasedDetails.dateOfDeathDay
+                            },
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "month",
+                                value: deceasedDetails.dateOfDeathMonth
+                            },
+                            {
+                                classes: "govuk-input--width-4",
+                                name: "year",
+                                value: deceasedDetails.dateOfDeathYear
+                            }
+                        ]
+                    }) }}
+                {{ govukButton({
+                    text: "Continue"
+                }) }}
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}
