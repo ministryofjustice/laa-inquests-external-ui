@@ -49,6 +49,7 @@ export interface DeceasedDetailsFormData extends FormBody {
   "deceased-date-of-birth-year": string;
   "deceased-has-client-relationship": string;
   "deceased-client-relationship": string;
+  "deceased-coroner-reference": string;
 }
 
 export interface DeceasedNameError {

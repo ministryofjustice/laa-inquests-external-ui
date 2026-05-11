@@ -153,4 +153,29 @@ export class DeceasedDetailsAdaptor {
     req.session.deceasedClientRelationship = deceasedClientRelationship;
     res.redirect("/apply/deceased-details/coroner-reference");
   }
+
+  renderCoronerReferenceForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    res.render("apply/deceased-details/coroner-reference", {
+      csrfToken,
+      deceasedDetails: {
+        coronerReference: req.session.deceasedCoronerReference,
+      },
+    });
+  }
+
+  processCoronerReferenceForm(
+    req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      body: { "deceased-coroner-reference": deceasedCoronerReference },
+    } = req;
+
+    req.session.deceasedCoronerReference = deceasedCoronerReference;
+    res.redirect("/apply/deceased-details/further-information");
+  }
 }

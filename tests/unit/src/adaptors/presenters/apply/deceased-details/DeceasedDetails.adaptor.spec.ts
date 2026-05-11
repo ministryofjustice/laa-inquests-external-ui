@@ -317,4 +317,81 @@ describe("Deceased details adaptor", () => {
       );
     });
   });
+
+  describe("renderCoronerReferenceForm", () => {
+    it("initiates render of view", () => {
+      deceasedDetailsAdaptor.renderCoronerReferenceForm(
+        requestStub,
+        responseStub,
+      );
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/coroner-reference");
+    });
+    it("passes csrf token on render view initiation", () => {
+      deceasedDetailsAdaptor.renderCoronerReferenceForm(
+        requestStub,
+        responseStub,
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Object;
+      assert.ok(argsObject.hasOwnProperty("csrfToken"));
+    });
+    it("passes session input data to render view initiation", () => {
+      const expectedCoronerReference = "Test";
+
+      requestStub.session.deceasedCoronerReference = expectedCoronerReference;
+
+      deceasedDetailsAdaptor.renderCoronerReferenceForm(
+        requestStub,
+        responseStub,
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const argsObject = renderArgs[1] as Record<string, any>;
+
+      const {
+        deceasedDetails: { coronerReference },
+      } = argsObject;
+
+      assert.equal(coronerReference, expectedCoronerReference);
+    });
+  });
+
+  describe.only("processCoronerReferenceForm", () => {
+    it("redirects to further information given valid input", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-coroner-reference": "Test",
+      };
+
+      deceasedDetailsAdaptor.processCoronerReferenceForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirect = responseStub.redirect.getCall(0).args;
+      assert.equal(redirect[0], "/apply/deceased-details/further-information");
+    });
+    it("adds data to the session", () => {
+      const expectedCoronerReference = "test";
+
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-coroner-reference": expectedCoronerReference,
+      };
+
+      deceasedDetailsAdaptor.processCoronerReferenceForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(
+        requestStub.session.deceasedCoronerReference,
+        expectedCoronerReference,
+      );
+    });
+  });
 });
