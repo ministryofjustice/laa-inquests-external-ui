@@ -95,7 +95,14 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/deceased-details/dob", { csrfToken });
+    res.render("apply/deceased-details/dob", {
+      csrfToken,
+      deceasedDetails: {
+        dateOfBirthDay: req.session.deceasedDateOfBirthDay,
+        dateOfBirthMonth: req.session.deceasedDateOfBirthMonth,
+        dateOfBirthYear: req.session.deceasedDateOfBirthYear,
+      },
+    });
   }
 
   processDateOfBirthForm(

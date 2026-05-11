@@ -66,4 +66,27 @@ test.describe("Deceased details - date of birth", () => {
       "apply/deceased-details/client-relationship",
     );
   });
+  test("auto-populates field with session data", async ({ page }) => {
+    page.goto("/apply/deceased-details/dob");
+    const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
+
+    const dayInput = deceasedForm.getByLabel("Day");
+    const monthInput = deceasedForm.getByLabel("Month");
+    const yearInput = deceasedForm.getByLabel("Year");
+
+    const [day, month, year] = ["1", "1", "1990"];
+
+    await dayInput.fill(day);
+    await monthInput.fill(month);
+    await yearInput.fill(year);
+
+    const continueButton = deceasedForm.getByRole("button");
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    page.goto("/apply/deceased-details/dob");
+    await expect(dayInput).toHaveValue(day);
+    await expect(monthInput).toHaveValue(month);
+    await expect(yearInput).toHaveValue(year);
+  });
 });

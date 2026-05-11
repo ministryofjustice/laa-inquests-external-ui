@@ -163,6 +163,27 @@ describe("Deceased details adaptor", () => {
       const argsObject = renderArgs[1] as Object;
       assert.ok(argsObject.hasOwnProperty("csrfToken"));
     });
+
+    it("passes session input data to render view initiation", () => {
+      const [day, month, year] = ["1", "1", "1990"];
+
+      requestStub.session.deceasedDateOfBirthDay = day;
+      requestStub.session.deceasedDateOfBirthMonth = month;
+      requestStub.session.deceasedDateOfBirthYear = year;
+
+      deceasedDetailsAdaptor.renderDateOfBirthForm(requestStub, responseStub);
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Record<string, any>;
+
+      const {
+        deceasedDetails: { dateOfBirthDay, dateOfBirthMonth, dateOfBirthYear },
+      } = argsObject;
+
+      assert.equal(dateOfBirthDay, day);
+      assert.equal(dateOfBirthMonth, month);
+      assert.equal(dateOfBirthYear, year);
+    });
   });
 
   describe("processDateOfBirthForm", () => {
