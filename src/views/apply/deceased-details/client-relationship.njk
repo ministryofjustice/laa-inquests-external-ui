@@ -1,0 +1,61 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {{ govukBackLink({
+        text: "Back",
+        href: "/apply/deceased-details/dob"
+    }) }}
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                <h2 class="govuk-heading-l">Does your client meet the definition of a family member?</h2>
+                <form data-testid="deceased-client-relationship-form" action="/apply/deceased-details/client-relationship" method="post">
+                    <input type="hidden" name="_csrf" value={{csrfToken}} />
+                    <p class="govuk-body">Definition of a family member according to the bill:</p>
+
+                    {{ govukInsetText({
+                        text: "A family member is defined as someone who is a  relative (of full or half blood, or by marriage or civil partnership), a cohabitant as defined in Part 4 of the Family Law Act 1996, or where one person has parental responsibility for the other."
+                    }) }}
+
+                      {{ govukRadios({
+                        name: "has-client-relationship",
+                        value: deceasedDetails.hasClientRelationship,
+                        items: [
+                        {
+                            value: "true",
+                            text: "Yes",
+                            conditional: {
+                                html:  govukInput({
+                                    id: "deceased-client-relationship",
+                                    name: "deceased-client-relationship",
+                                    type: "text",
+                                    spellcheck: false,
+                                    classes: "govuk-!-width-one-half",
+                                    label: {
+                                        text: "Please describe the nature of the relationship between your client and the deceased."
+                                    },
+                                    value: deceasedDetails.clientRelationship
+                            })}
+                        },
+                        {
+                            value: "false",
+                            text: "No"
+                        }
+                        ]
+                    }) }}
+
+                    {{ govukButton({
+                        text: "Continue"
+                    }) }}
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

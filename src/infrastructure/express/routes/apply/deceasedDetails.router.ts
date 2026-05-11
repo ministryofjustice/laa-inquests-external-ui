@@ -47,5 +47,19 @@ export function createDeceasedDetailsRouter(
     },
   );
 
+  deceasedDetailsRouter.get(
+    "/deceased-details/client-relationship",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.renderClientRelationshipForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.post(
+    "/deceased-details/client-relationship",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.processClientRelationshipForm(req, res);
+    },
+  );
+
   return deceasedDetailsRouter;
 }
