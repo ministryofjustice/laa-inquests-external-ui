@@ -359,7 +359,7 @@ describe("Deceased details adaptor", () => {
     });
   });
 
-  describe.only("processCoronerReferenceForm", () => {
+  describe("processCoronerReferenceForm", () => {
     it("redirects to further information given valid input", () => {
       requestStub.body = {
         _csrf: "abcdefg",
