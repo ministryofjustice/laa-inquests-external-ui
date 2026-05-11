@@ -78,6 +78,120 @@
               ]
             }) }}
           </div>
+          <h2 class="govuk-heading-m">Inquest</h2>
+          <div data-testid="deceased-details-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Deceased details"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/name",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "First name"
+                  },
+                  value: {
+                    html: ""
+                  }
+                },
+                {
+                  key: {
+                    text: "Last name"
+                  },
+                  value: {
+                    html: ""
+                  }
+                },
+                {
+                  key: {
+                    text: "Date of death"
+                  },
+                  value: {
+                    html: ""
+                  }
+                },
+                {
+                  key: {
+                    text: "Client relationship"
+                  },
+                  value: {
+                    html: ""
+                  }
+                },
+                {
+                  key: {
+                    text: "Inquest ID"
+                  },
+                  value: {
+                    html: ""
+                  }
+                }
+              ]
+            }) }}
+          </div>
+          <div data-testid="interested-parties-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Interested parties"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/public-authority",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "Public authority 1"
+                  },
+                  value: {
+                    html: ""
+                  }
+                }
+              ]
+            }) }}
+          </div>
+          <div data-testid="coroners-letter-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Coroner's letter"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/upload",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "File name"
+                  },
+                  value: {
+                    html: ""
+                  }
+                }
+              ]
+            }) }}
+          </div>
         
           {{ govukButton({
             text: "Continue"
