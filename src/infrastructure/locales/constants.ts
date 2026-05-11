@@ -30,8 +30,9 @@ export const DECEASED_DETAILS_ERROR = {
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Last name cannot exceed 100 characters",
   MISSING_DATE_OF_DEATH_INPUT: "Please enter date of death",
-  NON_NUMERIC_DATE: "Please enter date of death in the format expected",
-  FUTURE_DATE: "Date of death must not be in the future",
+  NON_NUMERIC_DATE_OF_DEATH:
+    "Please enter date of death in the format expected",
+  FUTURE_DATE_OF_DEATH: "Date of death must not be in the future",
   INVALID_DATE: "Please enter a valid date",
 };
 

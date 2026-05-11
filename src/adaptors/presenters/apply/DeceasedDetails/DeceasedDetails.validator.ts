@@ -75,7 +75,7 @@ export class DeceasedDetailsValidator extends FormValidator {
       };
     } else if (isDateNaN) {
       errorSummaries.dateOfDeathInputError = {
-        text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE,
+        text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
       };
     } else if (!isDayAndMonthValid) {
       errorSummaries.dateOfDeathInputError = {
@@ -89,7 +89,7 @@ export class DeceasedDetailsValidator extends FormValidator {
       );
       if (dateOfBirth > new Date()) {
         errorSummaries.dateOfDeathInputError = {
-          text: DECEASED_DETAILS_ERROR.FUTURE_DATE,
+          text: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_DEATH,
         };
       }
     }
