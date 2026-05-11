@@ -1,6 +1,6 @@
 import { test, expect } from "../../../fixtures/index.js";
 
-test.describe.only("Deceased details - date of birth", () => {
+test.describe("Deceased details - date of birth", () => {
   test.describe("renders", () => {
     test("header", async ({ page }) => {
       page.goto("/apply/deceased-details/dob");

@@ -36,14 +36,14 @@ export function createDeceasedDetailsRouter(
   deceasedDetailsRouter.get(
     "/deceased-details/dob",
     (req: Request, res: Response): void => {
-      res.render("apply/deceased-details/dob");
+      deceasedDetailsAdaptor.renderDateOfBirthForm(req, res);
     },
   );
 
   deceasedDetailsRouter.post(
     "/deceased-details/dob",
     (req: Request, res: Response): void => {
-      res.redirect("apply/deceased-details/client-relationship");
+      deceasedDetailsAdaptor.processDateOfBirthForm(req, res);
     },
   );
 

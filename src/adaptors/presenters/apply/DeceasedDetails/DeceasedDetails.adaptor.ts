@@ -89,4 +89,31 @@ export class DeceasedDetailsAdaptor {
       res.redirect("/apply/deceased-details/dob");
     }
   }
+
+  renderDateOfBirthForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    res.render("apply/deceased-details/dob", { csrfToken });
+  }
+
+  processDateOfBirthForm(
+    req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      body: {
+        "deceased-date-of-birth-day": dateOfBirthDay,
+        "deceased-date-of-birth-month": dateOfBirthMonth,
+        "deceased-date-of-birth-year": dateOfBirthYear,
+      },
+    } = req;
+
+    req.session.deceasedDateOfBirthDay = dateOfBirthDay;
+    req.session.deceasedDateOfBirthMonth = dateOfBirthMonth;
+    req.session.deceasedDateOfBirthYear = dateOfBirthYear;
+
+    res.redirect("/apply/deceased-details/client-relationship");
+  }
 }

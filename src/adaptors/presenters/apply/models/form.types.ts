@@ -44,6 +44,9 @@ export interface DeceasedDetailsFormData extends FormBody {
   "deceased-date-of-death-day": string;
   "deceased-date-of-death-month": string;
   "deceased-date-of-death-year": string;
+  "deceased-date-of-birth-day": string;
+  "deceased-date-of-birth-month": string;
+  "deceased-date-of-birth-year": string;
 }
 
 export interface DeceasedNameError {

@@ -147,4 +147,62 @@ describe("Deceased details adaptor", () => {
       );
     });
   });
+
+  describe("renderDateOfBirthForm", () => {
+    it("initiates render of view", () => {
+      deceasedDetailsAdaptor.renderDateOfBirthForm(requestStub, responseStub);
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/dob");
+    });
+
+    it("passes csrf token on render view initiation", () => {
+      deceasedDetailsAdaptor.renderDateOfBirthForm(requestStub, responseStub);
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Object;
+      assert.ok(argsObject.hasOwnProperty("csrfToken"));
+    });
+  });
+
+  describe("processDateOfBirthForm", () => {
+    it("redirects to client relationship given valid input", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-date-of-birth-day": "1",
+        "deceased-date-of-birth-month": "1",
+        "deceased-date-of-birth-year": "1990",
+      };
+
+      deceasedDetailsAdaptor.processDateOfBirthForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirect = responseStub.redirect.getCall(0).args;
+      assert.equal(redirect[0], "/apply/deceased-details/client-relationship");
+    });
+    it("adds data to the session", () => {
+      const dateOfBirthDay = "1";
+      const dateOfBirthMonth = "2";
+      const dateOfBirthYear = "1990";
+
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-date-of-birth-day": dateOfBirthDay,
+        "deceased-date-of-birth-month": dateOfBirthMonth,
+        "deceased-date-of-birth-year": dateOfBirthYear,
+      };
+
+      deceasedDetailsAdaptor.processDateOfBirthForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.deceasedDateOfBirthDay, dateOfBirthDay);
+      assert.equal(
+        requestStub.session.deceasedDateOfBirthMonth,
+        dateOfBirthMonth,
+      );
+      assert.equal(
+        requestStub.session.deceasedDateOfBirthYear,
+        dateOfBirthYear,
+      );
+    });
+  });
 });
