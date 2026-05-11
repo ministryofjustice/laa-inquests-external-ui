@@ -40,7 +40,7 @@
                     text: "First name"
                   },
                   value: {
-                    html: "38"
+                    html: client.clientFirstName
                   }
                 },
                 {
@@ -48,7 +48,7 @@
                     text: "Last name"
                   },
                   value: {
-                    html: "UK national resident in UK"
+                    html: client.clientLastName
                   }
                 },
                 {
@@ -56,7 +56,7 @@
                     text: "Date of birth"
                   },
                   value: {
-                    html: "UK national resident in UK"
+                    html: client.clientDob
                   }
                 },
                 {
@@ -64,7 +64,7 @@
                     text: "Home address"
                   },
                   value: {
-                    html: "UK national resident in UK"
+                    html: ""
                   }
                 },
                 {
@@ -72,7 +72,7 @@
                     text: "Correspondence address"
                   },
                   value: {
-                    html: "UK national resident in UK"
+                    html: ""
                   }
                 }
               ]
@@ -100,7 +100,7 @@
                     text: "First name"
                   },
                   value: {
-                    html: ""
+                    html: deceasedDetails.deceasedFirstName
                   }
                 },
                 {
@@ -108,7 +108,7 @@
                     text: "Last name"
                   },
                   value: {
-                    html: ""
+                    html: deceasedDetails.deceasedLastName
                   }
                 },
                 {
@@ -116,7 +116,7 @@
                     text: "Date of death"
                   },
                   value: {
-                    html: ""
+                    html: deceasedDetails.dateOfDeath
                   }
                 },
                 {
@@ -194,7 +194,8 @@
           </div>
         
           {{ govukButton({
-            text: "Continue"
+            text: "Continue",
+            href: "/apply/submit/client-declaration"
           }) }}
       </div>
     </div>

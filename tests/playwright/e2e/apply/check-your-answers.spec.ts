@@ -18,13 +18,18 @@ test.describe.only("Apply - check your answers", () => {
       "/apply/fee-earner",
     );
 
-    
-
     const pageInsetText = page.getByText("You cannot change the answers on this page once you  continue");
     await expect(pageInsetText).toBeVisible();
 
-     const continueButton = page.getByRole("button");
+    const continueButton = page.getByRole("button");
     await expect(continueButton).toHaveText("Continue");
+    
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.url()).toContain(
+      "/apply/submit/client-declaration",
+    );
+
   });
 
   test("renders client details summary list", async ({ page }) => {

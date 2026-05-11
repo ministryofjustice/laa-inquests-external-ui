@@ -9,6 +9,7 @@ import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
 import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
+import { ConfirmationAdaptor } from "#src/adaptors/presenters/apply/Confirmation/Confirmation.adaptor.js";
 import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
 import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
 import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
@@ -81,12 +82,14 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsFormatter,
 );
 
+const confirmationAdaptor = new ConfirmationAdaptor();
+
 indexRouter.use(
   "/apply",
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
   createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
-  createConfirmationRouter(confirmationRouter),
+  createConfirmationRouter(confirmationRouter, confirmationAdaptor),
 );
 
 export default indexRouter;
