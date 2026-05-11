@@ -32,7 +32,7 @@ export class FormValidator {
     const isYearNaN = isNaN(parseInt(year ?? "", 10));
     return isDayNaN || isMonthNaN || isYearNaN;
   }
-  
+
   protected checkDateIsValid(
     day: string | undefined,
     month: string | undefined,

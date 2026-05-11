@@ -64,8 +64,8 @@ export interface ProceedingsError {
 export interface Option {
   text: string;
   value: string;
-}  
-  
+}
+
 export interface DeceasedDateOfDeathError {
   dateOfDeathInputError?: FormErrorMessage;
 }

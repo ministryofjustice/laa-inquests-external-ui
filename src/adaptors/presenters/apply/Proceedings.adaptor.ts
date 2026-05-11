@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import type { FormValidator } from "#src/utils/FormValidator.js";
 import {
   EMPTY_ARR_LENGTH,
   PROCEEDING_OPTIONS,
@@ -8,10 +7,11 @@ import type { TypedRequestBody } from "#src/infrastructure/express/index.types.j
 import type { Option, ProceedingsFormData } from "./models/form.types.js";
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { SummaryListRow } from "./models/summaryList.types.js";
+import type { ProceedingsValidator } from "./Proceedings/Proceedings.validator.js";
 
 export class ProceedingsAdaptor {
-  formValidator: FormValidator;
-  constructor(formValidator: FormValidator) {
+  formValidator: ProceedingsValidator;
+  constructor(formValidator: ProceedingsValidator) {
     this.formValidator = formValidator;
   }
   renderProceedingSelectForm(req: Request, res: Response): void {
