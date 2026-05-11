@@ -123,4 +123,29 @@ export class DeceasedDetailsAdaptor {
 
     res.redirect("/apply/deceased-details/client-relationship");
   }
+
+  renderClientRelationshipForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    res.render("apply/deceased-details/client-relationship", {
+      csrfToken,
+      deceasedDetails: {
+        clientRelationship: req.session.deceasedClientRelationship,
+      },
+    });
+  }
+
+  processClientRelationshipForm(
+    req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      body: { "deceased-client-relationship": deceasedClientRelationship },
+    } = req;
+
+    req.session.deceasedClientRelationship = deceasedClientRelationship;
+    res.redirect("/apply/deceased-details/coroner-reference");
+  }
 }

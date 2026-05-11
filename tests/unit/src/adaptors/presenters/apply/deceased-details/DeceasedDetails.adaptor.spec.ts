@@ -226,4 +226,85 @@ describe("Deceased details adaptor", () => {
       );
     });
   });
+
+  describe("renderClientRelationshipForm", () => {
+    it("initiates render of view", () => {
+      deceasedDetailsAdaptor.renderClientRelationshipForm(
+        requestStub,
+        responseStub,
+      );
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/client-relationship");
+    });
+
+    it("passes csrf token on render view initiation", () => {
+      deceasedDetailsAdaptor.renderClientRelationshipForm(
+        requestStub,
+        responseStub,
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Object;
+      assert.ok(argsObject.hasOwnProperty("csrfToken"));
+    });
+
+    it("passes session input data to render view initiation", () => {
+      const expectedClientRelationship = "Test";
+
+      requestStub.session.deceasedClientRelationship =
+        expectedClientRelationship;
+
+      deceasedDetailsAdaptor.renderClientRelationshipForm(
+        requestStub,
+        responseStub,
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Record<string, any>;
+
+      const {
+        deceasedDetails: { clientRelationship },
+      } = argsObject;
+
+      assert.equal(clientRelationship, clientRelationship);
+    });
+  });
+
+  describe("processClientRelationshipForm", () => {
+    it("redirects to coroners reference given valid input", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-client-relationship": "Father",
+      };
+
+      deceasedDetailsAdaptor.processClientRelationshipForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirect = responseStub.redirect.getCall(0).args;
+      assert.equal(redirect[0], "/apply/deceased-details/coroner-reference");
+    });
+
+    it("adds data to the session", () => {
+      const expectedClientRelationship = "Test";
+
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-client-relationship": expectedClientRelationship,
+      };
+
+      deceasedDetailsAdaptor.processClientRelationshipForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(
+        requestStub.session.deceasedClientRelationship,
+        expectedClientRelationship,
+      );
+    });
+  });
 });
