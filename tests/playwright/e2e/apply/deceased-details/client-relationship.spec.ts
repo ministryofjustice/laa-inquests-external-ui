@@ -1,5 +1,13 @@
 import { test, expect } from "../../../fixtures/index.js";
-import type { Page, Locator } from "playwright-core";
+import type { Locator } from "playwright-core";
+import {
+  validateHeader,
+  validateBackButton,
+  validateCSRFToken,
+  validateContinueButton,
+  validateFormAttributes,
+  continueToNextPage,
+} from "./form-validation-utils.js";
 
 test.describe("Provider can", () => {
   let form: Locator;
@@ -12,9 +20,13 @@ test.describe("Provider can", () => {
     await validateHeader(
       page,
       "Does your client meet the definition of a family member?",
+      2,
     );
     await validateBackButton(page, "/apply/deceased-details/dob");
-    await validateFormAttributes(form);
+    await validateFormAttributes(
+      form,
+      "/apply/deceased-details/client-relationship",
+    );
     await validateCSRFToken(form);
     await validateContinueButton(form);
 
@@ -38,42 +50,6 @@ test.describe("Provider can", () => {
       "apply/deceased-details/coroner-reference",
     );
   });
-
-  async function validateHeader(page: Page, headerText: string) {
-    const heading = await page.getByRole("heading", {
-      level: 2,
-      name: headerText,
-    });
-    await expect(heading).toBeVisible();
-  }
-
-  async function validateBackButton(page: Page, previousUrl: string) {
-    const backButton = page.getByRole("link", { name: "Back", exact: true });
-    await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", previousUrl);
-  }
-
-  async function validateCSRFToken(form: Locator) {
-    const csrfToken = await form.locator("input[name='_csrf']");
-    await expect(csrfToken).toBeHidden();
-    await expect(csrfToken).not.toBeEmpty();
-  }
-
-  async function validateContinueButton(form: Locator) {
-    const continueButton = form.getByRole("button");
-
-    await expect(continueButton).toBeVisible();
-    await expect(continueButton).toHaveText("Continue");
-    await expect(continueButton).toHaveAttribute("type", "submit");
-  }
-
-  async function validateFormAttributes(form: Locator) {
-    await expect(form).toHaveAttribute("method", "post");
-    await expect(form).toHaveAttribute(
-      "action",
-      "/apply/deceased-details/client-relationship",
-    );
-  }
 
   async function validateFormTextIsVisible(form: Locator, text: string) {
     const textElement = form.getByText(text);
@@ -102,11 +78,5 @@ test.describe("Provider can", () => {
       "Please describe the nature of the relationship between your client and the deceased.",
     );
     await yesInputLabel.fill("Father");
-  }
-
-  async function continueToNextPage(form: Locator, page: Page) {
-    const continueButton = form.getByRole("button");
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
   }
 });
