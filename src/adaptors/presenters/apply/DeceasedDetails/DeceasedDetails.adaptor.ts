@@ -132,6 +132,7 @@ export class DeceasedDetailsAdaptor {
     res.render("apply/deceased-details/client-relationship", {
       csrfToken,
       deceasedDetails: {
+        hasClientRelationship: req.session.deceasedHasClientRelationship,
         clientRelationship: req.session.deceasedClientRelationship,
       },
     });
@@ -142,9 +143,13 @@ export class DeceasedDetailsAdaptor {
     res: Response,
   ): void {
     const {
-      body: { "deceased-client-relationship": deceasedClientRelationship },
+      body: {
+        "deceased-client-relationship": deceasedClientRelationship,
+        "deceased-has-client-relationship": deceasedHasClientRelationship,
+      },
     } = req;
 
+    req.session.deceasedHasClientRelationship = deceasedHasClientRelationship;
     req.session.deceasedClientRelationship = deceasedClientRelationship;
     res.redirect("/apply/deceased-details/coroner-reference");
   }

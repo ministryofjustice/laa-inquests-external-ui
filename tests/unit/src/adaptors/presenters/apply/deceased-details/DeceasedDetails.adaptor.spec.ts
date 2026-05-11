@@ -250,8 +250,11 @@ describe("Deceased details adaptor", () => {
     });
 
     it("passes session input data to render view initiation", () => {
+      const expectedHasClientRelationship = "true";
       const expectedClientRelationship = "Test";
 
+      requestStub.session.deceasedHasClientRelationship =
+        expectedHasClientRelationship;
       requestStub.session.deceasedClientRelationship =
         expectedClientRelationship;
 
@@ -264,10 +267,11 @@ describe("Deceased details adaptor", () => {
       const argsObject = renderArgs[1] as Record<string, any>;
 
       const {
-        deceasedDetails: { clientRelationship },
+        deceasedDetails: { clientRelationship, hasClientRelationship },
       } = argsObject;
 
-      assert.equal(clientRelationship, clientRelationship);
+      assert.equal(hasClientRelationship, expectedHasClientRelationship);
+      assert.equal(clientRelationship, expectedClientRelationship);
     });
   });
 
@@ -289,10 +293,12 @@ describe("Deceased details adaptor", () => {
     });
 
     it("adds data to the session", () => {
+      const expectedHasClientRelationship = "true";
       const expectedClientRelationship = "Test";
 
       requestStub.body = {
         _csrf: "abcdefg",
+        "deceased-has-client-relationship": expectedHasClientRelationship,
         "deceased-client-relationship": expectedClientRelationship,
       };
 
@@ -301,6 +307,10 @@ describe("Deceased details adaptor", () => {
         responseStub,
       );
 
+      assert.equal(
+        requestStub.session.deceasedHasClientRelationship,
+        expectedHasClientRelationship,
+      );
       assert.equal(
         requestStub.session.deceasedClientRelationship,
         expectedClientRelationship,
