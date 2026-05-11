@@ -61,5 +61,19 @@ export function createDeceasedDetailsRouter(
     },
   );
 
+  deceasedDetailsRouter.get(
+    "/deceased-details/coroner-reference",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.renderCoronerReferenceForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.post(
+    "/deceased-details/coroner-reference",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.processCoronerReferenceForm(req, res);
+    },
+  );
+
   return deceasedDetailsRouter;
 }
