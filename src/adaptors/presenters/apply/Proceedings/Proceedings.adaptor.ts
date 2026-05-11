@@ -1,33 +1,34 @@
 import type { Request, Response } from "express";
-import type { FormValidator } from "#src/utils/FormValidator.js";
 import {
   EMPTY_ARR_LENGTH,
   PROCEEDING_OPTIONS,
 } from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
-import type { Option, ProceedingsFormData } from "./models/form.types.js";
-import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
-import type { SummaryListRow } from "./models/summaryList.types.js";
+import type { ProceedingsFormData } from "../models/form.types.js";
+import type { ProceedingsValidator } from "./Proceedings.validator.js";
+import type { Formatter } from "#src/utils/Formatter.js";
 
 export class ProceedingsAdaptor {
-  formValidator: FormValidator;
-  constructor(formValidator: FormValidator) {
+  formValidator: ProceedingsValidator;
+  formatter: Formatter;
+  constructor(formValidator: ProceedingsValidator, formatter: Formatter) {
     this.formValidator = formValidator;
+    this.formatter = formatter;
   }
   renderProceedingSelectForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
     } = res;
     const selectedProceedings = req.session.selectedProceedings ?? [];
-    const filteredProceedingOptions = this.#filterProceedingOptions(
+    const filteredProceedingOptions = this.formatter.filterAvailableOptions(
       selectedProceedings,
       PROCEEDING_OPTIONS,
     );
-    const formattedProceedingOptions = this.#formatProceedingOptions(
+    const formattedProceedingOptions = this.formatter.formatOptionsIntoList(
       filteredProceedingOptions,
     );
     const formattedSelectedProceedings =
-      this.#formatSelectedProceedings(selectedProceedings);
+      this.formatter.formatSelectedIntoTableRows(selectedProceedings);
 
     res.render("apply/proceedings/add-proceedings", {
       csrfToken,
@@ -60,15 +61,15 @@ export class ProceedingsAdaptor {
         Object.keys(proceedingErrors).length > EMPTY_ARR_LENGTH) ||
       selectedProceeding === undefined
     ) {
-      const filteredProceedingOptions = this.#filterProceedingOptions(
+      const filteredProceedingOptions = this.formatter.filterAvailableOptions(
         selectedProceedings,
         PROCEEDING_OPTIONS,
       );
-      const formattedProceedingOptions = this.#formatProceedingOptions(
+      const formattedProceedingOptions = this.formatter.formatOptionsIntoList(
         filteredProceedingOptions,
       );
       const formattedSelectedProceedings =
-        this.#formatSelectedProceedings(selectedProceedings);
+        this.formatter.formatSelectedIntoTableRows(selectedProceedings);
 
       const renderOptions = {
         csrfToken,
@@ -99,9 +100,10 @@ export class ProceedingsAdaptor {
     if (req.session.selectedProceedings === undefined) {
       res.redirect("/apply/proceedings");
     } else {
-      const formattedSelectedProceedings = this.#formatSelectedProceedings(
-        req.session.selectedProceedings,
-      );
+      const formattedSelectedProceedings =
+        this.formatter.formatSelectedIntoTableRows(
+          req.session.selectedProceedings,
+        );
 
       const renderOptions = {
         csrfToken,
@@ -129,7 +131,7 @@ export class ProceedingsAdaptor {
     if (Object.keys(proceedingErrors).length > EMPTY_ARR_LENGTH) {
       const selectedProceedings = req.session.selectedProceedings ?? [];
       const formattedSelectedProceedings =
-        this.#formatSelectedProceedings(selectedProceedings);
+        this.formatter.formatSelectedIntoTableRows(selectedProceedings);
 
       const renderOptions = {
         csrfToken,
@@ -143,46 +145,5 @@ export class ProceedingsAdaptor {
     } else if (isAddingAnotherProceeding === "false") {
       res.redirect("/apply/deceased-details/name");
     }
-  }
-
-  #filterProceedingOptions(
-    selectedProceedings: Proceeding[],
-    allProceedings: Proceeding[],
-  ): Proceeding[] {
-    const formattedProceedingOptions = allProceedings.filter(
-      (option) =>
-        !selectedProceedings.some(
-          (selectedOption) =>
-            selectedOption.proceedingId === option.proceedingId,
-        ),
-    );
-
-    return formattedProceedingOptions;
-  }
-
-  #formatProceedingOptions(proceedingOptions: Proceeding[]): Option[] {
-    return proceedingOptions.map((proceeding) => ({
-      text: proceeding.proceedingDescription,
-      value: proceeding.proceedingId,
-    }));
-  }
-
-  #formatSelectedProceedings(
-    selectedProceedings: Proceeding[],
-  ): SummaryListRow[] {
-    const formattedSelectedProceedings = selectedProceedings.map(
-      (proceeding) => ({
-        key: { text: proceeding.proceedingId },
-        value: { text: proceeding.proceedingDescription },
-        actions: {
-          items: [
-            {
-              text: "Remove",
-            },
-          ],
-        },
-      }),
-    );
-    return formattedSelectedProceedings;
   }
 }

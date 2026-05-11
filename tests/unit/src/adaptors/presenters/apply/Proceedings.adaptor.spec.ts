@@ -1,14 +1,16 @@
 import { assert } from "chai";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
-import { FormValidator } from "#src/utils/FormValidator.js";
-import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings.adaptor.js";
+import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
+import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { Formatter } from "#src/utils/Formatter.js";
 
 describe("Proceedings adaptor", () => {
   describe("renderProceedingSelectForm", () => {
     it("renders proceeding selection form", () => {
-      const formValidator = new FormValidator();
-      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter()
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator, formatter);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -72,8 +74,9 @@ describe("Proceedings adaptor", () => {
   });
   describe("processProceedingsForm", () => {
     it("adds selected proceedings to the session object", () => {
-      const formValidator = new FormValidator();
-      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter()
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator, formatter);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -105,8 +108,9 @@ describe("Proceedings adaptor", () => {
       assert(redirectArgs[0], "/apply/proceedings/confirmation");
     });
     it("renders error message if no proceeding option is selected", async () => {
-      const formValidator = new FormValidator();
-      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter()
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator, formatter);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -134,8 +138,9 @@ describe("Proceedings adaptor", () => {
   });
   describe("renderProceedingsConfirmation", () => {
     it("renders proceeding confirmation form with single selected proceeding", () => {
-      const formValidator = new FormValidator();
-      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter()
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator, formatter);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -185,8 +190,9 @@ describe("Proceedings adaptor", () => {
   });
   describe("processProceedingsConfirmation", () => {
     it("re-renders the confirmation page with error if no option is selected", () => {
-      const formValidator = new FormValidator();
-      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter()
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator, formatter);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -216,8 +222,9 @@ describe("Proceedings adaptor", () => {
       assert.deepInclude(renderArgs[1], expectedRenderOptions);
     });
     it("redirects to deceased details page if no selected", () => {
-      const formValidator = new FormValidator();
-      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter()
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator, formatter);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -235,8 +242,9 @@ describe("Proceedings adaptor", () => {
       assert(redirectArgs[0], "/apply/deceased-details/name");
     });
     it("redirects to form page if yes selected", () => {
-      const formValidator = new FormValidator();
-      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter()
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator, formatter);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
