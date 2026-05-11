@@ -3,7 +3,7 @@ import { DeceasedDetailsFormData } from "#src/adaptors/presenters/apply/models/f
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import assert from "assert";
 
-describe.only("DeceasedDetails.validator", () => {
+describe("DeceasedDetails.validator", () => {
   const formValidator = new DeceasedDetailsValidator();
 
   describe("validate names", () => {
