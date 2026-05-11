@@ -3,11 +3,14 @@ import type {
   ClientNameDobError,
   ClientNinoError,
   ClientPrevApplicationRefError,
+  ProceedingsError,
+  ProceedingsFormData,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
   MAX_CHARACTER_LENGTH,
   NINO_REGEX,
+  PROCEEDING_ERROR,
 } from "#src/infrastructure/locales/constants.js";
 
 export class FormValidator {
@@ -211,6 +214,37 @@ export class FormValidator {
     ) {
       errorSummaries.referenceInputError = {
         text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+      };
+    }
+    return errorSummaries;
+  }
+
+  validateProceedingInput(
+    formBody: Partial<ProceedingsFormData>,
+  ): Partial<ProceedingsError> {
+    const errorSummaries: Partial<ProceedingsError> = {};
+
+    const { "proceeding-option": proceedingOption } = formBody;
+
+    if (typeof proceedingOption !== "string") {
+      errorSummaries.noProceedingSelected = {
+        text: PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
+      };
+    }
+
+    return errorSummaries;
+  }
+
+  validateAddAnotherProceeding(
+    formBody: Partial<ProceedingsFormData>,
+  ): Partial<ProceedingsError> {
+    const errorSummaries: Partial<ProceedingsError> = {};
+
+    const { "add-another-proceeding": isAddingAnotherProceeding } = formBody;
+
+    if (typeof isAddingAnotherProceeding !== "string") {
+      errorSummaries.noConfirmationSelected = {
+        text: PROCEEDING_ERROR.NO_CONFIRMATION_SPECIFIED,
       };
     }
     return errorSummaries;
