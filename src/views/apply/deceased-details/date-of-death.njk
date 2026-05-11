@@ -16,15 +16,32 @@
             <form data-testid="deceased-date-of-death-form" action="/apply/deceased-details/dod" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />
                 {{ govukDateInput({
-                        id: "date-of-death",
-                        namePrefix: "date-of-death",
+                        id: "deceased-date-of-death",
+                        namePrefix: "deceased-date-of-death",
                         fieldset: {
                             legend: {
                                 text: "Date of death",
                                 classes: "govuk-fieldset__legend--s"
                             }
                         },
-                        errorMessage: errorSummaries.dateOfDeathInputError
+                        errorMessage: errorSummaries.dateOfDeathInputError,
+                        items: [
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "day",
+                                value: deceasedDetails.dateOfDeathDay
+                            },
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "month",
+                                value: deceasedDetails.dateOfDeathMonth
+                            },
+                            {
+                                classes: "govuk-input--width-4",
+                                name: "year",
+                                value: deceasedDetails.dateOfDeathYear
+                            }
+                        ]
                     }) }}
                 {{ govukButton({
                     text: "Continue"
