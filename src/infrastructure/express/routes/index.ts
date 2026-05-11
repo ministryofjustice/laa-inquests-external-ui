@@ -10,9 +10,10 @@ import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
 import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
-import { FormValidator } from "#src/utils/FormValidator.js";
-import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings.adaptor.js";
+import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
 import { createProceedingsRouter } from "./apply/proceedings.router.js";
+import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { Formatter } from "#src/utils/Formatter.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -62,15 +63,21 @@ indexRouter.use("/applications", [
 ]);
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
-const clientDetailsAdaptor = new ClientDetailsAdaptor(clientDetailsFormValidator)
+const clientDetailsAdaptor = new ClientDetailsAdaptor(
+  clientDetailsFormValidator,
+);
 
 const deceasedDetailsFormValidator = new DeceasedDetailsValidator();
 const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(
   deceasedDetailsFormValidator,
 );
 
-const formValidator = new FormValidator();
-const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+const proceedingsFormatter = new Formatter();
+const proceedingsValidator = new ProceedingsValidator();
+const proceedingsAdaptor = new ProceedingsAdaptor(
+  proceedingsValidator,
+  proceedingsFormatter,
+);
 
 indexRouter.use(
   "/apply",

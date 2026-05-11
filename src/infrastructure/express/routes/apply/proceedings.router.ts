@@ -1,4 +1,4 @@
-import type { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings.adaptor.js";
+import type { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
 import type { Request, Response, Router } from "express";
 
 export function createProceedingsRouter(
