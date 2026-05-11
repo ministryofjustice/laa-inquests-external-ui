@@ -85,12 +85,12 @@ describe("DeceasedDetails.validator", () => {
       {
         testCase: "date is non-numeric",
         dateOfDeath: "abc/abc/abc",
-        expectedError: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE,
+        expectedError: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
       },
       {
         testCase: "date is in year 3000",
         dateOfDeath: "1/1/3000",
-        expectedError: DECEASED_DETAILS_ERROR.FUTURE_DATE,
+        expectedError: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_DEATH,
       },
       {
         testCase: "day is 32",
