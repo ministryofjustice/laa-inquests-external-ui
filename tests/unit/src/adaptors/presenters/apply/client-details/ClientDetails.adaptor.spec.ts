@@ -1,7 +1,6 @@
 import { strict as assert } from "assert";
-import sinon from "sinon";
-import { type StubbedInstance, stubInterface, stubObject } from "ts-sinon";
-import type { Request, Response, Locals } from "express";
+import { stubInterface } from "ts-sinon";
+import type { Request, Response } from "express";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 
@@ -134,7 +133,7 @@ describe("Client details adaptor", () => {
     assert.equal(renderArgs[0], "apply/client-details/has-prev-application");
   });
 
-  it("process has prev application form redirects to proceedings", () => {
+  it("process has prev application form redirects to proceedings if no selectedProceedings exist in session", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
@@ -151,8 +150,35 @@ describe("Client details adaptor", () => {
       responseStub,
     );
     assert.equal(responseStub.redirect.callCount, 1);
-    const renderArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(renderArgs[0], "/apply/proceedings");
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(redirectArgs[0], "/apply/proceedings");
+  });
+  it("process has prev application form redirects to confirm proceedings form if a proceeding has been previously selected", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "has-prev-application": "false",
+      "prev-laa-reference-input": "",
+    };
+    requestStub.session.selectedProceedings = [
+      {
+        proceedingId: "MN035",
+        proceedingDescription: "Clinical Negligence",
+        matterType: "INQUEST",
+      },
+    ];
+
+    clientDetailsAdaptor.processHasPrevApplicationForm(
+      requestStub,
+      responseStub,
+    );
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(redirectArgs[0], "/apply/proceedings/confirmation");
   });
 
   it("process has prev application form sets boolean value to false in session when previous application does not exist", () => {

@@ -1,4 +1,5 @@
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { DeceasedDetailsFormData } from "../models/form.types.js";
 import type { DeceasedDetailsValidator } from "./DeceasedDetails.validator.js";
@@ -15,7 +16,15 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/deceased-details/name", { csrfToken });
+    const checkProceedings = (
+      proceedings: Proceeding[] | undefined | null,
+    ): boolean => proceedings !== undefined && proceedings !== null;
+
+    const backButtonUrl = checkProceedings(req.session.selectedProceedings)
+      ? "/apply/proceedings/confirmation"
+      : "/apply/proceedings";
+
+    res.render("apply/deceased-details/name", { csrfToken, backButtonUrl });
   }
 
   processNameForm(
