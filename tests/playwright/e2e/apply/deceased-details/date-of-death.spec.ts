@@ -3,7 +3,7 @@ import { test, expect } from "../../../fixtures/index.js";
 import type { Page } from "playwright-core";
 
 test.describe("Deceased details - date of death", () => {
-  test("renders basic details header and back link", async ({ page }) => {
+  test("renders basic details header", async ({ page }) => {
     page.goto("/apply/deceased-details/dod");
     const deceasedDateOfDeathHeading = await page.getByRole("heading", {
       level: 2,
