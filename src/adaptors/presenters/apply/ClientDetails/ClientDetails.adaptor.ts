@@ -3,12 +3,14 @@ import type { Request, Response } from "express";
 import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import type { FormValidator } from "#src/utils/FormValidator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 
 export class ClientDetailsAdaptor {
   formValidator: FormValidator;
   constructor(formValidator: FormValidator) {
     this.formValidator = formValidator;
   }
+
   renderNameForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
@@ -154,7 +156,13 @@ export class ClientDetailsAdaptor {
         },
       });
     } else {
-      res.redirect("/apply/proceedings");
+      const checkProceedings = (
+        proceedings: Proceeding[] | undefined | null,
+      ): boolean => proceedings !== undefined && proceedings !== null;
+      const redirectUrl = checkProceedings(req.session.selectedProceedings)
+        ? "/apply/proceedings/confirmation"
+        : "/apply/proceedings";
+      res.redirect(redirectUrl);
     }
   }
 }

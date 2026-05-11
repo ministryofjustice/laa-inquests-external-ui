@@ -1,4 +1,4 @@
-import { strict as assert } from "assert";
+import { assert } from "chai";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { FormValidator } from "#src/utils/FormValidator.js";
@@ -66,8 +66,8 @@ describe("Proceedings adaptor", () => {
       proceedingsAdaptor.renderProceedingSelectForm(requestStub, responseStub);
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/proceedings/add-proceedings");
-      assert.deepEqual(renderArgs[1], expectedRenderOptions);
+      assert(renderArgs[0], "apply/proceedings/add-proceedings");
+      assert.deepInclude(renderArgs[1], expectedRenderOptions);
     });
   });
   describe("processProceedingsForm", () => {
@@ -102,7 +102,34 @@ describe("Proceedings adaptor", () => {
       );
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectArgs[0], "/apply/proceedings/confirmation");
+      assert(redirectArgs[0], "/apply/proceedings/confirmation");
+    });
+    it("renders error message if no proceeding option is selected", async () => {
+      const formValidator = new FormValidator();
+      const proceedingsAdaptor = new ProceedingsAdaptor(formValidator);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      proceedingsAdaptor.processProceedingsForm(requestStub, responseStub);
+      assert.deepEqual(requestStub.session.selectedProceedings, undefined);
+      assert.deepEqual(requestStub.session.proceedingOption, undefined);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert(renderArgs[0], "apply/proceedings/add-proceedings");
+
+      assert.deepInclude(renderArgs[1], {
+        errorSummaries: {
+          noProceedingSelected: {
+            text: "An application must specify at least one related proceeding.",
+          },
+        },
+      });
     });
   });
   describe("renderProceedingsConfirmation", () => {
@@ -152,9 +179,8 @@ describe("Proceedings adaptor", () => {
       );
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/proceedings/confirmation");
-
-      assert.deepEqual(renderArgs[1], expectedRenderOptions);
+      assert(renderArgs[0], "apply/proceedings/confirmation");
+      assert.deepInclude(renderArgs[1], expectedRenderOptions);
     });
   });
   describe("processProceedingsConfirmation", () => {
@@ -186,8 +212,8 @@ describe("Proceedings adaptor", () => {
       );
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/proceedings/confirmation");
-      assert.deepEqual(renderArgs[1], expectedRenderOptions);
+      assert(renderArgs[0], "apply/proceedings/confirmation");
+      assert.deepInclude(renderArgs[1], expectedRenderOptions);
     });
     it("redirects to deceased details page if no selected", () => {
       const formValidator = new FormValidator();
@@ -206,7 +232,7 @@ describe("Proceedings adaptor", () => {
       );
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectArgs[0], "/apply/deceased-details/name");
+      assert(redirectArgs[0], "/apply/deceased-details/name");
     });
     it("redirects to form page if yes selected", () => {
       const formValidator = new FormValidator();
@@ -225,7 +251,7 @@ describe("Proceedings adaptor", () => {
       );
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectArgs[0], "/apply/proceedings");
+      assert(redirectArgs[0], "/apply/proceedings");
     });
   });
 });
