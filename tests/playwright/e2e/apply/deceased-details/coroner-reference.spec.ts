@@ -9,7 +9,7 @@ import {
   continueToNextPage,
 } from "./form-validation-utils.js";
 
-test.describe.only("Provider can", () => {
+test.describe("Provider can", () => {
   let form: Locator;
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/deceased-details/coroner-reference");
