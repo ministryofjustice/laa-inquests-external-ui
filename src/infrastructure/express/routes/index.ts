@@ -6,6 +6,7 @@ import { createClientDetailsRouter } from "#src/infrastructure/express/routes/ap
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
 import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
+import { createConfirmationRouter } from "./apply/confirmation.router.js";
 import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
@@ -20,6 +21,7 @@ const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
+const confirmationRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -84,6 +86,7 @@ indexRouter.use(
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
   createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
+  createConfirmationRouter(confirmationRouter),
 );
 
 export default indexRouter;

@@ -1,0 +1,90 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/fee-earner"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">      
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Check your answers</h1>
+        {{ govukInsetText({
+          text: "You cannot change the answers on this page once you  continue"
+        }) }}
+        <h2 class="govuk-heading-m">Case details</h2>
+          <div data-testid="client-details-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Client details"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/name-and-dob",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "First name"
+                  },
+                  value: {
+                    html: "38"
+                  }
+                },
+                {
+                  key: {
+                    text: "Last name"
+                  },
+                  value: {
+                    html: "UK national resident in UK"
+                  }
+                },
+                {
+                  key: {
+                    text: "Date of birth"
+                  },
+                  value: {
+                    html: "UK national resident in UK"
+                  }
+                },
+                {
+                  key: {
+                    text: "Home address"
+                  },
+                  value: {
+                    html: "UK national resident in UK"
+                  }
+                },
+                {
+                  key: {
+                    text: "Correspondence address"
+                  },
+                  value: {
+                    html: "UK national resident in UK"
+                  }
+                }
+              ]
+            }) }}
+          </div>
+        
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
