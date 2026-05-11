@@ -1,0 +1,51 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+
+{% block content %}
+<div class="govuk-width-container">
+    {{ govukBackLink({
+        text: "Back",
+        href: "/apply/deceased-details/dod"
+    }) }}
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                <h2 class="govuk-heading-l">What was their date of birth?</h2>
+                <form data-testid="deceased-date-of-birth-form" action="/apply/deceased-details/dob" method="post">
+                <input type="hidden" name="_csrf" value={{csrfToken}} />
+                {{ govukDateInput({
+                        id: "deceased-date-of-birth",
+                        namePrefix: "deceased-date-of-birth",
+                        fieldset: {
+                            legend: {
+                                text: "Date of birth",
+                                classes: "govuk-fieldset__legend--s"
+                            }
+                        },
+                        items: [
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "day"
+                            },
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "month"
+                            },
+                            {
+                                classes: "govuk-input--width-4",
+                                name: "year"
+                            }
+                        ]
+                    }) }}
+                    {{ govukButton({
+                        text: "Continue"
+                    }) }}
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
