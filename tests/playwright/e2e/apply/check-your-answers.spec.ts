@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index.js";
 
-test.describe.only("Apply - check your answers", () => {
+test.describe("Apply - check your answers", () => {
   test("renders check your answers page header and back link", async ({ page }) => {
     page.goto("/apply/check-your-answers");
 
