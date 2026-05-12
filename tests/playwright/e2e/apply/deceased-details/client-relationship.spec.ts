@@ -60,20 +60,6 @@ test.describe("Provider can", () => {
     await expect(textElement).toBeVisible();
   }
 
-  async function validateClientRelationshipRadio(form: Locator) {
-    const yesRadioLabel = form.getByLabel("Yes");
-    const noRadioLabel = form.getByLabel("No");
-    const yesInputLabel = form.getByLabel(
-      "Please describe the nature of the relationship between your client and the deceased.",
-    );
-    await expect(yesRadioLabel).toBeVisible();
-    await expect(noRadioLabel).toBeVisible();
-    await expect(yesInputLabel).toBeHidden();
-
-    yesRadioLabel.click();
-    await expect(yesInputLabel).toBeVisible();
-  }
-
   async function fillClientRelationshipInput(form: Locator) {
     const yesRadioLabel = form.getByLabel("Yes");
     await yesRadioLabel.click();
