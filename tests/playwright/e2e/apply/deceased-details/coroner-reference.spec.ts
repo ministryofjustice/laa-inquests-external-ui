@@ -51,7 +51,7 @@ test.describe("Provider can", () => {
     await yesInput.fill("Test");
 
     await continueToNextPage(form, page);
-    await page.goBack();
+    await page.goto("/apply/deceased-details/coroner-reference");
     await expect(yesInput).toHaveValue("Test");
   });
 });

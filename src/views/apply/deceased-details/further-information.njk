@@ -17,7 +17,7 @@
                 <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
                     {{ govukRadios({
-                        name: "has-further-information",
+                        name: "deceased-has-further-information",
                         value: deceasedDetails.hasFurtherInformation,
                         items: [
                             {

@@ -96,7 +96,7 @@ test.describe("Provider can", () => {
     await lastNameField.fill(lastName);
 
     await continueToNextPage(form, page);
-    await page.goBack();
+    await page.goto("/apply/deceased-details/name");
 
     await expect(firstNameField).toHaveValue(firstName);
     await expect(lastNameField).toHaveValue(lastName);

@@ -141,7 +141,7 @@ test.describe("Provider can", () => {
     await yearField.fill(year);
 
     await continueToNextPage(form, page);
-    await page.goBack();
+    await page.goto("/apply/deceased-details/dod");
 
     await expect(dayField).toHaveValue(day);
     await expect(monthField).toHaveValue(month);
