@@ -1,4 +1,7 @@
-import type { Proceeding, PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
+import type {
+  Proceeding,
+  PublicAuthority,
+} from "#src/infrastructure/express/session/index.types.js";
 import type { Option } from "../adaptors/presenters/apply/models/form.types.js";
 import type { SummaryListRow } from "../adaptors/presenters/apply/models/summaryList.types.js";
 
@@ -49,7 +52,7 @@ export class Formatter {
   ): SummaryListRow[] {
     const formattedPublicAuthorities = selectedPublicAuthorities.map(
       (publicAuthority) => ({
-        key: { text: publicAuthority.publicAuthorityId},
+        key: { text: publicAuthority.publicAuthorityId },
         value: { text: publicAuthority.publicAuthorityDescription },
       }),
     );

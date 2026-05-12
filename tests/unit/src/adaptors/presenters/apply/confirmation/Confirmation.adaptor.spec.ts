@@ -54,42 +54,40 @@ describe("Confirmation adaptor", () => {
 
     const publicAuthorities = [
       {
-        publicAuthorityId: '12345',
-        publicAuthorityDescription: 'Test public authority'
-      }
+        publicAuthorityId: "12345",
+        publicAuthorityDescription: "Test public authority",
+      },
     ];
 
     const expectedFormattedPublicAuthorities = [
-        {
-          key: { text: "12345" },
-          value: { text: "Test public authority" }
-        },
-      ];
+      {
+        key: { text: "12345" },
+        value: { text: "Test public authority" },
+      },
+    ];
 
     requestStub.session.selectedPublicAuthorities = publicAuthorities;
 
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
-    assert.deepEqual(renderArgs[1], 
-      { 
-        csrfToken : undefined,
-        client: {
-          clientFirstName:"test name",
-          clientLastName:"last name",
-          clientDob: "1/12/1990",
-          clientAddress: "4 Privet Drive Little Whinging Surrey B1 123b",
-          clientCorrespondenceAddress: "1 test rd test city test county B1 321b"
-        },
-        deceasedDetails: {
-          deceasedFirstName:"deceased first name",
-          deceasedLastName:"deceased last name",
-          dateOfDeath: "6/8/2001",
-          deceasedClientRelationship: "brother",
-          deceasedCoronerReference: "12345678910"
-        },
-        publicAuthorities: expectedFormattedPublicAuthorities
-      });
+    assert.deepEqual(renderArgs[1], {
+      csrfToken: undefined,
+      client: {
+        clientFirstName: "test name",
+        clientLastName: "last name",
+        clientDob: "1/12/1990",
+        clientAddress: "4 Privet Drive Little Whinging Surrey B1 123b",
+        clientCorrespondenceAddress: "1 test rd test city test county B1 321b",
+      },
+      deceasedDetails: {
+        deceasedFirstName: "deceased first name",
+        deceasedLastName: "deceased last name",
+        dateOfDeath: "6/8/2001",
+        deceasedClientRelationship: "brother",
+        deceasedCoronerReference: "12345678910",
+      },
+      publicAuthorities: expectedFormattedPublicAuthorities,
+    });
   });
-
 });

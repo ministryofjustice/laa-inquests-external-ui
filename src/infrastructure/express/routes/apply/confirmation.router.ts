@@ -8,7 +8,7 @@ export function createConfirmationRouter(
   confirmationRouter.get(
     "/check-your-answers",
     (req: Request, res: Response): void => {
-      confirmationAdaptor.renderCheckYourAnswers(req,res);
+      confirmationAdaptor.renderCheckYourAnswers(req, res);
     },
   );
 
