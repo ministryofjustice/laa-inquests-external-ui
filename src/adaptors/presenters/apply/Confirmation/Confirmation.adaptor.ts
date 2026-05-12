@@ -28,14 +28,14 @@ export class ConfirmationAdaptor {
       client: {
         clientFirstName: req.session.clientFirstName ?? "",
         clientLastName: req.session.clientLastName ?? "",
-        clientDob: clientDob,
+        clientDob,
         clientAddress: `${clientAddress} ${clientPostcode}`,
         clientCorrespondenceAddress: `${clientCorrespondenceAddress} ${clientCorrespondencePostcode}`
       },
       deceasedDetails: {
         deceasedFirstName: req.session.deceasedFirstName ?? "",
         deceasedLastName: req.session.deceasedLastName ?? "",
-        dateOfDeath: dateOfDeath,
+        dateOfDeath,
         deceasedClientRelationship: req.session.deceasedClientRelationship ?? "",
         deceasedCoronerReference: req.session.deceasedCoronerReference ?? ""
       },
