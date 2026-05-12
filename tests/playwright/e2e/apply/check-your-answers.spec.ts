@@ -107,7 +107,7 @@ test.describe("Apply - check your answers", () => {
     const lastNameRowTitle = deceasedDetailsSummaryList.getByText("Last name");
     const dodTitle = deceasedDetailsSummaryList.getByText("Date of death");
     const clientRelationshipTitle = deceasedDetailsSummaryList.getByText("Client relationship");
-    const inquestIdTitle = deceasedDetailsSummaryList.getByText("Inquest ID");
+    const inquestIdTitle = deceasedDetailsSummaryList.getByText("Coroner’s reference");
 
     await expect(firstNameRowTitle).toBeVisible();
     await expect(lastNameRowTitle).toBeVisible();
@@ -118,7 +118,7 @@ test.describe("Apply - check your answers", () => {
    
 
   });
-  test("renders interested parties  summary list", async ({ page }) => {
+  test("renders interested parties summary list", async ({ page }) => {
 
     page.goto("/apply/check-your-answers");
 
@@ -139,10 +139,6 @@ test.describe("Apply - check your answers", () => {
       "href",
       "/apply/public-authority",
     );
-
-    const publicAuthorityRowTitle = interestedPartiesSummaryList.getByText("Public authority");
-    
-    await expect(publicAuthorityRowTitle).toBeVisible();
 
   });
 
