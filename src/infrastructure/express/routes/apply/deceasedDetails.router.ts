@@ -78,13 +78,21 @@ export function createDeceasedDetailsRouter(
   deceasedDetailsRouter.get(
     "/deceased-details/further-information",
     (req: Request, res: Response): void => {
-      res.render("apply/deceased-details/further-information");
+      res.render("apply/deceased-details/further-information", {
+        deceasedDetails: {
+          hasFurtherInformation: req.session.deceasedHasFurtherInformation,
+          furtherInformation: req.session.deceasedFurtherInformation,
+        },
+      });
     },
   );
 
   deceasedDetailsRouter.post(
     "/deceased-details/further-information",
     (req: Request, res: Response): void => {
+      req.session.deceasedHasFurtherInformation = "true";
+      req.session.deceasedFurtherInformation = "Test";
+
       res.redirect("apply/interested-parties");
     },
   );

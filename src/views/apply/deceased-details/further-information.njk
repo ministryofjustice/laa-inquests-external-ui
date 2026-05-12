@@ -18,6 +18,7 @@
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
                     {{ govukRadios({
                         name: "has-further-information",
+                        value: deceasedDetails.hasFurtherInformation,
                         items: [
                             {
                                 value: "true",
@@ -31,7 +32,8 @@
                                         classes: "govuk-!-width-one-half",
                                         label: {
                                             text: "Please provide any details available of linked or bridged inquests"
-                                        }
+                                        },
+                                        value: deceasedDetails.furtherInformation
                                     }
                                 )}
                             },

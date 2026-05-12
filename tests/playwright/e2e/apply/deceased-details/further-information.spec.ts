@@ -10,7 +10,7 @@ import {
   validateYesNoRadioWithConditionalInput,
 } from "./form-validation-utils.js";
 
-test.describe.only("Provider can", () => {
+test.describe("Provider can", () => {
   let form: Locator;
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/deceased-details/further-information");
@@ -39,5 +39,21 @@ test.describe.only("Provider can", () => {
   test("continue to interested parties page", async ({ page }) => {
     await continueToNextPage(form, page);
     await expect(page.url()).toContain("apply/interested-parties");
+  });
+
+  test("fill in details, continue and navigate back with deceased details further information automatically filled in", async ({
+    page,
+  }) => {
+    const yesRadio = form.getByLabel("Yes");
+    await yesRadio.click();
+    const yesInput = form.getByLabel(
+      "Please provide any details available of linked or bridged inquests",
+    );
+    await yesInput.fill("Test");
+
+    await continueToNextPage(form, page);
+    await page.goBack();
+    await expect(yesRadio).toBeChecked();
+    await expect(yesInput).toHaveValue("Test");
   });
 });
