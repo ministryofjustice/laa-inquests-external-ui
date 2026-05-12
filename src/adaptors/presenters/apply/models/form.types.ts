@@ -50,6 +50,8 @@ export interface DeceasedDetailsFormData extends FormBody {
   "deceased-has-client-relationship": string;
   "deceased-client-relationship": string;
   "deceased-coroner-reference": string;
+  "deceased-has-further-information": string;
+  "deceased-further-information": string;
 }
 
 export interface DeceasedNameError {

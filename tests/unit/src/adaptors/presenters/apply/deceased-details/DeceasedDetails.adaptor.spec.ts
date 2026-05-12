@@ -394,4 +394,92 @@ describe("Deceased details adaptor", () => {
       );
     });
   });
+
+  describe("renderFurtherInfomationForm", () => {
+    it("initiates render of view", () => {
+      deceasedDetailsAdaptor.renderFurtherInfomationForm(
+        requestStub,
+        responseStub,
+      );
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/further-information");
+    });
+    it("passes csrf token on render view initiation", () => {
+      deceasedDetailsAdaptor.renderFurtherInfomationForm(
+        requestStub,
+        responseStub,
+      );
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Object;
+      assert.ok(argsObject.hasOwnProperty("csrfToken"));
+    });
+    it("passes session input data to render view initiation", () => {
+      const expectedhasFurtherInformation = "true";
+      const expectedFurtherInformation = "Test";
+
+      requestStub.session.deceasedHasFurtherInformation =
+        expectedhasFurtherInformation;
+      requestStub.session.deceasedFurtherInformation =
+        expectedFurtherInformation;
+
+      deceasedDetailsAdaptor.renderFurtherInfomationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const argsObject = renderArgs[1] as Record<string, any>;
+
+      const {
+        deceasedDetails: { hasFurtherInformation, furtherInformation },
+      } = argsObject;
+
+      assert.equal(hasFurtherInformation, expectedhasFurtherInformation);
+      assert.equal(furtherInformation, expectedFurtherInformation);
+    });
+  });
+
+  describe("processFurtherInfomationForm", () => {
+    it("redirects to interested parties given valid input", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-coroner-reference": "Test",
+      };
+
+      deceasedDetailsAdaptor.processFurtherInfomationForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirect = responseStub.redirect.getCall(0).args;
+      assert.equal(redirect[0], "/apply/interested-parties");
+    });
+    it("adds data to the session", () => {
+      const expectedHasFurtherInformation = "true";
+      const expectedFurtherInformation = "Test";
+
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-has-further-information": expectedHasFurtherInformation,
+        "deceased-further-information": expectedFurtherInformation,
+      };
+
+      deceasedDetailsAdaptor.processFurtherInfomationForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(
+        requestStub.session.deceasedHasFurtherInformation,
+        expectedHasFurtherInformation,
+      );
+      assert.equal(
+        requestStub.session.deceasedFurtherInformation,
+        expectedFurtherInformation,
+      );
+    });
+  });
 });
