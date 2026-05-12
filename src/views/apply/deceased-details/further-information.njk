@@ -12,7 +12,7 @@
     }) }}
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
+            <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-l">Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?</h2>
                 <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
@@ -29,7 +29,6 @@
                                         name: "deceased-further-information",
                                         type: "text",
                                         spellcheck: false,
-                                        classes: "govuk-!-width-one-half",
                                         label: {
                                             text: "Please provide any details available of linked or bridged inquests"
                                         },
