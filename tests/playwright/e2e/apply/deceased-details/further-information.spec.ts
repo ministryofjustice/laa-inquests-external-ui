@@ -38,7 +38,7 @@ test.describe("Provider can", () => {
 
   test("continue to confirmation page", async ({ page }) => {
     await continueToNextPage(form, page);
-    await expect(page.url()).toContain("apply/confirmation");
+    await expect(page.url()).toContain("apply/check-your-answers");
   });
 
   test("fill in details, continue and navigate back with deceased details further information automatically filled in", async ({
