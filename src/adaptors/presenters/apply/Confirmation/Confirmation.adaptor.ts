@@ -17,8 +17,11 @@ export class ConfirmationAdaptor {
     const clientDob = this.createDateString(req.session.clientDobDay as string, req.session.clientDobMonth as string, req.session.clientDobYear as string);
     const dateOfDeath = this.createDateString(req.session.deceasedDateOfDeathDay as string, req.session.deceasedDateOfDeathMonth as string, req.session.deceasedDateOfDeathYear as string);
 
-    const clientAddress = this.createAddressString(req.session.clientAddressLine1 as string, req.session.clientAddressLine2 as string, req.session.clientTownOrcity as string, req.session.clientCounty as string, req.session.clientPostcode as string);
-    const clientCorrespondenceAddress = this.createAddressString(req.session.clientCorrespondenceAddressLine1 as string, req.session.clientCorrespondenceAddressLine2 as string, req.session.clientCorrespondenceTownOrcity as string, req.session.clientCorrespondenceCounty as string, req.session.clientCorrespondencePostcode as string);
+    const clientAddress = this.createAddressString(req.session.clientAddressLine1 as string, req.session.clientAddressLine2 as string, req.session.clientTownOrcity as string, req.session.clientCounty as string);
+    const clientCorrespondenceAddress = this.createAddressString(req.session.clientCorrespondenceAddressLine1 as string, req.session.clientCorrespondenceAddressLine2 as string, req.session.clientCorrespondenceTownOrcity as string, req.session.clientCorrespondenceCounty as string);
+
+    const clientPostcode = (typeof req.session.clientPostcode ==='string') ? req.session.clientPostcode : "";
+    const clientCorrespondencePostcode = (typeof req.session.clientCorrespondencePostcode ==='string') ? req.session.clientCorrespondencePostcode : "";
 
     res.render("apply/check-your-answers", {
       csrfToken,
@@ -26,8 +29,8 @@ export class ConfirmationAdaptor {
         clientFirstName: req.session.clientFirstName ?? "",
         clientLastName: req.session.clientLastName ?? "",
         clientDob: clientDob,
-        clientAddress: clientAddress,
-        clientCorrespondenceAddress: clientCorrespondenceAddress
+        clientAddress: `${clientAddress} ${clientPostcode}`,
+        clientCorrespondenceAddress: `${clientCorrespondenceAddress} ${clientCorrespondencePostcode}`
       },
       deceasedDetails: {
         deceasedFirstName: req.session.deceasedFirstName ?? "",
@@ -44,8 +47,8 @@ export class ConfirmationAdaptor {
     return (typeof day === 'string' && typeof month === 'string' && typeof year === 'string') ? `${day}/${month}/${year}` : "";
   }
 
-  createAddressString(addressLine1?: string, addressLine2?: string, townOrcity?: string, county?: string, postcode?: string): string{
-    return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrcity ?? ""} ${county ?? ""} ${postcode ?? ""}`;
+  createAddressString(addressLine1?: string, addressLine2?: string, townOrcity?: string, county?: string): string{
+    return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrcity ?? ""} ${county ?? ""}`;
   }
 
 }
