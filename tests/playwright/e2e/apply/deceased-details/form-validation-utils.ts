@@ -52,3 +52,18 @@ export async function continueToNextPage(
   await continueButton.click();
   await page.waitForLoadState("domcontentloaded");
 }
+
+export async function validateYesNoRadioWithConditionalInput(
+  form: Locator,
+  inputLabelText: string,
+): Promise<void> {
+  const yesRadioLabel = form.getByLabel("Yes");
+  const noRadioLabel = form.getByLabel("No");
+  const yesInputLabel = form.getByLabel(inputLabelText);
+  await expect(yesRadioLabel).toBeVisible();
+  await expect(noRadioLabel).toBeVisible();
+  await expect(yesInputLabel).toBeHidden();
+
+  await yesRadioLabel.click();
+  await expect(yesInputLabel).toBeVisible();
+}

@@ -7,6 +7,7 @@ import {
   validateContinueButton,
   validateFormAttributes,
   continueToNextPage,
+  validateYesNoRadioWithConditionalInput,
 } from "./form-validation-utils.js";
 
 test.describe("Provider can", () => {
@@ -38,7 +39,10 @@ test.describe("Provider can", () => {
       "A family member is defined as someone who is a  relative (of full or half blood, or by marriage or civil partnership), a cohabitant as defined in Part 4 of the Family Law Act 1996, or where one person has parental responsibility for the other.";
     await validateFormTextIsVisible(form, definitionOfFamilyMemberParagraph);
 
-    await validateClientRelationshipRadio(form);
+    await validateYesNoRadioWithConditionalInput(
+      form,
+      "Please describe the nature of the relationship between your client and the deceased.",
+    );
   });
 
   test("continue to coroners reference when they've filled in client relationship", async ({
