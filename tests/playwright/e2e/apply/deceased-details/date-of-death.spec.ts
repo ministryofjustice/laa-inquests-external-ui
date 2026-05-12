@@ -1,49 +1,31 @@
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../../fixtures/index.js";
-import type { Page } from "playwright-core";
-import { continueToNextPage } from "./form-validation-utils.js";
+import type { Locator, Page } from "playwright-core";
+import {
+  continueToNextPage,
+  validateBackButton,
+  validateContinueButton,
+  validateCSRFToken,
+  validateFormAttributes,
+  validateHeader,
+} from "./form-validation-utils.js";
 
 test.describe("Deceased details - date of death", () => {
-  test("renders basic details header", async ({ page }) => {
-    page.goto("/apply/deceased-details/dod");
-    const deceasedDateOfDeathHeading = await page.getByRole("heading", {
-      level: 2,
-      name: "What was their date of death?",
-    });
-    await expect(deceasedDateOfDeathHeading).toBeVisible();
+  let form: Locator;
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/apply/deceased-details/dod");
+    form = await page.getByTestId("deceased-date-of-death-form");
   });
 
-  test("renders back label with href pointing to deceased name", async ({
-    page,
-  }) => {
-    page.goto("/apply/deceased-details/dod");
-    const backButton = page.getByRole("link", { name: "Back", exact: true });
-    await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute(
-      "href",
-      "/apply/deceased-details/name",
-    );
-  });
+  test("view deceased date of death page", async ({ page }) => {
+    await validateHeader(page, "What was their date of death?", 2);
+    await validateBackButton(page, "/apply/deceased-details/name");
+    await validateFormAttributes(form, "/apply/deceased-details/dod");
+    await validateCSRFToken(form);
+    await validateContinueButton(form);
 
-  test("renders form fields and posts to date of death route", async ({
-    page,
-  }) => {
-    page.goto("/apply/deceased-details/dod");
-
-    const deceasedForm = await page.getByTestId("deceased-date-of-death-form");
-    const dateOfDeathInput = await deceasedForm.getByText("Date of death");
-    const continueButton = deceasedForm.getByRole("button");
-
+    const dateOfDeathInput = await form.getByText("Date of death");
     await expect(dateOfDeathInput).toBeVisible();
-    await expect(continueButton).toBeVisible();
-    await expect(continueButton).toHaveText("Continue");
-    await expect(continueButton).toHaveAttribute("type", "submit");
-
-    await expect(deceasedForm).toHaveAttribute("method", "post");
-    await expect(deceasedForm).toHaveAttribute(
-      "action",
-      "/apply/deceased-details/dod",
-    );
   });
 
   test.describe("renders error message when", () => {
@@ -116,21 +98,15 @@ test.describe("Deceased details - date of death", () => {
   });
 
   test("fills in inputs on error", async ({ page }) => {
-    page.goto("/apply/deceased-details/dod");
-
-    const deceasedForm = await page.getByTestId("deceased-date-of-death-form");
-    const continueButton = deceasedForm.getByRole("button");
-
-    const dayInput = deceasedForm.getByLabel("Day");
-    const monthInput = deceasedForm.getByLabel("Month");
-    const yearInput = deceasedForm.getByLabel("Year");
+    const dayInput = form.getByLabel("Day");
+    const monthInput = form.getByLabel("Month");
+    const yearInput = form.getByLabel("Year");
 
     await dayInput.fill("1");
     await monthInput.fill("2");
     await yearInput.fill("abc");
 
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
+    await continueToNextPage(form, page);
 
     await expect(dayInput).toHaveValue("1");
     await expect(monthInput).toHaveValue("2");
@@ -140,32 +116,21 @@ test.describe("Deceased details - date of death", () => {
   test("continuing with valid inputs redirects to deceased dob", async ({
     page,
   }) => {
-    page.goto("/apply/deceased-details/dod");
-
-    const deceasedForm = await page.getByTestId("deceased-date-of-death-form");
-    const continueButton = deceasedForm.getByRole("button");
-
-    const dayInput = deceasedForm.getByLabel("Day");
-    const monthInput = deceasedForm.getByLabel("Month");
-    const yearInput = deceasedForm.getByLabel("Year");
+    const dayInput = form.getByLabel("Day");
+    const monthInput = form.getByLabel("Month");
+    const yearInput = form.getByLabel("Year");
 
     await dayInput.fill("1");
     await monthInput.fill("1");
     await yearInput.fill("1990");
 
-    await continueButton.click();
-
-    await page.waitForLoadState("domcontentloaded");
+    await continueToNextPage(form, page);
     await expect(page.url()).toContain("apply/deceased-details/dob");
   });
 
   test("fill in details, continue and navigate back with deceased date of death automatically filled in", async ({
     page,
   }) => {
-    page.goto("/apply/deceased-details/dod");
-
-    const form = await page.getByTestId("deceased-date-of-death-form");
-
     const dayField = form.getByLabel("Day");
     const monthField = form.getByLabel("Month");
     const yearField = form.getByLabel("Year");

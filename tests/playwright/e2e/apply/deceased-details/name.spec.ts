@@ -1,135 +1,93 @@
 import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
-import { continueToNextPage } from "./form-validation-utils.js";
+import {
+  continueToNextPage,
+  validateBackButton,
+  validateContinueButton,
+  validateCSRFToken,
+  validateFormAttributes,
+  validateHeader,
+} from "./form-validation-utils.js";
 
-test.describe("Deceased details - name", () => {
-  test("renders basic details header and back link", async ({ page }) => {
-    page.goto("/apply/deceased-details/name");
-    const deceasedDetailsHeading = await page.getByRole("heading", {
-      level: 2,
-      name: "What is the name of the deceased?",
-    });
-    const backButton = page.getByRole("link", { name: "Back", exact: true });
-
-    await expect(deceasedDetailsHeading).toBeVisible();
-
-    await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", "/apply/proceedings");
+test.describe("Provider can", () => {
+  let form: Locator;
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/apply/deceased-details/name");
+    form = await page.getByTestId("deceased-details-form");
   });
 
-  test("renders deceased details form", async ({ page }) => {
-    page.goto("/apply/deceased-details/name");
+  test("view deceased name page", async ({ page }) => {
+    await validateHeader(page, "What is the name of the deceased?", 2);
+    await validateBackButton(page, "/apply/proceedings");
+    await validateFormAttributes(form, "/apply/deceased-details/name");
+    await validateCSRFToken(form);
+    await validateContinueButton(form);
 
-    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
-    const firstNameLabel = deceasedDetailsForm.getByLabel("First name");
-    const lastNameLabel = deceasedDetailsForm.getByLabel("Last name", {
+    const firstNameLabel = form.getByLabel("First name");
+    const lastNameLabel = form.getByLabel("Last name", {
       exact: true,
     });
-    const continueButton = deceasedDetailsForm.getByRole("button");
-
     await expect(firstNameLabel).toBeVisible();
     await expect(lastNameLabel).toBeVisible();
+  });
 
-    await expect(continueButton).toBeVisible();
-    await expect(continueButton).toHaveText("Continue");
-    await expect(continueButton).toHaveAttribute("type", "submit");
+  test("continue to deceased date of death when they've filled in deceased name", async ({
+    page,
+  }) => {
+    const firstNameLabel = form.getByLabel("First name");
+    const lastNameLabel = form.getByLabel("Last name", {
+      exact: true,
+    });
 
     await firstNameLabel.fill("Test");
     await lastNameLabel.fill("Test");
 
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
+    await continueToNextPage(form, page);
     await expect(page.url()).toContain("apply/deceased-details/dod");
   });
 
-  test("shows errors when first name is empty", async ({ page }) => {
-    page.goto("/apply/deceased-details/name");
+  test.describe("see validation errors when", () => {
+    test("first and last names are empty", async ({ page }) => {
+      await continueToNextPage(form, page);
 
-    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
+      const firstNameErrorMessage = form.locator("#deceased-first-name-error");
+      await expect(firstNameErrorMessage).toBeVisible();
+      await expect(firstNameErrorMessage).toContainText(
+        DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
+      );
 
-    const continueButton = deceasedDetailsForm.getByRole("button");
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
+      const lastNameErrorMessage = form.locator("#deceased-last-name-error");
+      await expect(lastNameErrorMessage).toBeVisible();
+      await expect(lastNameErrorMessage).toContainText(
+        DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
+      );
+    });
+    test("when first name and last names are over character limit", async ({
+      page,
+    }) => {
+      const firstName = form.getByLabel("First name");
+      await firstName.fill("a".repeat(101));
 
-    const errorMessage = deceasedDetailsForm.locator(
-      "#deceased-first-name-error",
-    );
-    await expect(errorMessage).toBeVisible();
-    await expect(errorMessage).toContainText(
-      DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
-    );
-  });
+      await continueToNextPage(form, page);
 
-  test("shows errors when first name is over character limit", async ({
-    page,
-  }) => {
-    page.goto("/apply/deceased-details/name");
+      const firstNameErrorMessage = form.locator("#deceased-first-name-error");
+      await expect(firstNameErrorMessage).toBeVisible();
+      await expect(firstNameErrorMessage).toContainText(
+        DECEASED_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+      );
 
-    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
-    const firstName = deceasedDetailsForm.getByLabel("First name");
-    firstName.fill("a".repeat(101));
-
-    const continueButton = deceasedDetailsForm.getByRole("button");
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
-
-    const errorMessage = deceasedDetailsForm.locator(
-      "#deceased-first-name-error",
-    );
-    await expect(errorMessage).toBeVisible();
-    await expect(errorMessage).toContainText(
-      DECEASED_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-    );
-  });
-
-  test("shows errors when last name is empty", async ({ page }) => {
-    page.goto("/apply/deceased-details/name");
-
-    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
-
-    const continueButton = deceasedDetailsForm.getByRole("button");
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
-
-    const errorMessage = deceasedDetailsForm.locator(
-      "#deceased-last-name-error",
-    );
-    await expect(errorMessage).toBeVisible();
-    await expect(errorMessage).toContainText(
-      DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
-    );
-  });
-
-  test("shows errors when last name is over character limit", async ({
-    page,
-  }) => {
-    page.goto("/apply/deceased-details/name");
-
-    const deceasedDetailsForm = await page.getByTestId("deceased-details-form");
-    const lastName = deceasedDetailsForm.getByLabel("Last name");
-    lastName.fill("a".repeat(101));
-
-    const continueButton = deceasedDetailsForm.getByRole("button");
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
-
-    const errorMessage = deceasedDetailsForm.locator(
-      "#deceased-last-name-error",
-    );
-    await expect(errorMessage).toBeVisible();
-    await expect(errorMessage).toContainText(
-      DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-    );
+      const lastNameErrorMessage = form.locator("#deceased-last-name-error");
+      await expect(lastNameErrorMessage).toBeVisible();
+      await expect(lastNameErrorMessage).toContainText(
+        DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
+      );
+    });
   });
 
   test("fill in details, continue and navigate back with deceased details name automatically filled in", async ({
     page,
   }) => {
-    page.goto("/apply/deceased-details/name");
-
-    const form = await page.getByTestId("deceased-details-form");
-
     const firstNameField = form.getByLabel("First name");
     const lastNameField = form.getByLabel("Last name");
 

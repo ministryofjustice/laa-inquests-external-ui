@@ -1,52 +1,31 @@
 import { test, expect } from "../../../fixtures/index.js";
+import type { Locator } from "playwright-core";
+import {
+  validateBackButton,
+  validateContinueButton,
+  validateCSRFToken,
+  validateFormAttributes,
+  validateHeader,
+} from "./form-validation-utils.js";
 
 test.describe("Deceased details - date of birth", () => {
-  test.describe("renders", () => {
-    test("header", async ({ page }) => {
-      page.goto("/apply/deceased-details/dob");
-      const deceasedDateOfBirthHeading = await page.getByRole("heading", {
-        level: 2,
-        name: "What was their date of birth?",
-      });
-      await expect(deceasedDateOfBirthHeading).toBeVisible();
-    });
-    test("back button", async ({ page }) => {
-      page.goto("/apply/deceased-details/dob");
-      const backButton = page.getByRole("link", { name: "Back", exact: true });
-      await expect(backButton).toBeVisible();
-      await expect(backButton).toHaveAttribute(
-        "href",
-        "/apply/deceased-details/dod",
-      );
-    });
-    test("form fields which post to the date of birth route", async ({
-      page,
-    }) => {
-      page.goto("/apply/deceased-details/dob");
-
-      const deceasedForm = await page.getByTestId(
-        "deceased-date-of-birth-form",
-      );
-
-      const csrfToken = await deceasedForm.locator("input[name='_csrf']");
-      await expect(csrfToken).toBeHidden();
-      await expect(csrfToken).not.toBeEmpty();
-
-      const dateOfBirthInput = await deceasedForm.getByText("Date of birth");
-      const continueButton = deceasedForm.getByRole("button");
-
-      await expect(dateOfBirthInput).toBeVisible();
-      await expect(continueButton).toBeVisible();
-      await expect(continueButton).toHaveText("Continue");
-      await expect(continueButton).toHaveAttribute("type", "submit");
-
-      await expect(deceasedForm).toHaveAttribute("method", "post");
-      await expect(deceasedForm).toHaveAttribute(
-        "action",
-        "/apply/deceased-details/dob",
-      );
-    });
+  let form: Locator;
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/apply/deceased-details/dob");
+    form = await page.getByTestId("deceased-date-of-birth-form");
   });
+
+  test("view deceased date of birth page", async ({ page }) => {
+    await validateHeader(page, "What was their date of birth?", 2);
+    await validateBackButton(page, "/apply/deceased-details/dod");
+    await validateFormAttributes(form, "/apply/deceased-details/dob");
+    await validateCSRFToken(form);
+    await validateContinueButton(form);
+
+    const dateOfDeathInput = await form.getByText("Date of birth");
+    await expect(dateOfDeathInput).toBeVisible();
+  });
+
   test("redirects to client relationship on valid input", async ({ page }) => {
     page.goto("/apply/deceased-details/dob");
     const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
