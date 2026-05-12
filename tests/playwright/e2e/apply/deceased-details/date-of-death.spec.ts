@@ -10,7 +10,7 @@ import {
   validateHeader,
 } from "./form-validation-utils.js";
 
-test.describe("Deceased details - date of death", () => {
+test.describe("Provider can", () => {
   let form: Locator;
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/deceased-details/dod");
@@ -28,7 +28,7 @@ test.describe("Deceased details - date of death", () => {
     await expect(dateOfDeathInput).toBeVisible();
   });
 
-  test.describe("renders error message when", () => {
+  test.describe("view validation errors when", () => {
     test("clicking continue with all empty fields", async ({ page }) => {
       const inputs = {
         Day: "",
@@ -97,7 +97,9 @@ test.describe("Deceased details - date of death", () => {
     };
   });
 
-  test("fills in inputs on error", async ({ page }) => {
+  test("view auto-populated fields when the form shows validation errors", async ({
+    page,
+  }) => {
     const dayInput = form.getByLabel("Day");
     const monthInput = form.getByLabel("Month");
     const yearInput = form.getByLabel("Year");
@@ -113,9 +115,7 @@ test.describe("Deceased details - date of death", () => {
     await expect(yearInput).toHaveValue("abc");
   });
 
-  test("continuing with valid inputs redirects to deceased dob", async ({
-    page,
-  }) => {
+  test("continuing to deceased dob given valid inputs", async ({ page }) => {
     const dayInput = form.getByLabel("Day");
     const monthInput = form.getByLabel("Month");
     const yearInput = form.getByLabel("Year");

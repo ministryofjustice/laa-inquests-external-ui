@@ -8,7 +8,7 @@ import {
   validateHeader,
 } from "./form-validation-utils.js";
 
-test.describe("Deceased details - date of birth", () => {
+test.describe("Provider can", () => {
   let form: Locator;
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/deceased-details/dob");
@@ -26,7 +26,7 @@ test.describe("Deceased details - date of birth", () => {
     await expect(dateOfDeathInput).toBeVisible();
   });
 
-  test("redirects to client relationship on valid input", async ({ page }) => {
+  test("continue to client relationship on valid input", async ({ page }) => {
     page.goto("/apply/deceased-details/dob");
     const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
 
@@ -45,7 +45,9 @@ test.describe("Deceased details - date of birth", () => {
       "apply/deceased-details/client-relationship",
     );
   });
-  test("auto-populates field with session data", async ({ page }) => {
+  test("view auto-populated fields given they've filled in the date, continued and navigated back", async ({
+    page,
+  }) => {
     page.goto("/apply/deceased-details/dob");
     const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
 
