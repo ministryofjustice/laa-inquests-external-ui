@@ -75,5 +75,19 @@ export function createDeceasedDetailsRouter(
     },
   );
 
+  deceasedDetailsRouter.get(
+    "/deceased-details/further-information",
+    (req: Request, res: Response): void => {
+      res.render("apply/deceased-details/further-information");
+    },
+  );
+
+  deceasedDetailsRouter.post(
+    "/deceased-details/further-information",
+    (req: Request, res: Response): void => {
+      res.redirect("apply/interested-parties");
+    },
+  );
+
   return deceasedDetailsRouter;
 }
