@@ -15,7 +15,13 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/deceased-details/name", { csrfToken });
+    res.render("apply/deceased-details/name", {
+      csrfToken,
+      deceasedDetails: {
+        firstName: req.session.deceasedFirstName,
+        lastName: req.session.deceasedLastName,
+      },
+    });
   }
 
   processNameForm(
@@ -38,7 +44,10 @@ export class DeceasedDetailsAdaptor {
     req.session.deceasedLastName = lastName;
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      res.render("apply/deceased-details/name", { csrfToken, errorSummaries });
+      res.render("apply/deceased-details/name", {
+        csrfToken,
+        errorSummaries,
+      });
     } else {
       res.redirect("/apply/deceased-details/dod");
     }
@@ -49,7 +58,14 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/deceased-details/date-of-death", { csrfToken });
+    res.render("apply/deceased-details/date-of-death", {
+      csrfToken,
+      deceasedDetails: {
+        dateOfDeathDay: req.session.deceasedDateOfDeathDay,
+        dateOfDeathMonth: req.session.deceasedDateOfDeathMonth,
+        dateOfDeathYear: req.session.deceasedDateOfDeathYear,
+      },
+    });
   }
 
   processDateOfDeathForm(

@@ -16,11 +16,38 @@ describe("Deceased details adaptor", () => {
     requestStub = stubInterface<Request>();
   });
 
-  it("renderNameForm renders view", () => {
-    deceasedDetailsAdaptor.renderNameForm(requestStub, responseStub);
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "apply/deceased-details/name");
+  describe("renderNameForm", () => {
+    it("initiates render of view", () => {
+      deceasedDetailsAdaptor.renderNameForm(requestStub, responseStub);
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/name");
+    });
+    it("passes csrf token on render view initiation", () => {
+      deceasedDetailsAdaptor.renderNameForm(requestStub, responseStub);
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Object;
+      assert.ok(argsObject.hasOwnProperty("csrfToken"));
+    });
+    it("passes session input data to render view initiation", () => {
+      const [expectedFirstName, expectedLastName] = ["Test", "Test two"];
+
+      requestStub.session.deceasedFirstName = expectedFirstName;
+      requestStub.session.deceasedLastName = expectedLastName;
+
+      deceasedDetailsAdaptor.renderNameForm(requestStub, responseStub);
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Record<string, any>;
+
+      const {
+        deceasedDetails: { firstName, lastName },
+      } = argsObject;
+
+      assert.equal(firstName, expectedFirstName);
+      assert.equal(lastName, expectedLastName);
+    });
   });
 
   describe("processNameForm", () => {
@@ -36,11 +63,10 @@ describe("Deceased details adaptor", () => {
       const renderArgs = responseStub.redirect.getCall(0).args;
       assert.equal(renderArgs[0], "/apply/deceased-details/dod");
     });
-
     it("re-renders name on bad input with errors", () => {
       requestStub.body = {
         _csrf: "abcdefg",
-        "deceased-first-name": "",
+        "deceased-first-name": "Test",
         "deceased-last-name": "",
       };
 
@@ -52,7 +78,6 @@ describe("Deceased details adaptor", () => {
       const errorObject = renderArgs[1] as Object;
       assert.ok(errorObject.hasOwnProperty("errorSummaries"));
     });
-
     it("adds name data to the session", () => {
       const firstName = "Test first";
       const lastName = "Test last";
@@ -76,13 +101,32 @@ describe("Deceased details adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "apply/deceased-details/date-of-death");
     });
-
     it("passes csrf token on render view initiation", () => {
       deceasedDetailsAdaptor.renderDateOfDeathForm(requestStub, responseStub);
       const renderArgs = responseStub.render.getCall(0).args;
 
       const argsObject = renderArgs[1] as Object;
       assert.ok(argsObject.hasOwnProperty("csrfToken"));
+    });
+    it("passes session input data to render view initiation", () => {
+      const [day, month, year] = ["1", "1", "1990"];
+
+      requestStub.session.deceasedDateOfDeathDay = day;
+      requestStub.session.deceasedDateOfDeathMonth = month;
+      requestStub.session.deceasedDateOfDeathYear = year;
+
+      deceasedDetailsAdaptor.renderDateOfDeathForm(requestStub, responseStub);
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      const argsObject = renderArgs[1] as Record<string, any>;
+
+      const {
+        deceasedDetails: { dateOfDeathDay, dateOfDeathMonth, dateOfDeathYear },
+      } = argsObject;
+
+      assert.equal(dateOfDeathDay, day);
+      assert.equal(dateOfDeathMonth, month);
+      assert.equal(dateOfDeathYear, year);
     });
   });
 
@@ -101,7 +145,6 @@ describe("Deceased details adaptor", () => {
       const redirect = responseStub.redirect.getCall(0).args;
       assert.equal(redirect[0], "/apply/deceased-details/dob");
     });
-
     it("initiates re-render with errorSummaries, csrfToken and deceasedDetails given invalid input", () => {
       requestStub.body = {
         _csrf: "abcdefg",
@@ -121,7 +164,6 @@ describe("Deceased details adaptor", () => {
       assert.ok(errorObject.hasOwnProperty("csrfToken"));
       assert.ok(errorObject.hasOwnProperty("deceasedDetails"));
     });
-
     it("adds data to the session", () => {
       const dateOfDeathDay = "1";
       const dateOfDeathMonth = "2";
@@ -155,7 +197,6 @@ describe("Deceased details adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "apply/deceased-details/dob");
     });
-
     it("passes csrf token on render view initiation", () => {
       deceasedDetailsAdaptor.renderDateOfBirthForm(requestStub, responseStub);
       const renderArgs = responseStub.render.getCall(0).args;
@@ -163,7 +204,6 @@ describe("Deceased details adaptor", () => {
       const argsObject = renderArgs[1] as Object;
       assert.ok(argsObject.hasOwnProperty("csrfToken"));
     });
-
     it("passes session input data to render view initiation", () => {
       const [day, month, year] = ["1", "1", "1990"];
 
@@ -237,7 +277,6 @@ describe("Deceased details adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "apply/deceased-details/client-relationship");
     });
-
     it("passes csrf token on render view initiation", () => {
       deceasedDetailsAdaptor.renderClientRelationshipForm(
         requestStub,
@@ -248,7 +287,6 @@ describe("Deceased details adaptor", () => {
       const argsObject = renderArgs[1] as Object;
       assert.ok(argsObject.hasOwnProperty("csrfToken"));
     });
-
     it("passes session input data to render view initiation", () => {
       const expectedHasClientRelationship = "true";
       const expectedClientRelationship = "Test";
@@ -291,7 +329,6 @@ describe("Deceased details adaptor", () => {
       const redirect = responseStub.redirect.getCall(0).args;
       assert.equal(redirect[0], "/apply/deceased-details/coroner-reference");
     });
-
     it("adds data to the session", () => {
       const expectedHasClientRelationship = "true";
       const expectedClientRelationship = "Test";
