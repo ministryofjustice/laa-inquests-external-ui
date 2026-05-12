@@ -1,6 +1,7 @@
 import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
+import { continueToNextPage } from "./form-validation-utils.js";
 
 test.describe("Deceased details - name", () => {
   test("renders basic details header and back link", async ({ page }) => {
@@ -120,5 +121,26 @@ test.describe("Deceased details - name", () => {
     await expect(errorMessage).toContainText(
       DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
     );
+  });
+
+  test("fill in details, continue and navigate back with deceased details name automatically filled in", async ({
+    page,
+  }) => {
+    page.goto("/apply/deceased-details/name");
+
+    const form = await page.getByTestId("deceased-details-form");
+
+    const firstNameField = form.getByLabel("First name");
+    const lastNameField = form.getByLabel("Last name");
+
+    const [firstName, lastName] = ["Test", "Test 2"];
+    await firstNameField.fill(firstName);
+    await lastNameField.fill(lastName);
+
+    await continueToNextPage(form, page);
+    await page.goBack();
+
+    await expect(firstNameField).toHaveValue(firstName);
+    await expect(lastNameField).toHaveValue(lastName);
   });
 });

@@ -26,7 +26,8 @@
               },
               id: "deceased-first-name",
               name: "deceased-first-name",
-              errorMessage: errorSummaries.firstNameInputError
+              errorMessage: errorSummaries.firstNameInputError,
+              value: deceasedDetails.firstName
           }) }}
           {{ govukInput({
             label: {
@@ -35,7 +36,8 @@
             },
             id: "deceased-last-name",
             name: "deceased-last-name",
-            errorMessage: errorSummaries.lastNameInputError
+            errorMessage: errorSummaries.lastNameInputError,
+            value: deceasedDetails.lastName
           }) }}
 
           {{ govukButton({

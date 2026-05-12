@@ -55,6 +55,20 @@ test.describe("Provider can", () => {
     );
   });
 
+  test("fill in details, continue and navigate back with deceased details client relationship automatically filled in", async ({
+    page,
+  }) => {
+    await fillClientRelationshipInput(form);
+    await continueToNextPage(form, page);
+    await page.goBack();
+    const yesRadioLabel = form.getByLabel("Yes");
+    await expect(yesRadioLabel).toBeChecked();
+    const yesInputLabel = form.getByLabel(
+      "Please describe the nature of the relationship between your client and the deceased.",
+    );
+    await expect(yesInputLabel).toHaveValue("Father");
+  });
+
   async function validateFormTextIsVisible(form: Locator, text: string) {
     const textElement = form.getByText(text);
     await expect(textElement).toBeVisible();

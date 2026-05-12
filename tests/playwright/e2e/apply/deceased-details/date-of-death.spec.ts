@@ -1,6 +1,7 @@
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../../fixtures/index.js";
 import type { Page } from "playwright-core";
+import { continueToNextPage } from "./form-validation-utils.js";
 
 test.describe("Deceased details - date of death", () => {
   test("renders basic details header", async ({ page }) => {
@@ -156,5 +157,29 @@ test.describe("Deceased details - date of death", () => {
 
     await page.waitForLoadState("domcontentloaded");
     await expect(page.url()).toContain("apply/deceased-details/dob");
+  });
+
+  test("fill in details, continue and navigate back with deceased date of death automatically filled in", async ({
+    page,
+  }) => {
+    page.goto("/apply/deceased-details/dod");
+
+    const form = await page.getByTestId("deceased-date-of-death-form");
+
+    const dayField = form.getByLabel("Day");
+    const monthField = form.getByLabel("Month");
+    const yearField = form.getByLabel("Year");
+
+    const [day, month, year] = ["1", "1", "1990"];
+    await dayField.fill(day);
+    await monthField.fill(month);
+    await yearField.fill(year);
+
+    await continueToNextPage(form, page);
+    await page.goBack();
+
+    await expect(dayField).toHaveValue(day);
+    await expect(monthField).toHaveValue(month);
+    await expect(yearField).toHaveValue(year);
   });
 });

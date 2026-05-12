@@ -43,4 +43,15 @@ test.describe("Provider can", () => {
       "apply/deceased-details/further-information",
     );
   });
+
+  test("fill in details, continue and navigate back with deceased details coroner reference automatically filled in", async ({
+    page,
+  }) => {
+    const yesInput = form.getByLabel("Please enter your reference number");
+    await yesInput.fill("Test");
+
+    await continueToNextPage(form, page);
+    await page.goBack();
+    await expect(yesInput).toHaveValue("Test");
+  });
 });
