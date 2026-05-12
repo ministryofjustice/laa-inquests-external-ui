@@ -36,9 +36,9 @@ test.describe("Provider can", () => {
     );
   });
 
-  test("continue to interested parties page", async ({ page }) => {
+  test("continue to confirmation page", async ({ page }) => {
     await continueToNextPage(form, page);
-    await expect(page.url()).toContain("apply/interested-parties");
+    await expect(page.url()).toContain("apply/confirmation");
   });
 
   test("fill in details, continue and navigate back with deceased details further information automatically filled in", async ({
