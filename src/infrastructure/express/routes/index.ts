@@ -10,11 +10,16 @@ import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
 import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
+import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
+import { createProceedingsRouter } from "./apply/proceedings.router.js";
+import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { Formatter } from "#src/utils/Formatter.js";
 
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
+const proceedingsRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -67,9 +72,18 @@ const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(
   deceasedDetailsFormValidator,
 );
 
-indexRouter.use("/apply", [
+const proceedingsFormatter = new Formatter();
+const proceedingsValidator = new ProceedingsValidator();
+const proceedingsAdaptor = new ProceedingsAdaptor(
+  proceedingsValidator,
+  proceedingsFormatter,
+);
+
+indexRouter.use(
+  "/apply",
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
+  createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
-]);
+);
 
 export default indexRouter;

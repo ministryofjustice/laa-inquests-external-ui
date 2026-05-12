@@ -36,5 +36,64 @@ export const DECEASED_DETAILS_ERROR = {
   INVALID_DATE: "Please enter a valid date",
 };
 
+export const PROCEEDING_ERROR = {
+  NO_PROCEEDING_SPECIFIED:
+    "An application must specify at least one related proceeding.",
+  NO_CONFIRMATION_SPECIFIED: "Please select either yes or no to continue.",
+};
+
 export const NINO_REGEX =
   /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
+
+export const PROCEEDING_OPTIONS = [
+  {
+    proceedingId: "PC049",
+    proceedingDescription: "CAPA",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "MN035",
+    proceedingDescription: "Clinical Negligence",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "MN036",
+    proceedingDescription: "Death in Custody - Clinical Negligence",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "MH028",
+    proceedingDescription: "Mental Health",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "MH030",
+    proceedingDescription: "Death in Detention - Mental Health",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ001",
+    proceedingDescription: "Death in Custody",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ002",
+    proceedingDescription: "Inquest",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ003",
+    proceedingDescription: "Schedule 6 Town & Country Planning Act 1990",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ004",
+    proceedingDescription: "Public Inquiry s1 Inquiries Act 2005",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ010",
+    proceedingDescription: "S13 Coroner’s Act 1988 - Public Law",
+    matterType: "INQUEST",
+  },
+];

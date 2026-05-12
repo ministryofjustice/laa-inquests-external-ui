@@ -5,9 +5,16 @@ declare module "express-session" {
   > {
     // This allows both specific properties and dynamic namespace access
     error: FormError;
+    selectedProceedings?: Proceeding[];
   }
 }
 
 interface FormError {
   message?: string;
+}
+
+export interface Proceeding {
+  proceedingId: string;
+  proceedingDescription: string;
+  matterType: string;
 }

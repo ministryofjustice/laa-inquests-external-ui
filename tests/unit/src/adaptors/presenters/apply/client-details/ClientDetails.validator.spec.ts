@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
+import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("ClientDetailsValidator", () => {
   describe("methods", () => {
