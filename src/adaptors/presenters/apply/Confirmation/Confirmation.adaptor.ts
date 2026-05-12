@@ -1,11 +1,19 @@
 import type { Request, Response } from "express";
+import type { Formatter } from "#src/utils/Formatter.js";
 
 export class ConfirmationAdaptor {
+    formatter: Formatter;
+    constructor(formatter: Formatter) {
+      this.formatter = formatter;
+    }
 
   renderCheckYourAnswers(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
     } = res;
+    console.log(req.session.selectedProceedings);
+
+    const publicAuthorities = this.formatter.formatIntoTableRows(req.session.selectedPublicAuthorities ?? []);
 
     res.render("apply/check-your-answers", {
       csrfToken,
@@ -22,7 +30,8 @@ export class ConfirmationAdaptor {
         dateOfDeath: req.session.deceasedDateOfDeathDay && req.session.deceasedDateOfDeathMonth && req.session.deceasedDateOfDeathYear ? `${req.session.deceasedDateOfDeathDay}/${req.session.deceasedDateOfDeathMonth}/${req.session.deceasedDateOfDeathYear}` : "",
         deceasedClientRelationship: req.session.deceasedClientRelationship ?? "",
         deceasedCoronerReference: req.session.deceasedCoronerReference ?? ""
-      }
+      },
+      publicAuthorities
     });
   }
 }

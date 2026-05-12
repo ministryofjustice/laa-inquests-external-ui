@@ -2,10 +2,12 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ConfirmationAdaptor } from "#src/adaptors/presenters/apply/Confirmation/Confirmation.adaptor.js";
+import { Formatter } from "#src/utils/Formatter.js";
 
 describe("Confirmation adaptor", () => {
   it("render check your answers page", () => {
-    const confirmationAdaptor = new ConfirmationAdaptor();
+    const confirmationFormatter = new Formatter();
+    const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
 
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
@@ -17,7 +19,8 @@ describe("Confirmation adaptor", () => {
   });
 
   it("render check your answers page", () => {
-    const confirmationAdaptor = new ConfirmationAdaptor();
+    const confirmationFormatter = new Formatter();
+    const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
 
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
@@ -48,7 +51,22 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathYear = "2001";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
-    
+
+    const publicAuthorities = [
+      {
+        publicAuthorityId: '12345',
+        publicAuthorityDescription: 'Test public authority'
+      }
+    ];
+
+    const expectedFormattedPublicAuthorities = [
+        {
+          key: { text: "12345" },
+          value: { text: "Test public authority" }
+        },
+      ];
+
+    requestStub.session.selectedPublicAuthorities = publicAuthorities;
 
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
     assert.equal(responseStub.render.callCount, 1);
@@ -69,7 +87,8 @@ describe("Confirmation adaptor", () => {
           dateOfDeath: "6/8/2001",
           deceasedClientRelationship: "brother",
           deceasedCoronerReference: "12345678910"
-        }
+        },
+        publicAuthorities: expectedFormattedPublicAuthorities
       });
   });
 

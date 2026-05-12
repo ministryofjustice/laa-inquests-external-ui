@@ -72,7 +72,7 @@
                     text: "Correspondence address"
                   },
                   value: {
-                    html: ""
+                    html: client.clientCorrespondenceAddress
                   }
                 }
               ]
@@ -153,16 +153,7 @@
                   ]
                 }
               },
-              rows: [
-                {
-                  key: {
-                    text: "Public authority 1"
-                  },
-                  value: {
-                    html: ""
-                  }
-                }
-              ]
+              rows: publicAuthorities
             }) }}
           </div>
           <div data-testid="coroners-letter-summary-list">

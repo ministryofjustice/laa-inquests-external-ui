@@ -1,7 +1,7 @@
 export interface SummaryListRow {
   value: { text: string };
   key: { text: string };
-  actions: RowAction;
+  actions?: RowAction;
 }
 
 export interface RowAction {

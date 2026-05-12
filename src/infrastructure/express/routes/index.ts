@@ -82,7 +82,8 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsFormatter,
 );
 
-const confirmationAdaptor = new ConfirmationAdaptor();
+const confirmationFormatter = new Formatter();
+const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
 
 indexRouter.use(
   "/apply",
