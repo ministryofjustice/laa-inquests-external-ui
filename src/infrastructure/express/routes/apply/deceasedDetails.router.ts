@@ -33,5 +33,61 @@ export function createDeceasedDetailsRouter(
     },
   );
 
+  deceasedDetailsRouter.get(
+    "/deceased-details/dob",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.renderDateOfBirthForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.post(
+    "/deceased-details/dob",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.processDateOfBirthForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.get(
+    "/deceased-details/client-relationship",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.renderClientRelationshipForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.post(
+    "/deceased-details/client-relationship",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.processClientRelationshipForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.get(
+    "/deceased-details/coroner-reference",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.renderCoronerReferenceForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.post(
+    "/deceased-details/coroner-reference",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.processCoronerReferenceForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.get(
+    "/deceased-details/further-information",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.renderFurtherInfomationForm(req, res);
+    },
+  );
+
+  deceasedDetailsRouter.post(
+    "/deceased-details/further-information",
+    (req: Request, res: Response): void => {
+      deceasedDetailsAdaptor.processFurtherInfomationForm(req, res);
+    },
+  );
+
   return deceasedDetailsRouter;
 }

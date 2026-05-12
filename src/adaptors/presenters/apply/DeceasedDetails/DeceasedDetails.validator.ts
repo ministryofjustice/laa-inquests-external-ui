@@ -63,7 +63,7 @@ export class DeceasedDetailsValidator extends FormValidator {
       dateOfDeathYear,
     );
 
-    const isDayAndMonthValid = this.checkDateIsValid(
+    const isDayAndMonthInvalid = !this.checkDateIsValid(
       dateOfDeathDay,
       dateOfDeathMonth,
       dateOfDeathYear,
@@ -77,13 +77,11 @@ export class DeceasedDetailsValidator extends FormValidator {
       errorSummaries.dateOfDeathInputError = {
         text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
       };
-    } else if (!isDayAndMonthValid) {
+    } else if (isDayAndMonthInvalid) {
       errorSummaries.dateOfDeathInputError = {
         text: DECEASED_DETAILS_ERROR.INVALID_DATE,
       };
-    }
-
-    if (!isDateEmpty || !isDateNaN || !isDayAndMonthValid) {
+    } else {
       const dateOfBirth = new Date(
         `${dateOfDeathDay}/${dateOfDeathMonth}/${dateOfDeathYear}`,
       );

@@ -1,0 +1,53 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {{ govukBackLink({
+        text: "Back",
+        href: "/apply/deceased-details/coroner-reference"
+    }) }}
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-l">Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?</h2>
+                <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
+                    <input type="hidden" name="_csrf" value={{csrfToken}} />
+                    {{ govukRadios({
+                        name: "deceased-has-further-information",
+                        value: deceasedDetails.hasFurtherInformation,
+                        items: [
+                            {
+                                value: "true",
+                                text: "Yes",
+                                conditional: {
+                                    html:  govukTextarea({
+                                        id: "deceased-further-information",
+                                        name: "deceased-further-information",
+                                        type: "text",
+                                        spellcheck: false,
+                                        label: {
+                                            text: "Please provide any details available of linked or bridged inquests"
+                                        },
+                                        value: deceasedDetails.furtherInformation
+                                    }
+                                )}
+                            },
+                            {
+                                value: "false",
+                                text: "No"
+                            }
+                        ]
+                    }) }}
+                    {{ govukButton({
+                        text: "Continue"
+                    }) }}
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
