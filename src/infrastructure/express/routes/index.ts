@@ -13,7 +13,9 @@ import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/Decease
 import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
 import { createProceedingsRouter } from "./apply/proceedings.router.js";
 import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { SubmitAdaptor } from "#src/adaptors/presenters/apply/Submit/Submit.adaptor.js";
 import { Formatter } from "#src/utils/Formatter.js";
+import { createSubmitRouter } from "./apply/submit.router.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -80,31 +82,14 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsFormatter,
 );
 
-submitRouter.get(
-  "/submit/client-declaration",
-  (req: Request, res: Response) => {
-    res.render("apply/submit/client-declaration", {
-      clientDetails: {
-        firstName: req.session.clientFirstName,
-        lastName: req.session.clientLastName,
-      },
-    });
-  },
-);
-
-submitRouter.post(
-  "/submit/client-declaration",
-  (req: Request, res: Response) => {
-    res.redirect("/apply/confirmation/success");
-  },
-);
+const submitAdaptor = new SubmitAdaptor();
 
 indexRouter.use(
   "/apply",
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
   createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
-  submitRouter,
+  createSubmitRouter(submitRouter, submitAdaptor),
 );
 
 export default indexRouter;
