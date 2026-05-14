@@ -97,3 +97,58 @@ export const PROCEEDING_OPTIONS = [
     matterType: "INQUEST",
   },
 ];
+
+export const PUBLIC_AUTHORITY_OPTIONS = [
+  {
+    publicAuthorityId: "home-office",
+    publicAuthorityDescription: "Home Office",
+  },
+  {
+    publicAuthorityId: "moj",
+    publicAuthorityDescription: "Ministry of Justice",
+  },
+  {
+    publicAuthorityId: "cabinet-office",
+    publicAuthorityDescription: "Cabinet Office",
+  },
+  {
+    publicAuthorityId: "department-for-education",
+    publicAuthorityDescription: "Department for Education",
+  },
+  {
+    publicAuthorityId: "department-for-business-and-trade",
+    publicAuthorityDescription: "Department for Business and Trade",
+  },
+  {
+    publicAuthorityId: "department-for-enerygy-security-and-net-zero",
+    publicAuthorityDescription: "Department for Energy, Security and Net Zero",
+  },
+  {
+    publicAuthorityId: "department-of-culture-media-and-sport",
+    publicAuthorityDescription: "Department of Culture, Media and Sport",
+  },
+  {
+    publicAuthorityId: "department-for-transport",
+    publicAuthorityDescription: "Department for Transport",
+  },
+  {
+    publicAuthorityId: "department-of-work-and-pensions",
+    publicAuthorityDescription: "Department of Work and Pensions",
+  },
+  {
+    publicAuthorityId: "department-of-health-and-social-care",
+    publicAuthorityDescription: "Department of Health and Social Care",
+  },
+  {
+    publicAuthorityId: "foreign-commonwealth-and-development-office",
+    publicAuthorityDescription: "Foreign, Commonwealth and Development Office",
+  },
+  {
+    publicAuthorityId: "hm-treasury",
+    publicAuthorityDescription: "HM Treasury",
+  },
+];
+
+export const PUBLIC_AUTHORITY_ERROR = {
+  NO_SELECTION: "Please select a public authority",
+};

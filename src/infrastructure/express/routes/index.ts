@@ -17,6 +17,9 @@ import { createProceedingsRouter } from "./apply/proceedings.router.js";
 import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
 import { SubmitAdaptor } from "#src/adaptors/presenters/apply/Submit/Submit.adaptor.js";
 import { Formatter } from "#src/utils/Formatter.js";
+import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.adaptor.js";
+import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
+import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { createSubmitRouter } from "./apply/submit.router.js";
 
 // Create a new router
@@ -26,6 +29,7 @@ const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
 const submitRouter = express.Router();
 const confirmationRouter = express.Router();
+const publicAuthorityRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -89,6 +93,13 @@ const submitAdaptor = new SubmitAdaptor();
 const confirmationFormatter = new Formatter();
 const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
 
+const publicAuthorityFormatter = new Formatter();
+const publicAuthorityValidator = new PublicAuthorityValidator();
+const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
+  publicAuthorityValidator,
+  publicAuthorityFormatter,
+);
+
 indexRouter.use(
   "/apply",
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
@@ -96,6 +107,7 @@ indexRouter.use(
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
   createSubmitRouter(submitRouter, submitAdaptor),
   createConfirmationRouter(confirmationRouter, confirmationAdaptor),
+  createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
 );
 
 export default indexRouter;

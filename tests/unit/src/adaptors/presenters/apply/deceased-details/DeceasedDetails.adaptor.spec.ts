@@ -492,7 +492,7 @@ describe("Deceased details adaptor", () => {
 
       assert.equal(responseStub.redirect.callCount, 1);
       const redirect = responseStub.redirect.getCall(0).args;
-      assert.equal(redirect[0], "/apply/check-your-answers");
+      assert.equal(redirect[0], "/apply/public-authority");
     });
     it("adds data to the session", () => {
       const expectedHasFurtherInformation = "true";

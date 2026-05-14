@@ -1,0 +1,61 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/public-authority"
+  }) }}
+
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        {% if selectedPublicAuthorities.length > 0 %}
+          {{ govukSummaryList({
+            attributes: { "data-testid": "public-authority-table"},
+            card: {
+              title: {
+                text: "Public authorities added"
+              }
+            },
+            rows: selectedPublicAuthorities
+          }) }}
+        {% endif %}
+
+        <form data-testid="add-another-public-authority-form" action="/apply/public-authority/confirmation" method="POST">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+          {{ govukRadios({
+            name: "add-another-public-authority",
+            errorMessage: errorSummaries.noConfirmationSelected,
+            fieldset: {
+              legend: {
+                text: "Do you want to add another public authority?",
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            items: [
+              { value: "true", text: "Yes" },
+              { value: "false", text: "No" }
+            ]
+          }) }}
+
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+
+        </form>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

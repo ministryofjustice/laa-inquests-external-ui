@@ -58,4 +58,25 @@ export class Formatter {
     );
     return formattedPublicAuthorities;
   }
+
+  formatPublicAuthorityOptionsIntoList(
+    publicAuthorityOptions: PublicAuthority[],
+  ): Option[] {
+    return publicAuthorityOptions.map((authority) => ({
+      text: authority.publicAuthorityDescription,
+      value: authority.publicAuthorityId,
+    }));
+  }
+
+  filterAvailablePublicAuthorities(
+    selectedPublicAuthorities: PublicAuthority[] | [],
+    allPublicAuthorities: PublicAuthority[],
+  ): PublicAuthority[] {
+    return allPublicAuthorities.filter(
+      (option) =>
+        !selectedPublicAuthorities.some(
+          (selected) => selected.publicAuthorityId === option.publicAuthorityId,
+        ),
+    );
+  }
 }
