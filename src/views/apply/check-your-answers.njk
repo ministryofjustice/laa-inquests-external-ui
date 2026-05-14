@@ -1,0 +1,196 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/fee-earner"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">      
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Check your answers</h1>
+        {{ govukInsetText({
+          text: "You cannot change the answers on this page once you  continue"
+        }) }}
+        <h2 class="govuk-heading-m">Case details</h2>
+          <div data-testid="client-details-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Client details"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/name-and-dob",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "First name"
+                  },
+                  value: {
+                    html: client.clientFirstName
+                  }
+                },
+                {
+                  key: {
+                    text: "Last name"
+                  },
+                  value: {
+                    html: client.clientLastName
+                  }
+                },
+                {
+                  key: {
+                    text: "Date of birth"
+                  },
+                  value: {
+                    html: client.clientDob
+                  }
+                },
+                {
+                  key: {
+                    text: "Home address"
+                  },
+                  value: {
+                    html: client.clientAddress
+                  }
+                },
+                {
+                  key: {
+                    text: "Correspondence address"
+                  },
+                  value: {
+                    html: client.clientCorrespondenceAddress
+                  }
+                }
+              ]
+            }) }}
+          </div>
+          <h2 class="govuk-heading-m">Inquest</h2>
+          <div data-testid="deceased-details-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Deceased details"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/name",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "First name"
+                  },
+                  value: {
+                    html: deceasedDetails.deceasedFirstName
+                  }
+                },
+                {
+                  key: {
+                    text: "Last name"
+                  },
+                  value: {
+                    html: deceasedDetails.deceasedLastName
+                  }
+                },
+                {
+                  key: {
+                    text: "Date of death"
+                  },
+                  value: {
+                    html: deceasedDetails.dateOfDeath
+                  }
+                },
+                {
+                  key: {
+                    text: "Client relationship"
+                  },
+                  value: {
+                    html: deceasedDetails.deceasedClientRelationship
+                  }
+                },
+                {
+                  key: {
+                    text: "Coroner’s reference"
+                  },
+                  value: {
+                    html: deceasedDetails.deceasedCoronerReference
+                  }
+                }
+              ]
+            }) }}
+          </div>
+          <div data-testid="interested-parties-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Interested parties"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/public-authority",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: publicAuthorities
+            }) }}
+          </div>
+          <div data-testid="coroners-letter-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Coroner's letter"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/upload",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: [
+                {
+                  key: {
+                    text: "File name"
+                  },
+                  value: {
+                    html: "Test-filename.pdf"
+                  }
+                }
+              ]
+            }) }}
+          </div>
+        
+          {{ govukButton({
+            text: "Continue",
+            href: "/apply/submit/client-declaration"
+          }) }}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
