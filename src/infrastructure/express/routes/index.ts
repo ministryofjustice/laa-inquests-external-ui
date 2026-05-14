@@ -15,13 +15,16 @@ import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/Decease
 import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
 import { createProceedingsRouter } from "./apply/proceedings.router.js";
 import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { SubmitAdaptor } from "#src/adaptors/presenters/apply/Submit/Submit.adaptor.js";
 import { Formatter } from "#src/utils/Formatter.js";
+import { createSubmitRouter } from "./apply/submit.router.js";
 
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
+const submitRouter = express.Router();
 const confirmationRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
@@ -82,6 +85,7 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsFormatter,
 );
 
+const submitAdaptor = new SubmitAdaptor();
 const confirmationFormatter = new Formatter();
 const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
 
@@ -90,6 +94,7 @@ indexRouter.use(
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
   createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
+  createSubmitRouter(submitRouter, submitAdaptor),
   createConfirmationRouter(confirmationRouter, confirmationAdaptor),
 );
 

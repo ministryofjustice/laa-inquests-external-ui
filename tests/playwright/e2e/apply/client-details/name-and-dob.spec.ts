@@ -1,6 +1,7 @@
 import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
 import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
+import { getAndUpdateFormFields } from "#tests/playwright/fixtures/pages/Apply.js";
 
 test.describe("Client details - name and dob", () => {
   test("renders basic details header and back link", async ({ page }) => {
@@ -277,27 +278,3 @@ test.describe("Client details - name and dob", () => {
     });
   });
 });
-
-const getAndUpdateFormFields = async (
-  page: Page,
-  inputLookup: Record<string, string>,
-  exactLabels: string[] = [],
-): Promise<Record<string, Locator>> => {
-  const locatorLookup: Record<string, Locator> = {};
-  for (let label in inputLookup) {
-    if (exactLabels.includes(label)) {
-      const input = page.getByLabel(label, { exact: true });
-      locatorLookup[label] = input;
-      await input.fill(inputLookup[label]);
-    } else if (inputLookup[label] !== "") {
-      const input = page.getByLabel(label);
-      locatorLookup[label] = input;
-      await input.fill(inputLookup[label]);
-    } else {
-      const input = page.getByLabel(label);
-      locatorLookup[label] = input;
-      await input.click();
-    }
-  }
-  return locatorLookup;
-};

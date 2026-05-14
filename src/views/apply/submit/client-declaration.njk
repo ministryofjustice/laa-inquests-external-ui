@@ -1,0 +1,63 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {{ govukBackLink({
+        text: "Back",
+        href: "/apply/check-your-answers"
+    }) }}
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-l">Confirm the following</h2>
+                <form data-testid="client-declaration-form" action="/apply/submit/client-declaration" method="post">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+                    <p class="govuk-body">{{clientDetails.firstName}} {{clientDetails.lastName}} agrees that:</p>
+                    <ul class="govuk-list govuk-list--bullet">
+                        <li>
+                            they've instructed Test Provider to represent them
+                        </li>
+                        <li>
+                            they've read the <a class="govuk-link" href="#">LAA privacy policy</a>
+                        </li>
+                        <li>
+                            we can share their information with other government departments like DWP and HMRC
+                        </li>
+                        <li>
+                            the information they've given is complete and correct
+                        </li>
+                    </ul>
+                    {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+                    {{ govukWarningText({
+                        html: 
+                            "If they give wrong or incomplete information or do not report changes they may:
+                            <ul>
+                                <li>be prosecuted</li>
+                                <li>need to pay a financial penalty</li>
+                                <li>have their legal aid stopped and have to pay back the costs</li>
+                            </ul>",
+                        iconFallbackText: "Warning"
+                    }) }}
+                    {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+
+                    {{ govukCheckboxes({
+                    name: "client-delcaration-confirmation",
+                    items: [
+                        {
+                        value: "true",
+                        text: "I confirm the above is correct and that I'll get a signed declaration from my client"
+                        }
+                    ]
+                    }) }}
+                    {{ govukButton({
+                        text: "Continue"
+                    }) }}
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
