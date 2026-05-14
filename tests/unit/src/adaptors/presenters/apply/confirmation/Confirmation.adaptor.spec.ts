@@ -102,6 +102,29 @@ describe("Confirmation adaptor", () => {
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/confirm-success");
+    assert.deepEqual(renderArgs[1], {
+      csrfToken: undefined,
+      applicationReferenceNumber: "",
+    });
+  });
+
+  it("render confirm success page with application reference number", () => {
+    const confirmationFormatter = new Formatter();
+    const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.session.applicationReferenceNumber = "L-ABC-123";
+
+    confirmationAdaptor.renderConfirmSuccess(requestStub, responseStub);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "apply/confirm-success");
+    assert.deepEqual(renderArgs[1], {
+      csrfToken: undefined,
+      applicationReferenceNumber: "L-ABC-123",
+    });
   });
 
 });

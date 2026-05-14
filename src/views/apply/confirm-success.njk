@@ -15,7 +15,7 @@
     <div class="govuk-grid-row">
       {{ govukPanel({
         titleText: "Application complete",
-        html: "Your case reference number is <br><strong>L-V6N-473</strong>"
+        html: "Your case reference number is <br><strong>" ~ (applicationReferenceNumber | escape) ~ "</strong>"
       }) }}
       <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body govuk-!-padding-top-5">We've sent you a confirmation email.</p>

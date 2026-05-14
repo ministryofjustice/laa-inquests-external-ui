@@ -75,7 +75,15 @@ export class ConfirmationAdaptor {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/confirm-success",{ csrfToken });
+    const applicationReferenceNumber =
+      typeof req.session.applicationReferenceNumber === "string"
+        ? req.session.applicationReferenceNumber
+        : "";
+
+    res.render("apply/confirm-success", {
+      csrfToken,
+      applicationReferenceNumber,
+    });
   }
 
   #createDateString(day?: string, month?: string, year?: string): string {
