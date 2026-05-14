@@ -90,4 +90,18 @@ describe("Confirmation adaptor", () => {
       publicAuthorities: expectedFormattedPublicAuthorities,
     });
   });
+
+  it("render confirm success page", () => {
+    const confirmationFormatter = new Formatter();
+    const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    confirmationAdaptor.renderConfirmSuccess(requestStub, responseStub);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "apply/confirm-success");
+  });
+
 });

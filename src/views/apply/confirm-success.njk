@@ -1,0 +1,51 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/submit/client-declaration"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      {{ govukPanel({
+        titleText: "Application complete",
+        html: "Your case reference number is <br><strong>L-V6N-473</strong>"
+      }) }}
+      <div class="govuk-grid-column-two-thirds">
+        <p class="govuk-body govuk-!-padding-top-5">We've sent you a confirmation email.</p>
+        <h2 class="govuk-heading-l">What you need to do</h2>
+        <p class="govuk-body">
+          Print the completed application and get your client to sign it.
+        </p>
+        <p class="govuk-body">
+          Keep on file:
+        </p>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>a copy of the application</li>
+          <li>a signed copy of the declaration</li>
+        </ul>
+        <p class="govuk-body">        
+          You may need to show these if you're audited by the LAA in the future.
+        </p>
+        <h2 class="govuk-heading-l govuk-!-padding-top-8">What happens next</h2>
+        <p class="govuk-body">
+          We'll check your application to see if your client is entitled to legal aid.
+        </p>
+        <p class="govuk-body">
+          We'll let you know our decision.
+        </p>
+        {{ govukInsetText({
+          html: "<a href='#' class='govuk-link'>Give feedback</a> to help us improve this service"
+        }) }}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
