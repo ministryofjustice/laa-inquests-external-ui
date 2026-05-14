@@ -24,7 +24,16 @@ describe("PublicAuthority adaptor", () => {
         publicAuthorityOptions: [
           { text: "Home Office", value: "home-office" },
           { text: "Ministry of Justice", value: "moj" },
-          { text: "Local Authority", value: "local-authority" },
+          { text: "Cabinet Office", value: "cabinet-office" },
+          { text: "Department for Education", value: "department-for-education" },
+          { text: "Department for Business and Trade", value: "department-for-business-and-trade" },
+          { text: "Department for Energy, Security and Net Zero", value: "department-for-enerygy-security-and-net-zero" },
+          { text: "Department of Culture, Media and Sport", value: "department-of-culture-media-and-sport" },
+          { text: "Department for Transport", value: "department-for-transport" },
+          { text: "Department of Work and Pensions", value: "department-of-work-and-pensions" },
+          { text: "Department of Health and Social Care", value: "department-of-health-and-social-care" },
+          { text: "Foreign, Commonwealth and Development Office", value: "foreign-commonwealth-and-development-office" },
+          { text: "HM Treasury", value: "hm-treasury" }
         ],
         publicAuthorityOption: undefined,
         selectedPublicAuthorities: [],
