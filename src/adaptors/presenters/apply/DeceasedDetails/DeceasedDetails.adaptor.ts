@@ -232,6 +232,6 @@ export class DeceasedDetailsAdaptor {
 
     req.session.deceasedHasFurtherInformation = deceasedHasFurtherInformation;
     req.session.deceasedFurtherInformation = deceasedFurtherInformation;
-    res.redirect("/apply/check-your-answers");
+    res.redirect("/apply/public-authority");
   }
 }

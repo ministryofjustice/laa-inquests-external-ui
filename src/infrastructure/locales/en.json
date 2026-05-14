@@ -46,6 +46,17 @@
           "legendText": "Do you want to add another proceeding?",
           "hint": "You will only be shown the proceedings that can be added to ones you have already selected."
         }
+      },
+      "publicAuthority": {
+        "title": "Which public authorities are listed as interested parties?",
+        "search": {
+          "label": "Search for public authorities",
+          "hint": "Select one authority at a time."
+        },
+        "radio": {
+          "legendText": "Do you want to add another public authority?",
+          "hint": "You will only be shown authorities that can be added."
+        }
       }
     },
     "error": {

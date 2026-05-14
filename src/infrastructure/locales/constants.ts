@@ -97,3 +97,22 @@ export const PROCEEDING_OPTIONS = [
     matterType: "INQUEST",
   },
 ];
+
+export const PUBLIC_AUTHORITY_OPTIONS = [
+  {
+    publicAuthorityId: "home-office",
+    publicAuthorityDescription: "Home Office",
+  },
+  {
+    publicAuthorityId: "moj",
+    publicAuthorityDescription: "Ministry of Justice",
+  },
+  {
+    publicAuthorityId: "local-authority",
+    publicAuthorityDescription: "Local Authority",
+  },
+];
+
+export const PUBLIC_AUTHORITY_ERROR = {
+  NO_SELECTION: "Please select a public authority",
+};
