@@ -20,6 +20,7 @@ const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
+const submitRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -79,11 +80,31 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsFormatter,
 );
 
+submitRouter.get(
+  "/submit/client-declaration",
+  (req: Request, res: Response) => {
+    res.render("apply/submit/client-declaration", {
+      clientDetails: {
+        firstName: req.session.clientFirstName,
+        lastName: req.session.clientLastName,
+      },
+    });
+  },
+);
+
+submitRouter.post(
+  "/submit/client-declaration",
+  (req: Request, res: Response) => {
+    res.redirect("/apply/confirmation/success");
+  },
+);
+
 indexRouter.use(
   "/apply",
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
   createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
+  submitRouter,
 );
 
 export default indexRouter;
