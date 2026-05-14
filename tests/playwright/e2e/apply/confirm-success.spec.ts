@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index.js";
 
-test.describe.only("Apply - confirm success", () => {
+test.describe("Apply - confirm success", () => {
   test("renders confirm success page header and back link", async ({
     page,
   }) => {
