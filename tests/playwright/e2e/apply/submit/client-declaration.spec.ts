@@ -54,7 +54,7 @@ test.describe("Provider can", () => {
     );
     const listItemOneHtml = await listItems[1].innerHTML();
     await expect(listItemOneHtml).toContain(
-      `they've read the <a class="govuk-link" href="#">LAA privacy policy</a>`,
+      `they've read the <a class="govuk-link" href="https://www.gov.uk/guidance/legal-aid-agency-privacy-notice" target="_blank">LAA privacy policy</a>`,
     );
     await expect(listItems[2]).toHaveText(
       "we can share their information with other government departments like DWP and HMRC",
