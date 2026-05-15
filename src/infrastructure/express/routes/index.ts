@@ -4,8 +4,6 @@ import axios from "axios";
 import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
-import { ApplicationInquestsApiAdaptor } from "#src/adaptors/source/InquestsApi/application.adaptor.js";
-import { ApplicationDisplayAdaptor } from "#src/adaptors/presenters/application.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
 import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
@@ -21,7 +19,7 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { createSubmitRouter } from "./apply/submit.router.js";
-import { SubmitApplicationDomain } from "#src/domain/submit-application.domain.js";
+import { SubmitApplicationDomain } from "#src/adaptors/source/inquests-api/submit-application.adaptor.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -60,18 +58,6 @@ indexRouter.get("/error", (req: Request, res: Response): void => {
     .status(UNSUCCESSFUL_REQUEST)
     .send("Internal Server Error");
 });
-
-const applicationInquestsApiAdaptor = new ApplicationInquestsApiAdaptor(
-  axios,
-  "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
-);
-const applicationDisplayAdaptor = new ApplicationDisplayAdaptor(
-  applicationInquestsApiAdaptor,
-);
-
-indexRouter.use("/applications", [
-  createApplicationRouter(express.Router(), applicationDisplayAdaptor),
-]);
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
 const clientDetailsAdaptor = new ClientDetailsAdaptor(
