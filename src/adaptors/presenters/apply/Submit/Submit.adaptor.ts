@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
 import type {
   ApplySubmitPort,
-} from "#src/ports/source/apply-submit.js";
+} from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import {
   SubmitApplicationRequestSchema,
   SubmitApplicationResponseSchema,
-} from "#src/ports/source/apply-submit.js";
+} from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 
 export class SubmitAdaptor {

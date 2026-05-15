@@ -2,7 +2,7 @@ import type {
   ApplySubmitPort,
   SubmitApplicationRequest,
   SubmitApplicationResponse,
-} from "#src/ports/source/apply-submit.js";
+} from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 
 export class SubmitApplicationDomain implements ApplySubmitPort {
   async submitApplication(
