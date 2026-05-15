@@ -21,6 +21,7 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { createSubmitRouter } from "./apply/submit.router.js";
+import { SubmitApplicationDomain } from "#src/domain/submit-application.domain.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -89,7 +90,6 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsFormatter,
 );
 
-const submitAdaptor = new SubmitAdaptor();
 const confirmationFormatter = new Formatter();
 const confirmationAdaptor = new ConfirmationAdaptor(confirmationFormatter);
 
@@ -99,6 +99,8 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
   publicAuthorityValidator,
   publicAuthorityFormatter,
 );
+const submitApplicationDomain = new SubmitApplicationDomain();
+const submitAdaptor = new SubmitAdaptor(submitApplicationDomain);
 
 indexRouter.use(
   "/apply",

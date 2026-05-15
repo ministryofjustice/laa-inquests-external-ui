@@ -2,14 +2,18 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { SubmitAdaptor } from "#src/adaptors/presenters/apply/Submit/Submit.adaptor.js";
+import type { ApplySubmitPort } from "#src/ports/source/apply-submit.js";
 
 describe("Submit adaptor", () => {
-  const submitAdaptor = new SubmitAdaptor();
+  let submitAdaptor = new SubmitAdaptor(stubInterface<ApplySubmitPort>());
+  let applySubmitPortStub = stubInterface<ApplySubmitPort>();
 
   let responseStub = stubInterface<Response>();
   let requestStub = stubInterface<Request>();
 
   beforeEach(() => {
+    applySubmitPortStub = stubInterface<ApplySubmitPort>();
+    submitAdaptor = new SubmitAdaptor(applySubmitPortStub);
     responseStub = stubInterface<Response>();
     requestStub = stubInterface<Request>();
     responseStub.locals = {
@@ -49,8 +53,82 @@ describe("Submit adaptor", () => {
   });
 
   describe("processClientDeclarationForm", () => {
-    it("redirects to confirmation success", () => {
-      submitAdaptor.processClientDeclarationForm(requestStub, responseStub);
+    it("submits application, saves applicationReferenceNumber and redirects on 201", async () => {
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientLastNameAtBirth = "Birthname";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientNino = "AB123456C";
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.publicBodies = [
+        {
+          publicBodyDescription: "DWP",
+        },
+      ] as any;
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        applicationReferenceNumber: "APP-123",
+      });
+
+      await submitAdaptor.processClientDeclarationForm(requestStub, responseStub);
+
+      assert.equal(applySubmitPortStub.submitApplication.callCount, 1);
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0).args[0] as Record<
+        string,
+        any
+      >;
+
+      assert.equal(submitBody.client.clientFirstName, "Client");
+      assert.equal(submitBody.client.clientLastName, "One");
+      assert.equal(submitBody.client.clientLastNameAtBirth, "Birthname");
+      assert.equal(submitBody.client.clientDob, "1989-10-05");
+      assert.equal(submitBody.client.clientNino, "AB123456C");
+      assert.equal(submitBody.client.relationshipToDeceased, "Spouse");
+
+      assert.equal(submitBody.deceased.deceasedFirstName, "Deceased");
+      assert.equal(submitBody.deceased.deceasedLastName, "Two");
+      assert.equal(submitBody.deceased.deceasedDob, "1975-02-01");
+      assert.equal(submitBody.deceased.deceasedDateOfDeath, "2024-03-10");
+      assert.equal(submitBody.deceased.coronersReference, "COR-123");
+      assert.equal(submitBody.deceased.furtherInformation, "Further info");
+
+      assert.deepEqual(submitBody.proceedings, [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+        },
+      ]);
+      assert.deepEqual(submitBody.publicBodies, [
+        {
+          publicBodyDescription: "DWP",
+        },
+      ]);
+
+      assert.equal(requestStub.session.applicationReferenceNumber, "APP-123");
 
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
