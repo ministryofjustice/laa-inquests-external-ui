@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { formatDate } from "#src/utils/dateFormatter.js";
+import { formatDate, formatDateISO8601 } from "#src/utils/dateFormatter.js";
 
 describe("formatDate()", () => {
   it("formats a valid ISO date string correctly", () => {
@@ -14,5 +14,17 @@ describe("formatDate()", () => {
   it("handles invalid date strings by returning the original input", () => {
     expect(formatDate("invalid-date")).to.equal("invalid-date");
     expect(formatDate("")).to.equal("");
+  });
+});
+
+describe("formatDateISO8601()", () => {
+  it("formats valid year, month, and day into ISO 8601 format", () => {
+    expect(formatDateISO8601("2023", "07", "28")).to.equal("2023-07-28");
+  });
+
+  it("handles non-string inputs by treating them as empty strings", () => {
+    expect(formatDateISO8601(2023, 7, 28)).to.equal("--");
+    expect(formatDateISO8601(null, null, null)).to.equal("--");
+    expect(formatDateISO8601(undefined, undefined, undefined)).to.equal("--");
   });
 });

@@ -23,26 +23,30 @@ export const SubmitApplicationRequestSchema = z.object({
     z.object({
       proceedingId: z.string(),
       proceedingDescription: z.string(),
-    })
+    }),
   ),
   publicBodies: z.array(
     z.object({
       publicBodyDescription: z.string(),
-    })
+    }),
   ),
 });
 
-export type SubmitApplicationRequest = z.infer<typeof SubmitApplicationRequestSchema>;
+export type SubmitApplicationRequest = z.infer<
+  typeof SubmitApplicationRequestSchema
+>;
 
 export const SubmitApplicationResponseSchema = z.object({
   statusCode: z.number(),
   applicationReferenceNumber: z.string(),
 });
 
-export type SubmitApplicationResponse = z.infer<typeof SubmitApplicationResponseSchema>;
+export type SubmitApplicationResponse = z.infer<
+  typeof SubmitApplicationResponseSchema
+>;
 
 export interface ApplySubmitPort {
   submitApplication: (
-    body: SubmitApplicationRequest
+    body: SubmitApplicationRequest,
   ) => Promise<SubmitApplicationResponse>;
 }

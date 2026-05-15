@@ -1,12 +1,16 @@
 import type { Request, Response } from "express";
-import type {
-  ApplySubmitPort,
-} from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import {
   SubmitApplicationRequestSchema,
   SubmitApplicationResponseSchema,
 } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
+import type {
+  ApplySubmitPort,
+  SubmitApplicationRequest,
+} from "#src/ports/source/inquests-api/SubmitApplication.port.js";
+
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
+import { formatDateISO8601 } from "#src/utils/dateFormatter.js";
+import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
 
 export class SubmitAdaptor {
   applySubmitPort: ApplySubmitPort;
@@ -29,61 +33,64 @@ export class SubmitAdaptor {
     });
   }
 
-  async processClientDeclarationForm(req: Request, res: Response): Promise<void> {
-    const selectedProceedings = req.session.selectedProceedings ?? [];
-    const publicBodies = Array.isArray(req.session.publicBodies)
-      ? req.session.publicBodies
-          .map((publicBody) => {
-            if (
-              typeof publicBody === "object" &&
-              publicBody !== null &&
-              "publicBodyDescription" in publicBody &&
-              typeof publicBody.publicBodyDescription === "string"
-            ) {
-              return {
-                publicBodyDescription: publicBody.publicBodyDescription,
-              };
-            }
+  async processClientDeclarationForm(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    const submitBody = this.#generateSubmitBody(req);
+    const { session } = req;
+    const responseRaw =
+      await this.applySubmitPort.submitApplication(submitBody);
+    const { statusCode, applicationReferenceNumber } =
+      SubmitApplicationResponseSchema.parse(responseRaw);
 
-            return null;
-          })
-          .filter(
-            (
-              publicBody,
-            ): publicBody is { publicBodyDescription: string } =>
-              publicBody !== null,
-          )
-      : [];
+    if (statusCode === HTTP_CREATED) {
+      session.applicationReferenceNumber = applicationReferenceNumber;
+      res.redirect("/apply/confirmation/success");
+    }
+  }
+
+  #generateSubmitBody(req: Request): SubmitApplicationRequest {
+    const selectedProceedings = req.session.selectedProceedings ?? [];
+    const publicBodies =
+      req.session.selectedPublicAuthorities?.map((body) => ({
+        publicBodyDescription: body.publicAuthorityDescription,
+      })) ?? [];
 
     // Build the payload
     const submitBodyRaw = {
       client: {
-        clientFirstName: (req.session.clientFirstName ?? "") as string,
-        clientLastName: (req.session.clientLastName ?? "") as string,
-        clientLastNameAtBirth: req.session.clientLastNameAtBirth as string | undefined,
-        clientDob: this.#formatDate(
+        clientFirstName: req.session.clientFirstName as string,
+        clientLastName: req.session.clientLastName as string,
+        clientLastNameAtBirth: req.session.clientLastNameAtBirth as
+          | string
+          | undefined,
+        clientDob: formatDateISO8601(
           req.session.clientDobYear,
           req.session.clientDobMonth,
           req.session.clientDobDay,
         ),
         clientNino: req.session.clientNino as string | undefined,
-        relationshipToDeceased: (req.session.deceasedClientRelationship ?? "") as string,
+        relationshipToDeceased: (req.session.deceasedClientRelationship ??
+          "") as string,
       },
       deceased: {
-        deceasedFirstName: (req.session.deceasedFirstName ?? "") as string,
-        deceasedLastName: (req.session.deceasedLastName ?? "") as string,
-        deceasedDob: this.#formatDate(
+        deceasedFirstName: req.session.deceasedFirstName as string,
+        deceasedLastName: req.session.deceasedLastName as string,
+        deceasedDob: formatDateISO8601(
           req.session.deceasedDateOfBirthYear,
           req.session.deceasedDateOfBirthMonth,
           req.session.deceasedDateOfBirthDay,
         ),
-        deceasedDateOfDeath: this.#formatDate(
+        deceasedDateOfDeath: formatDateISO8601(
           req.session.deceasedDateOfDeathYear,
           req.session.deceasedDateOfDeathMonth,
           req.session.deceasedDateOfDeathDay,
         ),
-        coronersReference: (req.session.deceasedCoronerReference ?? "") as string,
-        furtherInformation: (req.session.deceasedFurtherInformation ?? "") as string,
+        coronersReference: (req.session.deceasedCoronerReference ??
+          "") as string,
+        furtherInformation: (req.session.deceasedFurtherInformation ??
+          "") as string,
       },
       proceedings: selectedProceedings.map((proceeding: Proceeding) => ({
         proceedingId: proceeding.proceedingId,
@@ -94,25 +101,6 @@ export class SubmitAdaptor {
 
     // Validate and parse with Zod
     const submitBody = SubmitApplicationRequestSchema.parse(submitBodyRaw);
-
-    const responseRaw = await this.applySubmitPort.submitApplication(submitBody);
-    const response = SubmitApplicationResponseSchema.parse(responseRaw);
-
-    if (response.statusCode === 201) {
-      req.session.applicationReferenceNumber = response.applicationReferenceNumber;
-      res.redirect("/apply/confirmation/success");
-    }
-  }
-
-  #formatDate(
-    year: unknown,
-    month: unknown,
-    day: unknown,
-  ): string {
-    const formattedYear = typeof year === "string" ? year : "";
-    const formattedMonth = typeof month === "string" ? month : "";
-    const formattedDay = typeof day === "string" ? day : "";
-
-    return `${formattedYear}-${formattedMonth}-${formattedDay}`;
+    return submitBody;
   }
 }

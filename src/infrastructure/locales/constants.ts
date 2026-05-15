@@ -152,3 +152,5 @@ export const PUBLIC_AUTHORITY_OPTIONS = [
 export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
 };
+
+export const HTTP_CREATED = 201;
