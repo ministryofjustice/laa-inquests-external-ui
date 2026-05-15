@@ -1,7 +1,6 @@
 import express from "express";
 import type { Request, Response } from "express";
 import axios from "axios";
-import createApplicationRouter from "#src/infrastructure/express/routes/application.router.js";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
@@ -19,7 +18,7 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { createSubmitRouter } from "./apply/submit.router.js";
-import { SubmitApplicationDomain } from "#src/adaptors/source/inquests-api/submit-application.adaptor.js";
+import { SubmitApplicationDomain } from "#src/adaptors/source/inquests-api/apply/SubmitApplication.adaptor.js";
 
 // Create a new router
 const indexRouter = express.Router();

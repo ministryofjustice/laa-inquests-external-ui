@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { SubmitAdaptor } from "#src/adaptors/presenters/apply/Submit/Submit.adaptor.js";
-import type { ApplySubmitPort } from "#src/ports/source/apply-submit.js";
+import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 
 describe("Submit adaptor", () => {
   let submitAdaptor = new SubmitAdaptor(stubInterface<ApplySubmitPort>());
