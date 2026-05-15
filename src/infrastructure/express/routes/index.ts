@@ -17,7 +17,8 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { createSubmitRouter } from "./apply/submit.router.js";
-import { SubmitApplicationDomain } from "#src/adaptors/source/inquests-api/apply/SubmitApplication.adaptor.js";
+import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication.adaptor.js";
+import axios from "axios";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -83,7 +84,7 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
   publicAuthorityValidator,
   publicAuthorityFormatter,
 );
-const submitApplicationDomain = new SubmitApplicationDomain();
+const submitApplicationDomain = new SubmitApplicationAdaptor(axios.create(), "http://localhost");
 const submitAdaptor = new SubmitAdaptor(submitApplicationDomain);
 
 indexRouter.use(
