@@ -1,6 +1,5 @@
 import express from "express";
 import type { Request, Response } from "express";
-import axios from "axios";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";

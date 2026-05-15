@@ -2,7 +2,10 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { SubmitAdaptor } from "#src/adaptors/presenters/apply/Submit/Submit.adaptor.js";
-import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
+import type {
+  ApplySubmitPort,
+  SubmitApplicationRequest,
+} from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 
 describe("Submit adaptor", () => {
   let submitAdaptor = new SubmitAdaptor(stubInterface<ApplySubmitPort>());
@@ -82,25 +85,27 @@ describe("Submit adaptor", () => {
         },
       ];
 
-      requestStub.session.publicBodies = [
+      requestStub.session.selectedPublicAuthorities = [
         {
-          publicBodyDescription: "DWP",
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
         },
-      ] as any;
+      ];
 
       applySubmitPortStub.submitApplication.resolves({
         statusCode: 201,
         applicationReferenceNumber: "APP-123",
       });
 
-      await submitAdaptor.processClientDeclarationForm(requestStub, responseStub);
+      await submitAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
 
       assert.equal(applySubmitPortStub.submitApplication.callCount, 1);
 
-      const submitBody = applySubmitPortStub.submitApplication.getCall(0).args[0] as Record<
-        string,
-        any
-      >;
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
 
       assert.equal(submitBody.client.clientFirstName, "Client");
       assert.equal(submitBody.client.clientLastName, "One");
@@ -124,7 +129,7 @@ describe("Submit adaptor", () => {
       ]);
       assert.deepEqual(submitBody.publicBodies, [
         {
-          publicBodyDescription: "DWP",
+          publicBodyDescription: "Home Office",
         },
       ]);
 

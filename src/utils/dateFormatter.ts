@@ -11,3 +11,15 @@ export function formatDate(dateString: string): string {
 
   return `${day} ${month} ${year}`;
 }
+
+export function formatDateISO8601(
+  year: unknown,
+  month: unknown,
+  day: unknown,
+): string {
+  const formattedYear = typeof year === "string" ? year : "";
+  const formattedMonth = typeof month === "string" ? month : "";
+  const formattedDay = typeof day === "string" ? day : "";
+
+  return `${formattedYear}-${formattedMonth}-${formattedDay}`;
+}
