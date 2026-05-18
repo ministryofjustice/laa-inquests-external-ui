@@ -3,19 +3,31 @@ import type {
   SubmitApplicationRequest,
   SubmitApplicationResponse,
 } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosResponse } from "axios";
 
 export class SubmitApplicationAdaptor implements ApplySubmitPort {
-  constructor(private http: AxiosInstance, private baseUrl: string) {}
-  // eslint-disable-next-line @typescript-eslint/require-await -- Temp disable
-  async submitApplication(    
+  constructor(
+    private readonly http: AxiosInstance,
+    private readonly baseUrl: string,
+  ) {}
+
+  async submitApplication(
     _body: SubmitApplicationRequest,
   ): Promise<SubmitApplicationResponse> {
-    const response: AxiosResponse<SubmitApplicationResponse> = await this.http.post(`${this.baseUrl}/application`, _body);
-    const submitApplicationResponse: SubmitApplicationResponse = {
-      statusCode: response.status,
-      applicationReferenceNumber: response.data.applicationReferenceNumber,
+    try {
+      console.log("Submitting application with body:", _body);
+      const response: AxiosResponse<SubmitApplicationResponse> =
+        await this.http.post(`${this.baseUrl}/applications`, _body);
+
+      const submitApplicationResponse: SubmitApplicationResponse = {
+        statusCode: response.status,
+        applicationReferenceNumber: response.data.applicationReferenceNumber,
+      };
+      console.log("Received response:\n", response);
+      return submitApplicationResponse;
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      throw error;
     }
-    return submitApplicationResponse;
   }
 }

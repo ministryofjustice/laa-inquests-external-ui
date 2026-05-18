@@ -110,26 +110,25 @@ describe("Submit adaptor", () => {
       assert.equal(submitBody.client.clientFirstName, "Client");
       assert.equal(submitBody.client.clientLastName, "One");
       assert.equal(submitBody.client.clientLastNameAtBirth, "Birthname");
-      assert.equal(submitBody.client.clientDob, "1989-10-05");
-      assert.equal(submitBody.client.clientNino, "AB123456C");
-      assert.equal(submitBody.client.relationshipToDeceased, "Spouse");
+      assert.equal(submitBody.client.dateOfBirth, "1989-10-05");
+      assert.equal(submitBody.client.nationalInsuranceNumber, "AB123456C");
 
       assert.equal(submitBody.deceased.deceasedFirstName, "Deceased");
       assert.equal(submitBody.deceased.deceasedLastName, "Two");
-      assert.equal(submitBody.deceased.deceasedDob, "1975-02-01");
+      assert.equal(submitBody.deceased.deceasedDateOfBirth, "1975-02-01");
       assert.equal(submitBody.deceased.deceasedDateOfDeath, "2024-03-10");
       assert.equal(submitBody.deceased.coronersReference, "COR-123");
       assert.equal(submitBody.deceased.furtherInformation, "Further info");
+      assert.equal(submitBody.deceased.clientRelationshipToDeceased, "Spouse");
 
       assert.deepEqual(submitBody.proceedings, [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
         },
       ]);
       assert.deepEqual(submitBody.publicBodies, [
         {
-          publicBodyDescription: "Home Office",
+          publicBodyId: "Home Office",
         },
       ]);
 

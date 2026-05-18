@@ -112,7 +112,9 @@ test.describe("Provider can", () => {
       "Enter your client's National Insurance number": "AB12345A",
     });
     await continueTemp("nino-form");
-    await expect(page.url()).toContain("/apply/client-details/has-prev-application");
+    await expect(page.url()).toContain(
+      "/apply/client-details/has-prev-application",
+    );
 
     await getAndUpdateFormFields(page, {
       No: "",
@@ -156,7 +158,9 @@ test.describe("Provider can", () => {
       Year: "2000",
     });
     await continueTemp("deceased-date-of-birth-form");
-    await expect(page.url()).toContain("/apply/deceased-details/client-relationship");
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/client-relationship",
+    );
 
     await getAndUpdateFormFields(page, {
       Yes: "",
@@ -164,17 +168,22 @@ test.describe("Provider can", () => {
         "guardian",
     });
     await continueTemp("deceased-client-relationship-form");
-    await expect(page.url()).toContain("/apply/deceased-details/coroner-reference");
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/coroner-reference",
+    );
 
     await getAndUpdateFormFields(page, {
       "Please enter your reference number": "beans",
     });
     await continueTemp("deceased-coroner-reference-form");
-    await expect(page.url()).toContain("/apply/deceased-details/further-information");
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/further-information",
+    );
 
     await getAndUpdateFormFields(page, {
       Yes: "",
-      "Please provide any details available of linked or bridged inquests": "he died",
+      "Please provide any details available of linked or bridged inquests":
+        "he died",
     });
     await continueTemp("deceased-further-information-form");
     await expect(page.url()).toContain("/apply/public-authority");

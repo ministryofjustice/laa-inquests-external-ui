@@ -54,7 +54,7 @@ export class SubmitAdaptor {
     const selectedProceedings = req.session.selectedProceedings ?? [];
     const publicBodies =
       req.session.selectedPublicAuthorities?.map((body) => ({
-        publicBodyDescription: body.publicAuthorityDescription,
+        publicBodyId: body.publicAuthorityDescription,
       })) ?? [];
 
     // Build the payload
@@ -65,19 +65,17 @@ export class SubmitAdaptor {
         clientLastNameAtBirth: req.session.clientLastNameAtBirth as
           | string
           | undefined,
-        clientDob: formatDateISO8601(
+        dateOfBirth: formatDateISO8601(
           req.session.clientDobYear,
           req.session.clientDobMonth,
           req.session.clientDobDay,
         ),
-        clientNino: req.session.clientNino as string | undefined,
-        relationshipToDeceased: (req.session.deceasedClientRelationship ??
-          "") as string,
+        nationalInsuranceNumber: req.session.clientNino as string | undefined,
       },
       deceased: {
         deceasedFirstName: req.session.deceasedFirstName as string,
         deceasedLastName: req.session.deceasedLastName as string,
-        deceasedDob: formatDateISO8601(
+        deceasedDateOfBirth: formatDateISO8601(
           req.session.deceasedDateOfBirthYear,
           req.session.deceasedDateOfBirthMonth,
           req.session.deceasedDateOfBirthDay,
@@ -91,10 +89,11 @@ export class SubmitAdaptor {
           "") as string,
         furtherInformation: (req.session.deceasedFurtherInformation ??
           "") as string,
+        clientRelationshipToDeceased: (req.session.deceasedClientRelationship ??
+          "") as string,
       },
       proceedings: selectedProceedings.map((proceeding: Proceeding) => ({
         proceedingId: proceeding.proceedingId,
-        proceedingDescription: proceeding.proceedingDescription,
       })),
       publicBodies,
     };

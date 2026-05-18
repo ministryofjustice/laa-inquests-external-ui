@@ -5,29 +5,28 @@ export const SubmitApplicationRequestSchema = z.object({
     clientFirstName: z.string(),
     clientLastName: z.string(),
     clientLastNameAtBirth: z.string().optional(),
-    clientDob: z.string(),
-    clientNino: z.string().optional(),
+    dateOfBirth: z.string(),
+    nationalInsuranceNumber: z.string().optional(),
     correspondenceAddress: z.string().optional(),
     homeAddress: z.string().optional(),
-    relationshipToDeceased: z.string(),
   }),
   deceased: z.object({
     deceasedFirstName: z.string(),
     deceasedLastName: z.string(),
-    deceasedDob: z.string(),
+    deceasedDateOfBirth: z.string(),
     deceasedDateOfDeath: z.string(),
     coronersReference: z.string(),
     furtherInformation: z.string(),
+    clientRelationshipToDeceased: z.string(),
   }),
   proceedings: z.array(
     z.object({
       proceedingId: z.string(),
-      proceedingDescription: z.string(),
     }),
   ),
   publicBodies: z.array(
     z.object({
-      publicBodyDescription: z.string(),
+      publicBodyId: z.string(),
     }),
   ),
 });
