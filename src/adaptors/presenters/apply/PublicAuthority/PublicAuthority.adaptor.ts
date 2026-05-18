@@ -44,7 +44,7 @@ export class PublicAuthorityAdaptor {
       publicAuthorityOptions: formattedOptions,
       publicAuthorityOption: req.session.publicAuthorityOption,
       selectedPublicAuthorities: formattedSelected,
-      isAddingAnother: selectedPublicAuthorities.length > 0,
+      isAddingAnother: selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
     });
   }
 
@@ -92,7 +92,7 @@ export class PublicAuthorityAdaptor {
         publicAuthorityOption: req.session.publicAuthorityOption,
         selectedPublicAuthorities: formattedSelected,
         errorSummaries: errors,
-        isAddingAnother: selectedPublicAuthorities.length > 0,
+        isAddingAnother: selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
       });
     } else {
       req.session.publicAuthorityOption = selectedOption;
@@ -110,14 +110,17 @@ export class PublicAuthorityAdaptor {
       locals: { csrfToken },
     } = res;
 
-    if (req.session.selectedPublicAuthorities === undefined) {
+    const {
+      session: { selectedPublicAuthorities, successMessage },
+    } = req;
+
+    if (selectedPublicAuthorities === undefined) {
       res.redirect("/apply/public-authority");
     } else {
-      const { successMessage } = req.session;
-      delete req.session.successMessage;
+      req.session.successMessage = undefined;
 
       const formattedSelected = this.formatter.formatIntoTableRows(
-        req.session.selectedPublicAuthorities,
+        selectedPublicAuthorities,
       );
 
       res.render("apply/public-authority/confirmation", {

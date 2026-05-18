@@ -1,4 +1,5 @@
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 export interface PublicAuthorityError {
   noPublicAuthoritySelected?: { text: string };
@@ -57,7 +58,7 @@ export class PublicAuthorityValidator extends FormValidator {
   ): Partial<PublicAuthorityError> {
     const errorSummaries: Partial<PublicAuthorityError> = {};
 
-    if (selectedPublicAuthorities.length === 0) {
+    if (selectedPublicAuthorities.length === EMPTY_ARR_LENGTH) {
       errorSummaries.noPublicAuthoritiesInList = {
         text: PUBLIC_AUTHORITY_ERROR.NO_PUBLIC_AUTHORITIES_IN_LIST,
       };
