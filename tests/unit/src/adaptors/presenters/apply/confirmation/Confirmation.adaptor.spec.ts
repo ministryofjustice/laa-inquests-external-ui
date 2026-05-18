@@ -126,5 +126,4 @@ describe("Confirmation adaptor", () => {
       applicationReferenceNumber: "L-ABC-123",
     });
   });
-
 });
