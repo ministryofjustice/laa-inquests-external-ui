@@ -85,8 +85,123 @@ test.describe("Provider can", () => {
   test("clicking continue redirects to confirmation success", async ({
     page,
   }) => {
-    await page.goto(currentPage);
+    const continueTemp = async (formTestId: string): Promise<void> => {
+      const form = await page.getByTestId(formTestId);
+      await continueToNextPage(form, page);
+    };
+
+    // Use the provided data for all fields and steps
+    await page.goto("/apply/client-details/name-and-dob");
+    await getAndUpdateFormFields(
+      page,
+      {
+        "First name": "test",
+        "Last name": "surname",
+        Day: "01",
+        Month: "01",
+        Year: "1990",
+        No: "",
+      },
+      ["Last name"],
+    );
+    await continueTemp("client-details-form");
+    await expect(page.url()).toContain("/apply/client-details/nino");
+
+    await getAndUpdateFormFields(page, {
+      Yes: "",
+      "Enter your client's National Insurance number": "AB12345A",
+    });
+    await continueTemp("nino-form");
+    await expect(page.url()).toContain("/apply/client-details/has-prev-application");
+
+    await getAndUpdateFormFields(page, {
+      No: "",
+    });
+    await continueTemp("has-prev-application-form");
+    await expect(page.url()).toContain("/apply/proceedings");
+
+    // Select the custom proceedingId TEST1 (simulate radio by label)
+    await page.getByLabel("TEST1", { exact: true }).click();
+    await continueTemp("add-proceeding-form");
+    await expect(page.url()).toContain("/apply/proceedings/confirmation");
+
+    await getAndUpdateFormFields(page, {
+      No: "",
+    });
+    await continueTemp("add-another-proceeding-form");
+    await expect(page.url()).toContain("/apply/deceased-details/name");
+
+    await getAndUpdateFormFields(
+      page,
+      {
+        "First name": "bob",
+        "Last name": "boberton",
+      },
+      ["Last name"],
+    );
+    await continueTemp("deceased-details-form");
+    await expect(page.url()).toContain("/apply/deceased-details/dod");
+
+    await getAndUpdateFormFields(page, {
+      Day: "01",
+      Month: "01",
+      Year: "2025",
+    });
+    await continueTemp("deceased-date-of-death-form");
+    await expect(page.url()).toContain("/apply/deceased-details/dob");
+
+    await getAndUpdateFormFields(page, {
+      Day: "01",
+      Month: "01",
+      Year: "2000",
+    });
+    await continueTemp("deceased-date-of-birth-form");
+    await expect(page.url()).toContain("/apply/deceased-details/client-relationship");
+
+    await getAndUpdateFormFields(page, {
+      Yes: "",
+      "Please describe the nature of the relationship between your client and the deceased":
+        "guardian",
+    });
+    await continueTemp("deceased-client-relationship-form");
+    await expect(page.url()).toContain("/apply/deceased-details/coroner-reference");
+
+    await getAndUpdateFormFields(page, {
+      "Please enter your reference number": "beans",
+    });
+    await continueTemp("deceased-coroner-reference-form");
+    await expect(page.url()).toContain("/apply/deceased-details/further-information");
+
+    await getAndUpdateFormFields(page, {
+      Yes: "",
+      "Please provide any details available of linked or bridged inquests": "he died",
+    });
+    await continueTemp("deceased-further-information-form");
+    await expect(page.url()).toContain("/apply/public-authority");
+
+    // Select the custom publicBodyId (simulate radio by label)
+    await page.getByLabel("Department for Transport", { exact: true }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.url()).toContain("/apply/public-authority/confirmation");
+
+    await getAndUpdateFormFields(page, {
+      No: "",
+    });
+    await continueTemp("add-another-public-authority-form");
+    await expect(page.url()).toContain("/apply/check-your-answers");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.url()).toContain(currentPage);
+
     const form = await page.getByTestId("client-declaration-form");
+    await expect(form.getByText(`test surname agrees that:`)).toBeVisible();
+    await form
+      .getByRole("checkbox", {
+        name: "I confirm the above is correct and that I'll get a signed declaration from my client",
+      })
+      .check();
     await continueToNextPage(form, page);
     await expect(page.url()).toContain(nextPage);
   });
