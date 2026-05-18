@@ -70,6 +70,22 @@ export class ConfirmationAdaptor {
     });
   }
 
+  renderConfirmSuccess(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    const applicationReferenceNumber =
+      typeof req.session.applicationReferenceNumber === "string"
+        ? req.session.applicationReferenceNumber
+        : "";
+
+    res.render("apply/confirm-success", {
+      csrfToken,
+      applicationReferenceNumber,
+    });
+  }
+
   #createDateString(day?: string, month?: string, year?: string): string {
     return typeof day === "string" &&
       typeof month === "string" &&
@@ -81,9 +97,9 @@ export class ConfirmationAdaptor {
   #createAddressString(
     addressLine1?: string,
     addressLine2?: string,
-    townOrcity?: string,
+    townOrCity?: string,
     county?: string,
   ): string {
-    return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrcity ?? ""} ${county ?? ""}`;
+    return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrCity ?? ""} ${county ?? ""}`;
   }
 }

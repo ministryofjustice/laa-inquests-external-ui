@@ -12,5 +12,12 @@ export function createConfirmationRouter(
     },
   );
 
+  confirmationRouter.get(
+    "/submit/success",
+    (req: Request, res: Response): void => {
+      confirmationAdaptor.renderConfirmSuccess(req, res);
+    },
+  );
+
   return confirmationRouter;
 }
