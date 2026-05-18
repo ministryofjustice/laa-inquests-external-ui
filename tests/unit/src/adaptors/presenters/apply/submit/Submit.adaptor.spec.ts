@@ -94,7 +94,7 @@ describe("Submit adaptor", () => {
 
       applySubmitPortStub.submitApplication.resolves({
         statusCode: 201,
-        applicationReferenceNumber: "APP-123",
+        laaReference: 123,
       });
 
       await submitAdaptor.processClientDeclarationForm(
@@ -132,7 +132,7 @@ describe("Submit adaptor", () => {
         },
       ]);
 
-      assert.equal(requestStub.session.applicationReferenceNumber, "APP-123");
+      assert.equal(requestStub.session.applicationReferenceNumber, "123");
 
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;

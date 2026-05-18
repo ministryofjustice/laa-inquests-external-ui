@@ -41,11 +41,11 @@ export class SubmitAdaptor {
     const { session } = req;
     const responseRaw =
       await this.applySubmitPort.submitApplication(submitBody);
-    const { statusCode, applicationReferenceNumber } =
+    const { statusCode, laaReference } =
       SubmitApplicationResponseSchema.parse(responseRaw);
 
     if (statusCode === HTTP_CREATED) {
-      session.applicationReferenceNumber = applicationReferenceNumber;
+      session.applicationReferenceNumber = laaReference.toString();
       res.redirect("/apply/confirmation/success");
     }
   }

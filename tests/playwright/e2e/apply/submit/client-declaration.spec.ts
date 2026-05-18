@@ -109,7 +109,7 @@ test.describe("Provider can", () => {
 
     await getAndUpdateFormFields(page, {
       Yes: "",
-      "Enter your client's National Insurance number": "AB12345A",
+      "Enter your client's National Insurance number": "PC123456C",
     });
     await continueTemp("nino-form");
     await expect(page.url()).toContain(
@@ -123,7 +123,7 @@ test.describe("Provider can", () => {
     await expect(page.url()).toContain("/apply/proceedings");
 
     // Select the custom proceedingId TEST1 (simulate radio by label)
-    await page.getByLabel("TEST1", { exact: true }).click();
+    await page.getByLabel("CAPA", { exact: true }).click();
     await continueTemp("add-proceeding-form");
     await expect(page.url()).toContain("/apply/proceedings/confirmation");
 

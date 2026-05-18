@@ -14,20 +14,13 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
   async submitApplication(
     _body: SubmitApplicationRequest,
   ): Promise<SubmitApplicationResponse> {
-    try {
-      console.log("Submitting application with body:", _body);
-      const response: AxiosResponse<SubmitApplicationResponse> =
-        await this.http.post(`${this.baseUrl}/applications`, _body);
+    const response: AxiosResponse<SubmitApplicationResponse> =
+      await this.http.post(`${this.baseUrl}/applications`, _body);
 
-      const submitApplicationResponse: SubmitApplicationResponse = {
-        statusCode: response.status,
-        applicationReferenceNumber: response.data.applicationReferenceNumber,
-      };
-      console.log("Received response:\n", response);
-      return submitApplicationResponse;
-    } catch (error) {
-      console.error("Error submitting application:", error);
-      throw error;
-    }
+    const submitApplicationResponse: SubmitApplicationResponse = {
+      statusCode: response.status,
+      laaReference: response.data.laaReference,
+    };
+    return submitApplicationResponse;
   }
 }

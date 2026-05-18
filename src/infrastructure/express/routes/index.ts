@@ -84,8 +84,12 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
   publicAuthorityValidator,
   publicAuthorityFormatter,
 );
-const submitApplicationDomain = new SubmitApplicationAdaptor(axios.create(), "http://localhost");
-const submitAdaptor = new SubmitAdaptor(submitApplicationDomain);
+
+const submitApplicationSource = new SubmitApplicationAdaptor(
+  axios.create(),
+  "http://localhost:8027",
+);
+const submitAdaptor = new SubmitAdaptor(submitApplicationSource);
 
 indexRouter.use(
   "/apply",

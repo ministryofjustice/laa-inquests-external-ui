@@ -9,12 +9,12 @@ describe("SubmitApplicationAdaptor", () => {
     it("submits an application", async () => {
       let axiosStub = stubInterface<AxiosInstance>();
       axiosStub.post.resolves({
-        data: { applicationReferenceNumber: "12345678910" },
+        data: { laaReference: 12345678910 },
         status: 201,
       });
 
       const expectedApiResponse = {
-        applicationReferenceNumber: "12345678910",
+        laaReference: 12345678910,
         statusCode: 201,
       };
 

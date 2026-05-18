@@ -37,7 +37,7 @@ export type SubmitApplicationRequest = z.infer<
 
 export const SubmitApplicationResponseSchema = z.object({
   statusCode: z.number(),
-  applicationReferenceNumber: z.string(),
+  laaReference: z.number(),
 });
 
 export type SubmitApplicationResponse = z.infer<
