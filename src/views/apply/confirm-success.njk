@@ -1,16 +1,10 @@
 {% extends "base.njk" %}
-{% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 
 {% block content %}
 
 <div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: "/apply/submit/client-declaration"
-  }) }}
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       {{ govukPanel({

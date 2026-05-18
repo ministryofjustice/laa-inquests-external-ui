@@ -1,12 +1,11 @@
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Apply - confirm success", () => {
-  test("renders confirm success page header and back link", async ({
+  test("renders confirm success page header", async ({
     page,
   }) => {
     page.goto("/apply/submit/success");
 
-    const backButton = page.getByRole("link", { name: "Back", exact: true });
     const confirmSuccessHeading = await page.getByRole("heading", {
       level: 1,
       name: "Application complete",
@@ -15,9 +14,6 @@ test.describe("Apply - confirm success", () => {
 
     await expect(confirmSuccessHeading).toBeVisible();
     await expect(caseRefHeading).toBeVisible();
-
-    await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", "/apply/submit/client-declaration");
 
   });
 
