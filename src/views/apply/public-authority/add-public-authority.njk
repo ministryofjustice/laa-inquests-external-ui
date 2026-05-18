@@ -4,6 +4,7 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {%- from "moj/components/search/macro.njk" import mojSearch -%}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 
@@ -12,23 +13,20 @@
     text: "Back",
     href: "/apply/client-details/has-prev-application"
   }) }}
+  {% if errorSummaries.noPublicAuthoritySelected %}
+  {{ govukErrorSummary({
+    titleText: "There is a problem",
+    errorList: [
+      { text: errorSummaries.noPublicAuthoritySelected.text }
+    ]
+  }) }}
+{% endif %}
+ 
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 
-        
-        {% if selectedPublicAuthorities.length > 0 %}
-        {{ govukSummaryList({
-            attributes: { "data-testid": "public-authority-table"},
-            card: {
-            title: {
-                text: "Public authorities added"
-            }
-            },
-            rows: selectedPublicAuthorities
-        }) }}
-        {% endif %}
 
          <form data-testid="add-proceeding-form" action="/apply/public-authority" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
@@ -37,16 +35,15 @@
             name: "publicAuthorityOption",
             fieldset: {
                 legend: {
-                text: t("pages.apply.publicAuthority.title"),
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--l"
+                   text: "Which public authority needs to be added?" if isAddingAnother else t("pages.apply.publicAuthority.title"),
+                    isPageHeading: true,
+                    classes: "govuk-fieldset__legend--l"
                 }
             },
             hint: {
                 text: t("pages.apply.publicAuthority.search.hint")
             },
-            errorMessage: errorSummaries.inputNotSelected,
-            value: publicAuthorityOption,
+            errorMessage: errorSummaries.noPublicAuthoritySelected,            value: publicAuthorityOption,
             items: publicAuthorityOptions
             }) }}
 

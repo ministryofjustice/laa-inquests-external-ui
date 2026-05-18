@@ -63,6 +63,14 @@ describe("Confirmation adaptor", () => {
       {
         key: { text: "12345" },
         value: { text: "Test public authority" },
+        actions: {
+          items: [
+            {
+              href: "/apply/public-authority/remove?publicAuthorityId=12345",
+              text: "Remove",
+            },
+          ],
+        },
       },
     ];
 

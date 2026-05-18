@@ -61,6 +61,7 @@ describe("PublicAuthority adaptor", () => {
         ],
         publicAuthorityOption: undefined,
         selectedPublicAuthorities: [],
+        isAddingAnother: false,
       };
 
       adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
@@ -70,6 +71,27 @@ describe("PublicAuthority adaptor", () => {
 
       assert(renderArgs[0], "apply/public-authority/add-public-authority");
       assert.deepInclude(renderArgs[1], expectedRenderOptions);
+    });
+    it("passes isAddingAnother as true when public authorities are already selected", () => {
+      const formValidator = new PublicAuthorityValidator();
+      const formatter = new Formatter();
+      const adaptor = new PublicAuthorityAdaptor(formValidator, formatter);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "abcdefg" };
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "moj",
+          publicAuthorityDescription: "Ministry of Justice",
+        },
+      ];
+
+      adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.deepInclude(renderArgs[1], { isAddingAnother: true });
     });
   });
 
@@ -136,6 +158,7 @@ describe("PublicAuthority adaptor", () => {
       );
 
       assert.deepInclude(renderArgs[1], {
+        isAddingAnother: false,
         errorSummaries: {
           noPublicAuthoritySelected: {
             text: "Please select a public authority",
@@ -179,6 +202,14 @@ describe("PublicAuthority adaptor", () => {
           {
             key: { text: "moj" },
             value: { text: "Ministry of Justice" },
+            actions: {
+              items: [
+                {
+                  href: "/apply/public-authority/remove?publicAuthorityId=moj",
+                  text: "Remove",
+                },
+              ],
+            },
           },
         ],
       });
@@ -213,6 +244,35 @@ describe("PublicAuthority adaptor", () => {
         errorSummaries: {
           noConfirmationSelected: {
             text: "Please select either yes or no to continue.",
+          },
+        },
+      });
+    });
+    it("re-renders with error when no is selected and list is empty", () => {
+      const adaptor = new PublicAuthorityAdaptor(
+        new PublicAuthorityValidator(),
+        new Formatter(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      requestStub.body = {
+        "add-another-public-authority": "false",
+      };
+      requestStub.session.selectedPublicAuthorities = [];
+
+      responseStub.locals = { csrfToken: "abcdefg" };
+
+      adaptor.processPublicAuthorityConfirmation(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/public-authority/confirmation");
+      assert.deepInclude(renderArgs[1], {
+        errorSummaries: {
+          noPublicAuthoritiesInList: {
+            text: "A case must have a minimum of 1 interested party",
           },
         },
       });
@@ -252,6 +312,12 @@ describe("PublicAuthority adaptor", () => {
       requestStub.body = {
         "add-another-public-authority": "false",
       };
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "moj",
+          publicAuthorityDescription: "Ministry of Justice",
+        },
+      ];
 
       adaptor.processPublicAuthorityConfirmation(requestStub, responseStub);
 
@@ -259,6 +325,158 @@ describe("PublicAuthority adaptor", () => {
       assert.equal(
         redirectArgs[0] as unknown as string,
         "/apply/check-your-answers",
+      );
+    });
+  });
+  describe("renderPublicAuthorityRemoveForm", () => {
+    it("renders the remove public authority page when the id exists", () => {
+      const adaptor = new PublicAuthorityAdaptor(
+        new PublicAuthorityValidator(),
+        new Formatter(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      requestStub.query = {
+        publicAuthorityId: "moj",
+      };
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "moj",
+          publicAuthorityDescription: "Ministry of Justice",
+        },
+      ];
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      adaptor.renderPublicAuthorityRemoveForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      assert.equal(
+        renderArgs[0],
+        "apply/public-authority/remove-public-authority",
+      );
+      assert.deepInclude(renderArgs[1], {
+        csrfToken: "abcdefg",
+        publicAuthorityName: "Ministry of Justice",
+        publicAuthorityId: "moj",
+      });
+    });
+
+    it("redirects to confirmation when the id is not found", () => {
+      const adaptor = new PublicAuthorityAdaptor(
+        new PublicAuthorityValidator(),
+        new Formatter(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      requestStub.query = {
+        publicAuthorityId: "not-found",
+      };
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "moj",
+          publicAuthorityDescription: "Ministry of Justice",
+        },
+      ];
+
+      adaptor.renderPublicAuthorityRemoveForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirectArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(
+        redirectArgs[0] as unknown as string,
+        "/apply/public-authority/confirmation",
+      );
+    });
+  });
+
+  describe("processPublicAuthorityRemove", () => {
+    it("removes the selected authority and sets a success message when yes is selected", () => {
+      const adaptor = new PublicAuthorityAdaptor(
+        new PublicAuthorityValidator(),
+        new Formatter(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      requestStub.body = {
+        publicAuthorityId: "moj",
+        "remove-public-authority": "true",
+      };
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "moj",
+          publicAuthorityDescription: "Ministry of Justice",
+        },
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      adaptor.processPublicAuthorityRemove(requestStub, responseStub);
+
+      assert.deepEqual(requestStub.session.selectedPublicAuthorities, [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ]);
+      assert.equal(
+        requestStub.session.successMessage,
+        "Public authority has been removed",
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirectArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(
+        redirectArgs[0] as unknown as string,
+        "/apply/public-authority/confirmation",
+      );
+    });
+
+    it("does not remove the authority when no is selected", () => {
+      const adaptor = new PublicAuthorityAdaptor(
+        new PublicAuthorityValidator(),
+        new Formatter(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      const selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "moj",
+          publicAuthorityDescription: "Ministry of Justice",
+        },
+      ];
+      requestStub.body = {
+        publicAuthorityId: "moj",
+        "remove-public-authority": "false",
+      };
+      requestStub.session.selectedPublicAuthorities = selectedPublicAuthorities;
+
+      adaptor.processPublicAuthorityRemove(requestStub, responseStub);
+
+      assert.deepEqual(
+        requestStub.session.selectedPublicAuthorities,
+        selectedPublicAuthorities,
+      );
+      assert.isUndefined(requestStub.session.successMessage);
+
+      const redirectArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(
+        redirectArgs[0] as unknown as string,
+        "/apply/public-authority/confirmation",
       );
     });
   });

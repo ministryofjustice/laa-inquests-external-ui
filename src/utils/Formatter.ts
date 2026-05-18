@@ -54,6 +54,14 @@ export class Formatter {
       (publicAuthority) => ({
         key: { text: publicAuthority.publicAuthorityId },
         value: { text: publicAuthority.publicAuthorityDescription },
+        actions: {
+          items: [
+            {
+              href: `/apply/public-authority/remove?publicAuthorityId=${publicAuthority.publicAuthorityId}`,
+              text: "Remove",
+            },
+          ],
+        },
       }),
     );
     return formattedPublicAuthorities;
