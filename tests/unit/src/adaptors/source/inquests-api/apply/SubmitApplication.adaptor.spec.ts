@@ -2,7 +2,7 @@ import { assert } from "chai";
 import { AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication.adaptor.js";
-import { formatDateISO8601 } from "#src/utils/dateFormatter.js";
+import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 
 describe("SubmitApplicationAdaptor", () => {
   describe("submitApplication", () => {
@@ -40,14 +40,14 @@ describe("SubmitApplicationAdaptor", () => {
           clientFirstName: "first name",
           clientLastName: "last name",
           clientLastNameAtBirth: "last name at birth",
-          dateOfBirth: formatDateISO8601(1990, 1, 1),
+          dateOfBirth: formatDateDDMMYYYY(1990, "01", "01"),
           nationalInsuranceNumber: "AB123456C",
         },
         deceased: {
           deceasedFirstName: "deceased first name",
           deceasedLastName: "deceased last name",
-          deceasedDateOfBirth: formatDateISO8601(1960, 1, 1),
-          deceasedDateOfDeath: formatDateISO8601(2020, 1, 1),
+          deceasedDateOfBirth: formatDateDDMMYYYY(1960, "01", "01"),
+          deceasedDateOfDeath: formatDateDDMMYYYY(2020, "01", "01"),
           coronersReference: "coroners reference",
           furtherInformation: "further information",
           clientRelationshipToDeceased: "child",

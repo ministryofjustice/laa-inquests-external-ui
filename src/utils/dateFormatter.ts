@@ -12,14 +12,20 @@ export function formatDate(dateString: string): string {
   return `${day} ${month} ${year}`;
 }
 
-export function formatDateISO8601(
+const DATE_PADDING = 2;
+
+export function formatDateDDMMYYYY(
   year: unknown,
   month: unknown,
   day: unknown,
 ): string {
-  const formattedYear = typeof year === "string" ? year : "";
-  const formattedMonth = typeof month === "string" ? month : "";
-  const formattedDay = typeof day === "string" ? day : "";
+  const formattedYear = typeof year === "string" ? year : String(year);
+  const formattedMonth = typeof month === "string" ? month : String(month);
+  const formattedDay = typeof day === "string" ? day : String(day);
 
-  return `${formattedYear}-${formattedMonth}-${formattedDay}`;
+  // Pad day and month to 2 digits
+  const dayPadded = formattedDay.padStart(DATE_PADDING, "0");
+  const monthPadded = formattedMonth.padStart(DATE_PADDING, "0");
+
+  return `${dayPadded}-${monthPadded}-${formattedYear}`;
 }

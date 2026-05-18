@@ -9,7 +9,7 @@ import type {
 } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
-import { formatDateISO8601 } from "#src/utils/dateFormatter.js";
+import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
 
 export class SubmitAdaptor {
@@ -65,7 +65,7 @@ export class SubmitAdaptor {
         clientLastNameAtBirth: req.session.clientLastNameAtBirth as
           | string
           | undefined,
-        dateOfBirth: formatDateISO8601(
+        dateOfBirth: formatDateDDMMYYYY(
           req.session.clientDobYear,
           req.session.clientDobMonth,
           req.session.clientDobDay,
@@ -75,12 +75,12 @@ export class SubmitAdaptor {
       deceased: {
         deceasedFirstName: req.session.deceasedFirstName as string,
         deceasedLastName: req.session.deceasedLastName as string,
-        deceasedDateOfBirth: formatDateISO8601(
+        deceasedDateOfBirth: formatDateDDMMYYYY(
           req.session.deceasedDateOfBirthYear,
           req.session.deceasedDateOfBirthMonth,
           req.session.deceasedDateOfBirthDay,
         ),
-        deceasedDateOfDeath: formatDateISO8601(
+        deceasedDateOfDeath: formatDateDDMMYYYY(
           req.session.deceasedDateOfDeathYear,
           req.session.deceasedDateOfDeathMonth,
           req.session.deceasedDateOfDeathDay,

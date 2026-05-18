@@ -110,13 +110,13 @@ describe("Submit adaptor", () => {
       assert.equal(submitBody.client.clientFirstName, "Client");
       assert.equal(submitBody.client.clientLastName, "One");
       assert.equal(submitBody.client.clientLastNameAtBirth, "Birthname");
-      assert.equal(submitBody.client.dateOfBirth, "1989-10-05");
+      assert.equal(submitBody.client.dateOfBirth, "05-10-1989");
       assert.equal(submitBody.client.nationalInsuranceNumber, "AB123456C");
 
       assert.equal(submitBody.deceased.deceasedFirstName, "Deceased");
       assert.equal(submitBody.deceased.deceasedLastName, "Two");
-      assert.equal(submitBody.deceased.deceasedDateOfBirth, "1975-02-01");
-      assert.equal(submitBody.deceased.deceasedDateOfDeath, "2024-03-10");
+      assert.equal(submitBody.deceased.deceasedDateOfBirth, "01-02-1975");
+      assert.equal(submitBody.deceased.deceasedDateOfDeath, "10-03-2024");
       assert.equal(submitBody.deceased.coronersReference, "COR-123");
       assert.equal(submitBody.deceased.furtherInformation, "Further info");
       assert.equal(submitBody.deceased.clientRelationshipToDeceased, "Spouse");
