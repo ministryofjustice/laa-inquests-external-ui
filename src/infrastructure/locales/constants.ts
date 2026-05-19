@@ -100,52 +100,54 @@ export const PROCEEDING_OPTIONS = [
 
 export const PUBLIC_AUTHORITY_OPTIONS = [
   {
-    publicAuthorityId: "home-office",
-    publicAuthorityDescription: "Home Office",
-  },
-  {
-    publicAuthorityId: "moj",
-    publicAuthorityDescription: "Ministry of Justice",
+    publicAuthorityId: "prime-ministers-office-10-downing-street",
+    publicAuthorityDescription: "Prime Minister's Office 10 Downing Street",
   },
   {
     publicAuthorityId: "cabinet-office",
     publicAuthorityDescription: "Cabinet Office",
   },
   {
+    publicAuthorityId: "attorney-generals-office",
+    publicAuthorityDescription: "Attorney General's Office",
+  },
+  {
+    publicAuthorityId: "department-for-business-and-trade",
+    publicAuthorityDescription: "Department for Business & Trade",
+  },
+  {
+    publicAuthorityId: "department-for-culture-media-and-sport",
+    publicAuthorityDescription: "Department for Culture, Media & Sport",
+  },
+  {
     publicAuthorityId: "department-for-education",
     publicAuthorityDescription: "Department for Education",
   },
   {
-    publicAuthorityId: "department-for-business-and-trade",
-    publicAuthorityDescription: "Department for Business and Trade",
+    publicAuthorityId: "department-for-energy-security-and-net-zero",
+    publicAuthorityDescription: "Department for Energy Security & Net Zero",
   },
   {
-    publicAuthorityId: "department-for-enerygy-security-and-net-zero",
-    publicAuthorityDescription: "Department for Energy, Security and Net Zero",
+    publicAuthorityId: "department-for-environment-food-and-rural-affairs",
+    publicAuthorityDescription:
+      "Department for Environment, Food & Rural Affairs",
   },
   {
-    publicAuthorityId: "department-of-culture-media-and-sport",
-    publicAuthorityDescription: "Department of Culture, Media and Sport",
+    publicAuthorityId: "department-for-science-innovation-and-technology",
+    publicAuthorityDescription:
+      "Department for Science, Innovation & Technology",
   },
   {
     publicAuthorityId: "department-for-transport",
     publicAuthorityDescription: "Department for Transport",
   },
   {
-    publicAuthorityId: "department-of-work-and-pensions",
-    publicAuthorityDescription: "Department of Work and Pensions",
+    publicAuthorityId: "department-for-work-and-pensions",
+    publicAuthorityDescription: "Department for Work & Pensions",
   },
   {
     publicAuthorityId: "department-of-health-and-social-care",
-    publicAuthorityDescription: "Department of Health and Social Care",
-  },
-  {
-    publicAuthorityId: "foreign-commonwealth-and-development-office",
-    publicAuthorityDescription: "Foreign, Commonwealth and Development Office",
-  },
-  {
-    publicAuthorityId: "hm-treasury",
-    publicAuthorityDescription: "HM Treasury",
+    publicAuthorityDescription: "Department of Health & Social Care",
   },
 ];
 
