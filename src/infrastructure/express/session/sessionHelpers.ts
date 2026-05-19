@@ -26,9 +26,11 @@ export class SessionHelper {
 
   clearApplyFormData(req: Request): void {
     const sessionKeys = Object.keys(req.session);
-    sessionKeys.forEach((key) => {
-      req.session[key] = undefined;
-    });
+    sessionKeys
+      .filter((k) => k !== "cookie")
+      .forEach((key) => {
+        req.session[key] = undefined;
+      });
   }
 
   /**

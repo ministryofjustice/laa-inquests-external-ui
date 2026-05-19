@@ -71,15 +71,17 @@ describe("Session Helpers", () => {
   });
 
   describe("clearApplyFormData()", () => {
-    it("clears all session data", () => {
+    it("clears all session data other than cookie", () => {
       const req = createMockRequest({
         clientFirstName: "value1",
         clientLastName: "value2",
+        cookie: "cookieData",
       });
 
       sessionHelper.clearApplyFormData(req);
       expect(req.session.clientFirstName).to.be.undefined;
       expect(req.session.clientLastName).to.be.undefined;
+      expect(req.session.cookie).to.equal("cookieData");
     });
   });
 
