@@ -4,8 +4,8 @@ import type { Request, Response } from "express";
 import { SubmitAdaptor } from "#src/adaptors/presenters/apply/Submit/Submit.adaptor.js";
 import type {
   ApplySubmitPort,
-  SubmitApplicationRequest,
 } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
+import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 
 describe("Submit adaptor", () => {
   let submitAdaptor = new SubmitAdaptor(stubInterface<ApplySubmitPort>());

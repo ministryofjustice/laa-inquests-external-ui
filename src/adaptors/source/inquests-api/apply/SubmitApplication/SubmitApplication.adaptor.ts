@@ -1,9 +1,8 @@
 import type {
   ApplySubmitPort,
-  SubmitApplicationRequest,
-  SubmitApplicationResponse,
 } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { AxiosInstance, AxiosResponse } from "axios";
+import { SubmitApplicationRequest, SubmitApplicationResponse } from "./models/SubmitApplication.types.js";
 
 export class SubmitApplicationAdaptor implements ApplySubmitPort {
   constructor(

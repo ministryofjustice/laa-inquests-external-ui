@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
-import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication.adaptor.js";
+import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 
 describe("SubmitApplicationAdaptor", () => {

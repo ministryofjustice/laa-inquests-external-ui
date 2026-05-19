@@ -1,16 +1,15 @@
 import type { Request, Response } from "express";
 import {
-  SubmitApplicationRequestSchema,
-  SubmitApplicationResponseSchema,
 } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type {
   ApplySubmitPort,
-  SubmitApplicationRequest,
 } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
+import { SubmitApplicationRequestSchema, SubmitApplicationResponseSchema } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
+import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 
 export class SubmitAdaptor {
   applySubmitPort: ApplySubmitPort;
