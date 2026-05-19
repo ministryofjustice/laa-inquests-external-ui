@@ -26,3 +26,4 @@ public/
 
 # Code coverage
 coverage/
+.vscode/
