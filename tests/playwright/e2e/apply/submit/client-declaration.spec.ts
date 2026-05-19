@@ -85,7 +85,7 @@ test.describe("Provider can", () => {
   test("clicking continue redirects to confirmation success", async ({
     page,
   }) => {
-    const continueTemp = async (formTestId: string): Promise<void> => {
+    const continueNextPage = async (formTestId: string): Promise<void> => {
       const form = await page.getByTestId(formTestId);
       await continueToNextPage(form, page);
     };
@@ -105,14 +105,14 @@ test.describe("Provider can", () => {
       },
       ["Last name"],
     );
-    await continueTemp("client-details-form");
+    await continueNextPage("client-details-form");
     await expect(page.url()).toContain("/apply/client-details/nino");
 
     await getAndUpdateFormFields(page, {
       Yes: "",
       "Enter your client's National Insurance number": "PC123456C",
     });
-    await continueTemp("nino-form");
+    await continueNextPage("nino-form");
     await expect(page.url()).toContain(
       "/apply/client-details/has-prev-application",
     );
@@ -120,18 +120,18 @@ test.describe("Provider can", () => {
     await getAndUpdateFormFields(page, {
       No: "",
     });
-    await continueTemp("has-prev-application-form");
+    await continueNextPage("has-prev-application-form");
     await expect(page.url()).toContain("/apply/proceedings");
 
     // Select the custom proceedingId TEST1 (simulate radio by label)
     await page.getByLabel("CAPA", { exact: true }).click();
-    await continueTemp("add-proceeding-form");
+    await continueNextPage("add-proceeding-form");
     await expect(page.url()).toContain("/apply/proceedings/confirmation");
 
     await getAndUpdateFormFields(page, {
       No: "",
     });
-    await continueTemp("add-another-proceeding-form");
+    await continueNextPage("add-another-proceeding-form");
     await expect(page.url()).toContain("/apply/deceased-details/name");
 
     await getAndUpdateFormFields(
@@ -142,7 +142,7 @@ test.describe("Provider can", () => {
       },
       ["Last name"],
     );
-    await continueTemp("deceased-details-form");
+    await continueNextPage("deceased-details-form");
     await expect(page.url()).toContain("/apply/deceased-details/dod");
 
     await getAndUpdateFormFields(page, {
@@ -150,7 +150,7 @@ test.describe("Provider can", () => {
       Month: "01",
       Year: "2025",
     });
-    await continueTemp("deceased-date-of-death-form");
+    await continueNextPage("deceased-date-of-death-form");
     await expect(page.url()).toContain("/apply/deceased-details/dob");
 
     await getAndUpdateFormFields(page, {
@@ -158,7 +158,7 @@ test.describe("Provider can", () => {
       Month: "01",
       Year: "2000",
     });
-    await continueTemp("deceased-date-of-birth-form");
+    await continueNextPage("deceased-date-of-birth-form");
     await expect(page.url()).toContain(
       "/apply/deceased-details/client-relationship",
     );
@@ -168,15 +168,15 @@ test.describe("Provider can", () => {
       "Please describe the nature of the relationship between your client and the deceased":
         "guardian",
     });
-    await continueTemp("deceased-client-relationship-form");
+    await continueNextPage("deceased-client-relationship-form");
     await expect(page.url()).toContain(
       "/apply/deceased-details/coroner-reference",
     );
 
     await getAndUpdateFormFields(page, {
-      "Please enter your reference number": "beans",
+      "Please enter your reference number": "123356789",
     });
-    await continueTemp("deceased-coroner-reference-form");
+    await continueNextPage("deceased-coroner-reference-form");
     await expect(page.url()).toContain(
       "/apply/deceased-details/further-information",
     );
@@ -184,9 +184,9 @@ test.describe("Provider can", () => {
     await getAndUpdateFormFields(page, {
       Yes: "",
       "Please provide any details available of linked or bridged inquests":
-        "he died",
+        "further details here",
     });
-    await continueTemp("deceased-further-information-form");
+    await continueNextPage("deceased-further-information-form");
     await expect(page.url()).toContain("/apply/public-authority");
 
     // Select the custom publicBodyId (simulate radio by label)
@@ -198,7 +198,7 @@ test.describe("Provider can", () => {
     await getAndUpdateFormFields(page, {
       No: "",
     });
-    await continueTemp("add-another-public-authority-form");
+    await continueNextPage("add-another-public-authority-form");
     await expect(page.url()).toContain("/apply/check-your-answers");
 
     await page.getByRole("button", { name: "Continue" }).click();
