@@ -2,7 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Apply - confirm success", () => {
   test("renders confirm success page header", async ({ page }) => {
-    page.goto("/apply/submit/success");
+    page.goto("/apply/confirmation/success");
 
     const confirmSuccessHeading = await page.getByRole("heading", {
       level: 1,
@@ -15,7 +15,7 @@ test.describe("Apply - confirm success", () => {
   });
 
   test("renders confirm success page content", async ({ page }) => {
-    page.goto("/apply/submit/success");
+    page.goto("/apply/confirmation/success");
 
     const whatYouNeedToDoHeading = await page.getByRole("heading", {
       level: 2,

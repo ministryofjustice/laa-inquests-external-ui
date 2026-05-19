@@ -6,14 +6,14 @@ export function createSubmitRouter(
   submitAdaptor: SubmitAdaptor,
 ): Router {
   submitRouter.get(
-    "/submit/client-declaration",
+    "/confirmation/client-declaration",
     (req: Request, res: Response): void => {
       submitAdaptor.renderClientDeclarationForm(req, res);
     },
   );
 
   submitRouter.post(
-    "/submit/client-declaration",
+    "/confirmation/client-declaration",
     async (req: Request, res: Response): Promise<void> => {
       await submitAdaptor.processClientDeclarationForm(req, res);
     },

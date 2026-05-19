@@ -5,11 +5,11 @@ test.describe("Remove public authority", () => {
     page,
   }) => {
     await page.goto("/apply/public-authority");
-    await page.getByLabel("Home Office", { exact: true }).check();
+    await page.getByLabel("Cabinet Office", { exact: true }).check();
     await page.getByRole("button").click();
 
     await page.goto(
-      "/apply/public-authority/remove?publicAuthorityId=home-office",
+      "/apply/public-authority/remove?publicAuthorityId=cabinet-office",
     );
 
     const heading = page.getByRole("heading", {
@@ -26,11 +26,11 @@ test.describe("Remove public authority", () => {
     page,
   }) => {
     await page.goto("/apply/public-authority");
-    await page.getByLabel("Home Office", { exact: true }).check();
+    await page.getByLabel("Cabinet Office", { exact: true }).check();
     await page.getByRole("button").click();
 
     await page.goto(
-      "/apply/public-authority/remove?publicAuthorityId=home-office",
+      "/apply/public-authority/remove?publicAuthorityId=cabinet-office",
     );
 
     await page.getByLabel("Yes").check();
