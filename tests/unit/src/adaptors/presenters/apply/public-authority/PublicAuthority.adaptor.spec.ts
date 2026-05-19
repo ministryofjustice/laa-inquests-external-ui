@@ -22,42 +22,51 @@ describe("PublicAuthority adaptor", () => {
       const expectedRenderOptions = {
         csrfToken: "abcdefg",
         publicAuthorityOptions: [
-          { text: "Home Office", value: "home-office" },
-          { text: "Ministry of Justice", value: "moj" },
+          {
+            text: "Prime Minister's Office 10 Downing Street",
+            value: "prime-ministers-office-10-downing-street",
+          },
           { text: "Cabinet Office", value: "cabinet-office" },
+          {
+            text: "Attorney General's Office",
+            value: "attorney-generals-office",
+          },
+          {
+            text: "Department for Business & Trade",
+            value: "department-for-business-and-trade",
+          },
+          {
+            text: "Department for Culture, Media & Sport",
+            value: "department-for-culture-media-and-sport",
+          },
           {
             text: "Department for Education",
             value: "department-for-education",
           },
           {
-            text: "Department for Business and Trade",
-            value: "department-for-business-and-trade",
+            text: "Department for Energy Security & Net Zero",
+            value: "department-for-energy-security-and-net-zero",
           },
           {
-            text: "Department for Energy, Security and Net Zero",
-            value: "department-for-enerygy-security-and-net-zero",
+            text: "Department for Environment, Food & Rural Affairs",
+            value: "department-for-environment-food-and-rural-affairs",
           },
           {
-            text: "Department of Culture, Media and Sport",
-            value: "department-of-culture-media-and-sport",
+            text: "Department for Science, Innovation & Technology",
+            value: "department-for-science-innovation-and-technology",
           },
           {
             text: "Department for Transport",
             value: "department-for-transport",
           },
           {
-            text: "Department of Work and Pensions",
-            value: "department-of-work-and-pensions",
+            text: "Department for Work & Pensions",
+            value: "department-for-work-and-pensions",
           },
           {
-            text: "Department of Health and Social Care",
+            text: "Department of Health & Social Care",
             value: "department-of-health-and-social-care",
           },
-          {
-            text: "Foreign, Commonwealth and Development Office",
-            value: "foreign-commonwealth-and-development-office",
-          },
-          { text: "HM Treasury", value: "hm-treasury" },
         ],
         publicAuthorityOption: undefined,
         selectedPublicAuthorities: [],
@@ -106,12 +115,12 @@ describe("PublicAuthority adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       requestStub.body = {
-        publicAuthorityOption: "moj",
+        publicAuthorityOption: "cabinet-office",
       };
 
       const expectedSelected = {
-        publicAuthorityId: "moj",
-        publicAuthorityDescription: "Ministry of Justice",
+        publicAuthorityId: "cabinet-office",
+        publicAuthorityDescription: "Cabinet Office",
       };
 
       adaptor.processPublicAuthorityForm(requestStub, responseStub);
