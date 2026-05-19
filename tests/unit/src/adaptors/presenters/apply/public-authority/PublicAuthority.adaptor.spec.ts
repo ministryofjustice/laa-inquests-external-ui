@@ -200,8 +200,7 @@ describe("PublicAuthority adaptor", () => {
       assert.deepInclude(renderArgs[1], {
         selectedPublicAuthorities: [
           {
-            key: { text: "moj" },
-            value: { text: "Ministry of Justice" },
+            key: { text: "Ministry of Justice" },
             actions: {
               items: [
                 {

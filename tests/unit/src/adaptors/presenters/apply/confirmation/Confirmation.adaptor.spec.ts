@@ -61,8 +61,7 @@ describe("Confirmation adaptor", () => {
 
     const expectedFormattedPublicAuthorities = [
       {
-        key: { text: "12345" },
-        value: { text: "Test public authority" },
+        key: { text: "Test public authority" },
         actions: {
           items: [
             {

@@ -52,8 +52,7 @@ export class Formatter {
   ): SummaryListRow[] {
     const formattedPublicAuthorities = selectedPublicAuthorities.map(
       (publicAuthority) => ({
-        key: { text: publicAuthority.publicAuthorityId },
-        value: { text: publicAuthority.publicAuthorityDescription },
+        key: { text: publicAuthority.publicAuthorityDescription },
         actions: {
           items: [
             {
