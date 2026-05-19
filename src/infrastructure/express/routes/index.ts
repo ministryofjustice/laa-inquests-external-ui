@@ -87,7 +87,7 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
 
 const submitApplicationSource = new SubmitApplicationAdaptor(
   axios.create(),
-  "http://localhost:8027",
+  "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk", //"https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",//http://localhost:8027",
 );
 const submitAdaptor = new SubmitAdaptor(submitApplicationSource);
 
