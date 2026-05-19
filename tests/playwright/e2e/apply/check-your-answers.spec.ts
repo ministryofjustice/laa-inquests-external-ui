@@ -27,7 +27,9 @@ test.describe("Apply - check your answers", () => {
 
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.url()).toContain("/apply/submit/client-declaration");
+    await expect(page.url()).toContain(
+      "/apply/confirmation/client-declaration",
+    );
   });
 
   test("renders client details summary list", async ({ page }) => {

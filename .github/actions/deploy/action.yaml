@@ -32,6 +32,8 @@ inputs:
     description: "Rate limit max"
   ratewindow_ms:
     description: "Rate limit max"
+  inquests_api_url:
+    description: "Inquests API URL"
 runs:
   using: "composite"
   steps:

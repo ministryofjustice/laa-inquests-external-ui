@@ -10,7 +10,7 @@ import {
 } from "../deceased-details/form-validation-utils.js";
 
 const previousPage = "/apply/check-your-answers";
-const currentPage = "/apply/submit/client-declaration";
+const currentPage = "/apply/confirmation/client-declaration";
 const nextPage = "/apply/confirmation/success";
 
 const headerText = "Confirm the following";
