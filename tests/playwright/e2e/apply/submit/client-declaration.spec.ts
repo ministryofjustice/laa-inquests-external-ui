@@ -82,7 +82,7 @@ test.describe("Provider can", () => {
     await expect(checkBox).toBeVisible();
   });
 
-  test.only("clicking continue redirects to confirmation success", async ({
+  test("clicking continue redirects to confirmation success", async ({
     page,
   }) => {
     const continueTemp = async (formTestId: string): Promise<void> => {

@@ -51,27 +51,35 @@ export class SubmitAdaptor {
   }
 
   #generateSubmitBody(req: Request): SubmitApplicationRequest {
+    const { session } = req;
     const selectedProceedings = req.session.selectedProceedings ?? [];
     const publicBodies =
       req.session.selectedPublicAuthorities?.map((body) => ({
         publicBodyId: body.publicAuthorityDescription,
       })) ?? [];
+    const { clientLastNameAtBirth, clientNino } = session;
+
+    const client: SubmitApplicationRequest["client"] = {
+      clientFirstName: req.session.clientFirstName as string,
+      clientLastName: req.session.clientLastName as string,
+      dateOfBirth: formatDateDDMMYYYY(
+        req.session.clientDobYear,
+        req.session.clientDobMonth,
+        req.session.clientDobDay,
+      ),
+    };
+
+    if (typeof clientLastNameAtBirth === "string") {
+      client.clientLastNameAtBirth = clientLastNameAtBirth;
+    }
+
+    if (typeof clientNino === "string") {
+      client.nationalInsuranceNumber = clientNino;
+    }
 
     // Build the payload
     const submitBodyRaw = {
-      client: {
-        clientFirstName: req.session.clientFirstName as string,
-        clientLastName: req.session.clientLastName as string,
-        clientLastNameAtBirth: req.session.clientLastNameAtBirth as
-          | string
-          | undefined,
-        dateOfBirth: formatDateDDMMYYYY(
-          req.session.clientDobYear,
-          req.session.clientDobMonth,
-          req.session.clientDobDay,
-        ),
-        nationalInsuranceNumber: req.session.clientNino as string | undefined,
-      },
+      client,
       deceased: {
         deceasedFirstName: req.session.deceasedFirstName as string,
         deceasedLastName: req.session.deceasedLastName as string,

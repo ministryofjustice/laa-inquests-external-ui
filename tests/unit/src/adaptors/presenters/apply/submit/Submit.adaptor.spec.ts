@@ -138,5 +138,133 @@ describe("Submit adaptor", () => {
       const redirectArgs = responseStub.redirect.getCall(0).args;
       assert.equal(redirectArgs[0], "/apply/confirmation/success");
     });
+
+    it("omits optional nullable client fields when not in session", async () => {
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await submitAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
+
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "clientLastNameAtBirth",
+        ),
+        false,
+      );
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "nationalInsuranceNumber",
+        ),
+        false,
+      );
+    });
+
+    it("omits optional nullable client fields when null in session", async () => {
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientLastNameAtBirth = null as unknown as string;
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientNino = null as unknown as string;
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await submitAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
+
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "clientLastNameAtBirth",
+        ),
+        false,
+      );
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "nationalInsuranceNumber",
+        ),
+        false,
+      );
+    });
   });
 });
