@@ -20,6 +20,8 @@ import { createSubmitRouter } from "./apply/submit.router.js";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication.adaptor.js";
 import axios from "axios";
 
+import config from "#src/infrastructure/config/config.js";
+
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
@@ -87,7 +89,7 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
 
 const submitApplicationSource = new SubmitApplicationAdaptor(
   axios.create(),
-  "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk", //"https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",//http://localhost:8027",
+  config.INQUESTS_API_URL,
 );
 const submitAdaptor = new SubmitAdaptor(submitApplicationSource);
 
