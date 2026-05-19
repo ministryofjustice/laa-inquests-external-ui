@@ -9,14 +9,21 @@ import type { Proceeding } from "#src/infrastructure/express/session/index.types
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 
 export class ConfirmationAdaptor {
   formatter: Formatter;
   applySubmitPort: ApplySubmitPort;
+  sessionHelper: SessionHelper;
 
-  constructor(formatter: Formatter, applySubmitPort: ApplySubmitPort) {
+  constructor(
+    formatter: Formatter,
+    applySubmitPort: ApplySubmitPort,
+    sessionHelper: SessionHelper,
+  ) {
     this.formatter = formatter;
     this.applySubmitPort = applySubmitPort;
+    this.sessionHelper = sessionHelper;
   }
 
   renderCheckYourAnswers(req: Request, res: Response): void {
@@ -108,6 +115,7 @@ export class ConfirmationAdaptor {
       SubmitApplicationResponseSchema.parse(responseRaw);
 
     if (statusCode === HTTP_CREATED) {
+      this.sessionHelper.clearApplyFormData(req);
       session.applicationReferenceNumber = laaReference.toString();
       res.redirect("/apply/confirmation/success");
     }

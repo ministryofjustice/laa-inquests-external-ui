@@ -19,6 +19,7 @@ import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/appl
 import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
+import { SessionHelper } from "../session/sessionHelpers.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -87,9 +88,11 @@ const submitApplicationSource = new SubmitApplicationAdaptor(
 );
 
 const confirmationFormatter = new Formatter();
+const sessionHelper = new SessionHelper();
 const confirmationAdaptor = new ConfirmationAdaptor(
   confirmationFormatter,
   submitApplicationSource,
+  sessionHelper,
 );
 
 indexRouter.use(

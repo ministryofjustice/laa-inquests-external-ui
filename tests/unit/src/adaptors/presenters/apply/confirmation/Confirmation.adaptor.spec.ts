@@ -5,9 +5,11 @@ import { ConfirmationAdaptor } from "#src/adaptors/presenters/apply/Confirmation
 import { Formatter } from "#src/utils/Formatter.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
+import { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 
 describe("Confirmation adaptor", () => {
   let confirmationFormatter: Formatter;
+  let sessionHelper: StubbedInstance<SessionHelper>;
   let applySubmitPortStub: StubbedInstance<ApplySubmitPort>;
 
   let confirmationAdaptor: ConfirmationAdaptor;
@@ -19,9 +21,11 @@ describe("Confirmation adaptor", () => {
     requestStub = stubInterface<Request>();
     applySubmitPortStub = stubInterface<ApplySubmitPort>();
     confirmationFormatter = new Formatter();
+    sessionHelper = stubInterface<SessionHelper>();
     confirmationAdaptor = new ConfirmationAdaptor(
       confirmationFormatter,
       applySubmitPortStub,
+      sessionHelper,
     );
     responseStub.locals = {
       csrfToken: "abcdefg",
@@ -383,6 +387,55 @@ describe("Confirmation adaptor", () => {
         ),
         false,
       );
+    });
+
+    it("calls clearApplyFormData on successful submission", async () => {
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientLastNameAtBirth = "Birthname";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientNino = "AB123456C";
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await confirmationAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(sessionHelper.clearApplyFormData.callCount, 1);
     });
   });
 });
