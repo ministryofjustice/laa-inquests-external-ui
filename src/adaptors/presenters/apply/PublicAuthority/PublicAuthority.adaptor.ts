@@ -7,6 +7,7 @@ import type { TypedRequestBody } from "#src/infrastructure/express/index.types.j
 import type {
   PublicAuthorityValidator,
   PublicAuthorityFormData,
+  RemovePublicAuthorityFormData,
 } from "./PublicAuthority.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
 
@@ -209,10 +210,7 @@ export class PublicAuthorityAdaptor {
   }
 
   processPublicAuthorityRemove(
-    req: TypedRequestBody<{
-      publicAuthorityId: string;
-      "remove-public-authority": string;
-    }>,
+    req: TypedRequestBody<RemovePublicAuthorityFormData>,
     res: Response,
   ): void {
     const {

@@ -12,6 +12,11 @@ export interface PublicAuthorityFormData {
   "add-another-public-authority"?: string;
 }
 
+export interface RemovePublicAuthorityFormData {
+  publicAuthorityId: string;
+  "remove-public-authority": string;
+}
+
 export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
   NO_CONFIRMATION: "Please select either yes or no to continue.",
