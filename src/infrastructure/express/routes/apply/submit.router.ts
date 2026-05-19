@@ -14,8 +14,8 @@ export function createSubmitRouter(
 
   submitRouter.post(
     "/submit/client-declaration",
-    (req: Request, res: Response): void => {
-      submitAdaptor.processClientDeclarationForm(req, res);
+    async (req: Request, res: Response): Promise<void> => {
+      await submitAdaptor.processClientDeclarationForm(req, res);
     },
   );
 

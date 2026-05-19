@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { formatDate } from "#src/utils/dateFormatter.js";
+import { formatDate, formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 
 describe("formatDate()", () => {
   it("formats a valid ISO date string correctly", () => {
@@ -14,5 +14,21 @@ describe("formatDate()", () => {
   it("handles invalid date strings by returning the original input", () => {
     expect(formatDate("invalid-date")).to.equal("invalid-date");
     expect(formatDate("")).to.equal("");
+  });
+});
+
+describe("formatDateDDMMYYYY()", () => {
+  it("formats valid year, month, and day into dd-MM-YYYY format", () => {
+    expect(formatDateDDMMYYYY("2023", "07", "28")).to.equal("28-07-2023");
+    expect(formatDateDDMMYYYY("1990", "01", "01")).to.equal("01-01-1990");
+    expect(formatDateDDMMYYYY("2024", "12", "5")).to.equal("05-12-2024");
+  });
+
+  it("handles non-string inputs by converting them to strings and padding", () => {
+    expect(formatDateDDMMYYYY(2023, 7, 28)).to.equal("28-07-2023");
+    expect(formatDateDDMMYYYY(null, null, null)).to.equal("null-null-null");
+    expect(formatDateDDMMYYYY(undefined, undefined, undefined)).to.equal(
+      "undefined-undefined-undefined",
+    );
   });
 });
