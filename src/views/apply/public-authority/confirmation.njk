@@ -3,6 +3,9 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
 
 {% block content %}
 
@@ -11,10 +14,33 @@
     text: "Back",
     href: "/apply/public-authority"
   }) }}
+ 
 
   <main class="govuk-main-wrapper">
+    {% if successMessage %}
+    {{ govukNotificationBanner({
+        type: "success",
+        text: successMessage
+    }) }}
+    {% endif %}
+    {% if errorSummaries.noPublicAuthoritiesInList %}
+    {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+        { text: errorSummaries.noPublicAuthoritiesInList.text }
+        ]
+    }) }}
+    {% endif %}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">
+        You have added {{ selectedPublicAuthorities.length }}
+        {% if selectedPublicAuthorities.length === 1 %}
+            public authority
+        {% else %}
+            public authorities
+        {% endif %}
+      </h1>
 
         {% if selectedPublicAuthorities.length > 0 %}
           {{ govukSummaryList({

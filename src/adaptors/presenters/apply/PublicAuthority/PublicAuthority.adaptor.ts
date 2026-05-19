@@ -7,6 +7,7 @@ import type { TypedRequestBody } from "#src/infrastructure/express/index.types.j
 import type {
   PublicAuthorityValidator,
   PublicAuthorityFormData,
+  RemovePublicAuthorityFormData,
 } from "./PublicAuthority.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
 
@@ -44,6 +45,7 @@ export class PublicAuthorityAdaptor {
       publicAuthorityOptions: formattedOptions,
       publicAuthorityOption: req.session.publicAuthorityOption,
       selectedPublicAuthorities: formattedSelected,
+      isAddingAnother: selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
     });
   }
 
@@ -91,6 +93,7 @@ export class PublicAuthorityAdaptor {
         publicAuthorityOption: req.session.publicAuthorityOption,
         selectedPublicAuthorities: formattedSelected,
         errorSummaries: errors,
+        isAddingAnother: selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
       });
     } else {
       req.session.publicAuthorityOption = selectedOption;
@@ -108,16 +111,23 @@ export class PublicAuthorityAdaptor {
       locals: { csrfToken },
     } = res;
 
-    if (req.session.selectedPublicAuthorities === undefined) {
+    const {
+      session: { selectedPublicAuthorities, successMessage },
+    } = req;
+
+    if (selectedPublicAuthorities === undefined) {
       res.redirect("/apply/public-authority");
     } else {
+      req.session.successMessage = undefined;
+
       const formattedSelected = this.formatter.formatIntoTableRows(
-        req.session.selectedPublicAuthorities,
+        selectedPublicAuthorities,
       );
 
       res.render("apply/public-authority/confirmation", {
         csrfToken,
         selectedPublicAuthorities: formattedSelected,
+        successMessage,
       });
     }
   }
@@ -132,29 +142,96 @@ export class PublicAuthorityAdaptor {
 
     const {
       body: { "add-another-public-authority": isAddingAnother },
+      session: { selectedPublicAuthorities = [] },
     } = req;
 
-    const errors = this.formValidator.validateAddAnotherPublicAuthority(
-      req.body,
+    const formattedSelected = this.formatter.formatIntoTableRows(
+      selectedPublicAuthorities,
     );
 
-    if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
-      const selectedPublicAuthorities =
-        req.session.selectedPublicAuthorities ?? [];
+    const confirmationErrors =
+      this.formValidator.validateAddAnotherPublicAuthority(req.body);
 
-      const formattedSelected = this.formatter.formatIntoTableRows(
-        selectedPublicAuthorities,
-      );
-
+    if (Object.keys(confirmationErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/public-authority/confirmation", {
         csrfToken,
         selectedPublicAuthorities: formattedSelected,
-        errorSummaries: errors,
+        errorSummaries: confirmationErrors,
       });
-    } else if (isAddingAnother === "true") {
+      return;
+    }
+
+    if (isAddingAnother === "true") {
       res.redirect("/apply/public-authority");
-    } else if (isAddingAnother === "false") {
+      return;
+    }
+
+    if (isAddingAnother === "false") {
+      const listErrors = this.formValidator.validatePublicAuthorityList(
+        selectedPublicAuthorities,
+      );
+
+      if (Object.keys(listErrors).length > EMPTY_ARR_LENGTH) {
+        res.render("apply/public-authority/confirmation", {
+          csrfToken,
+          selectedPublicAuthorities: formattedSelected,
+          errorSummaries: listErrors,
+        });
+        return;
+      }
+
       res.redirect("/apply/check-your-answers");
     }
+  }
+
+  renderPublicAuthorityRemoveForm(req: Request, res: Response): void {
+    const {
+      query: { publicAuthorityId },
+      session: { selectedPublicAuthorities },
+    } = req;
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    const publicAuthorityToRemove = selectedPublicAuthorities?.find(
+      (publicAuthority) =>
+        publicAuthority.publicAuthorityId === publicAuthorityId,
+    );
+
+    if (publicAuthorityToRemove === undefined) {
+      res.redirect("/apply/public-authority/confirmation");
+    } else {
+      res.render("apply/public-authority/remove-public-authority", {
+        csrfToken,
+        publicAuthorityName: publicAuthorityToRemove.publicAuthorityDescription,
+        publicAuthorityId: publicAuthorityToRemove.publicAuthorityId,
+      });
+    }
+  }
+
+  processPublicAuthorityRemove(
+    req: TypedRequestBody<RemovePublicAuthorityFormData>,
+    res: Response,
+  ): void {
+    const {
+      body: {
+        publicAuthorityId,
+        "remove-public-authority": removePublicAuthority,
+      },
+      session: { selectedPublicAuthorities },
+    } = req;
+
+    if (removePublicAuthority === "true") {
+      const updatedSelectedPublicAuthorities =
+        selectedPublicAuthorities?.filter(
+          (publicAuthority) =>
+            publicAuthority.publicAuthorityId !== publicAuthorityId,
+        ) ?? [];
+
+      req.session.selectedPublicAuthorities = updatedSelectedPublicAuthorities;
+      req.session.successMessage = "Public authority has been removed";
+    }
+
+    res.redirect("/apply/public-authority/confirmation");
   }
 }

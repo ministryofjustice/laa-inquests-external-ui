@@ -57,6 +57,9 @@
           "legendText": "Do you want to add another public authority?",
           "hint": "You will only be shown authorities that can be added."
         }
+      },
+      "RemovePublicAuthority": {
+        "title": "Are you sure you want to remove this public authority?"
       }
     },
     "error": {

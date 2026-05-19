@@ -1,0 +1,61 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/public-authority/confirmation"
+  }) }}
+
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-l">Are you sure you want to remove this public authority?</h1>
+
+        {{ govukSummaryList({
+          attributes: { "data-testid": "public-authority-remove-item"},
+          rows: [
+            {
+              key: {
+                text: "Public authority"
+              },
+              value: {
+                text: publicAuthorityName
+              }
+            }
+          ]
+        }) }}
+
+        <form data-testid="remove-public-authority-form" action="/apply/public-authority/remove" method="POST">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          <input type="hidden" name="publicAuthorityId" value="{{publicAuthorityId}}" />
+
+          {{ govukRadios({
+            name: "remove-public-authority",
+            fieldset: {
+              
+            },
+            items: [
+              { value: "true", text: "Yes" },
+              { value: "false", text: "No" }
+            ]
+          }) }}
+
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+
+        </form>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
