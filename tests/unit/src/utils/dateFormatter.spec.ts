@@ -17,7 +17,7 @@ describe("formatDate()", () => {
   });
 });
 
-describe("formatDateISO8601()", () => {
+describe("formatDateDDMMYYYY()", () => {
   it("formats valid year, month, and day into dd-MM-YYYY format", () => {
     expect(formatDateDDMMYYYY("2023", "07", "28")).to.equal("28-07-2023");
     expect(formatDateDDMMYYYY("1990", "01", "01")).to.equal("01-01-1990");
