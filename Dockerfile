@@ -4,6 +4,8 @@ FROM node:25-alpine
 # Set the working directory inside the container
 WORKDIR /app
 
+RUN npm install -g npm@11.14.1
+
 # Force install of corepack (necessary with node >=v25.0.0)
 RUN npm install -g corepack --force
 
