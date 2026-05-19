@@ -4,11 +4,11 @@ export const SubmitApplicationRequestSchema = z.object({
   client: z.object({
     clientFirstName: z.string(),
     clientLastName: z.string(),
-    clientLastNameAtBirth: z.string().optional(),
+    clientLastNameAtBirth: z.string().optional().nullable(),
     dateOfBirth: z.string(),
-    nationalInsuranceNumber: z.string().optional(),
-    correspondenceAddress: z.string().optional(),
-    homeAddress: z.string().optional(),
+    nationalInsuranceNumber: z.string().optional().nullable(),
+    correspondenceAddress: z.string().optional().nullable(),
+    homeAddress: z.string().optional().nullable(),
   }),
   deceased: z.object({
     deceasedFirstName: z.string(),
