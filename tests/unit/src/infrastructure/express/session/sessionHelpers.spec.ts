@@ -19,6 +19,7 @@ import {
   getSessionData,
   clearSessionData,
   storeOriginalFormData,
+  clearApplyFormData,
 } from "#src/infrastructure/express/session/sessionHelpers.js";
 
 // Mock request factory with session
@@ -66,6 +67,19 @@ describe("Session Helpers", () => {
       clearSessionData(req, "testNamespace");
 
       expect(req.session.testNamespace).to.be.undefined;
+    });
+  });
+
+  describe("clearApplyFormData()", () => {
+    it("clears all session data", () => {
+      const req = createMockRequest({
+        clientFirstName: "value1",
+        clientLastName: "value2",
+      });
+
+      clearApplyFormData(req);
+      expect(req.session.clientFirstName).to.be.undefined;
+      expect(req.session.clientLastName).to.be.undefined;
     });
   });
 

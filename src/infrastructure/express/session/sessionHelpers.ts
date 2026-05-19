@@ -23,6 +23,13 @@ export function clearSessionData(req: Request, namespace: string): void {
   req.session[namespace] = undefined;
 }
 
+export function clearApplyFormData(req: Request): void {
+  const sessionKeys = Object.keys(req.session);
+  sessionKeys.forEach((key) => {
+    req.session[key] = undefined;
+  });
+}
+
 /**
  * Clear all session data for form original values
  * Removes any session keys that contain 'Original' in the name
