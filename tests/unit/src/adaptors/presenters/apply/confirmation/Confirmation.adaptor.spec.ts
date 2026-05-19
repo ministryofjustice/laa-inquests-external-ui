@@ -6,7 +6,7 @@ import { Formatter } from "#src/utils/Formatter.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 
-describe.only("Confirmation adaptor", () => {
+describe("Confirmation adaptor", () => {
   let confirmationFormatter: Formatter;
   let applySubmitPortStub: StubbedInstance<ApplySubmitPort>;
 
