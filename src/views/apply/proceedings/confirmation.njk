@@ -6,6 +6,8 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {%- from "moj/components/search/macro.njk" import mojSearch -%}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
 
 {% block content %}
 
@@ -55,6 +57,11 @@
                     isPageHeading: true,
                     classes: "govuk-fieldset__legend--l"
                   }
+                },
+                hint: {
+                html: govukInsetText({
+                text: "You will only be shown the proceedings that can be added to the ones you have selected"
+                })
                 },
                 items: [{ value: "true", text: "Yes" }, { value: "false", text: "No" }]
               })
