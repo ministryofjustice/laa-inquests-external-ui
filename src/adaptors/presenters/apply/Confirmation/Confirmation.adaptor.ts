@@ -196,6 +196,7 @@ export class ConfirmationAdaptor {
       csrfToken,
       applicationReferenceNumber,
     });
+    this.sessionHelper.clearApplyFormData(req);
   }
 
   #createDateString(day?: string, month?: string, year?: string): string {
