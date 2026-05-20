@@ -13,6 +13,20 @@ export function createConfirmationRouter(
   );
 
   confirmationRouter.get(
+    "/confirmation/client-declaration",
+    (req: Request, res: Response): void => {
+      confirmationAdaptor.renderClientDeclarationForm(req, res);
+    },
+  );
+
+  confirmationRouter.post(
+    "/confirmation/client-declaration",
+    async (req: Request, res: Response): Promise<void> => {
+      await confirmationAdaptor.processClientDeclarationForm(req, res);
+    },
+  );
+
+  confirmationRouter.get(
     "/confirmation/success",
     (req: Request, res: Response): void => {
       confirmationAdaptor.renderConfirmSuccess(req, res);
