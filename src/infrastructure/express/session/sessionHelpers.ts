@@ -6,7 +6,6 @@ export class SessionHelper {
     namespace: string,
     data: Record<string, string>,
   ): void {
-    // Store our typed data directly in the session
     req.session[namespace] = data;
   }
 
@@ -16,7 +15,6 @@ export class SessionHelper {
   ): Record<string, string> | null {
     const { session } = req;
     const { [namespace]: data } = session;
-    // Return the data if it's a Record, otherwise null for undefined or string
     return typeof data === "object" ? data : null;
   }
 
