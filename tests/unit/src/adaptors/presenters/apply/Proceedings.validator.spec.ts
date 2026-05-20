@@ -31,4 +31,18 @@ describe("ProceedingsValidator", () => {
       });
     });
   });
+
+  describe("validateProceedingList", () => {
+    it("returns expected error when no proceedings are selected", () => {
+      const formValidator = new ProceedingsValidator();
+
+      const errorSummaries = formValidator.validateProceedingList([]);
+
+      assert.deepEqual(errorSummaries, {
+        noProceedingsInList: {
+          text: PROCEEDING_ERROR.NO_PROCEEDINGS_IN_LIST,
+        },
+      });
+    });
+  });
 });

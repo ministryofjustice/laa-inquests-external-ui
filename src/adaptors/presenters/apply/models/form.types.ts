@@ -64,9 +64,15 @@ export interface ProceedingsFormData extends FormBody {
   "add-another-proceeding": string;
 }
 
+export interface RemoveProceedingFormData extends FormBody {
+  proceedingId: string;
+  "remove-proceeding": string;
+}
+
 export interface ProceedingsError {
   noProceedingSelected?: FormErrorMessage;
   noConfirmationSelected?: FormErrorMessage;
+  noProceedingsInList?: FormErrorMessage;
 }
 
 export interface Option {

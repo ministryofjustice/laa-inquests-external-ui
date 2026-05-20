@@ -1,4 +1,7 @@
-import { PROCEEDING_ERROR } from "#src/infrastructure/locales/constants.js";
+import {
+  PROCEEDING_ERROR,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type {
   ProceedingsError,
@@ -34,6 +37,20 @@ export class ProceedingsValidator extends FormValidator {
         text: PROCEEDING_ERROR.NO_CONFIRMATION_SPECIFIED,
       };
     }
+    return errorSummaries;
+  }
+
+  validateProceedingList(
+    selectedProceedings: unknown[],
+  ): Partial<ProceedingsError> {
+    const errorSummaries: Partial<ProceedingsError> = {};
+
+    if (selectedProceedings.length === EMPTY_ARR_LENGTH) {
+      errorSummaries.noProceedingsInList = {
+        text: PROCEEDING_ERROR.NO_PROCEEDINGS_IN_LIST,
+      };
+    }
+
     return errorSummaries;
   }
 }

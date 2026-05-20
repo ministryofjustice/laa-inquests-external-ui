@@ -33,11 +33,11 @@ export class Formatter {
   ): SummaryListRow[] {
     const formattedSelectedProceedings = selectedProceedings.map(
       (proceeding) => ({
-        key: { text: proceeding.proceedingId },
-        value: { text: proceeding.proceedingDescription },
+        key: { text: proceeding.proceedingDescription },
         actions: {
           items: [
             {
+              href: `/apply/proceedings/remove?proceedingId=${proceeding.proceedingId}`,
               text: "Remove",
             },
           ],

@@ -169,11 +169,11 @@ describe("Proceedings adaptor", () => {
 
       const expectedFormattedProceedings = [
         {
-          key: { text: "MN035" },
-          value: { text: "Clinical Negligence" },
+          key: { text: "Clinical Negligence" },
           actions: {
             items: [
               {
+                href: "/apply/proceedings/remove?proceedingId=MN035",
                 text: "Remove",
               },
             ],
@@ -236,7 +236,7 @@ describe("Proceedings adaptor", () => {
       assert(renderArgs[0], "apply/proceedings/confirmation");
       assert.deepInclude(renderArgs[1], expectedRenderOptions);
     });
-    it("redirects to deceased details page if no selected", () => {
+    it("redirects to deceased details page if no is selected and list has items", () => {
       const formValidator = new ProceedingsValidator();
       const formatter = new Formatter();
       const proceedingsAdaptor = new ProceedingsAdaptor(
@@ -250,6 +250,13 @@ describe("Proceedings adaptor", () => {
         _csrf: "abcdefg",
         "add-another-proceeding": "false",
       };
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
 
       proceedingsAdaptor.processProceedingsConfirmation(
         requestStub,
@@ -258,6 +265,43 @@ describe("Proceedings adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
       assert(redirectArgs[0], "/apply/deceased-details/name");
+    });
+    it("re-renders with error if no is selected and list is empty", () => {
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter();
+      const proceedingsAdaptor = new ProceedingsAdaptor(
+        formValidator,
+        formatter,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "add-another-proceeding": "false",
+      };
+      requestStub.session.selectedProceedings = [];
+
+      proceedingsAdaptor.processProceedingsConfirmation(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert(renderArgs[0], "apply/proceedings/confirmation");
+      assert.deepInclude(renderArgs[1], {
+        errorSummaries: {
+          noProceedingsInList: {
+            text: "A case must have a minimum of 1 proceeding",
+          },
+        },
+      });
     });
     it("redirects to form page if yes selected", () => {
       const formValidator = new ProceedingsValidator();
