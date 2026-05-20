@@ -3,6 +3,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {%- from "moj/components/search/macro.njk" import mojSearch -%}
 
 {% block content %}
@@ -13,6 +15,20 @@
     href: "/apply/client-details/has-prev-application"
   }) }}
   <main class="govuk-main-wrapper">
+    {% if successMessage %}
+    {{ govukNotificationBanner({
+      type: "success",
+      text: successMessage
+    }) }}
+    {% endif %}
+    {% if errorSummaries.noProceedingsInList %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: [
+        { text: errorSummaries.noProceedingsInList.text }
+      ]
+    }) }}
+    {% endif %}
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         {% if selectedProceedings.length > 0 %}

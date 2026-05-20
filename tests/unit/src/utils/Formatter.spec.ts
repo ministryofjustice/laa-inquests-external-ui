@@ -101,7 +101,7 @@ describe("Formatter", () => {
     });
   });
   describe("formatSelectedIntoTableRows", () => {
-    it("returns the proceeding ID and description text items on the key and value properties of the returned row object", () => {
+    it("returns the proceeding description text in the key property of the returned row object", () => {
       const formatter = new Formatter();
       const selectedProceedings = [
         {
@@ -116,10 +116,10 @@ describe("Formatter", () => {
 
       expect(tableRows.length).to.equal(1);
       const [selectedRow] = tableRows;
-      expect(selectedRow.key).to.deep.equal({ text: "PC049" });
-      expect(selectedRow.value).to.deep.equal({ text: "CAPA" });
+      expect(selectedRow.key).to.deep.equal({ text: "CAPA" });
+      expect(selectedRow.value).to.equal(undefined);
     });
-    it("includes an actions property on the returned row object with a text value of 'Remove'", () => {
+    it("includes an actions property with a remove link for the selected proceeding", () => {
       const formatter = new Formatter();
       const selectedProceedings = [
         {
@@ -129,7 +129,14 @@ describe("Formatter", () => {
         },
       ];
 
-      const expectedActions = { items: [{ text: "Remove" }] };
+      const expectedActions = {
+        items: [
+          {
+            href: "/apply/proceedings/remove?proceedingId=PC049",
+            text: "Remove",
+          },
+        ],
+      };
 
       const tableRows =
         formatter.formatSelectedIntoTableRows(selectedProceedings);

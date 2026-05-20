@@ -40,6 +40,7 @@ export const PROCEEDING_ERROR = {
   NO_PROCEEDING_SPECIFIED:
     "An application must specify at least one related proceeding.",
   NO_CONFIRMATION_SPECIFIED: "Please select either yes or no to continue.",
+  NO_PROCEEDINGS_IN_LIST: "A case must have a minimum of 1 proceeding",
 };
 
 export const NINO_REGEX =

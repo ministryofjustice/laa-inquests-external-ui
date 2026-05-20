@@ -27,5 +27,19 @@ export function createProceedingsRouter(
     },
   );
 
+  proceedingsRouter.get(
+    "/proceedings/remove",
+    (req: Request, res: Response) => {
+      proceedingsAdaptor.renderProceedingsRemoveForm(req, res);
+    },
+  );
+
+  proceedingsRouter.post(
+    "/proceedings/remove",
+    (req: Request, res: Response) => {
+      proceedingsAdaptor.processProceedingsRemove(req, res);
+    },
+  );
+
   return proceedingsRouter;
 }

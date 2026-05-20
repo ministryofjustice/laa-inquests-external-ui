@@ -1,0 +1,61 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/proceedings/confirmation"
+  }) }}
+
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-l">Are you sure you want to remove this proceeding?</h1>
+
+        {{ govukSummaryList({
+          attributes: { "data-testid": "proceeding-remove-item"},
+          rows: [
+            {
+              key: {
+                text: "Proceeding"
+              },
+              value: {
+                text: proceedingName
+              }
+            }
+          ]
+        }) }}
+
+        <form data-testid="remove-proceeding-form" action="/apply/proceedings/remove" method="POST">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          <input type="hidden" name="proceedingId" value="{{proceedingId}}" />
+
+          {{ govukRadios({
+            name: "remove-proceeding",
+            fieldset: {
+              
+            },
+            items: [
+              { value: "true", text: "Yes" },
+              { value: "false", text: "No" }
+            ]
+          }) }}
+
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+
+        </form>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
