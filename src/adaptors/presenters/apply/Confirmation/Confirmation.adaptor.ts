@@ -177,7 +177,6 @@ export class ConfirmationAdaptor {
       publicBodies,
     };
 
-    // Validate and parse with Zod
     const submitBody = SubmitApplicationRequestSchema.parse(submitBodyRaw);
     return submitBody;
   }
