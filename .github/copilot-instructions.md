@@ -1,14 +1,10 @@
 # GitHub Copilot Instructions — laa-inquests-external-ui
 
-This document is the authoritative guide for AI-assisted development on this project. All Copilot suggestions and generated code must conform to the standards defined here. It is designed to support multiple teams working collaboratively with the highest technical standards.
-
-
 ## 1. Project Overview
 
 **Service:** LAA Inquests External UI — a GOV.UK-styled provider-facing web application for submitting Legal Aid Agency Inquests applications.
 **Users:** Legal aid providers (solicitors, law firms) submitting Inquests applications on behalf of clients.
 **Backend:** The UI communicates with the `inquests-api` backend. It does not own any data persistence; it is a thin form-driven UI layer.
-**Phase:** Alpha — the service is under active development. Assumptions are subject to change.
 
 ## 2. Architecture
 
@@ -42,7 +38,7 @@ Use `yarn` exclusively. Do not use `npm` or `npx`. Enable Corepack: `corepack en
 
 ---
 
-## 4. Directory Structure
+## 3. Directory Structure
 
 ```
 src/
@@ -103,7 +99,7 @@ tests/
     utils/                        # E2E test utilities
 ```
 
-## 5. Coding Conventions
+## 4. Coding Conventions
 
 ### General
 
@@ -143,7 +139,7 @@ Type-only imports must use `import type`:
 - Always handle rejected promises explicitly. Do not swallow errors silently.
 - Validation errors must return a rendered form with `errorSummaries` — never throw.
 
-## 7. Testing Standards
+## 5. Testing Standards
 
 ### Unit Tests (Mocha + Chai + Sinon)
 
@@ -171,18 +167,18 @@ Type-only imports must use `import type`:
 
 
 
-## 9. Accessibility Standards
+## 6. Accessibility Standards
 
 - Use GOV.UK Frontend components from `govuk-frontend` and MoJ Frontend from `@ministryofjustice/frontend`. Do not build custom equivalents of existing design system components.
 - Colour must not be the sole means of conveying information.
 
 ---
 
-## 10. Internationalisation (i18n)
+## 7. Internationalisation (i18n)
 
 - All user-facing strings must be stored in `src/infrastructure/locales/en.json`.
 
-## 13. API Integration
+## 8. API Integration
 
 ### Port → Adaptor Pattern
 
@@ -198,18 +194,18 @@ For every new API operation:
 
 Use Axios injected via the constructor. Never instantiate Axios inside an adaptor method. The Axios instance is created in `index.ts` and injected at composition root.
 
-## 14. Views & Templating
+## 9. Views & Templating
 
 - Templates must contain **no** business logic. All data transformation happens in adaptors before rendering.
 - Use GOV.UK Frontend macros for all standard components (buttons, inputs, radios, checkboxes, error summaries, etc.).
 
-## 15. Environment & Configuration
+## 10. Environment & Configuration
 
 All configuration is read from environment variables and exposed via the typed `config` object in `src/infrastructure/config/config.ts`. Do not access `process.env` directly outside of `config.ts`.
 
 Copy `.env.example` to `.env` for local development. Never commit `.env`.
 
-## 18. Copilot Workflow Rules
+## 11. Copilot Workflow Rules
 
 These rules govern how GitHub Copilot should behave when assisting with development on this project.
 
