@@ -1,6 +1,7 @@
 {% extends "base.njk" %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -9,6 +10,14 @@
         href: "/apply/check-your-answers"
     }) }}
     <main class="govuk-main-wrapper">
+        {% if errorSummaries.noDeclarationConfirmation %}
+        {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+                { text: errorSummaries.noDeclarationConfirmation.text }
+            ]
+        }) }}
+        {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-l">Confirm the following</h2>
@@ -44,7 +53,8 @@
                     {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 
                     {{ govukCheckboxes({
-                    name: "client-delcaration-confirmation",
+                    name: "client-declaration-confirmation",
+                    errorMessage: errorSummaries.noDeclarationConfirmation,
                     items: [
                         {
                         value: "true",

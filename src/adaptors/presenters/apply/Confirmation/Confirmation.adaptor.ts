@@ -8,8 +8,15 @@ import {
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
-import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
+import {
+  CLIENT_DECLARATION_ERROR,
+  HTTP_CREATED,
+} from "#src/infrastructure/locales/constants.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
+import type {
+  ClientDeclarationError,
+  ClientDeclarationFormData,
+} from "#src/adaptors/presenters/apply/models/form.types.js";
 
 export class ConfirmationAdaptor {
   formatter: Formatter;
@@ -107,6 +114,35 @@ export class ConfirmationAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
+    const { "client-declaration-confirmation": declarationConfirmation } =
+      req.body as ClientDeclarationFormData;
+    const hasConfirmedDeclaration =
+      declarationConfirmation === "true" ||
+      (Array.isArray(declarationConfirmation) &&
+        declarationConfirmation.includes("true"));
+
+    if (!hasConfirmedDeclaration) {
+      const {
+        locals: { csrfToken },
+      } = res;
+
+      const errorSummaries: ClientDeclarationError = {
+        noDeclarationConfirmation: {
+          text: CLIENT_DECLARATION_ERROR.NO_CONFIRMATION,
+        },
+      };
+
+      res.render("apply/submit/client-declaration", {
+        csrfToken,
+        clientDetails: {
+          firstName: req.session.clientFirstName ?? "",
+          lastName: req.session.clientLastName ?? "",
+        },
+        errorSummaries,
+      });
+      return;
+    }
+
     const submitBody = this.#generateSubmitBody(req);
     const { session } = req;
     const responseRaw =
