@@ -9,12 +9,12 @@
 
 ## 2. Workflow
 
-* **Start by writing E2E tests.** Wait for approval before continuing.
-* **Then develop one unit test at a time.** Write the test, make it pass with minimum code, wait for approval before the next.
-* **Run tests after every change.** New tests must fail first, then pass after implementation. Fix code, not tests, if refactoring breaks them.
-* **NEVER install a new dependency.** Stop and recommend a dependency for the user to install.
-* **All code MUST match the architecture** — Ports and Adaptors (Hexagonal). Keep business logic out of routes and views.
-* **When finished**, run all checks and update documentation.
+- **Start by writing E2E tests.** Wait for approval before continuing.
+- **Then develop one unit test at a time.** Write the test, make it pass with minimum code, wait for approval before the next.
+- **Run tests after every change.** New tests must fail first, then pass after implementation. Fix code, not tests, if refactoring breaks them.
+- **NEVER install a new dependency.** Stop and recommend a dependency for the user to install.
+- **All code MUST match the architecture** — Ports and Adaptors (Hexagonal). Keep business logic out of routes and views.
+- **When finished**, run all checks and update documentation.
 
 ### Checks before completing any task
 
@@ -69,18 +69,18 @@ Use Axios injected via the constructor. Never instantiate Axios inside an adapto
 
 ### Naming
 
-| Thing | Convention | Example |
-|---|---|---|
-| Files/folders | `camelCase` | `clientDetails.router.ts` |
-| Classes | `PascalCase` | `ClientDetailsAdaptor` |
-| Interfaces | `PascalCase`, no `I` prefix | `ClientDetailsFormData` |
-| Constants | `UPPER_SNAKE_CASE` | `EMPTY_ARR_LENGTH` |
-| Variables / params | `camelCase` | `clientFirstName` |
-| Private class methods | `#camelCase` | `#formatProceedingOptions` |
-| Nunjucks templates | `kebab-case.njk` | `name-and-dob.njk` |
-| URL paths | `kebab-case` | `/client-details/name-and-dob` |
-| HTML form field names | `kebab-case` | `first-name`, `dob-day` |
-| Test files | `[Name].spec.ts` | `ClientDetails.adaptor.spec.ts` |
+| Thing                 | Convention                  | Example                         |
+| --------------------- | --------------------------- | ------------------------------- |
+| Files/folders         | `camelCase`                 | `clientDetails.router.ts`       |
+| Classes               | `PascalCase`                | `ClientDetailsAdaptor`          |
+| Interfaces            | `PascalCase`, no `I` prefix | `ClientDetailsFormData`         |
+| Constants             | `UPPER_SNAKE_CASE`          | `EMPTY_ARR_LENGTH`              |
+| Variables / params    | `camelCase`                 | `clientFirstName`               |
+| Private class methods | `#camelCase`                | `#formatProceedingOptions`      |
+| Nunjucks templates    | `kebab-case.njk`            | `name-and-dob.njk`              |
+| URL paths             | `kebab-case`                | `/client-details/name-and-dob`  |
+| HTML form field names | `kebab-case`                | `first-name`, `dob-day`         |
+| Test files            | `[Name].spec.ts`            | `ClientDetails.adaptor.spec.ts` |
 
 ## 5. Testing Standards
 
@@ -97,6 +97,7 @@ Use Axios injected via the constructor. Never instantiate Axios inside an adapto
 ### E2E Tests (Playwright)
 
 Each journey step must cover:
+
 - The happy path
 - Each validation error
 - Back and continue/submit buttons
