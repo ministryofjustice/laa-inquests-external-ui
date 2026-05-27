@@ -8,6 +8,8 @@ declare module "express-session" {
     selectedProceedings?: Proceeding[];
     selectedPublicAuthorities?: PublicAuthority[];
     clientHomeAddress?: ClientHomeAddress;
+    clientCorrespondenceAddress?: ClientHomeAddress;
+    clientCorrespondenceAddressSource?: CorrespondenceAddressSource;
     clientHasNoFixedAbode?: boolean;
   }
 }
@@ -34,3 +36,8 @@ export interface ClientHomeAddress {
   county?: string | null;
   postcode: string;
 }
+
+export type CorrespondenceAddressSource =
+  | "USE_CLIENT_HOME_ADDRESS"
+  | "USE_SPECIFIED_ADDRESS"
+  | "USE_PROVIDER_ADDRESS";

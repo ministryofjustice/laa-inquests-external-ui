@@ -44,7 +44,7 @@ test.describe("Client details - home address", () => {
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page.url()).toContain(
-      "/apply/client-details/has-prev-application",
+      "/apply/client-details/correspondence-address-source",
     );
   });
 
@@ -65,7 +65,7 @@ test.describe("Client details - home address", () => {
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page.url()).toContain(
-      "/apply/client-details/has-prev-application",
+      "/apply/client-details/correspondence-address-source",
     );
   });
 

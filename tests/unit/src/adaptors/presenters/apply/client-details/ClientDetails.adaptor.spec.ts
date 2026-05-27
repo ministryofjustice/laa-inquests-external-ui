@@ -104,7 +104,7 @@ describe("Client details adaptor", () => {
     assert.equal(renderArgs[0], "apply/client-details/home-address");
   });
 
-  it("process home address form redirects to has prev application", () => {
+  it("process home address form redirects to correspondence address source", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
@@ -122,7 +122,10 @@ describe("Client details adaptor", () => {
     clientDetailsAdaptor.processHomeAddressForm(requestStub, responseStub);
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
+    assert.equal(
+      redirectArgs[0],
+      "/apply/client-details/correspondence-address-source",
+    );
   });
 
   it("process home address form stores a structured object in session", () => {
@@ -180,6 +183,94 @@ describe("Client details adaptor", () => {
 
     assert.equal(requestStub.session.clientHasNoFixedAbode, true);
     assert.equal(requestStub.session.clientHomeAddress, undefined);
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(
+      redirectArgs[0],
+      "/apply/client-details/correspondence-address-source",
+    );
+  });
+
+  it("process correspondence source redirects to correspondence address form when specified address is selected", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "correspondence-address-source": "USE_SPECIFIED_ADDRESS",
+    };
+
+    clientDetailsAdaptor.processCorrespondenceAddressSourceForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(
+      requestStub.session.clientCorrespondenceAddressSource,
+      "USE_SPECIFIED_ADDRESS",
+    );
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(
+      redirectArgs[0],
+      "/apply/client-details/correspondence-address",
+    );
+  });
+
+  it("process correspondence source redirects to has prev application when provider address is selected", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "correspondence-address-source": "USE_PROVIDER_ADDRESS",
+    };
+
+    clientDetailsAdaptor.processCorrespondenceAddressSourceForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(
+      requestStub.session.clientCorrespondenceAddressSource,
+      "USE_PROVIDER_ADDRESS",
+    );
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
+  });
+
+  it("process correspondence address form stores structured correspondence address and redirects", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "correspondence-address-line-1": "1 Acacia Avenue",
+      "correspondence-address-line-2": "Flat 2",
+      "correspondence-town-or-city": "London",
+      "correspondence-county": "Greater London",
+      "correspondence-postcode": "SW1A 1AA",
+    };
+
+    clientDetailsAdaptor.processCorrespondenceAddressForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.deepEqual(requestStub.session.clientCorrespondenceAddress, {
+      addressLine1: "1 Acacia Avenue",
+      addressLine2: "Flat 2",
+      townOrCity: "London",
+      county: "Greater London",
+      postcode: "SW1A 1AA",
+    });
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
     assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");

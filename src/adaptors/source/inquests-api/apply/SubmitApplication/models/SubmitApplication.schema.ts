@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CORRESPONDENCE_ADDRESS_SOURCE } from "#src/infrastructure/locales/constants.js";
 
 export const SubmitApplicationRequestSchema = z.object({
   client: z.object({
@@ -8,7 +9,21 @@ export const SubmitApplicationRequestSchema = z.object({
     dateOfBirth: z.string(),
     hasNoFixedAbode: z.boolean(),
     nationalInsuranceNumber: z.string().optional().nullable(),
-    correspondenceAddress: z.string().optional().nullable(),
+    correspondenceAddressSource: z.enum([
+      CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS,
+      CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS,
+      CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
+    ]),
+    correspondenceAddress: z
+      .object({
+        addressLine1: z.string(),
+        addressLine2: z.string().optional().nullable(),
+        townOrCity: z.string(),
+        county: z.string().optional().nullable(),
+        postcode: z.string(),
+      })
+      .optional()
+      .nullable(),
     homeAddress: z
       .object({
         addressLine1: z.string(),

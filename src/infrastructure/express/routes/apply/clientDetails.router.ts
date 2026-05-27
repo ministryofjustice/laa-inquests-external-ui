@@ -48,6 +48,34 @@ export function createClientDetailsRouter(
   );
 
   clientDetailsRouter.get(
+    "/client-details/correspondence-address-source",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.renderCorrespondenceAddressSourceForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.post(
+    "/client-details/correspondence-address-source",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.processCorrespondenceAddressSourceForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.get(
+    "/client-details/correspondence-address",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.renderCorrespondenceAddressForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.post(
+    "/client-details/correspondence-address",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.processCorrespondenceAddressForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.get(
     "/client-details/has-prev-application",
     (req: Request, res: Response) => {
       clientDetailsAdaptor.renderHasPrevApplicationForm(req, res);

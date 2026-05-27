@@ -490,5 +490,109 @@ describe("ClientDetailsValidator", () => {
         assert.deepEqual(errorSummaries, {});
       });
     });
+
+    describe("validateCorrespondenceAddressSource", () => {
+      it("adds error when no correspondence source option selected", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddressSource(formBody, false);
+
+        assert.deepEqual(errorSummaries, {
+          noRadioSelected: {
+            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+          },
+        });
+      });
+
+      it("adds error when home address option selected and client has no fixed abode", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-source": "USE_CLIENT_HOME_ADDRESS",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddressSource(formBody, true);
+
+        assert.deepEqual(errorSummaries, {
+          noRadioSelected: {
+            text: CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE,
+          },
+        });
+      });
+
+      it("returns no errors when office option selected", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-source": "USE_PROVIDER_ADDRESS",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddressSource(formBody, true);
+
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
+
+    describe("validateCorrespondenceAddress", () => {
+      it("adds error when correspondence address line 1 is missing", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_ADDRESS_LINE_1,
+          },
+        });
+      });
+
+      it("adds error when correspondence town or city is missing", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_TOWN_OR_CITY,
+          },
+        });
+      });
+
+      it("adds error when correspondence postcode is invalid", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "invalid",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          postcodeInputError: {
+            text: CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_POSTCODE,
+          },
+        });
+      });
+    });
   });
 });

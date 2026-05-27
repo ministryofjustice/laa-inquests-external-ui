@@ -45,19 +45,16 @@ describe("Confirmation adaptor", () => {
     requestStub.session.clientDobDay = "1";
     requestStub.session.clientDobMonth = "12";
     requestStub.session.clientDobYear = "1990";
-    requestStub.session.clientHasNoFixedAbode = true;
-
-    requestStub.session.clientAddressLine1 = "4 Privet Drive";
-    requestStub.session.clientAddressLine2 = "";
-    requestStub.session.clientTownOrcity = "Little Whinging";
-    requestStub.session.clientCounty = "Surrey";
-    requestStub.session.clientPostcode = "B1 123b";
-
-    requestStub.session.clientCorrespondenceAddressLine1 = "1 test rd";
-    requestStub.session.clientCorrespondenceAddressLine2 = "";
-    requestStub.session.clientCorrespondenceTownOrcity = "test city";
-    requestStub.session.clientCorrespondenceCounty = "test county";
-    requestStub.session.clientCorrespondencePostcode = "B1 321b";
+    requestStub.session.clientHasNoFixedAbode = false;
+    requestStub.session.clientHomeAddress = {
+      addressLine1: "4 Privet Drive",
+      addressLine2: "Little Whinging",
+      townOrCity: "Little Whinging",
+      county: "Surrey",
+      postcode: "B1 123b",
+    };
+    requestStub.session.clientCorrespondenceAddressSource =
+      "USE_CLIENT_HOME_ADDRESS";
 
     requestStub.session.deceasedFirstName = "deceased first name";
     requestStub.session.deceasedLastName = "deceased last name";
@@ -100,8 +97,9 @@ describe("Confirmation adaptor", () => {
         clientFirstName: "test name",
         clientLastName: "last name",
         clientDob: "1/12/1990",
-        clientAddress: "No fixed abode ",
-        clientCorrespondenceAddress: "1 test rd test city test county B1 321b",
+        clientAddress:
+          "4 Privet DriveLittle Whinging Little Whinging Surrey B1 123b",
+        clientCorrespondenceAddress: "Same as client's home address",
       },
       deceasedDetails: {
         deceasedFirstName: "deceased first name",
@@ -242,6 +240,10 @@ describe("Confirmation adaptor", () => {
       assert.equal(submitBody.client.dateOfBirth, "05-10-1989");
       assert.equal(submitBody.client.nationalInsuranceNumber, "AB123456C");
       assert.equal(submitBody.client.hasNoFixedAbode, false);
+      assert.equal(
+        submitBody.client.correspondenceAddressSource,
+        "USE_PROVIDER_ADDRESS",
+      );
 
       assert.equal(submitBody.deceased.deceasedFirstName, "Deceased");
       assert.equal(submitBody.deceased.deceasedLastName, "Two");
@@ -331,6 +333,10 @@ describe("Confirmation adaptor", () => {
         false,
       );
       assert.equal(submitBody.client.hasNoFixedAbode, false);
+      assert.equal(
+        submitBody.client.correspondenceAddressSource,
+        "USE_PROVIDER_ADDRESS",
+      );
     });
 
     it("sets hasNoFixedAbode true and omits homeAddress when selected", async () => {
@@ -390,9 +396,79 @@ describe("Confirmation adaptor", () => {
 
       assert.equal(submitBody.client.hasNoFixedAbode, true);
       assert.equal(
-        Object.prototype.hasOwnProperty.call(submitBody.client, "homeAddress"),
-        false,
+        submitBody.client.correspondenceAddressSource,
+        "USE_PROVIDER_ADDRESS",
       );
+      assert.equal(submitBody.client.homeAddress, null);
+    });
+
+    it("includes specified correspondence address when source is USE_SPECIFIED_ADDRESS", async () => {
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientCorrespondenceAddressSource =
+        "USE_SPECIFIED_ADDRESS";
+      requestStub.session.clientCorrespondenceAddress = {
+        addressLine1: "1 Acacia Avenue",
+        addressLine2: "Flat 2",
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      };
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await confirmationAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
+
+      assert.equal(
+        submitBody.client.correspondenceAddressSource,
+        "USE_SPECIFIED_ADDRESS",
+      );
+      assert.deepEqual(submitBody.client.correspondenceAddress, {
+        addressLine1: "1 Acacia Avenue",
+        addressLine2: "Flat 2",
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      });
     });
 
     it("omits optional nullable client fields when null in session", async () => {

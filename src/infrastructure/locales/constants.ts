@@ -24,7 +24,19 @@ export const CLIENT_DETAILS_ERROR = {
   MISSING_HOME_TOWN_OR_CITY: "Please enter town or city",
   MISSING_HOME_POSTCODE: "Please enter postcode",
   INVALID_HOME_POSTCODE: "Please enter a valid UK postcode",
+  INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE:
+    "You cannot select your client's UK home address when they have no fixed abode",
+  MISSING_CORRESPONDENCE_ADDRESS_LINE_1: "Please enter address line 1",
+  MISSING_CORRESPONDENCE_TOWN_OR_CITY: "Please enter town or city",
+  MISSING_CORRESPONDENCE_POSTCODE: "Please enter postcode",
+  INVALID_CORRESPONDENCE_POSTCODE: "Please enter a valid UK postcode",
 };
+
+export const CORRESPONDENCE_ADDRESS_SOURCE = {
+  USE_CLIENT_HOME_ADDRESS: "USE_CLIENT_HOME_ADDRESS",
+  USE_SPECIFIED_ADDRESS: "USE_SPECIFIED_ADDRESS",
+  USE_PROVIDER_ADDRESS: "USE_PROVIDER_ADDRESS",
+} as const;
 
 export const DECEASED_DETAILS_ERROR = {
   MISSING_FIRST_NAME: "Please enter the first name of the deceased",

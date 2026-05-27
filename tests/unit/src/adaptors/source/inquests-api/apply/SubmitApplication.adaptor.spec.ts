@@ -42,6 +42,7 @@ describe("SubmitApplicationAdaptor", () => {
           clientLastNameAtBirth: "last name at birth",
           dateOfBirth: formatDateDDMMYYYY(1990, "01", "01"),
           hasNoFixedAbode: false,
+          correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
           nationalInsuranceNumber: "AB123456C",
         },
         deceased: {

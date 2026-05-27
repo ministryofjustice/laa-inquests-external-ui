@@ -1,4 +1,5 @@
 import type {
+  ClientCorrespondenceAddressSourceError,
   ClientDetailsFormData,
   ClientHomeAddressError,
   ClientNameDobError,
@@ -7,6 +8,7 @@ import type {
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
+  CORRESPONDENCE_ADDRESS_SOURCE,
   NINO_REGEX,
   UK_POSTCODE_REGEX,
 } from "#src/infrastructure/locales/constants.js";
@@ -219,6 +221,73 @@ export class ClientDetailsValidator extends FormValidator {
     ) {
       errorSummaries.postcodeInputError = {
         text: CLIENT_DETAILS_ERROR.INVALID_HOME_POSTCODE,
+      };
+    }
+
+    return errorSummaries;
+  }
+
+  validateCorrespondenceAddressSource(
+    formBody: Partial<ClientDetailsFormData>,
+    hasNoFixedAbode: boolean,
+  ): Partial<ClientCorrespondenceAddressSourceError> {
+    const errorSummaries: Partial<ClientCorrespondenceAddressSourceError> = {};
+
+    const { "correspondence-address-source": correspondenceAddressSource } =
+      formBody;
+
+    if (typeof correspondenceAddressSource !== "string") {
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      };
+      return errorSummaries;
+    }
+
+    if (
+      correspondenceAddressSource ===
+        CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS &&
+      hasNoFixedAbode
+    ) {
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE,
+      };
+    }
+
+    return errorSummaries;
+  }
+
+  validateCorrespondenceAddress(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientHomeAddressError> {
+    const errorSummaries: Partial<ClientHomeAddressError> = {};
+    const {
+      "correspondence-address-line-1": addressLine1,
+      "correspondence-town-or-city": townOrCity,
+      "correspondence-postcode": postcode,
+    } = formBody;
+
+    if (this.validateFormInputValue(addressLine1)) {
+      errorSummaries.addressLine1InputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_ADDRESS_LINE_1,
+      };
+    }
+
+    if (this.validateFormInputValue(townOrCity)) {
+      errorSummaries.townOrCityInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_TOWN_OR_CITY,
+      };
+    }
+
+    if (this.validateFormInputValue(postcode)) {
+      errorSummaries.postcodeInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_POSTCODE,
+      };
+    } else if (
+      typeof postcode === "string" &&
+      !UK_POSTCODE_REGEX.test(postcode)
+    ) {
+      errorSummaries.postcodeInputError = {
+        text: CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_POSTCODE,
       };
     }
 

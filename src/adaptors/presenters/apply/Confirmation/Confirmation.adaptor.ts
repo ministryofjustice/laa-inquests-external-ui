@@ -11,7 +11,10 @@ import type {
 } from "#src/infrastructure/express/session/index.types.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
-import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
+import {
+  CORRESPONDENCE_ADDRESS_SOURCE,
+  HTTP_CREATED,
+} from "#src/infrastructure/locales/constants.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 
 export class ConfirmationAdaptor {
@@ -50,18 +53,9 @@ export class ConfirmationAdaptor {
     );
 
     const clientAddress = this.#getClientAddressSummary(req);
-    const clientCorrespondenceAddress = this.#createAddressString(
-      req.session.clientCorrespondenceAddressLine1 as string,
-      req.session.clientCorrespondenceAddressLine2 as string,
-      req.session.clientCorrespondenceTownOrcity as string,
-      req.session.clientCorrespondenceCounty as string,
-    );
-
     const clientPostcode = this.#getClientPostcodeSummary(req);
-    const clientCorrespondencePostcode =
-      typeof req.session.clientCorrespondencePostcode === "string"
-        ? req.session.clientCorrespondencePostcode
-        : "";
+    const clientCorrespondenceAddress =
+      this.#getClientCorrespondenceAddressSummary(req);
 
     res.render("apply/check-your-answers", {
       csrfToken,
@@ -70,7 +64,7 @@ export class ConfirmationAdaptor {
         clientLastName: req.session.clientLastName ?? "",
         clientDob,
         clientAddress: `${clientAddress} ${clientPostcode}`,
-        clientCorrespondenceAddress: `${clientCorrespondenceAddress} ${clientCorrespondencePostcode}`,
+        clientCorrespondenceAddress,
       },
       deceasedDetails: {
         deceasedFirstName: req.session.deceasedFirstName ?? "",
@@ -117,32 +111,9 @@ export class ConfirmationAdaptor {
   }
 
   #generateSubmitBody(req: Request): SubmitApplicationRequest {
-    const { session } = req;
-    const { clientLastNameAtBirth, clientNino } = session;
-
     const client = this.#buildClientForSubmit(req);
-
-    if (typeof clientLastNameAtBirth === "string") {
-      client.clientLastNameAtBirth = clientLastNameAtBirth;
-    }
-
-    if (typeof clientNino === "string") {
-      client.nationalInsuranceNumber = clientNino;
-    }
-
-    const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
-    client.hasNoFixedAbode = hasNoFixedAbode;
-
-    const clientHomeAddress = this.#getClientHomeAddress(req);
-    if (!hasNoFixedAbode && clientHomeAddress !== null) {
-      client.homeAddress = {
-        addressLine1: clientHomeAddress.addressLine1,
-        addressLine2: clientHomeAddress.addressLine2 ?? null,
-        townOrCity: clientHomeAddress.townOrCity,
-        county: clientHomeAddress.county ?? null,
-        postcode: clientHomeAddress.postcode,
-      };
-    }
+    this.#applyOptionalClientFields(client, req);
+    this.#applyClientAddressesForSubmit(client, req);
 
     const submitBodyWithDetails = {
       client,
@@ -155,6 +126,61 @@ export class ConfirmationAdaptor {
       submitBodyWithDetails,
     );
     return submitBody;
+  }
+
+  #applyOptionalClientFields(
+    client: SubmitApplicationRequest["client"],
+    req: Request,
+  ): void {
+    const { session } = req;
+    const { clientLastNameAtBirth, clientNino } = session;
+
+    if (typeof clientLastNameAtBirth === "string") {
+      client.clientLastNameAtBirth = clientLastNameAtBirth;
+    }
+
+    if (typeof clientNino === "string") {
+      client.nationalInsuranceNumber = clientNino;
+    }
+  }
+
+  #applyClientAddressesForSubmit(
+    client: SubmitApplicationRequest["client"],
+    req: Request,
+  ): void {
+    const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
+    client.hasNoFixedAbode = hasNoFixedAbode;
+
+    const correspondenceAddressSource =
+      this.#getClientCorrespondenceAddressSource(req);
+    client.correspondenceAddressSource = correspondenceAddressSource;
+
+    const clientCorrespondenceAddress =
+      this.#getClientCorrespondenceAddress(req);
+    if (
+      correspondenceAddressSource ===
+        CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS &&
+      clientCorrespondenceAddress !== null
+    ) {
+      client.correspondenceAddress = {
+        addressLine1: clientCorrespondenceAddress.addressLine1,
+        addressLine2: clientCorrespondenceAddress.addressLine2 ?? null,
+        townOrCity: clientCorrespondenceAddress.townOrCity,
+        county: clientCorrespondenceAddress.county ?? null,
+        postcode: clientCorrespondenceAddress.postcode,
+      };
+    }
+
+    const clientHomeAddress = this.#getClientHomeAddress(req);
+    if (!hasNoFixedAbode && clientHomeAddress !== null) {
+      client.homeAddress = {
+        addressLine1: clientHomeAddress.addressLine1,
+        addressLine2: clientHomeAddress.addressLine2 ?? null,
+        townOrCity: clientHomeAddress.townOrCity,
+        county: clientHomeAddress.county ?? null,
+        postcode: clientHomeAddress.postcode,
+      };
+    }
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {
@@ -239,7 +265,37 @@ export class ConfirmationAdaptor {
         req.session.clientDobDay,
       ),
       hasNoFixedAbode: false,
+      correspondenceAddressSource:
+        CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
+      homeAddress: null,
+      correspondenceAddress: null,
     };
+  }
+
+  #getClientCorrespondenceAddressSummary(req: Request): string {
+    const source = this.#getClientCorrespondenceAddressSource(req);
+
+    if (source === CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS) {
+      return "Same as client's home address";
+    }
+
+    if (source === CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS) {
+      return "My office address";
+    }
+
+    const correspondenceAddress = this.#getClientCorrespondenceAddress(req);
+    if (correspondenceAddress === null) {
+      return "";
+    }
+
+    const addressString = this.#createAddressString(
+      correspondenceAddress.addressLine1,
+      correspondenceAddress.addressLine2 ?? undefined,
+      correspondenceAddress.townOrCity,
+      correspondenceAddress.county ?? undefined,
+    );
+
+    return `${addressString} ${correspondenceAddress.postcode}`.trim();
   }
 
   #buildDeceasedForSubmit(req: Request): SubmitApplicationRequest["deceased"] {
@@ -291,6 +347,14 @@ export class ConfirmationAdaptor {
       : null;
   }
 
+  #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
+    const { session } = req;
+    const { clientCorrespondenceAddress } = session;
+    return this.#isClientHomeAddress(clientCorrespondenceAddress)
+      ? clientCorrespondenceAddress
+      : null;
+  }
+
   #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
@@ -306,5 +370,29 @@ export class ConfirmationAdaptor {
 
   #isClientNoFixedAbode(req: Request): boolean {
     return req.session.clientHasNoFixedAbode === true;
+  }
+
+  #getClientCorrespondenceAddressSource(
+    req: Request,
+  ): SubmitApplicationRequest["client"]["correspondenceAddressSource"] {
+    const {
+      session: { clientCorrespondenceAddressSource },
+    } = req;
+
+    if (
+      clientCorrespondenceAddressSource ===
+      CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS
+    ) {
+      return CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS;
+    }
+
+    if (
+      clientCorrespondenceAddressSource ===
+      CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS
+    ) {
+      return CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS;
+    }
+
+    return CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS;
   }
 }

@@ -14,6 +14,12 @@ export interface ClientDetailsFormData extends FormBody {
   "home-county": string;
   "home-postcode": string;
   "has-no-fixed-abode": string;
+  "correspondence-address-source": string;
+  "correspondence-address-line-1": string;
+  "correspondence-address-line-2": string;
+  "correspondence-town-or-city": string;
+  "correspondence-county": string;
+  "correspondence-postcode": string;
   "has-prev-application": string;
   "prev-laa-reference-input": string;
   "dob-day": string;
@@ -48,6 +54,10 @@ export interface ClientHomeAddressError {
   addressLine1InputError?: FormErrorMessage;
   townOrCityInputError?: FormErrorMessage;
   postcodeInputError?: FormErrorMessage;
+}
+
+export interface ClientCorrespondenceAddressSourceError {
+  noRadioSelected?: FormErrorMessage;
 }
 
 export interface DeceasedDetailsFormData extends FormBody {
@@ -95,3 +105,8 @@ export interface Option {
 export interface DeceasedDateOfDeathError {
   dateOfDeathInputError?: FormErrorMessage;
 }
+
+export type CorrespondenceAddressSourceValue =
+  | "USE_CLIENT_HOME_ADDRESS"
+  | "USE_SPECIFIED_ADDRESS"
+  | "USE_PROVIDER_ADDRESS";

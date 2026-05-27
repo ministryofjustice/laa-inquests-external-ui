@@ -1,6 +1,7 @@
+/* eslint-disable max-lines -- This adaptor orchestrates the full multi-page client-details journey. */
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type { Request, Response } from "express";
-import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
+import type { ClientDetailsFormData,  CorrespondenceAddressSourceValue } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type {
   ClientHomeAddress,
@@ -160,7 +161,7 @@ export class ClientDetailsAdaptor {
 
     if (hasNoFixedAbode) {
       req.session.clientHomeAddress = undefined;
-      res.redirect("/apply/client-details/has-prev-application");
+      res.redirect("/apply/client-details/correspondence-address-source");
       return;
     }
 
@@ -184,8 +185,107 @@ export class ClientDetailsAdaptor {
         client,
       });
     } else {
-      res.redirect("/apply/client-details/has-prev-application");
+      res.redirect("/apply/client-details/correspondence-address-source");
     }
+  }
+
+  renderCorrespondenceAddressSourceForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+    res.render("apply/client-details/correspondence-address-source", {
+      csrfToken,
+      client: {
+        correspondenceAddressSource:
+          this.#getClientCorrespondenceAddressSource(req) ?? "",
+      },
+    });
+  }
+
+  processCorrespondenceAddressSourceForm(
+    req: TypedRequestBody<Partial<ClientDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+    const {
+      body: { "correspondence-address-source": correspondenceAddressSource },
+    } = req;
+
+    const sourceErrors = this.formValidator.validateCorrespondenceAddressSource(
+      req.body,
+      this.#isClientNoFixedAbode(req),
+    );
+
+    if (Object.keys(sourceErrors).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/client-details/correspondence-address-source", {
+        csrfToken,
+        errorSummaries: sourceErrors,
+        client: {
+          correspondenceAddressSource: correspondenceAddressSource ?? "",
+        },
+      });
+      return;
+    }
+
+    if (!this.#isCorrespondenceAddressSource(correspondenceAddressSource)) {
+      res.render("apply/client-details/correspondence-address-source", {
+        csrfToken,
+        errorSummaries: sourceErrors,
+        client: {
+          correspondenceAddressSource: "",
+        },
+      });
+      return;
+    }
+
+    req.session.clientCorrespondenceAddressSource = correspondenceAddressSource;
+
+    if (correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
+      res.redirect("/apply/client-details/correspondence-address");
+      return;
+    }
+
+    req.session.clientCorrespondenceAddress = undefined;
+    res.redirect("/apply/client-details/has-prev-application");
+  }
+
+  renderCorrespondenceAddressForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+    const correspondenceAddress = this.#getClientCorrespondenceAddress(req);
+    res.render("apply/client-details/correspondence-address", {
+      csrfToken,
+      client: this.#toCorrespondenceAddressViewModel(correspondenceAddress),
+    });
+  }
+
+  processCorrespondenceAddressForm(
+    req: TypedRequestBody<Partial<ClientDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+    const correspondenceAddress = this.#buildClientCorrespondenceAddress(
+      req.body,
+    );
+    req.session.clientCorrespondenceAddress = correspondenceAddress;
+    const correspondenceAddressErrors =
+      this.formValidator.validateCorrespondenceAddress(req.body);
+
+    if (Object.keys(correspondenceAddressErrors).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/client-details/correspondence-address", {
+        csrfToken,
+        errorSummaries: correspondenceAddressErrors,
+        client: this.#toCorrespondenceAddressViewModel(correspondenceAddress),
+      });
+      return;
+    }
+
+    res.redirect("/apply/client-details/has-prev-application");
   }
 
   renderHasPrevApplicationForm(req: Request, res: Response): void {
@@ -244,13 +344,19 @@ export class ClientDetailsAdaptor {
       : null;
   }
 
+  #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
+    const { session } = req;
+    const { clientCorrespondenceAddress } = session;
+    return this.#isClientHomeAddress(clientCorrespondenceAddress)
+      ? clientCorrespondenceAddress
+      : null;
+  }
+
   #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
-
     const candidate = value as Partial<ClientHomeAddress>;
-
     return (
       typeof candidate.addressLine1 === "string" &&
       typeof candidate.townOrCity === "string" &&
@@ -276,10 +382,8 @@ export class ClientDetailsAdaptor {
         hasNoFixedAbode: false,
       };
     }
-
     const { addressLine1, addressLine2, townOrCity, county, postcode } =
       clientHomeAddress;
-
     return {
       homeAddressLine1: addressLine1,
       homeAddressLine2: addressLine2 ?? "",
@@ -287,6 +391,35 @@ export class ClientDetailsAdaptor {
       homeCounty: county ?? "",
       homePostcode: postcode,
       hasNoFixedAbode: false,
+    };
+  }
+
+  #toCorrespondenceAddressViewModel(
+    correspondenceAddress: ClientHomeAddress | null,
+  ): {
+    correspondenceAddressLine1: string;
+    correspondenceAddressLine2: string;
+    correspondenceTownOrCity: string;
+    correspondenceCounty: string;
+    correspondencePostcode: string;
+  } {
+    if (correspondenceAddress === null) {
+      return {
+        correspondenceAddressLine1: "",
+        correspondenceAddressLine2: "",
+        correspondenceTownOrCity: "",
+        correspondenceCounty: "",
+        correspondencePostcode: "",
+      };
+    }
+    const { addressLine1, addressLine2, townOrCity, county, postcode } =
+      correspondenceAddress;
+    return {
+      correspondenceAddressLine1: addressLine1,
+      correspondenceAddressLine2: addressLine2 ?? "",
+      correspondenceTownOrCity: townOrCity,
+      correspondenceCounty: county ?? "",
+      correspondencePostcode: postcode,
     };
   }
 
@@ -319,7 +452,57 @@ export class ClientDetailsAdaptor {
     };
   }
 
-  #isClientNoFixedAbode(req: Request): boolean {
+  #buildClientCorrespondenceAddress(
+    formBody: Partial<ClientDetailsFormData>,
+  ): ClientHomeAddress {
+    const {
+      "correspondence-address-line-1": addressLine1,
+      "correspondence-address-line-2": addressLine2,
+      "correspondence-town-or-city": townOrCity,
+      "correspondence-county": county,
+      "correspondence-postcode": postcode,
+    } = formBody;
+
+    const normalizedAddressLine2 =
+      typeof addressLine2 === "string" && addressLine2.length > EMPTY_ARR_LENGTH
+        ? addressLine2
+        : null;
+    const normalizedCounty =
+      typeof county === "string" && county.length > EMPTY_ARR_LENGTH
+        ? county
+        : null;
+
+    return {
+      addressLine1: addressLine1 ?? "",
+      addressLine2: normalizedAddressLine2,
+      townOrCity: townOrCity ?? "",
+      county: normalizedCounty,
+      postcode: postcode ?? "",
+    };
+  }
+
+  #isCorrespondenceAddressSource(
+    value: unknown,
+  ): value is CorrespondenceAddressSourceValue {
+    return (
+      value === "USE_CLIENT_HOME_ADDRESS" ||
+      value === "USE_SPECIFIED_ADDRESS" ||
+      value === "USE_PROVIDER_ADDRESS"
+    );
+  }
+
+  #getClientCorrespondenceAddressSource(
+    req: Request,
+  ): CorrespondenceAddressSourceValue | null {
+    const { session } = req;
+    return this.#isCorrespondenceAddressSource(
+      session.clientCorrespondenceAddressSource,
+    )
+      ? session.clientCorrespondenceAddressSource
+      : null;
+  }
+
+  #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {
     return req.session.clientHasNoFixedAbode === true;
   }
 }
