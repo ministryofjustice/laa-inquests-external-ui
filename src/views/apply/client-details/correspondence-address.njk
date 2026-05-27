@@ -18,7 +18,8 @@
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukInput({
             label: {
-              text: "Address line 1"
+              text: "Address line 1",
+              classes: "govuk-label--s"
             },
             id: "correspondence-address-line-1",
             name: "correspondence-address-line-1",
@@ -27,7 +28,8 @@
           }) }}
           {{ govukInput({
             label: {
-              text: "Address line 2 (optional)"
+              text: "Address line 2 (optional)",
+              classes: "govuk-label--s"
             },
             id: "correspondence-address-line-2",
             name: "correspondence-address-line-2",
@@ -35,7 +37,8 @@
           }) }}
           {{ govukInput({
             label: {
-              text: "Town or city"
+              text: "Town or city",
+              classes: "govuk-label--s"
             },
             id: "correspondence-town-or-city",
             name: "correspondence-town-or-city",
@@ -44,7 +47,8 @@
           }) }}
           {{ govukInput({
             label: {
-              text: "County (optional)"
+              text: "County (optional)",
+              classes: "govuk-label--s"
             },
             id: "correspondence-county",
             name: "correspondence-county",
@@ -52,7 +56,8 @@
           }) }}
           {{ govukInput({
             label: {
-              text: "Postcode"
+              text: "Postcode",
+              classes: "govuk-label--s"
             },
             hint: {
               text: "This must be a UK postcode, for example SW1A 2AA."
