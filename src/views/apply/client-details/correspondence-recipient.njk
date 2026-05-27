@@ -1,0 +1,85 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/client-details/correspondence-address-source"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <form data-testid="correspondence-recipient-form" action="/apply/client-details/correspondence-recipient" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "correspondence-recipient",
+            fieldset: {
+              legend: {
+                text: "Do you want to add a 'care of' recipient for your client's mail?",
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            value: client.correspondenceRecipient,
+            errorMessage: errorSummaries.noRadioSelected,
+            items: [
+              {
+                value: "PERSON",
+                text: "Yes, a person",
+                conditional: {
+                  html: govukInput({
+                    id: "correspondence-recipient-person-name",
+                    name: "correspondence-recipient-person-name",
+                    type: "text",
+                    spellcheck: false,
+                    classes: "govuk-!-width-two-thirds",
+                    label: {
+                      text: "Person's name"
+                    },
+                    errorMessage: errorSummaries.recipientNameInputError,
+                    value: client.correspondenceRecipientPersonName
+                  })
+                }
+              },
+              {
+                value: "ORGANISATION",
+                text: "Yes, an organisation",
+                conditional: {
+                  html: govukInput({
+                    id: "correspondence-recipient-organisation-name",
+                    name: "correspondence-recipient-organisation-name",
+                    type: "text",
+                    spellcheck: false,
+                    classes: "govuk-!-width-two-thirds",
+                    label: {
+                      text: "Organisation name"
+                    },
+                    errorMessage: errorSummaries.recipientNameInputError,
+                    value: client.correspondenceRecipientOrganisationName
+                  })
+                }
+              },
+              {
+                value: "NONE",
+                text: "No",
+                hint: {
+                  text: "Correspondence will be addressed to the client"
+                }
+              }
+            ]
+          }) }}
+          {{ govukButton({
+              text: "Continue"
+            }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

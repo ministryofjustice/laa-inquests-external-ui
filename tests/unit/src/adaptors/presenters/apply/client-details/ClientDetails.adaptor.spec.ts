@@ -219,7 +219,7 @@ describe("Client details adaptor", () => {
     );
   });
 
-  it("process correspondence source redirects to has prev application when provider address is selected", () => {
+  it("process correspondence source redirects to correspondence recipient when provider address is selected", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
@@ -241,7 +241,10 @@ describe("Client details adaptor", () => {
     );
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
+    assert.equal(
+      redirectArgs[0],
+      "/apply/client-details/correspondence-recipient",
+    );
   });
 
   it("process correspondence address form stores structured correspondence address and redirects", () => {
@@ -271,6 +274,64 @@ describe("Client details adaptor", () => {
       county: "Greater London",
       postcode: "SW1A 1AA",
     });
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(
+      redirectArgs[0],
+      "/apply/client-details/correspondence-recipient",
+    );
+  });
+
+  it("process correspondence recipient form stores person recipient and redirects", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "correspondence-recipient": "PERSON",
+      "correspondence-recipient-person-name": "Jane Doe",
+      "correspondence-recipient-organisation-name": "",
+    };
+
+    clientDetailsAdaptor.processCorrespondenceRecipientForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.deepEqual(requestStub.session.clientCorrespondenceRecipient, {
+      recipientType: "PERSON",
+      recipientName: "Jane Doe",
+    });
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
+  });
+
+  it("process correspondence recipient form clears recipient when no is selected", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.session.clientCorrespondenceRecipient = {
+      recipientType: "PERSON",
+      recipientName: "Existing Recipient",
+    };
+    requestStub.body = {
+      "correspondence-recipient": "NONE",
+      "correspondence-recipient-person-name": "",
+      "correspondence-recipient-organisation-name": "",
+    };
+
+    clientDetailsAdaptor.processCorrespondenceRecipientForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(requestStub.session.clientCorrespondenceRecipient, null);
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
     assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");

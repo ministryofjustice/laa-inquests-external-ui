@@ -594,5 +594,72 @@ describe("ClientDetailsValidator", () => {
         });
       });
     });
+
+    describe("validateCorrespondenceRecipient", () => {
+      it("adds error when no correspondence recipient option selected", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          noRadioSelected: {
+            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+          },
+        });
+      });
+
+      it("adds error when person is selected without a person name", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "PERSON",
+          "correspondence-recipient-person-name": "",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          recipientNameInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
+          },
+        });
+      });
+
+      it("adds error when organisation is selected without an organisation name", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "ORGANISATION",
+          "correspondence-recipient-organisation-name": "",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          recipientNameInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
+          },
+        });
+      });
+
+      it("returns no errors when none is selected", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "NONE",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
   });
 });

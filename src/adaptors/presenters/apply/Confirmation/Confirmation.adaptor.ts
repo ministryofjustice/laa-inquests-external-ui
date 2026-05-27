@@ -6,6 +6,7 @@ import {
   SubmitApplicationResponseSchema,
 } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
 import type {
+  ClientCorrespondenceRecipient,
   ClientHomeAddress,
   Proceeding,
 } from "#src/infrastructure/express/session/index.types.js";
@@ -13,6 +14,7 @@ import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import {
   CORRESPONDENCE_ADDRESS_SOURCE,
+  CORRESPONDENCE_RECIPIENT_TYPE,
   HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
@@ -56,6 +58,8 @@ export class ConfirmationAdaptor {
     const clientPostcode = this.#getClientPostcodeSummary(req);
     const clientCorrespondenceAddress =
       this.#getClientCorrespondenceAddressSummary(req);
+    const clientCorrespondenceRecipient =
+      this.#getClientCorrespondenceRecipientSummary(req);
 
     res.render("apply/check-your-answers", {
       csrfToken,
@@ -65,6 +69,7 @@ export class ConfirmationAdaptor {
         clientDob,
         clientAddress: `${clientAddress} ${clientPostcode}`,
         clientCorrespondenceAddress,
+        clientCorrespondenceRecipient,
       },
       deceasedDetails: {
         deceasedFirstName: req.session.deceasedFirstName ?? "",
@@ -114,6 +119,7 @@ export class ConfirmationAdaptor {
     const client = this.#buildClientForSubmit(req);
     this.#applyOptionalClientFields(client, req);
     this.#applyClientAddressesForSubmit(client, req);
+    this.#applyClientCorrespondenceRecipientForSubmit(client, req);
 
     const submitBodyWithDetails = {
       client,
@@ -179,6 +185,20 @@ export class ConfirmationAdaptor {
         townOrCity: clientHomeAddress.townOrCity,
         county: clientHomeAddress.county ?? null,
         postcode: clientHomeAddress.postcode,
+      };
+    }
+  }
+
+  #applyClientCorrespondenceRecipientForSubmit(
+    client: SubmitApplicationRequest["client"],
+    req: Request,
+  ): void {
+    const clientCorrespondenceRecipient =
+      this.#getClientCorrespondenceRecipient(req);
+    if (clientCorrespondenceRecipient !== null) {
+      client.correspondenceRecipient = {
+        recipientType: clientCorrespondenceRecipient.recipientType,
+        recipientName: clientCorrespondenceRecipient.recipientName,
       };
     }
   }
@@ -269,6 +289,7 @@ export class ConfirmationAdaptor {
         CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
       homeAddress: null,
       correspondenceAddress: null,
+      correspondenceRecipient: null,
     };
   }
 
@@ -339,6 +360,14 @@ export class ConfirmationAdaptor {
     );
   }
 
+  #getClientCorrespondenceRecipientSummary(req: Request): string {
+    const correspondenceRecipient = this.#getClientCorrespondenceRecipient(req);
+    return (
+      correspondenceRecipient?.recipientName ??
+      "Correspondence will be addressed to the client"
+    );
+  }
+
   #getClientHomeAddress(req: Request): ClientHomeAddress | null {
     const { session } = req;
     const { clientHomeAddress } = session;
@@ -355,6 +384,16 @@ export class ConfirmationAdaptor {
       : null;
   }
 
+  #getClientCorrespondenceRecipient(
+    req: Request,
+  ): ClientCorrespondenceRecipient | null {
+    const { session } = req;
+    const { clientCorrespondenceRecipient } = session;
+    return this.#isClientCorrespondenceRecipient(clientCorrespondenceRecipient)
+      ? clientCorrespondenceRecipient
+      : null;
+  }
+
   #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
@@ -365,6 +404,22 @@ export class ConfirmationAdaptor {
       typeof candidate.addressLine1 === "string" &&
       typeof candidate.townOrCity === "string" &&
       typeof candidate.postcode === "string"
+    );
+  }
+
+  #isClientCorrespondenceRecipient(
+    value: unknown,
+  ): value is ClientCorrespondenceRecipient {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+      return false;
+    }
+
+    const candidate = value as Partial<ClientCorrespondenceRecipient>;
+    return (
+      (candidate.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
+        candidate.recipientType ===
+          CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION) &&
+      typeof candidate.recipientName === "string"
     );
   }
 

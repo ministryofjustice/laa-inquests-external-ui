@@ -10,6 +10,7 @@ declare module "express-session" {
     clientHomeAddress?: ClientHomeAddress;
     clientCorrespondenceAddress?: ClientHomeAddress;
     clientCorrespondenceAddressSource?: CorrespondenceAddressSource;
+    clientCorrespondenceRecipient?: ClientCorrespondenceRecipient | null;
     clientHasNoFixedAbode?: boolean;
   }
 }
@@ -41,3 +42,8 @@ export type CorrespondenceAddressSource =
   | "USE_CLIENT_HOME_ADDRESS"
   | "USE_SPECIFIED_ADDRESS"
   | "USE_PROVIDER_ADDRESS";
+
+export interface ClientCorrespondenceRecipient {
+  recipientType: "PERSON" | "ORGANISATION";
+  recipientName: string;
+}

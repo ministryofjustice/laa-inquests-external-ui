@@ -1,5 +1,6 @@
 import type {
   ClientCorrespondenceAddressSourceError,
+  ClientCorrespondenceRecipientError,
   ClientDetailsFormData,
   ClientHomeAddressError,
   ClientNameDobError,
@@ -9,6 +10,7 @@ import type {
 import {
   CLIENT_DETAILS_ERROR,
   CORRESPONDENCE_ADDRESS_SOURCE,
+  CORRESPONDENCE_RECIPIENT_TYPE,
   NINO_REGEX,
   UK_POSTCODE_REGEX,
 } from "#src/infrastructure/locales/constants.js";
@@ -288,6 +290,45 @@ export class ClientDetailsValidator extends FormValidator {
     ) {
       errorSummaries.postcodeInputError = {
         text: CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_POSTCODE,
+      };
+    }
+
+    return errorSummaries;
+  }
+
+  validateCorrespondenceRecipient(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientCorrespondenceRecipientError> {
+    const errorSummaries: Partial<ClientCorrespondenceRecipientError> = {};
+    const {
+      "correspondence-recipient": correspondenceRecipient,
+      "correspondence-recipient-person-name": personName,
+      "correspondence-recipient-organisation-name": organisationName,
+    } = formBody;
+
+    if (typeof correspondenceRecipient !== "string") {
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      };
+      return errorSummaries;
+    }
+
+    if (
+      correspondenceRecipient === CORRESPONDENCE_RECIPIENT_TYPE.PERSON &&
+      this.validateFormInputValue(personName)
+    ) {
+      errorSummaries.recipientNameInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
+      };
+      return errorSummaries;
+    }
+
+    if (
+      correspondenceRecipient === CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION &&
+      this.validateFormInputValue(organisationName)
+    ) {
+      errorSummaries.recipientNameInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
       };
     }
 

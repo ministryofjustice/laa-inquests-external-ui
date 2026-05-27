@@ -76,6 +76,20 @@ export function createClientDetailsRouter(
   );
 
   clientDetailsRouter.get(
+    "/client-details/correspondence-recipient",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.renderCorrespondenceRecipientForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.post(
+    "/client-details/correspondence-recipient",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.processCorrespondenceRecipientForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.get(
     "/client-details/has-prev-application",
     (req: Request, res: Response) => {
       clientDetailsAdaptor.renderHasPrevApplicationForm(req, res);

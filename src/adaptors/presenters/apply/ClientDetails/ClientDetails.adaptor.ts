@@ -4,9 +4,14 @@ import type { Request, Response } from "express";
 import type {
   ClientDetailsFormData,
   CorrespondenceAddressSourceValue,
+  CorrespondenceRecipientSelectionValue,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  CORRESPONDENCE_RECIPIENT_TYPE,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import type {
+  ClientCorrespondenceRecipient,
   ClientHomeAddress,
   Proceeding,
 } from "#src/infrastructure/express/session/index.types.js";
@@ -251,7 +256,7 @@ export class ClientDetailsAdaptor {
     }
 
     req.session.clientCorrespondenceAddress = undefined;
-    res.redirect("/apply/client-details/has-prev-application");
+    res.redirect("/apply/client-details/correspondence-recipient");
   }
 
   renderCorrespondenceAddressForm(req: Request, res: Response): void {
@@ -288,7 +293,76 @@ export class ClientDetailsAdaptor {
       return;
     }
 
-    res.redirect("/apply/client-details/has-prev-application");
+    res.redirect("/apply/client-details/correspondence-recipient");
+  }
+
+  renderCorrespondenceRecipientForm(
+    req: { session: Request["session"] },
+    res: Response,
+    params?: {
+      errorSummaries?: Record<string, unknown>;
+      correspondenceRecipient?: string | undefined;
+      personName?: string | undefined;
+      organisationName?: string | undefined;
+    },
+  ): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    const client = this.#buildCorrespondenceRecipientViewModel(req, params);
+
+    res.render("apply/client-details/correspondence-recipient", {
+      csrfToken,
+      errorSummaries: params?.errorSummaries,
+      client,
+    });
+  }
+
+  processCorrespondenceRecipientForm(
+    req: TypedRequestBody<Partial<ClientDetailsFormData>>,
+    res: Response,
+  ): void {
+    const {
+      body: {
+        "correspondence-recipient": correspondenceRecipient,
+        "correspondence-recipient-person-name": personName,
+        "correspondence-recipient-organisation-name": organisationName,
+      },
+    } = req;
+
+    const recipientErrors = this.formValidator.validateCorrespondenceRecipient(
+      req.body,
+    );
+
+    if (Object.keys(recipientErrors).length > EMPTY_ARR_LENGTH) {
+      this.renderCorrespondenceRecipientForm(req, res, {
+        errorSummaries: recipientErrors,
+        correspondenceRecipient,
+        personName,
+        organisationName,
+      });
+    } else {
+      const selection = this.#getCorrespondenceRecipientSelection(
+        correspondenceRecipient,
+      );
+      if (selection === null) {
+        this.renderCorrespondenceRecipientForm(req, res, {
+          errorSummaries: recipientErrors,
+          correspondenceRecipient: "",
+          personName,
+          organisationName,
+        });
+      } else {
+        req.session.clientCorrespondenceRecipient =
+          this.#buildClientCorrespondenceRecipient(
+            selection,
+            personName,
+            organisationName,
+          );
+        res.redirect("/apply/client-details/has-prev-application");
+      }
+    }
   }
 
   renderHasPrevApplicationForm(req: Request, res: Response): void {
@@ -503,6 +577,148 @@ export class ClientDetailsAdaptor {
     )
       ? session.clientCorrespondenceAddressSource
       : null;
+  }
+
+  #getClientCorrespondenceRecipient(req: {
+    session: Request["session"];
+  }): ClientCorrespondenceRecipient | null {
+    const { session } = req;
+    return this.#isClientCorrespondenceRecipient(
+      session.clientCorrespondenceRecipient,
+    )
+      ? session.clientCorrespondenceRecipient
+      : null;
+  }
+
+  #isClientCorrespondenceRecipient(
+    value: unknown,
+  ): value is ClientCorrespondenceRecipient {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+      return false;
+    }
+
+    const candidate = value as Partial<ClientCorrespondenceRecipient>;
+    return (
+      (candidate.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
+        candidate.recipientType ===
+          CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION) &&
+      typeof candidate.recipientName === "string"
+    );
+  }
+
+  #isCorrespondenceRecipientSelection(
+    value: unknown,
+  ): value is CorrespondenceRecipientSelectionValue {
+    return (
+      value === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
+      value === CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION ||
+      value === "NONE"
+    );
+  }
+
+  #getCorrespondenceRecipientSelection(
+    value: unknown,
+  ): CorrespondenceRecipientSelectionValue | null {
+    return this.#isCorrespondenceRecipientSelection(value) ? value : null;
+  }
+
+  #buildClientCorrespondenceRecipient(
+    selection: CorrespondenceRecipientSelectionValue,
+    personName: string | undefined,
+    organisationName: string | undefined,
+  ): ClientCorrespondenceRecipient | null {
+    if (selection === "NONE") {
+      return null;
+    }
+
+    const recipientName =
+      selection === CORRESPONDENCE_RECIPIENT_TYPE.PERSON
+        ? personName
+        : organisationName;
+
+    return {
+      recipientType: selection,
+      recipientName: recipientName ?? "",
+    };
+  }
+
+  #buildCorrespondenceRecipientViewModel(
+    req: { session: Request["session"] },
+    params?: {
+      correspondenceRecipient?: string | undefined;
+      personName?: string | undefined;
+      organisationName?: string | undefined;
+    },
+  ): {
+    correspondenceRecipient: string;
+    correspondenceRecipientPersonName: string;
+    correspondenceRecipientOrganisationName: string;
+  } {
+    const recipient = this.#getClientCorrespondenceRecipient(req);
+
+    return {
+      correspondenceRecipient: this.#getCorrespondenceRecipientTypeValue(
+        req,
+        recipient,
+        params?.correspondenceRecipient,
+      ),
+      correspondenceRecipientPersonName: this.#getPersonRecipientNameValue(
+        recipient,
+        params?.personName,
+      ),
+      correspondenceRecipientOrganisationName:
+        this.#getOrganisationRecipientNameValue(
+          recipient,
+          params?.organisationName,
+        ),
+    };
+  }
+
+  #getCorrespondenceRecipientTypeValue(
+    req: { session: Request["session"] },
+    recipient: ClientCorrespondenceRecipient | null,
+    overrideValue: string | undefined,
+  ): string {
+    if (typeof overrideValue === "string") {
+      return overrideValue;
+    }
+
+    if (recipient !== null) {
+      return recipient.recipientType;
+    }
+
+    return this.#getNoRecipientSelection(req);
+  }
+
+  #getPersonRecipientNameValue(
+    recipient: ClientCorrespondenceRecipient | null,
+    overrideValue: string | undefined,
+  ): string {
+    if (typeof overrideValue === "string") {
+      return overrideValue;
+    }
+
+    return recipient?.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON
+      ? recipient.recipientName
+      : "";
+  }
+
+  #getOrganisationRecipientNameValue(
+    recipient: ClientCorrespondenceRecipient | null,
+    overrideValue: string | undefined,
+  ): string {
+    if (typeof overrideValue === "string") {
+      return overrideValue;
+    }
+
+    return recipient?.recipientType ===
+      CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION
+      ? recipient.recipientName
+      : "";
+  }
+
+  #getNoRecipientSelection(req: { session: Request["session"] }): "" | "NONE" {
+    return req.session.clientCorrespondenceRecipient === null ? "NONE" : "";
   }
 
   #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {

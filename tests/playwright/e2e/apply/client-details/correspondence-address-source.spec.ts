@@ -64,7 +64,7 @@ test.describe("Client details - correspondence address source", () => {
     );
   });
 
-  test("continues to previous applications page when office address is selected", async ({
+  test("continues to correspondence recipient page when office address is selected", async ({
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-address-source");
@@ -74,7 +74,7 @@ test.describe("Client details - correspondence address source", () => {
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page.url()).toContain(
-      "/apply/client-details/has-prev-application",
+      "/apply/client-details/correspondence-recipient",
     );
   });
 

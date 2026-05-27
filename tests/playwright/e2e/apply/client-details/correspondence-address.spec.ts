@@ -33,7 +33,7 @@ test.describe("Client details - correspondence address", () => {
     await expect(continueButton).toHaveText("Continue");
   });
 
-  test("continues to previous applications page with valid correspondence address", async ({
+  test("continues to correspondence recipient page with valid correspondence address", async ({
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-address");
@@ -50,7 +50,7 @@ test.describe("Client details - correspondence address", () => {
     await page.waitForLoadState("domcontentloaded");
 
     await expect(page.url()).toContain(
-      "/apply/client-details/has-prev-application",
+      "/apply/client-details/correspondence-recipient",
     );
   });
 

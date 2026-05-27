@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { CORRESPONDENCE_ADDRESS_SOURCE } from "#src/infrastructure/locales/constants.js";
+import {
+  CORRESPONDENCE_ADDRESS_SOURCE,
+  CORRESPONDENCE_RECIPIENT_TYPE,
+} from "#src/infrastructure/locales/constants.js";
 
 export const SubmitApplicationRequestSchema = z.object({
   client: z.object({
@@ -21,6 +24,16 @@ export const SubmitApplicationRequestSchema = z.object({
         townOrCity: z.string(),
         county: z.string().optional().nullable(),
         postcode: z.string(),
+      })
+      .optional()
+      .nullable(),
+    correspondenceRecipient: z
+      .object({
+        recipientType: z.enum([
+          CORRESPONDENCE_RECIPIENT_TYPE.PERSON,
+          CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION,
+        ]),
+        recipientName: z.string(),
       })
       .optional()
       .nullable(),
