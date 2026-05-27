@@ -234,10 +234,19 @@ export class ClientDetailsAdaptor {
           correspondenceAddressSource: correspondenceAddressSource ?? "",
         },
       });
-      return;
-    }
-
-    if (!this.#isCorrespondenceAddressSource(correspondenceAddressSource)) {
+    } else if (correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
+      req.session.clientCorrespondenceAddressSource =
+        correspondenceAddressSource;
+      res.redirect("/apply/client-details/correspondence-address");
+    } else if (
+      correspondenceAddressSource === "USE_CLIENT_HOME_ADDRESS" ||
+      correspondenceAddressSource === "USE_PROVIDER_ADDRESS"
+    ) {
+      req.session.clientCorrespondenceAddress = undefined;
+      req.session.clientCorrespondenceAddressSource =
+        correspondenceAddressSource;
+      res.redirect("/apply/client-details/correspondence-recipient");
+    } else {
       res.render("apply/client-details/correspondence-address-source", {
         csrfToken,
         errorSummaries: sourceErrors,
@@ -245,18 +254,7 @@ export class ClientDetailsAdaptor {
           correspondenceAddressSource: "",
         },
       });
-      return;
     }
-
-    req.session.clientCorrespondenceAddressSource = correspondenceAddressSource;
-
-    if (correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
-      res.redirect("/apply/client-details/correspondence-address");
-      return;
-    }
-
-    req.session.clientCorrespondenceAddress = undefined;
-    res.redirect("/apply/client-details/correspondence-recipient");
   }
 
   renderCorrespondenceAddressForm(req: Request, res: Response): void {
@@ -290,10 +288,9 @@ export class ClientDetailsAdaptor {
         errorSummaries: correspondenceAddressErrors,
         client: this.#toCorrespondenceAddressViewModel(correspondenceAddress),
       });
-      return;
+    } else {
+      res.redirect("/apply/client-details/correspondence-recipient");
     }
-
-    res.redirect("/apply/client-details/correspondence-recipient");
   }
 
   renderCorrespondenceRecipientForm(
