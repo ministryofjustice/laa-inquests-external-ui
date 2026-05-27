@@ -45,6 +45,7 @@ describe("Confirmation adaptor", () => {
     requestStub.session.clientDobDay = "1";
     requestStub.session.clientDobMonth = "12";
     requestStub.session.clientDobYear = "1990";
+    requestStub.session.clientHasNoFixedAbode = true;
 
     requestStub.session.clientAddressLine1 = "4 Privet Drive";
     requestStub.session.clientAddressLine2 = "";
@@ -99,7 +100,7 @@ describe("Confirmation adaptor", () => {
         clientFirstName: "test name",
         clientLastName: "last name",
         clientDob: "1/12/1990",
-        clientAddress: "4 Privet Drive Little Whinging Surrey B1 123b",
+        clientAddress: "No fixed abode ",
         clientCorrespondenceAddress: "1 test rd test city test county B1 321b",
       },
       deceasedDetails: {
@@ -240,6 +241,7 @@ describe("Confirmation adaptor", () => {
       assert.equal(submitBody.client.clientLastNameAtBirth, "Birthname");
       assert.equal(submitBody.client.dateOfBirth, "05-10-1989");
       assert.equal(submitBody.client.nationalInsuranceNumber, "AB123456C");
+      assert.equal(submitBody.client.hasNoFixedAbode, false);
 
       assert.equal(submitBody.deceased.deceasedFirstName, "Deceased");
       assert.equal(submitBody.deceased.deceasedLastName, "Two");
@@ -326,6 +328,69 @@ describe("Confirmation adaptor", () => {
           submitBody.client,
           "nationalInsuranceNumber",
         ),
+        false,
+      );
+      assert.equal(submitBody.client.hasNoFixedAbode, false);
+    });
+
+    it("sets hasNoFixedAbode true and omits homeAddress when selected", async () => {
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientHasNoFixedAbode = true;
+      requestStub.session.clientHomeAddress = {
+        addressLine1: "4 Privet Drive",
+        addressLine2: null,
+        townOrCity: "Little Whinging",
+        county: null,
+        postcode: "SW1A 1AA",
+      };
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await confirmationAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
+
+      assert.equal(submitBody.client.hasNoFixedAbode, true);
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(submitBody.client, "homeAddress"),
         false,
       );
     });

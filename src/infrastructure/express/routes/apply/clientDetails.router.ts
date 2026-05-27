@@ -34,6 +34,20 @@ export function createClientDetailsRouter(
   );
 
   clientDetailsRouter.get(
+    "/client-details/home-address",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.renderHomeAddressForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.post(
+    "/client-details/home-address",
+    (req: Request, res: Response): void => {
+      clientDetailsAdaptor.processHomeAddressForm(req, res);
+    },
+  );
+
+  clientDetailsRouter.get(
     "/client-details/has-prev-application",
     (req: Request, res: Response) => {
       clientDetailsAdaptor.renderHasPrevApplicationForm(req, res);

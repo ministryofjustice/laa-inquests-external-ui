@@ -16,7 +16,7 @@ test.describe("Previous application", () => {
     await expect(backButton).toBeVisible();
     await expect(backButton).toHaveAttribute(
       "href",
-      "/apply/client-details/nino",
+      "/apply/client-details/home-address",
     );
 
     const descriptionText = page.getByText(

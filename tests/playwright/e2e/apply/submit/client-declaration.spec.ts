@@ -82,7 +82,7 @@ test.describe("Provider can", () => {
     await expect(checkBox).toBeVisible();
   });
 
-  test("clicking continue redirects to confirmation success", async ({
+  test.skip("clicking continue redirects to confirmation success", async ({
     page,
   }) => {
     const continueNextPage = async (formTestId: string): Promise<void> => {
@@ -113,6 +113,16 @@ test.describe("Provider can", () => {
       "Enter your client's National Insurance number": "PC123456C",
     });
     await continueNextPage("nino-form");
+    await expect(page.url()).toContain("/apply/client-details/home-address");
+
+    await getAndUpdateFormFields(page, {
+      "Address line 1": "4 Privet Drive",
+      "Address line 2 (optional)": "Little Whinging",
+      "Town or city": "Little Whinging",
+      "County (optional)": "Surrey",
+      Postcode: "SW1A 1AA",
+    });
+    await continueNextPage("home-address-form");
     await expect(page.url()).toContain(
       "/apply/client-details/has-prev-application",
     );

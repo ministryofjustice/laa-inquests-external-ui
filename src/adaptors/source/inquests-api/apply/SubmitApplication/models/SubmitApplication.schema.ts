@@ -6,9 +6,19 @@ export const SubmitApplicationRequestSchema = z.object({
     clientLastName: z.string(),
     clientLastNameAtBirth: z.string().optional().nullable(),
     dateOfBirth: z.string(),
+    hasNoFixedAbode: z.boolean(),
     nationalInsuranceNumber: z.string().optional().nullable(),
     correspondenceAddress: z.string().optional().nullable(),
-    homeAddress: z.string().optional().nullable(),
+    homeAddress: z
+      .object({
+        addressLine1: z.string(),
+        addressLine2: z.string().optional().nullable(),
+        townOrCity: z.string(),
+        county: z.string().optional().nullable(),
+        postcode: z.string(),
+      })
+      .optional()
+      .nullable(),
   }),
   deceased: z.object({
     deceasedFirstName: z.string(),

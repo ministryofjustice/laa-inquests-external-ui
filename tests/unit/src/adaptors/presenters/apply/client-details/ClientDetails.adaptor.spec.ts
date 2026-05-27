@@ -88,7 +88,101 @@ describe("Client details adaptor", () => {
     clientDetailsAdaptor.processNinoForm(requestStub, responseStub);
     assert.equal(responseStub.redirect.callCount, 1);
     const renderArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(renderArgs[0], "/apply/client-details/has-prev-application");
+    assert.equal(renderArgs[0], "/apply/client-details/home-address");
+  });
+
+  it("render home address form", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    clientDetailsAdaptor.renderHomeAddressForm(requestStub, responseStub);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "apply/client-details/home-address");
+  });
+
+  it("process home address form redirects to has prev application", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "home-address-line-1": "4 Privet Drive",
+      "home-address-line-2": "Little Whinging",
+      "home-town-or-city": "Little Whinging",
+      "home-county": "Surrey",
+      "home-postcode": "SW1A 1AA",
+    };
+
+    clientDetailsAdaptor.processHomeAddressForm(requestStub, responseStub);
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
+  });
+
+  it("process home address form stores a structured object in session", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "home-address-line-1": "4 Privet Drive",
+      "home-address-line-2": "",
+      "home-town-or-city": "Little Whinging",
+      "home-county": "",
+      "home-postcode": "SW1A 1AA",
+    };
+
+    clientDetailsAdaptor.processHomeAddressForm(requestStub, responseStub);
+
+    assert.deepEqual(requestStub.session.clientHomeAddress, {
+      addressLine1: "4 Privet Drive",
+      addressLine2: null,
+      townOrCity: "Little Whinging",
+      county: null,
+      postcode: "SW1A 1AA",
+    });
+    assert.equal(requestStub.session.clientHasNoFixedAbode, false);
+  });
+
+  it("process home address form sets no fixed abode and does not store home address", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.session.clientHomeAddress = {
+      addressLine1: "Existing address",
+      addressLine2: null,
+      townOrCity: "Existing town",
+      county: null,
+      postcode: "SW1A 1AA",
+    };
+
+    requestStub.body = {
+      "has-no-fixed-abode": "true",
+      "home-address-line-1": "",
+      "home-address-line-2": "",
+      "home-town-or-city": "",
+      "home-county": "",
+      "home-postcode": "",
+    };
+
+    clientDetailsAdaptor.processHomeAddressForm(requestStub, responseStub);
+
+    assert.equal(requestStub.session.clientHasNoFixedAbode, true);
+    assert.equal(requestStub.session.clientHomeAddress, undefined);
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
   });
 
   it("process nino form adds nino to session when nino exists", () => {

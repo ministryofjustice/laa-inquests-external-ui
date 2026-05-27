@@ -407,5 +407,88 @@ describe("ClientDetailsValidator", () => {
         });
       });
     });
+
+    describe("validateHomeAddress", () => {
+      it("adds error when address line 1 is missing", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
+          },
+        });
+      });
+
+      it("adds error when town or city is missing", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY,
+          },
+        });
+      });
+
+      it("adds error when postcode is missing", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "London",
+          "home-postcode": "",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          postcodeInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_HOME_POSTCODE,
+          },
+        });
+      });
+
+      it("adds error when postcode is not a valid UK postcode", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "London",
+          "home-postcode": "not-valid",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          postcodeInputError: {
+            text: CLIENT_DETAILS_ERROR.INVALID_HOME_POSTCODE,
+          },
+        });
+      });
+
+      it("returns no errors when required fields are valid", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
   });
 });

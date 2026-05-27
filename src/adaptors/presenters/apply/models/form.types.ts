@@ -8,6 +8,12 @@ export interface ClientDetailsFormData extends FormBody {
   "name-change": string | undefined;
   "has-nino": string;
   "nino-input": string;
+  "home-address-line-1": string;
+  "home-address-line-2": string;
+  "home-town-or-city": string;
+  "home-county": string;
+  "home-postcode": string;
+  "has-no-fixed-abode": string;
   "has-prev-application": string;
   "prev-laa-reference-input": string;
   "dob-day": string;
@@ -36,6 +42,12 @@ export interface ClientNinoError {
 export interface ClientPrevApplicationRefError {
   noRadioSelected?: FormErrorMessage;
   referenceInputError?: FormErrorMessage;
+}
+
+export interface ClientHomeAddressError {
+  addressLine1InputError?: FormErrorMessage;
+  townOrCityInputError?: FormErrorMessage;
+  postcodeInputError?: FormErrorMessage;
 }
 
 export interface DeceasedDetailsFormData extends FormBody {

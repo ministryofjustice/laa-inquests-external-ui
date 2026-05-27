@@ -1,5 +1,6 @@
 import type {
   ClientDetailsFormData,
+  ClientHomeAddressError,
   ClientNameDobError,
   ClientNinoError,
   ClientPrevApplicationRefError,
@@ -7,6 +8,7 @@ import type {
 import {
   CLIENT_DETAILS_ERROR,
   NINO_REGEX,
+  UK_POSTCODE_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 
@@ -182,6 +184,44 @@ export class ClientDetailsValidator extends FormValidator {
         text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
       };
     }
+    return errorSummaries;
+  }
+
+  validateHomeAddress(
+    formBody: Partial<ClientDetailsFormData>,
+  ): Partial<ClientHomeAddressError> {
+    const errorSummaries: Partial<ClientHomeAddressError> = {};
+    const {
+      "home-address-line-1": addressLine1,
+      "home-town-or-city": townOrCity,
+      "home-postcode": postcode,
+    } = formBody;
+
+    if (this.validateFormInputValue(addressLine1)) {
+      errorSummaries.addressLine1InputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
+      };
+    }
+
+    if (this.validateFormInputValue(townOrCity)) {
+      errorSummaries.townOrCityInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY,
+      };
+    }
+
+    if (this.validateFormInputValue(postcode)) {
+      errorSummaries.postcodeInputError = {
+        text: CLIENT_DETAILS_ERROR.MISSING_HOME_POSTCODE,
+      };
+    } else if (
+      typeof postcode === "string" &&
+      !UK_POSTCODE_REGEX.test(postcode)
+    ) {
+      errorSummaries.postcodeInputError = {
+        text: CLIENT_DETAILS_ERROR.INVALID_HOME_POSTCODE,
+      };
+    }
+
     return errorSummaries;
   }
 }

@@ -20,6 +20,10 @@ export const CLIENT_DETAILS_ERROR = {
     "Application cannot exceed 35 characters",
   MISSING_PREV_APPLICATION_REF:
     "Please enter the reference for the previous application.",
+  MISSING_HOME_ADDRESS_LINE_1: "Please enter address line 1",
+  MISSING_HOME_TOWN_OR_CITY: "Please enter town or city",
+  MISSING_HOME_POSTCODE: "Please enter postcode",
+  INVALID_HOME_POSTCODE: "Please enter a valid UK postcode",
 };
 
 export const DECEASED_DETAILS_ERROR = {
@@ -45,6 +49,9 @@ export const PROCEEDING_ERROR = {
 
 export const NINO_REGEX =
   /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
+
+export const UK_POSTCODE_REGEX =
+  /^(GIR\s?0AA|[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2})$/iv;
 
 export const PROCEEDING_OPTIONS = [
   {

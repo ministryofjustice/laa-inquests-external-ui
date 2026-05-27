@@ -5,7 +5,10 @@ import {
   SubmitApplicationRequestSchema,
   SubmitApplicationResponseSchema,
 } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
-import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
+import type {
+  ClientHomeAddress,
+  Proceeding,
+} from "#src/infrastructure/express/session/index.types.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
@@ -46,12 +49,7 @@ export class ConfirmationAdaptor {
       req.session.deceasedDateOfDeathYear as string,
     );
 
-    const clientAddress = this.#createAddressString(
-      req.session.clientAddressLine1 as string,
-      req.session.clientAddressLine2 as string,
-      req.session.clientTownOrcity as string,
-      req.session.clientCounty as string,
-    );
+    const clientAddress = this.#getClientAddressSummary(req);
     const clientCorrespondenceAddress = this.#createAddressString(
       req.session.clientCorrespondenceAddressLine1 as string,
       req.session.clientCorrespondenceAddressLine2 as string,
@@ -59,10 +57,7 @@ export class ConfirmationAdaptor {
       req.session.clientCorrespondenceCounty as string,
     );
 
-    const clientPostcode =
-      typeof req.session.clientPostcode === "string"
-        ? req.session.clientPostcode
-        : "";
+    const clientPostcode = this.#getClientPostcodeSummary(req);
     const clientCorrespondencePostcode =
       typeof req.session.clientCorrespondencePostcode === "string"
         ? req.session.clientCorrespondencePostcode
@@ -123,22 +118,9 @@ export class ConfirmationAdaptor {
 
   #generateSubmitBody(req: Request): SubmitApplicationRequest {
     const { session } = req;
-    const selectedProceedings = req.session.selectedProceedings ?? [];
-    const publicBodies =
-      req.session.selectedPublicAuthorities?.map((body) => ({
-        publicBodyId: body.publicAuthorityDescription,
-      })) ?? [];
     const { clientLastNameAtBirth, clientNino } = session;
 
-    const client: SubmitApplicationRequest["client"] = {
-      clientFirstName: req.session.clientFirstName as string,
-      clientLastName: req.session.clientLastName as string,
-      dateOfBirth: formatDateDDMMYYYY(
-        req.session.clientDobYear,
-        req.session.clientDobMonth,
-        req.session.clientDobDay,
-      ),
-    };
+    const client = this.#buildClientForSubmit(req);
 
     if (typeof clientLastNameAtBirth === "string") {
       client.clientLastNameAtBirth = clientLastNameAtBirth;
@@ -148,36 +130,30 @@ export class ConfirmationAdaptor {
       client.nationalInsuranceNumber = clientNino;
     }
 
-    // Build the payload
-    const submitBodyRaw = {
+    const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
+    client.hasNoFixedAbode = hasNoFixedAbode;
+
+    const clientHomeAddress = this.#getClientHomeAddress(req);
+    if (!hasNoFixedAbode && clientHomeAddress !== null) {
+      client.homeAddress = {
+        addressLine1: clientHomeAddress.addressLine1,
+        addressLine2: clientHomeAddress.addressLine2 ?? null,
+        townOrCity: clientHomeAddress.townOrCity,
+        county: clientHomeAddress.county ?? null,
+        postcode: clientHomeAddress.postcode,
+      };
+    }
+
+    const submitBodyWithDetails = {
       client,
-      deceased: {
-        deceasedFirstName: req.session.deceasedFirstName as string,
-        deceasedLastName: req.session.deceasedLastName as string,
-        deceasedDateOfBirth: formatDateDDMMYYYY(
-          req.session.deceasedDateOfBirthYear,
-          req.session.deceasedDateOfBirthMonth,
-          req.session.deceasedDateOfBirthDay,
-        ),
-        deceasedDateOfDeath: formatDateDDMMYYYY(
-          req.session.deceasedDateOfDeathYear,
-          req.session.deceasedDateOfDeathMonth,
-          req.session.deceasedDateOfDeathDay,
-        ),
-        coronersReference: (req.session.deceasedCoronerReference ??
-          "") as string,
-        furtherInformation: (req.session.deceasedFurtherInformation ??
-          "") as string,
-        clientRelationshipToDeceased: (req.session.deceasedClientRelationship ??
-          "") as string,
-      },
-      proceedings: selectedProceedings.map((proceeding: Proceeding) => ({
-        proceedingId: proceeding.proceedingId,
-      })),
-      publicBodies,
+      deceased: this.#buildDeceasedForSubmit(req),
+      proceedings: this.#buildProceedingsForSubmit(req),
+      publicBodies: this.#buildPublicBodiesForSubmit(req),
     };
 
-    const submitBody = SubmitApplicationRequestSchema.parse(submitBodyRaw);
+    const submitBody = SubmitApplicationRequestSchema.parse(
+      submitBodyWithDetails,
+    );
     return submitBody;
   }
 
@@ -213,5 +189,122 @@ export class ConfirmationAdaptor {
     county?: string,
   ): string {
     return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrCity ?? ""} ${county ?? ""}`;
+  }
+
+  #getClientAddressSummary(req: Request): string {
+    if (this.#isClientNoFixedAbode(req)) {
+      return "No fixed abode";
+    }
+
+    const clientHomeAddress = this.#getClientHomeAddress(req);
+    if (clientHomeAddress === null) {
+      return this.#createAddressString(
+        req.session.clientAddressLine1 as string,
+        req.session.clientAddressLine2 as string,
+        req.session.clientTownOrcity as string,
+        req.session.clientCounty as string,
+      );
+    }
+
+    return this.#createAddressString(
+      clientHomeAddress.addressLine1,
+      clientHomeAddress.addressLine2 ?? undefined,
+      clientHomeAddress.townOrCity,
+      clientHomeAddress.county ?? undefined,
+    );
+  }
+
+  #getClientPostcodeSummary(req: Request): string {
+    if (this.#isClientNoFixedAbode(req)) {
+      return "";
+    }
+
+    const clientHomeAddress = this.#getClientHomeAddress(req);
+    if (clientHomeAddress === null) {
+      return typeof req.session.clientPostcode === "string"
+        ? req.session.clientPostcode
+        : "";
+    }
+
+    return clientHomeAddress.postcode;
+  }
+
+  #buildClientForSubmit(req: Request): SubmitApplicationRequest["client"] {
+    return {
+      clientFirstName: req.session.clientFirstName as string,
+      clientLastName: req.session.clientLastName as string,
+      dateOfBirth: formatDateDDMMYYYY(
+        req.session.clientDobYear,
+        req.session.clientDobMonth,
+        req.session.clientDobDay,
+      ),
+      hasNoFixedAbode: false,
+    };
+  }
+
+  #buildDeceasedForSubmit(req: Request): SubmitApplicationRequest["deceased"] {
+    return {
+      deceasedFirstName: req.session.deceasedFirstName as string,
+      deceasedLastName: req.session.deceasedLastName as string,
+      deceasedDateOfBirth: formatDateDDMMYYYY(
+        req.session.deceasedDateOfBirthYear,
+        req.session.deceasedDateOfBirthMonth,
+        req.session.deceasedDateOfBirthDay,
+      ),
+      deceasedDateOfDeath: formatDateDDMMYYYY(
+        req.session.deceasedDateOfDeathYear,
+        req.session.deceasedDateOfDeathMonth,
+        req.session.deceasedDateOfDeathDay,
+      ),
+      coronersReference: (req.session.deceasedCoronerReference ?? "") as string,
+      furtherInformation: (req.session.deceasedFurtherInformation ??
+        "") as string,
+      clientRelationshipToDeceased: (req.session.deceasedClientRelationship ??
+        "") as string,
+    };
+  }
+
+  #buildProceedingsForSubmit(
+    req: Request,
+  ): SubmitApplicationRequest["proceedings"] {
+    const selectedProceedings = req.session.selectedProceedings ?? [];
+    return selectedProceedings.map((proceeding: Proceeding) => ({
+      proceedingId: proceeding.proceedingId,
+    }));
+  }
+
+  #buildPublicBodiesForSubmit(
+    req: Request,
+  ): SubmitApplicationRequest["publicBodies"] {
+    return (
+      req.session.selectedPublicAuthorities?.map((body) => ({
+        publicBodyId: body.publicAuthorityDescription,
+      })) ?? []
+    );
+  }
+
+  #getClientHomeAddress(req: Request): ClientHomeAddress | null {
+    const { session } = req;
+    const { clientHomeAddress } = session;
+    return this.#isClientHomeAddress(clientHomeAddress)
+      ? clientHomeAddress
+      : null;
+  }
+
+  #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+      return false;
+    }
+
+    const candidate = value as Partial<ClientHomeAddress>;
+    return (
+      typeof candidate.addressLine1 === "string" &&
+      typeof candidate.townOrCity === "string" &&
+      typeof candidate.postcode === "string"
+    );
+  }
+
+  #isClientNoFixedAbode(req: Request): boolean {
+    return req.session.clientHasNoFixedAbode === true;
   }
 }
