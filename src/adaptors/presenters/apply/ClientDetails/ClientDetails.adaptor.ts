@@ -1,7 +1,10 @@
 /* eslint-disable max-lines -- This adaptor orchestrates the full multi-page client-details journey. */
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type { Request, Response } from "express";
-import type { ClientDetailsFormData,  CorrespondenceAddressSourceValue } from "#src/adaptors/presenters/apply/models/form.types.js";
+import type {
+  ClientDetailsFormData,
+  CorrespondenceAddressSourceValue,
+} from "#src/adaptors/presenters/apply/models/form.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type {
   ClientHomeAddress,
