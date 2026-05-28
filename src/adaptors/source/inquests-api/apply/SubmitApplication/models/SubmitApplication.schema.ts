@@ -5,49 +5,72 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 
 export const SubmitApplicationRequestSchema = z.object({
-  client: z.object({
-    clientFirstName: z.string(),
-    clientLastName: z.string(),
-    clientLastNameAtBirth: z.string().optional().nullable(),
-    dateOfBirth: z.string(),
-    hasNoFixedAbode: z.boolean(),
-    nationalInsuranceNumber: z.string().optional().nullable(),
-    correspondenceAddressSource: z.enum([
-      CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS,
-      CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS,
-      CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
-    ]),
-    correspondenceAddress: z
-      .object({
-        addressLine1: z.string(),
-        addressLine2: z.string().optional().nullable(),
-        townOrCity: z.string(),
-        county: z.string().optional().nullable(),
-        postcode: z.string(),
-      })
-      .optional()
-      .nullable(),
-    correspondenceRecipient: z
-      .object({
-        recipientType: z.enum([
-          CORRESPONDENCE_RECIPIENT_TYPE.PERSON,
-          CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION,
-        ]),
-        recipientName: z.string(),
-      })
-      .optional()
-      .nullable(),
-    homeAddress: z
-      .object({
-        addressLine1: z.string(),
-        addressLine2: z.string().optional().nullable(),
-        townOrCity: z.string(),
-        county: z.string().optional().nullable(),
-        postcode: z.string(),
-      })
-      .optional()
-      .nullable(),
-  }),
+  client: z
+    .object({
+      clientFirstName: z.string(),
+      clientLastName: z.string(),
+      clientLastNameAtBirth: z.string().optional().nullable(),
+      dateOfBirth: z.string(),
+      hasNoFixedAbode: z.boolean(),
+      nationalInsuranceNumber: z.string().optional().nullable(),
+      correspondenceAddressSource: z.enum([
+        CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS,
+        CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS,
+        CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
+      ]),
+      correspondenceAddress: z
+        .object({
+          addressLine1: z.string(),
+          addressLine2: z.string().optional().nullable(),
+          townOrCity: z.string(),
+          county: z.string().optional().nullable(),
+          postcode: z.string(),
+        })
+        .optional()
+        .nullable(),
+      isClientCorrespondenceRecipient: z.boolean(),
+      correspondenceRecipient: z
+        .object({
+          recipientType: z.enum([
+            CORRESPONDENCE_RECIPIENT_TYPE.PERSON,
+            CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION,
+          ]),
+          recipientName: z.string(),
+        })
+        .optional(),
+      homeAddress: z
+        .object({
+          addressLine1: z.string(),
+          addressLine2: z.string().optional().nullable(),
+          townOrCity: z.string(),
+          county: z.string().optional().nullable(),
+          postcode: z.string(),
+        })
+        .optional()
+        .nullable(),
+    })
+    .superRefine((client, ctx) => {
+      if (client.isClientCorrespondenceRecipient) {
+        if (client.correspondenceRecipient !== undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["correspondenceRecipient"],
+            message:
+              "correspondenceRecipient must not be provided when isClientCorrespondenceRecipient is true",
+          });
+        }
+        return;
+      }
+
+      if (client.correspondenceRecipient === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["correspondenceRecipient"],
+          message:
+            "correspondenceRecipient is required when isClientCorrespondenceRecipient is false",
+        });
+      }
+    }),
   deceased: z.object({
     deceasedFirstName: z.string(),
     deceasedLastName: z.string(),

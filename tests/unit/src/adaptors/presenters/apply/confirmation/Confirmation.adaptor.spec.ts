@@ -287,7 +287,14 @@ describe("Confirmation adaptor", () => {
         submitBody.client.correspondenceAddressSource,
         "USE_PROVIDER_ADDRESS",
       );
-      assert.equal(submitBody.client.correspondenceRecipient, null);
+      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "correspondenceRecipient",
+        ),
+        false,
+      );
 
       assert.equal(submitBody.deceased.deceasedFirstName, "Deceased");
       assert.equal(submitBody.deceased.deceasedLastName, "Two");
@@ -444,7 +451,14 @@ describe("Confirmation adaptor", () => {
         "USE_PROVIDER_ADDRESS",
       );
       assert.equal(submitBody.client.homeAddress, null);
-      assert.equal(submitBody.client.correspondenceRecipient, null);
+      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "correspondenceRecipient",
+        ),
+        false,
+      );
     });
 
     it("includes specified correspondence address when source is USE_SPECIFIED_ADDRESS", async () => {
@@ -567,6 +581,7 @@ describe("Confirmation adaptor", () => {
       const submitBody = applySubmitPortStub.submitApplication.getCall(0)
         .args[0] as SubmitApplicationRequest;
 
+      assert.equal(submitBody.client.isClientCorrespondenceRecipient, false);
       assert.deepEqual(submitBody.client.correspondenceRecipient, {
         recipientType: "PERSON",
         recipientName: "Jane Doe",
@@ -621,7 +636,14 @@ describe("Confirmation adaptor", () => {
       const submitBody = applySubmitPortStub.submitApplication.getCall(0)
         .args[0] as SubmitApplicationRequest;
 
-      assert.equal(submitBody.client.correspondenceRecipient, null);
+      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "correspondenceRecipient",
+        ),
+        false,
+      );
     });
 
     it("omits optional nullable client fields when null in session", async () => {

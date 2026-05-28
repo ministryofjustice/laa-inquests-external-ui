@@ -195,7 +195,13 @@ export class ConfirmationAdaptor {
   ): void {
     const clientCorrespondenceRecipient =
       this.#getClientCorrespondenceRecipient(req);
-    if (clientCorrespondenceRecipient !== null) {
+
+    client.isClientCorrespondenceRecipient =
+      clientCorrespondenceRecipient === null;
+
+    if (clientCorrespondenceRecipient === null) {
+      delete client.correspondenceRecipient;
+    } else {
       client.correspondenceRecipient = {
         recipientType: clientCorrespondenceRecipient.recipientType,
         recipientName: clientCorrespondenceRecipient.recipientName,
@@ -289,7 +295,7 @@ export class ConfirmationAdaptor {
         CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
       homeAddress: null,
       correspondenceAddress: null,
-      correspondenceRecipient: null,
+      isClientCorrespondenceRecipient: true,
     };
   }
 
