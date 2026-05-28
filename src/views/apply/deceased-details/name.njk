@@ -4,6 +4,7 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 
@@ -15,6 +16,21 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-half">
+        {% if errorSummaries.firstNameInputError or errorSummaries.lastNameInputError %}
+          {{ govukErrorSummary({
+              titleText: "There is a problem",
+              errorList: [
+                {
+                  text: errorSummaries.firstNameInputError.text,
+                  href: "#deceased-first-name"
+                } if errorSummaries.firstNameInputError,
+                {
+                  text: errorSummaries.lastNameInputError.text,
+                  href: "#deceased-last-name"
+                } if errorSummaries.lastNameInputError
+              ]
+          }) }}
+        {% endif %}
         <h2 class="govuk-heading-l">What is the name of the deceased?</h2>
         <form data-testid="deceased-details-form" action="/apply/deceased-details/name" method="post">
           <input type="hidden" name="_csrf" value={{csrfToken}} />

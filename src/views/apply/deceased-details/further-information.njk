@@ -3,6 +3,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/textarea/macro.njk" import govukTextarea %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -13,12 +14,29 @@
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% if errorSummaries.hasFurtherInformationInputError or errorSummaries.furtherInformationInputError %}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.hasFurtherInformationInputError.text,
+                            href: "#deceased-has-further-information"
+                        } if errorSummaries.hasFurtherInformationInputError,
+                        {
+                            text: errorSummaries.furtherInformationInputError.text,
+                            href: "#deceased-further-information"
+                        } if errorSummaries.furtherInformationInputError
+                    ]
+                }) }}
+                {% endif %}
                 <h2 class="govuk-heading-l">Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?</h2>
                 <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
                     {{ govukRadios({
                         name: "deceased-has-further-information",
+                        id: "deceased-has-further-information",
                         value: deceasedDetails.hasFurtherInformation,
+                        errorMessage: errorSummaries.hasFurtherInformationInputError,
                         items: [
                             {
                                 value: "true",
@@ -32,6 +50,7 @@
                                         label: {
                                             text: "Please provide any details available of linked or bridged inquests"
                                         },
+                                        errorMessage: errorSummaries.furtherInformationInputError,
                                         value: deceasedDetails.furtherInformation
                                     }
                                 )}

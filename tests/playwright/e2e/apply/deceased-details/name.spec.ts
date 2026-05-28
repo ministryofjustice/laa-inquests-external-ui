@@ -1,6 +1,5 @@
 import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
-import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import {
   continueToNextPage,
   validateBackButton,
@@ -50,18 +49,17 @@ test.describe("Provider can", () => {
   test.describe("see validation errors when", () => {
     test("first and last names are empty", async ({ page }) => {
       await continueToNextPage(form, page);
+      await expect(page.url()).toContain("/apply/deceased-details/name");
 
       const firstNameErrorMessage = form.locator("#deceased-first-name-error");
       await expect(firstNameErrorMessage).toBeVisible();
       await expect(firstNameErrorMessage).toContainText(
-        DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
+        "Enter your first name",
       );
 
       const lastNameErrorMessage = form.locator("#deceased-last-name-error");
       await expect(lastNameErrorMessage).toBeVisible();
-      await expect(lastNameErrorMessage).toContainText(
-        DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
-      );
+      await expect(lastNameErrorMessage).toContainText("Enter your last name");
     });
     test("when first name and last names are over character limit", async ({
       page,
@@ -69,18 +67,24 @@ test.describe("Provider can", () => {
       const firstName = form.getByLabel("First name");
       await firstName.fill("a".repeat(101));
 
+      const lastName = form.getByLabel("Last name", {
+        exact: true,
+      });
+      await lastName.fill("b".repeat(101));
+
       await continueToNextPage(form, page);
+      await expect(page.url()).toContain("/apply/deceased-details/name");
 
       const firstNameErrorMessage = form.locator("#deceased-first-name-error");
       await expect(firstNameErrorMessage).toBeVisible();
       await expect(firstNameErrorMessage).toContainText(
-        DECEASED_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+        "First name must be 100 characters or less",
       );
 
       const lastNameErrorMessage = form.locator("#deceased-last-name-error");
       await expect(lastNameErrorMessage).toBeVisible();
       await expect(lastNameErrorMessage).toContainText(
-        DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
+        "Last name must be 100 characters or less",
       );
     });
   });
