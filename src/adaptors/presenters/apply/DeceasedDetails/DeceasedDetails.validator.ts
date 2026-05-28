@@ -17,27 +17,6 @@ import type {
 } from "../models/form.types.js";
 
 export class DeceasedDetailsValidator extends FormValidator {
-  #validateRelationshipLength(
-    relationshipValue: string | undefined,
-    maxLength: number,
-  ): boolean {
-    return (
-      typeof relationshipValue === "string" &&
-      relationshipValue.length > maxLength
-    );
-  }
-
-  #validateMinMaxLength(
-    inputValue: string | undefined,
-    minLength: number,
-    maxLength: number,
-  ): boolean {
-    return (
-      typeof inputValue === "string" &&
-      (inputValue.length < minLength || inputValue.length > maxLength)
-    );
-  }
-
   validateName(formBody: Partial<DeceasedDetailsFormData>): DeceasedNameError {
     const errorSummaries: Partial<DeceasedNameError> = {};
 
@@ -82,45 +61,22 @@ export class DeceasedDetailsValidator extends FormValidator {
       "deceased-date-of-death-year": dateOfDeathYear,
     } = formBody;
 
-    const isDateEmpty = this.checkDateFieldsAreEmpty(
+    const errorMessage = this.validateDateInput(
       dateOfDeathDay,
       dateOfDeathMonth,
       dateOfDeathYear,
+      {
+        missing: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+        nonNumeric: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
+        invalidDate: DECEASED_DETAILS_ERROR.INVALID_DATE,
+        futureDate: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_DEATH,
+      },
     );
 
-    const isDateNaN = this.checkDateIsNotANumber(
-      dateOfDeathDay,
-      dateOfDeathMonth,
-      dateOfDeathYear,
-    );
-
-    const isDayAndMonthInvalid = !this.checkDateIsValid(
-      dateOfDeathDay,
-      dateOfDeathMonth,
-      dateOfDeathYear,
-    );
-
-    if (isDateEmpty) {
+    if (typeof errorMessage === "string") {
       errorSummaries.dateOfDeathInputError = {
-        text: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+        text: errorMessage,
       };
-    } else if (isDateNaN) {
-      errorSummaries.dateOfDeathInputError = {
-        text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
-      };
-    } else if (isDayAndMonthInvalid) {
-      errorSummaries.dateOfDeathInputError = {
-        text: DECEASED_DETAILS_ERROR.INVALID_DATE,
-      };
-    } else {
-      const dateOfBirth = new Date(
-        `${dateOfDeathDay}/${dateOfDeathMonth}/${dateOfDeathYear}`,
-      );
-      if (dateOfBirth > new Date()) {
-        errorSummaries.dateOfDeathInputError = {
-          text: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_DEATH,
-        };
-      }
     }
 
     return errorSummaries;
@@ -137,45 +93,22 @@ export class DeceasedDetailsValidator extends FormValidator {
       "deceased-date-of-birth-year": dateOfBirthYear,
     } = formBody;
 
-    const isDateEmpty = this.checkDateFieldsAreEmpty(
+    const errorMessage = this.validateDateInput(
       dateOfBirthDay,
       dateOfBirthMonth,
       dateOfBirthYear,
+      {
+        missing: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_BIRTH_INPUT,
+        nonNumeric: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_BIRTH,
+        invalidDate: DECEASED_DETAILS_ERROR.INVALID_DATE,
+        futureDate: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_BIRTH,
+      },
     );
 
-    const isDateNaN = this.checkDateIsNotANumber(
-      dateOfBirthDay,
-      dateOfBirthMonth,
-      dateOfBirthYear,
-    );
-
-    const isDayAndMonthInvalid = !this.checkDateIsValid(
-      dateOfBirthDay,
-      dateOfBirthMonth,
-      dateOfBirthYear,
-    );
-
-    if (isDateEmpty) {
+    if (typeof errorMessage === "string") {
       errorSummaries.dateOfBirthInputError = {
-        text: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_BIRTH_INPUT,
+        text: errorMessage,
       };
-    } else if (isDateNaN) {
-      errorSummaries.dateOfBirthInputError = {
-        text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_BIRTH,
-      };
-    } else if (isDayAndMonthInvalid) {
-      errorSummaries.dateOfBirthInputError = {
-        text: DECEASED_DETAILS_ERROR.INVALID_DATE,
-      };
-    } else {
-      const dateOfBirth = new Date(
-        `${dateOfBirthDay}/${dateOfBirthMonth}/${dateOfBirthYear}`,
-      );
-      if (dateOfBirth > new Date()) {
-        errorSummaries.dateOfBirthInputError = {
-          text: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_BIRTH,
-        };
-      }
     }
 
     return errorSummaries;
@@ -209,7 +142,7 @@ export class DeceasedDetailsValidator extends FormValidator {
         text: DECEASED_DETAILS_ERROR.RELATIONSHIP_REQUIRED_MIN_MAX,
       };
     } else if (
-      this.#validateRelationshipLength(
+      this.exceedsMaxLength(
         clientRelationship,
         DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
       )
@@ -229,7 +162,7 @@ export class DeceasedDetailsValidator extends FormValidator {
     const { "deceased-coroner-reference": coronerReference } = formBody;
 
     if (
-      this.#validateRelationshipLength(
+      this.exceedsMaxLength(
         coronerReference,
         DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH,
       )
@@ -260,7 +193,7 @@ export class DeceasedDetailsValidator extends FormValidator {
 
     if (
       hasFurtherInformation === "true" &&
-      this.#validateMinMaxLength(
+      this.validateMinMaxLength(
         furtherInformation,
         DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
         DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH,

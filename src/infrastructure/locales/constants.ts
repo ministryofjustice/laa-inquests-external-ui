@@ -8,6 +8,8 @@ export const DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH = 2;
 
 export const DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH = 500;
 
+export const DATE_MONTH_INDEX_OFFSET = 1;
+
 export const EMPTY_ARR_LENGTH = 0;
 
 export const CLIENT_DETAILS_ERROR = {
@@ -58,6 +60,15 @@ export const DECEASED_DETAILS_ERROR = {
   FURTHER_INFORMATION_SELECTION_REQUIRED: "Please select an option",
   FURTHER_INFORMATION_MIN_MAX:
     "Linked case details must be between 2 and 500 characters",
+};
+
+export const DECEASED_NAME_PAGE = {
+  HEADING: "What is the name of the deceased?",
+  FORM_PATH: "/apply/deceased-details/name",
+  BACK_PATH: "/apply/proceedings",
+  NEXT_PATH: "apply/deceased-details/dod",
+  FIRST_NAME_LABEL: "First name",
+  LAST_NAME_LABEL: "Last name",
 };
 
 export const PROCEEDING_ERROR = {

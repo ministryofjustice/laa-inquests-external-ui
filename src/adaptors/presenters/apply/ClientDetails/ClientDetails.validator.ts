@@ -175,8 +175,7 @@ export class ClientDetailsValidator extends FormValidator {
     if (
       typeof hasPrevApplication === "string" &&
       hasPrevApplication === "true" &&
-      typeof prevApplicationRef === "string" &&
-      prevApplicationRef.length > MAX_REF_LENGTH
+      this.exceedsMaxLength(prevApplicationRef, MAX_REF_LENGTH)
     ) {
       errorSummaries.referenceInputError = {
         text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
