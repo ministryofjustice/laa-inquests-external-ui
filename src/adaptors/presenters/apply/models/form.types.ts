@@ -38,6 +38,14 @@ export interface ClientPrevApplicationRefError {
   referenceInputError?: FormErrorMessage;
 }
 
+export interface ClientDeclarationFormData extends FormBody {
+  "client-declaration-confirmation"?: string | string[];
+}
+
+export interface ClientDeclarationError {
+  noDeclarationConfirmation?: FormErrorMessage;
+}
+
 export interface DeceasedDetailsFormData extends FormBody {
   "deceased-first-name": string;
   "deceased-last-name": string;

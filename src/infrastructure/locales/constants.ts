@@ -156,4 +156,9 @@ export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
 };
 
+export const CLIENT_DECLARATION_ERROR = {
+  NO_CONFIRMATION:
+    "You need to confirm the declaration to submit this application",
+};
+
 export const HTTP_CREATED = 201;
