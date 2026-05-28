@@ -1,8 +1,18 @@
-import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
+import {
+  DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH,
+  DECEASED_DETAILS_ERROR,
+  DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH,
+  DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
+  DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type {
+  DeceasedClientRelationshipError,
+  DeceasedCoronerReferenceError,
+  DeceasedDateOfBirthError,
   DeceasedDateOfDeathError,
   DeceasedDetailsFormData,
+  DeceasedFurtherInformationError,
   DeceasedNameError,
 } from "../models/form.types.js";
 
@@ -51,45 +61,147 @@ export class DeceasedDetailsValidator extends FormValidator {
       "deceased-date-of-death-year": dateOfDeathYear,
     } = formBody;
 
-    const isDateEmpty = this.checkDateFieldsAreEmpty(
+    const errorMessage = this.validateDateInput(
       dateOfDeathDay,
       dateOfDeathMonth,
       dateOfDeathYear,
+      {
+        missing: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+        nonNumeric: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
+        invalidDate: DECEASED_DETAILS_ERROR.INVALID_DATE,
+        futureDate: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_DEATH,
+      },
     );
 
-    const isDateNaN = this.checkDateIsNotANumber(
-      dateOfDeathDay,
-      dateOfDeathMonth,
-      dateOfDeathYear,
+    if (typeof errorMessage === "string") {
+      errorSummaries.dateOfDeathInputError = {
+        text: errorMessage,
+      };
+    }
+
+    return errorSummaries;
+  }
+
+  validateDeceasedDateOfBirth(
+    formBody: Partial<DeceasedDetailsFormData>,
+  ): Partial<DeceasedDateOfBirthError> {
+    const errorSummaries: Partial<DeceasedDateOfBirthError> = {};
+
+    const {
+      "deceased-date-of-birth-day": dateOfBirthDay,
+      "deceased-date-of-birth-month": dateOfBirthMonth,
+      "deceased-date-of-birth-year": dateOfBirthYear,
+    } = formBody;
+
+    const errorMessage = this.validateDateInput(
+      dateOfBirthDay,
+      dateOfBirthMonth,
+      dateOfBirthYear,
+      {
+        missing: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_BIRTH_INPUT,
+        nonNumeric: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_BIRTH,
+        invalidDate: DECEASED_DETAILS_ERROR.INVALID_DATE,
+        futureDate: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_BIRTH,
+      },
     );
 
-    const isDayAndMonthInvalid = !this.checkDateIsValid(
-      dateOfDeathDay,
-      dateOfDeathMonth,
-      dateOfDeathYear,
-    );
+    if (typeof errorMessage === "string") {
+      errorSummaries.dateOfBirthInputError = {
+        text: errorMessage,
+      };
+    }
 
-    if (isDateEmpty) {
-      errorSummaries.dateOfDeathInputError = {
-        text: DECEASED_DETAILS_ERROR.MISSING_DATE_OF_DEATH_INPUT,
+    return errorSummaries;
+  }
+
+  validateClientRelationship(
+    formBody: Partial<DeceasedDetailsFormData>,
+  ): Partial<DeceasedClientRelationshipError> {
+    const errorSummaries: Partial<DeceasedClientRelationshipError> = {};
+    const {
+      "deceased-has-client-relationship": hasClientRelationship,
+      "deceased-client-relationship": clientRelationship,
+    } = formBody;
+
+    if (typeof hasClientRelationship !== "string") {
+      errorSummaries.hasClientRelationshipInputError = {
+        text: DECEASED_DETAILS_ERROR.RELATIONSHIP_SELECTION_REQUIRED,
       };
-    } else if (isDateNaN) {
-      errorSummaries.dateOfDeathInputError = {
-        text: DECEASED_DETAILS_ERROR.NON_NUMERIC_DATE_OF_DEATH,
+      return errorSummaries;
+    }
+
+    if (hasClientRelationship === "false") {
+      errorSummaries.hasClientRelationshipInputError = {
+        text: DECEASED_DETAILS_ERROR.RELATIONSHIP_NOT_ELIGIBLE,
       };
-    } else if (isDayAndMonthInvalid) {
-      errorSummaries.dateOfDeathInputError = {
-        text: DECEASED_DETAILS_ERROR.INVALID_DATE,
+      return errorSummaries;
+    }
+
+    if (this.validateFormInputValue(clientRelationship)) {
+      errorSummaries.clientRelationshipInputError = {
+        text: DECEASED_DETAILS_ERROR.RELATIONSHIP_REQUIRED_MIN_MAX,
       };
-    } else {
-      const dateOfBirth = new Date(
-        `${dateOfDeathDay}/${dateOfDeathMonth}/${dateOfDeathYear}`,
-      );
-      if (dateOfBirth > new Date()) {
-        errorSummaries.dateOfDeathInputError = {
-          text: DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_DEATH,
-        };
-      }
+    } else if (
+      this.exceedsMaxLength(
+        clientRelationship,
+        DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
+      )
+    ) {
+      errorSummaries.clientRelationshipInputError = {
+        text: DECEASED_DETAILS_ERROR.RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH,
+      };
+    }
+
+    return errorSummaries;
+  }
+
+  validateCoronerReference(
+    formBody: Partial<DeceasedDetailsFormData>,
+  ): Partial<DeceasedCoronerReferenceError> {
+    const errorSummaries: Partial<DeceasedCoronerReferenceError> = {};
+    const { "deceased-coroner-reference": coronerReference } = formBody;
+
+    if (
+      this.exceedsMaxLength(
+        coronerReference,
+        DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH,
+      )
+    ) {
+      errorSummaries.coronerReferenceInputError = {
+        text: DECEASED_DETAILS_ERROR.CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+      };
+    }
+
+    return errorSummaries;
+  }
+
+  validateFurtherInformation(
+    formBody: Partial<DeceasedDetailsFormData>,
+  ): Partial<DeceasedFurtherInformationError> {
+    const errorSummaries: Partial<DeceasedFurtherInformationError> = {};
+    const {
+      "deceased-has-further-information": hasFurtherInformation,
+      "deceased-further-information": furtherInformation,
+    } = formBody;
+
+    if (typeof hasFurtherInformation !== "string") {
+      errorSummaries.hasFurtherInformationInputError = {
+        text: DECEASED_DETAILS_ERROR.FURTHER_INFORMATION_SELECTION_REQUIRED,
+      };
+      return errorSummaries;
+    }
+
+    if (
+      hasFurtherInformation === "true" &&
+      this.validateMinMaxLength(
+        furtherInformation,
+        DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
+        DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH,
+      )
+    ) {
+      errorSummaries.furtherInformationInputError = {
+        text: DECEASED_DETAILS_ERROR.FURTHER_INFORMATION_MIN_MAX,
+      };
     }
 
     return errorSummaries;

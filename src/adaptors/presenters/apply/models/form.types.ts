@@ -91,3 +91,21 @@ export interface Option {
 export interface DeceasedDateOfDeathError {
   dateOfDeathInputError?: FormErrorMessage;
 }
+
+export interface DeceasedDateOfBirthError {
+  dateOfBirthInputError?: FormErrorMessage;
+}
+
+export interface DeceasedClientRelationshipError {
+  hasClientRelationshipInputError?: FormErrorMessage;
+  clientRelationshipInputError?: FormErrorMessage;
+}
+
+export interface DeceasedCoronerReferenceError {
+  coronerReferenceInputError?: FormErrorMessage;
+}
+
+export interface DeceasedFurtherInformationError {
+  hasFurtherInformationInputError?: FormErrorMessage;
+  furtherInformationInputError?: FormErrorMessage;
+}

@@ -241,6 +241,25 @@ describe("Deceased details adaptor", () => {
       const redirect = responseStub.redirect.getCall(0).args;
       assert.equal(redirect[0], "/apply/deceased-details/client-relationship");
     });
+    it("initiates re-render with errorSummaries, csrfToken and deceasedDetails given invalid input", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-date-of-birth-day": "",
+        "deceased-date-of-birth-month": "",
+        "deceased-date-of-birth-year": "",
+      };
+
+      deceasedDetailsAdaptor.processDateOfBirthForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/dob");
+
+      const errorObject = renderArgs[1] as Object;
+      assert.ok(errorObject.hasOwnProperty("errorSummaries"));
+      assert.ok(errorObject.hasOwnProperty("csrfToken"));
+      assert.ok(errorObject.hasOwnProperty("deceasedDetails"));
+    });
     it("adds data to the session", () => {
       const dateOfBirthDay = "1";
       const dateOfBirthMonth = "2";
@@ -317,6 +336,7 @@ describe("Deceased details adaptor", () => {
     it("redirects to coroners reference given valid input", () => {
       requestStub.body = {
         _csrf: "abcdefg",
+        "deceased-has-client-relationship": "true",
         "deceased-client-relationship": "Father",
       };
 
@@ -328,6 +348,35 @@ describe("Deceased details adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const redirect = responseStub.redirect.getCall(0).args;
       assert.equal(redirect[0], "/apply/deceased-details/coroner-reference");
+    });
+    it("re-renders with eligibility error when no is selected", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-has-client-relationship": "false",
+      };
+
+      deceasedDetailsAdaptor.processClientRelationshipForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/client-relationship");
+    });
+    it("re-renders with selection error when no option is selected", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+      };
+
+      deceasedDetailsAdaptor.processClientRelationshipForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/client-relationship");
     });
     it("adds data to the session", () => {
       const expectedHasClientRelationship = "true";
@@ -412,6 +461,26 @@ describe("Deceased details adaptor", () => {
       const redirect = responseStub.redirect.getCall(0).args;
       assert.equal(redirect[0], "/apply/deceased-details/further-information");
     });
+    it("re-renders coroner reference with errors when input is over 50 characters", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-coroner-reference": "a".repeat(51),
+      };
+
+      deceasedDetailsAdaptor.processCoronerReferenceForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/coroner-reference");
+
+      const errorObject = renderArgs[1] as Object;
+      assert.ok(errorObject.hasOwnProperty("errorSummaries"));
+      assert.ok(errorObject.hasOwnProperty("csrfToken"));
+      assert.ok(errorObject.hasOwnProperty("deceasedDetails"));
+    });
     it("adds data to the session", () => {
       const expectedCoronerReference = "test";
 
@@ -482,7 +551,7 @@ describe("Deceased details adaptor", () => {
     it("redirects to interested parties given valid input", () => {
       requestStub.body = {
         _csrf: "abcdefg",
-        "deceased-coroner-reference": "Test",
+        "deceased-has-further-information": "false",
       };
 
       deceasedDetailsAdaptor.processFurtherInfomationForm(
@@ -493,6 +562,36 @@ describe("Deceased details adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const redirect = responseStub.redirect.getCall(0).args;
       assert.equal(redirect[0], "/apply/public-authority");
+    });
+    it("re-renders with selection error when no option is selected", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+      };
+
+      deceasedDetailsAdaptor.processFurtherInfomationForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/further-information");
+    });
+    it("re-renders with validation error when yes is selected and information is too short", () => {
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-has-further-information": "true",
+        "deceased-further-information": "a",
+      };
+
+      deceasedDetailsAdaptor.processFurtherInfomationForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/further-information");
     });
     it("adds data to the session", () => {
       const expectedHasFurtherInformation = "true";

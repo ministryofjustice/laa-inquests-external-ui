@@ -4,6 +4,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -14,6 +15,21 @@
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% if errorSummaries.hasClientRelationshipInputError or errorSummaries.clientRelationshipInputError %}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.hasClientRelationshipInputError.text,
+                            href: "#deceased-has-client-relationship"
+                        } if errorSummaries.hasClientRelationshipInputError,
+                        {
+                            text: errorSummaries.clientRelationshipInputError.text,
+                            href: "#deceased-client-relationship"
+                        } if errorSummaries.clientRelationshipInputError
+                    ]
+                }) }}
+                {% endif %}
                 <h2 class="govuk-heading-l">Does your client meet the definition of a family member?</h2>
                 <form data-testid="deceased-client-relationship-form" action="/apply/deceased-details/client-relationship" method="post">
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
@@ -25,7 +41,9 @@
 
                       {{ govukRadios({
                         name: "deceased-has-client-relationship",
+                                                id: "deceased-has-client-relationship",
                         value: deceasedDetails.hasClientRelationship,
+                                                errorMessage: errorSummaries.hasClientRelationshipInputError,
                         items: [
                         {
                             value: "true",
@@ -40,6 +58,7 @@
                                     label: {
                                         text: "Please describe the nature of the relationship between your client and the deceased."
                                     },
+                                    errorMessage: errorSummaries.clientRelationshipInputError,
                                     value: deceasedDetails.clientRelationship
                             })}
                         },
