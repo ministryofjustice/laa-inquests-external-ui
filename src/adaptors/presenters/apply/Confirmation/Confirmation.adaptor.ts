@@ -287,7 +287,7 @@ export class ConfirmationAdaptor {
       return this.#createAddressString(
         req.session.clientAddressLine1 as string,
         req.session.clientAddressLine2 as string,
-        req.session.clientTownOrcity as string,
+        req.session.clientTownOrCity as string,
         req.session.clientCounty as string,
       );
     }

@@ -264,12 +264,32 @@ test.describe("Provider can", () => {
       No: "",
     });
     await continueNextPage("has-prev-application-form");
-    await expect(page.url()).toContain("/apply/proceedings");
 
+    await expect(page.url()).toContain("/apply/client-details/home-address");
+    await getAndUpdateFormFields(page, {
+      "Address line 1": "1 Street",
+      "Town or city": "My town",
+      Postcode: "SW122AA",
+    });
+    await continueNextPage("home-address-form");
+
+    await expect(page.url()).toContain(
+      "/apply/client-details/correspondence-address-source",
+    );
+    await getAndUpdateFormFields(page, { "My client's UK home address": "" });
+    await continueNextPage("correspondence-address-source-form");
+
+    await expect(page.url()).toContain(
+      "/apply/client-details/correspondence-recipient",
+    );
+    await getAndUpdateFormFields(page, { No: "" });
+    await continueNextPage("correspondence-recipient-form");
+
+    await expect(page.url()).toContain("/apply/proceedings");
     await page.getByLabel("CAPA", { exact: true }).click();
     await continueNextPage("add-proceeding-form");
-    await expect(page.url()).toContain("/apply/proceedings/confirmation");
 
+    await expect(page.url()).toContain("/apply/proceedings/confirmation");
     await getAndUpdateFormFields(page, {
       No: "",
     });

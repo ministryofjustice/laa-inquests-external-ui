@@ -132,7 +132,7 @@ export class ClientDetailsAdaptor {
         },
       });
     } else {
-      res.redirect("/apply/client-details/home-address");
+      res.redirect("/apply/client-details/has-prev-application");
     }
   }
 
@@ -365,13 +365,19 @@ export class ClientDetailsAdaptor {
           organisationName,
         });
       } else {
+        const checkProceedings = (
+          proceedings: Proceeding[] | undefined | null,
+        ): boolean => proceedings !== undefined && proceedings !== null;
+        const redirectUrl = checkProceedings(req.session.selectedProceedings)
+          ? "/apply/proceedings/confirmation"
+          : "/apply/proceedings";
         req.session.clientCorrespondenceRecipient =
           this.#buildClientCorrespondenceRecipient(
             selection,
             personName,
             organisationName,
           );
-        res.redirect("/apply/client-details/has-prev-application");
+        res.redirect(redirectUrl);
       }
     }
   }
@@ -414,13 +420,7 @@ export class ClientDetailsAdaptor {
         },
       });
     } else {
-      const checkProceedings = (
-        proceedings: Proceeding[] | undefined | null,
-      ): boolean => proceedings !== undefined && proceedings !== null;
-      const redirectUrl = checkProceedings(req.session.selectedProceedings)
-        ? "/apply/proceedings/confirmation"
-        : "/apply/proceedings";
-      res.redirect(redirectUrl);
+      res.redirect("/apply/client-details/home-address");
     }
   }
 

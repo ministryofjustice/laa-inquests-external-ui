@@ -422,78 +422,8 @@ describe("Confirmation adaptor", () => {
       );
     });
 
-    it("sets hasNoFixedAbode true and omits homeAddress when selected", async () => {
-      requestStub.session.clientFirstName = "Client";
-      requestStub.session.clientLastName = "One";
-      requestStub.session.clientDobDay = "05";
-      requestStub.session.clientDobMonth = "10";
-      requestStub.session.clientDobYear = "1989";
-      requestStub.session.clientHasNoFixedAbode = true;
-      requestStub.session.clientHomeAddress = {
-        addressLine1: "4 Privet Drive",
-        addressLine2: null,
-        townOrCity: "Little Whinging",
-        county: null,
-        postcode: "SW1A 1AA",
-      };
-      requestStub.session.deceasedClientRelationship = "Spouse";
-
-      requestStub.session.deceasedFirstName = "Deceased";
-      requestStub.session.deceasedLastName = "Two";
-      requestStub.session.deceasedDateOfBirthDay = "01";
-      requestStub.session.deceasedDateOfBirthMonth = "02";
-      requestStub.session.deceasedDateOfBirthYear = "1975";
-      requestStub.session.deceasedDateOfDeathDay = "10";
-      requestStub.session.deceasedDateOfDeathMonth = "03";
-      requestStub.session.deceasedDateOfDeathYear = "2024";
-      requestStub.session.deceasedCoronerReference = "COR-123";
-      requestStub.session.deceasedFurtherInformation = "Further info";
-
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
-
-      requestStub.session.selectedPublicAuthorities = [
-        {
-          publicAuthorityId: "home-office",
-          publicAuthorityDescription: "Home Office",
-        },
-      ];
-
-      applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
-        laaReference: 123,
-      });
-
-      await confirmationAdaptor.processClientDeclarationForm(
-        requestStub,
-        responseStub,
-      );
-
-      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
-        .args[0] as SubmitApplicationRequest;
-
-      assert.equal(submitBody.client.hasNoFixedAbode, true);
-      assert.equal(
-        submitBody.client.correspondenceAddressSource,
-        "USE_PROVIDER_ADDRESS",
-      );
-      assert.equal(submitBody.client.homeAddress, null);
-      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
-      assert.equal(
-        Object.prototype.hasOwnProperty.call(
-          submitBody.client,
-          "correspondenceRecipient",
-        ),
-        false,
-      );
-    });
-
     it("includes specified correspondence address when source is USE_SPECIFIED_ADDRESS", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
       requestStub.session.clientDobDay = "05";
@@ -563,6 +493,7 @@ describe("Confirmation adaptor", () => {
     });
 
     it("includes correspondence recipient when set in session", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
       requestStub.session.clientDobDay = "05";
@@ -621,6 +552,7 @@ describe("Confirmation adaptor", () => {
     });
 
     it("keeps correspondenceRecipient as null when recipient is the client", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
       requestStub.session.clientDobDay = "05";

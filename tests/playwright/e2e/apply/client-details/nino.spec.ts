@@ -40,7 +40,9 @@ test.describe("Client details - NINO page", () => {
     await expect(continueButton).toHaveAttribute("type", "submit");
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.url()).toContain("apply/client-details/home-address");
+    await expect(page.url()).toContain(
+      "apply/client-details/has-prev-application",
+    );
   });
   test.describe("render validation errors", () => {
     test("if no radio selected for nino input", async ({ page }) => {

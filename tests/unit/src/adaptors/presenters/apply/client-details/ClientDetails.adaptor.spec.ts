@@ -88,7 +88,7 @@ describe("Client details adaptor", () => {
     clientDetailsAdaptor.processNinoForm(requestStub, responseStub);
     assert.equal(responseStub.redirect.callCount, 1);
     const renderArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(renderArgs[0], "/apply/client-details/home-address");
+    assert.equal(renderArgs[0], "/apply/client-details/has-prev-application");
   });
 
   it("render home address form", () => {
@@ -306,7 +306,7 @@ describe("Client details adaptor", () => {
     });
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
+    assert.equal(redirectArgs[0], "/apply/proceedings");
   });
 
   it("process correspondence recipient form clears recipient when no is selected", () => {
@@ -334,7 +334,7 @@ describe("Client details adaptor", () => {
     assert.equal(requestStub.session.clientCorrespondenceRecipient, null);
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/client-details/has-prev-application");
+    assert.equal(redirectArgs[0], "/apply/proceedings");
   });
 
   it("process nino form adds nino to session when nino exists", () => {
@@ -378,8 +378,7 @@ describe("Client details adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/client-details/has-prev-application");
   });
-
-  it("process has prev application form redirects to proceedings if no selectedProceedings exist in session", () => {
+  it("process correspondence recipient form redirects to proceedings if no selectedProceedings exist in session", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
@@ -387,11 +386,13 @@ describe("Client details adaptor", () => {
     const requestStub = stubInterface<Request>();
 
     requestStub.body = {
-      "has-prev-application": "false",
       "prev-laa-reference-input": "",
+      "correspondence-recipient": "NONE",
+      "correspondence-recipient-person-name": "",
+      "correspondence-recipient-organisation-name": "",
     };
 
-    clientDetailsAdaptor.processHasPrevApplicationForm(
+    clientDetailsAdaptor.processCorrespondenceRecipientForm(
       requestStub,
       responseStub,
     );
@@ -399,7 +400,7 @@ describe("Client details adaptor", () => {
     const redirectArgs = responseStub.redirect.getCall(0).args;
     assert.equal(redirectArgs[0], "/apply/proceedings");
   });
-  it("process has prev application form redirects to confirm proceedings form if a proceeding has been previously selected", () => {
+  it("process correspondence recipient form redirects to confirm proceedings form if a proceeding has been previously selected", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
 
@@ -407,8 +408,10 @@ describe("Client details adaptor", () => {
     const requestStub = stubInterface<Request>();
 
     requestStub.body = {
-      "has-prev-application": "false",
       "prev-laa-reference-input": "",
+      "correspondence-recipient": "NONE",
+      "correspondence-recipient-person-name": "",
+      "correspondence-recipient-organisation-name": "",
     };
     requestStub.session.selectedProceedings = [
       {
@@ -418,7 +421,7 @@ describe("Client details adaptor", () => {
       },
     ];
 
-    clientDetailsAdaptor.processHasPrevApplicationForm(
+    clientDetailsAdaptor.processCorrespondenceRecipientForm(
       requestStub,
       responseStub,
     );

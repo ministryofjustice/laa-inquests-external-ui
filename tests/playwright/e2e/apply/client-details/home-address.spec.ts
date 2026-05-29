@@ -24,7 +24,7 @@ test.describe("Client details - home address", () => {
     await expect(backButton).toBeVisible();
     await expect(backButton).toHaveAttribute(
       "href",
-      "/apply/client-details/nino",
+      "/apply/client-details/has-prev-application",
     );
     await expect(addressLine1).toBeVisible();
     await expect(addressLine2).toBeVisible();

@@ -55,8 +55,7 @@ test.describe("Client details - correspondence recipient", () => {
       form.locator("#correspondence-recipient-person-name-error"),
     ).toBeVisible();
   });
-
-  test("continues to previous applications page when no recipient is selected", async ({
+  test("continues to proceedings page when no is selected", async ({
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-recipient");
@@ -65,8 +64,6 @@ test.describe("Client details - correspondence recipient", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page.url()).toContain(
-      "/apply/client-details/has-prev-application",
-    );
+    await expect(page.url()).toContain("/apply/proceedings");
   });
 });

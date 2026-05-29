@@ -106,4 +106,5 @@ test.describe("Client details - correspondence address source", () => {
       "You cannot select your client's UK home address when they have no fixed abode",
     );
   });
+  // TODO: add test that when client home address is selected and client has a home address, navigate to proceedings page
 });
