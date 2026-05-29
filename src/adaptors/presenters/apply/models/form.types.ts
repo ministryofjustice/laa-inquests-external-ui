@@ -66,6 +66,12 @@ export interface ClientCorrespondenceAddressSourceError {
 export interface ClientCorrespondenceRecipientError {
   noRadioSelected?: FormErrorMessage;
   recipientNameInputError?: FormErrorMessage;
+export interface ClientDeclarationFormData extends FormBody {
+  "client-declaration-confirmation"?: string | string[];
+}
+
+export interface ClientDeclarationError {
+  noDeclarationConfirmation?: FormErrorMessage;
 }
 
 export interface DeceasedDetailsFormData extends FormBody {
@@ -123,3 +129,20 @@ export type CorrespondenceRecipientSelectionValue =
   | "PERSON"
   | "ORGANISATION"
   | "NONE";
+export interface DeceasedDateOfBirthError {
+  dateOfBirthInputError?: FormErrorMessage;
+}
+
+export interface DeceasedClientRelationshipError {
+  hasClientRelationshipInputError?: FormErrorMessage;
+  clientRelationshipInputError?: FormErrorMessage;
+}
+
+export interface DeceasedCoronerReferenceError {
+  coronerReferenceInputError?: FormErrorMessage;
+}
+
+export interface DeceasedFurtherInformationError {
+  hasFurtherInformationInputError?: FormErrorMessage;
+  furtherInformationInputError?: FormErrorMessage;
+}

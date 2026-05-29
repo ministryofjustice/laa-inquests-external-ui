@@ -1,5 +1,6 @@
 import { test, expect } from "../../../fixtures/index.js";
 import type { Locator } from "playwright-core";
+import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import {
   validateHeader,
   validateBackButton,
@@ -53,6 +54,70 @@ test.describe("Provider can", () => {
     await expect(page.url()).toContain(
       "apply/deceased-details/coroner-reference",
     );
+  });
+
+  test("shows an error when no radio option is selected", async ({ page }) => {
+    await continueToNextPage(form, page);
+
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/client-relationship",
+    );
+    await expect(
+      form.getByText(DECEASED_DETAILS_ERROR.RELATIONSHIP_SELECTION_REQUIRED),
+    ).toBeVisible();
+  });
+
+  test("shows an eligibility error when no is selected", async ({ page }) => {
+    const noRadioLabel = form.getByLabel("No");
+    await noRadioLabel.click();
+
+    await continueToNextPage(form, page);
+
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/client-relationship",
+    );
+    await expect(
+      form.getByText(DECEASED_DETAILS_ERROR.RELATIONSHIP_NOT_ELIGIBLE),
+    ).toBeVisible();
+  });
+
+  test("shows an error when yes is selected but relationship is empty", async ({
+    page,
+  }) => {
+    const yesRadioLabel = form.getByLabel("Yes");
+    await yesRadioLabel.click();
+
+    await continueToNextPage(form, page);
+
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/client-relationship",
+    );
+    await expect(
+      form.getByText(DECEASED_DETAILS_ERROR.RELATIONSHIP_REQUIRED_MIN_MAX),
+    ).toBeVisible();
+  });
+
+  test("shows an error when relationship exceeds 70 characters", async ({
+    page,
+  }) => {
+    const yesRadioLabel = form.getByLabel("Yes");
+    await yesRadioLabel.click();
+
+    const relationshipInput = form.getByLabel(
+      "Please describe the nature of the relationship between your client and the deceased.",
+    );
+    await relationshipInput.fill("a".repeat(71));
+
+    await continueToNextPage(form, page);
+
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/client-relationship",
+    );
+    await expect(
+      form.getByText(
+        DECEASED_DETAILS_ERROR.RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH,
+      ),
+    ).toBeVisible();
   });
 
   test("fill in details, continue and navigate back with deceased details client relationship automatically filled in", async ({

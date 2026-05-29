@@ -2,6 +2,7 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -12,6 +13,17 @@
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
+                {% if errorSummaries.coronerReferenceInputError %}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.coronerReferenceInputError.text,
+                            href: "#deceased-coroner-reference"
+                        }
+                    ]
+                }) }}
+                {% endif %}
                 <h2 class="govuk-heading-l">What is the coroner's reference?</h2>
                 <form data-testid="deceased-coroner-reference-form" action="/apply/deceased-details/coroner-reference" method="post">
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
@@ -24,6 +36,7 @@
                         label: {
                             text: "Please enter your reference number"
                         },
+                        errorMessage: errorSummaries.coronerReferenceInputError,
                         value: deceasedDetails.coronerReference
                     }) }}
                     {{ govukButton({

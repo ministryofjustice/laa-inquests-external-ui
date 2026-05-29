@@ -1,5 +1,15 @@
 export const MAX_CHARACTER_LENGTH = 100;
 
+export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;
+
+export const DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH = 50;
+
+export const DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH = 2;
+
+export const DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH = 500;
+
+export const DATE_MONTH_INDEX_OFFSET = 1;
+
 export const EMPTY_ARR_LENGTH = 0;
 
 export const CLIENT_DETAILS_ERROR = {
@@ -48,17 +58,42 @@ export const CORRESPONDENCE_RECIPIENT_TYPE = {
 } as const;
 
 export const DECEASED_DETAILS_ERROR = {
-  MISSING_FIRST_NAME: "Please enter the first name of the deceased",
-  MISSING_LAST_NAME: "Please enter the last name of the deceased",
+  MISSING_FIRST_NAME: "Enter your first name",
+  MISSING_LAST_NAME: "Enter your last name",
   FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
-    "First name(s) cannot exceed 100 characters",
+    "First name must be 100 characters or less",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
-    "Last name cannot exceed 100 characters",
+    "Last name must be 100 characters or less",
   MISSING_DATE_OF_DEATH_INPUT: "Please enter date of death",
   NON_NUMERIC_DATE_OF_DEATH:
     "Please enter date of death in the format expected",
   FUTURE_DATE_OF_DEATH: "Date of death must not be in the future",
+  MISSING_DATE_OF_BIRTH_INPUT: "Please enter date of birth",
+  NON_NUMERIC_DATE_OF_BIRTH:
+    "Please enter date of birth in the format expected",
+  FUTURE_DATE_OF_BIRTH: "Date of birth must not be in the future",
   INVALID_DATE: "Please enter a valid date",
+  RELATIONSHIP_SELECTION_REQUIRED: "Please select an option",
+  RELATIONSHIP_NOT_ELIGIBLE:
+    "Your client needs to meet the definition of family member to qualify for legal aid",
+  RELATIONSHIP_REQUIRED_MIN_MAX:
+    "Relationship to deceased must be a maximum of 70 characters and a minimum of 1.",
+  RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Relationship must be 70 characters or less",
+  CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Coroner reference must be 50 characters or less",
+  FURTHER_INFORMATION_SELECTION_REQUIRED: "Please select an option",
+  FURTHER_INFORMATION_MIN_MAX:
+    "Linked case details must be between 2 and 500 characters",
+};
+
+export const DECEASED_NAME_PAGE = {
+  HEADING: "What is the name of the deceased?",
+  FORM_PATH: "/apply/deceased-details/name",
+  BACK_PATH: "/apply/proceedings",
+  NEXT_PATH: "apply/deceased-details/dod",
+  FIRST_NAME_LABEL: "First name",
+  LAST_NAME_LABEL: "Last name",
 };
 
 export const PROCEEDING_ERROR = {
@@ -182,6 +217,11 @@ export const PUBLIC_AUTHORITY_OPTIONS = [
 
 export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
+};
+
+export const CLIENT_DECLARATION_ERROR = {
+  NO_CONFIRMATION:
+    "You need to confirm the declaration to submit this application",
 };
 
 export const HTTP_CREATED = 201;

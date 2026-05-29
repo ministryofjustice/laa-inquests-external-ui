@@ -2,6 +2,7 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 
 {% block content %}
@@ -13,6 +14,17 @@
     <main class="govuk-main-wrapper">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-half">
+                {% if errorSummaries.dateOfBirthInputError %}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.dateOfBirthInputError.text,
+                            href: "#deceased-date-of-birth"
+                        }
+                    ]
+                }) }}
+                {% endif %}
                 <h2 class="govuk-heading-l">What was their date of birth?</h2>
                 <form data-testid="deceased-date-of-birth-form" action="/apply/deceased-details/dob" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />
@@ -25,6 +37,7 @@
                                 classes: "govuk-fieldset__legend--s"
                             }
                         },
+                        errorMessage: errorSummaries.dateOfBirthInputError,
                         items: [
                             {
                                 classes: "govuk-input--width-2",

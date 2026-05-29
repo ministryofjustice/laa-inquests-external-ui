@@ -11,18 +11,20 @@ export class DeceasedDetailsAdaptor {
     this.formValidator = formValidator;
   }
 
+  #getNameBackButtonUrl(proceedings: Proceeding[] | undefined | null): string {
+    return proceedings !== undefined && proceedings !== null
+      ? "/apply/proceedings/confirmation"
+      : "/apply/proceedings";
+  }
+
   renderNameForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
     } = res;
 
-    const checkProceedings = (
-      proceedings: Proceeding[] | undefined | null,
-    ): boolean => proceedings !== undefined && proceedings !== null;
-
-    const backButtonUrl = checkProceedings(req.session.selectedProceedings)
-      ? "/apply/proceedings/confirmation"
-      : "/apply/proceedings";
+    const backButtonUrl = this.#getNameBackButtonUrl(
+      req.session.selectedProceedings,
+    );
 
     res.render("apply/deceased-details/name", {
       csrfToken,
@@ -54,9 +56,18 @@ export class DeceasedDetailsAdaptor {
     req.session.deceasedLastName = lastName;
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const backButtonUrl = this.#getNameBackButtonUrl(
+        req.session.selectedProceedings,
+      );
+
       res.render("apply/deceased-details/name", {
         csrfToken,
+        backButtonUrl,
         errorSummaries,
+        deceasedDetails: {
+          firstName,
+          lastName,
+        },
       });
     } else {
       res.redirect("/apply/deceased-details/dod");
@@ -136,6 +147,10 @@ export class DeceasedDetailsAdaptor {
     res: Response,
   ): void {
     const {
+      locals: { csrfToken },
+    } = res;
+
+    const {
       body: {
         "deceased-date-of-birth-day": dateOfBirthDay,
         "deceased-date-of-birth-month": dateOfBirthMonth,
@@ -147,7 +162,23 @@ export class DeceasedDetailsAdaptor {
     req.session.deceasedDateOfBirthMonth = dateOfBirthMonth;
     req.session.deceasedDateOfBirthYear = dateOfBirthYear;
 
-    res.redirect("/apply/deceased-details/client-relationship");
+    const errorSummaries = this.formValidator.validateDeceasedDateOfBirth(
+      req.body,
+    );
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/deceased-details/dob", {
+        csrfToken,
+        errorSummaries,
+        deceasedDetails: {
+          dateOfBirthDay,
+          dateOfBirthMonth,
+          dateOfBirthYear,
+        },
+      });
+    } else {
+      res.redirect("/apply/deceased-details/client-relationship");
+    }
   }
 
   renderClientRelationshipForm(req: Request, res: Response): void {
@@ -169,6 +200,10 @@ export class DeceasedDetailsAdaptor {
     res: Response,
   ): void {
     const {
+      locals: { csrfToken },
+    } = res;
+
+    const {
       body: {
         "deceased-client-relationship": deceasedClientRelationship,
         "deceased-has-client-relationship": deceasedHasClientRelationship,
@@ -177,7 +212,23 @@ export class DeceasedDetailsAdaptor {
 
     req.session.deceasedHasClientRelationship = deceasedHasClientRelationship;
     req.session.deceasedClientRelationship = deceasedClientRelationship;
-    res.redirect("/apply/deceased-details/coroner-reference");
+
+    const errorSummaries = this.formValidator.validateClientRelationship(
+      req.body,
+    );
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/deceased-details/client-relationship", {
+        csrfToken,
+        errorSummaries,
+        deceasedDetails: {
+          hasClientRelationship: deceasedHasClientRelationship,
+          clientRelationship: deceasedClientRelationship,
+        },
+      });
+    } else {
+      res.redirect("/apply/deceased-details/coroner-reference");
+    }
   }
 
   renderCoronerReferenceForm(req: Request, res: Response): void {
@@ -198,11 +249,30 @@ export class DeceasedDetailsAdaptor {
     res: Response,
   ): void {
     const {
+      locals: { csrfToken },
+    } = res;
+
+    const {
       body: { "deceased-coroner-reference": deceasedCoronerReference },
     } = req;
 
     req.session.deceasedCoronerReference = deceasedCoronerReference;
-    res.redirect("/apply/deceased-details/further-information");
+
+    const errorSummaries = this.formValidator.validateCoronerReference(
+      req.body,
+    );
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/deceased-details/coroner-reference", {
+        csrfToken,
+        errorSummaries,
+        deceasedDetails: {
+          coronerReference: deceasedCoronerReference,
+        },
+      });
+    } else {
+      res.redirect("/apply/deceased-details/further-information");
+    }
   }
 
   renderFurtherInfomationForm(req: Request, res: Response): void {
@@ -224,6 +294,10 @@ export class DeceasedDetailsAdaptor {
     res: Response,
   ): void {
     const {
+      locals: { csrfToken },
+    } = res;
+
+    const {
       body: {
         "deceased-has-further-information": deceasedHasFurtherInformation,
         "deceased-further-information": deceasedFurtherInformation,
@@ -232,6 +306,22 @@ export class DeceasedDetailsAdaptor {
 
     req.session.deceasedHasFurtherInformation = deceasedHasFurtherInformation;
     req.session.deceasedFurtherInformation = deceasedFurtherInformation;
-    res.redirect("/apply/public-authority");
+
+    const errorSummaries = this.formValidator.validateFurtherInformation(
+      req.body,
+    );
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("apply/deceased-details/further-information", {
+        csrfToken,
+        errorSummaries,
+        deceasedDetails: {
+          hasFurtherInformation: deceasedHasFurtherInformation,
+          furtherInformation: deceasedFurtherInformation,
+        },
+      });
+    } else {
+      res.redirect("/apply/public-authority");
+    }
   }
 }

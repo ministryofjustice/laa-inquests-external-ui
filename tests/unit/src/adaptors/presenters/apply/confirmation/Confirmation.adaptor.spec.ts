@@ -226,7 +226,38 @@ describe("Confirmation adaptor", () => {
   });
 
   describe("processClientDeclarationForm", () => {
+    it("re-renders declaration form with error when declaration checkbox is not selected", async () => {
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+
+      await confirmationAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(applySubmitPortStub.submitApplication.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/submit/client-declaration");
+
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: "abcdefg",
+        clientDetails: {
+          firstName: "Client",
+          lastName: "One",
+        },
+        errorSummaries: {
+          noDeclarationConfirmation: {
+            text: "You need to confirm the declaration to submit this application",
+          },
+        },
+      });
+    });
+
     it("submits application, saves applicationReferenceNumber and redirects on 201", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
       requestStub.session.clientLastNameAtBirth = "Birthname";
@@ -323,6 +354,7 @@ describe("Confirmation adaptor", () => {
     });
 
     it("omits optional nullable client fields when not in session", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
       requestStub.session.clientDobDay = "05";
@@ -647,6 +679,7 @@ describe("Confirmation adaptor", () => {
     });
 
     it("omits optional nullable client fields when null in session", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
       requestStub.session.clientLastNameAtBirth = null as unknown as string;
@@ -712,6 +745,7 @@ describe("Confirmation adaptor", () => {
     });
 
     it("calls clearApplyFormData on successful submission and sets applicationReferenceNumber in session after", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
       requestStub.session.clientLastNameAtBirth = "Birthname";

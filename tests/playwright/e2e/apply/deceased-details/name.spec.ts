@@ -1,6 +1,9 @@
 import { Page, type Locator } from "@playwright/test";
 import { test, expect } from "../../../fixtures/index.js";
-import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
+import {
+  DECEASED_DETAILS_ERROR,
+  DECEASED_NAME_PAGE,
+} from "#src/infrastructure/locales/constants.js";
 import {
   continueToNextPage,
   validateBackButton,
@@ -13,19 +16,19 @@ import {
 test.describe("Provider can", () => {
   let form: Locator;
   test.beforeEach(async ({ page }) => {
-    await page.goto("/apply/deceased-details/name");
+    await page.goto(DECEASED_NAME_PAGE.FORM_PATH);
     form = await page.getByTestId("deceased-details-form");
   });
 
   test("view deceased name page", async ({ page }) => {
-    await validateHeader(page, "What is the name of the deceased?", 2);
-    await validateBackButton(page, "/apply/proceedings");
-    await validateFormAttributes(form, "/apply/deceased-details/name");
+    await validateHeader(page, DECEASED_NAME_PAGE.HEADING, 2);
+    await validateBackButton(page, DECEASED_NAME_PAGE.BACK_PATH);
+    await validateFormAttributes(form, DECEASED_NAME_PAGE.FORM_PATH);
     await validateCSRFToken(form);
     await validateContinueButton(form);
 
-    const firstNameLabel = form.getByLabel("First name");
-    const lastNameLabel = form.getByLabel("Last name", {
+    const firstNameLabel = form.getByLabel(DECEASED_NAME_PAGE.FIRST_NAME_LABEL);
+    const lastNameLabel = form.getByLabel(DECEASED_NAME_PAGE.LAST_NAME_LABEL, {
       exact: true,
     });
     await expect(firstNameLabel).toBeVisible();
@@ -35,8 +38,8 @@ test.describe("Provider can", () => {
   test("continue to deceased date of death when they've filled in deceased name", async ({
     page,
   }) => {
-    const firstNameLabel = form.getByLabel("First name");
-    const lastNameLabel = form.getByLabel("Last name", {
+    const firstNameLabel = form.getByLabel(DECEASED_NAME_PAGE.FIRST_NAME_LABEL);
+    const lastNameLabel = form.getByLabel(DECEASED_NAME_PAGE.LAST_NAME_LABEL, {
       exact: true,
     });
 
@@ -44,12 +47,13 @@ test.describe("Provider can", () => {
     await lastNameLabel.fill("Test");
 
     await continueToNextPage(form, page);
-    await expect(page.url()).toContain("apply/deceased-details/dod");
+    await expect(page.url()).toContain(DECEASED_NAME_PAGE.NEXT_PATH);
   });
 
   test.describe("see validation errors when", () => {
     test("first and last names are empty", async ({ page }) => {
       await continueToNextPage(form, page);
+      await expect(page.url()).toContain(DECEASED_NAME_PAGE.FORM_PATH);
 
       const firstNameErrorMessage = form.locator("#deceased-first-name-error");
       await expect(firstNameErrorMessage).toBeVisible();
@@ -69,7 +73,13 @@ test.describe("Provider can", () => {
       const firstName = form.getByLabel("First name");
       await firstName.fill("a".repeat(101));
 
+      const lastName = form.getByLabel("Last name", {
+        exact: true,
+      });
+      await lastName.fill("b".repeat(101));
+
       await continueToNextPage(form, page);
+      await expect(page.url()).toContain(DECEASED_NAME_PAGE.FORM_PATH);
 
       const firstNameErrorMessage = form.locator("#deceased-first-name-error");
       await expect(firstNameErrorMessage).toBeVisible();
@@ -80,7 +90,7 @@ test.describe("Provider can", () => {
       const lastNameErrorMessage = form.locator("#deceased-last-name-error");
       await expect(lastNameErrorMessage).toBeVisible();
       await expect(lastNameErrorMessage).toContainText(
-        DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
+        DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       );
     });
   });
@@ -88,15 +98,15 @@ test.describe("Provider can", () => {
   test("fill in details, continue and navigate back with deceased details name automatically filled in", async ({
     page,
   }) => {
-    const firstNameField = form.getByLabel("First name");
-    const lastNameField = form.getByLabel("Last name");
+    const firstNameField = form.getByLabel(DECEASED_NAME_PAGE.FIRST_NAME_LABEL);
+    const lastNameField = form.getByLabel(DECEASED_NAME_PAGE.LAST_NAME_LABEL);
 
     const [firstName, lastName] = ["Test", "Test 2"];
     await firstNameField.fill(firstName);
     await lastNameField.fill(lastName);
 
     await continueToNextPage(form, page);
-    await page.goto("/apply/deceased-details/name");
+    await page.goto(DECEASED_NAME_PAGE.FORM_PATH);
 
     await expect(firstNameField).toHaveValue(firstName);
     await expect(lastNameField).toHaveValue(lastName);

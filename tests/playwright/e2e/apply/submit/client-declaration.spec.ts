@@ -225,4 +225,138 @@ test.describe("Provider can", () => {
     await continueToNextPage(form, page);
     await expect(page.url()).toContain(nextPage);
   });
+
+  test("sees validation error when declaration is not confirmed", async ({
+    page,
+  }) => {
+    const continueNextPage = async (formTestId: string): Promise<void> => {
+      const form = await page.getByTestId(formTestId);
+      await continueToNextPage(form, page);
+    };
+
+    await page.goto("/apply/client-details/name-and-dob");
+    await getAndUpdateFormFields(
+      page,
+      {
+        "First name": "test",
+        "Last name": "surname",
+        Day: "01",
+        Month: "01",
+        Year: "1990",
+        Yes: "",
+        "What was your client's last name at birth?": "Last name at birth",
+      },
+      ["Last name"],
+    );
+    await continueNextPage("client-details-form");
+    await expect(page.url()).toContain("/apply/client-details/nino");
+
+    await getAndUpdateFormFields(page, {
+      Yes: "",
+      "Enter your client's National Insurance number": "PC123456C",
+    });
+    await continueNextPage("nino-form");
+    await expect(page.url()).toContain(
+      "/apply/client-details/has-prev-application",
+    );
+
+    await getAndUpdateFormFields(page, {
+      No: "",
+    });
+    await continueNextPage("has-prev-application-form");
+    await expect(page.url()).toContain("/apply/proceedings");
+
+    await page.getByLabel("CAPA", { exact: true }).click();
+    await continueNextPage("add-proceeding-form");
+    await expect(page.url()).toContain("/apply/proceedings/confirmation");
+
+    await getAndUpdateFormFields(page, {
+      No: "",
+    });
+    await continueNextPage("add-another-proceeding-form");
+    await expect(page.url()).toContain("/apply/deceased-details/name");
+
+    await getAndUpdateFormFields(
+      page,
+      {
+        "First name": "bob",
+        "Last name": "boberton",
+      },
+      ["Last name"],
+    );
+    await continueNextPage("deceased-details-form");
+    await expect(page.url()).toContain("/apply/deceased-details/dod");
+
+    await getAndUpdateFormFields(page, {
+      Day: "01",
+      Month: "01",
+      Year: "2025",
+    });
+    await continueNextPage("deceased-date-of-death-form");
+    await expect(page.url()).toContain("/apply/deceased-details/dob");
+
+    await getAndUpdateFormFields(page, {
+      Day: "01",
+      Month: "01",
+      Year: "2000",
+    });
+    await continueNextPage("deceased-date-of-birth-form");
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/client-relationship",
+    );
+
+    await getAndUpdateFormFields(page, {
+      Yes: "",
+      "Please describe the nature of the relationship between your client and the deceased":
+        "guardian",
+    });
+    await continueNextPage("deceased-client-relationship-form");
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/coroner-reference",
+    );
+
+    await getAndUpdateFormFields(page, {
+      "Please enter your reference number": "123356789",
+    });
+    await continueNextPage("deceased-coroner-reference-form");
+    await expect(page.url()).toContain(
+      "/apply/deceased-details/further-information",
+    );
+
+    await getAndUpdateFormFields(page, {
+      Yes: "",
+      "Please provide any details available of linked or bridged inquests":
+        "further details here",
+    });
+    await continueNextPage("deceased-further-information-form");
+    await expect(page.url()).toContain("/apply/public-authority");
+
+    await page.getByLabel("Department for Transport", { exact: true }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.url()).toContain("/apply/public-authority/confirmation");
+
+    await getAndUpdateFormFields(page, {
+      No: "",
+    });
+    await continueNextPage("add-another-public-authority-form");
+    await expect(page.url()).toContain("/apply/check-your-answers");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.url()).toContain(currentPage);
+
+    const form = await page.getByTestId("client-declaration-form");
+    await expect(form.getByText("test surname agrees that:")).toBeVisible();
+
+    await continueToNextPage(form, page);
+
+    await expect(page.url()).toContain(currentPage);
+    const errorSummary = page.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      "You need to confirm the declaration to submit this application",
+    );
+  });
 });
