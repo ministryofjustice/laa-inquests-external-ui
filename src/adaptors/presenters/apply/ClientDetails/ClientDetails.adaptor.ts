@@ -16,11 +16,17 @@ import type {
   Proceeding,
 } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
+import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 
 export class ClientDetailsAdaptor {
   formValidator: ClientDetailsValidator;
-  constructor(formValidator: ClientDetailsValidator) {
+  formatter: ClientDetailsFormatter;
+  constructor(
+    formValidator: ClientDetailsValidator,
+    formatter: ClientDetailsFormatter = new ClientDetailsFormatter(),
+  ) {
     this.formValidator = formValidator;
+    this.formatter = formatter;
   }
 
   renderNameForm(req: Request, res: Response): void {
@@ -136,7 +142,7 @@ export class ClientDetailsAdaptor {
     } = res;
 
     const clientHomeAddress = this.#getClientHomeAddress(req);
-    const client = this.#toHomeAddressViewModel(clientHomeAddress);
+    const client = this.formatter.toHomeAddressViewModel(clientHomeAddress);
     client.hasNoFixedAbode = this.#isClientNoFixedAbode(req);
 
     res.render("apply/client-details/home-address", {
@@ -173,7 +179,7 @@ export class ClientDetailsAdaptor {
       return;
     }
 
-    const homeAddress = this.#buildClientHomeAddress({
+    const homeAddress = this.formatter.buildClientHomeAddress({
       "home-address-line-1": addressLine1,
       "home-address-line-2": addressLine2,
       "home-town-or-city": townOrCity,
@@ -184,7 +190,7 @@ export class ClientDetailsAdaptor {
     req.session.clientHomeAddress = homeAddress;
 
     const homeAddressErrors = this.formValidator.validateHomeAddress(req.body);
-    const client = this.#toHomeAddressViewModel(homeAddress);
+    const client = this.formatter.toHomeAddressViewModel(homeAddress);
 
     if (Object.keys(homeAddressErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/client-details/home-address", {
@@ -264,7 +270,9 @@ export class ClientDetailsAdaptor {
     const correspondenceAddress = this.#getClientCorrespondenceAddress(req);
     res.render("apply/client-details/correspondence-address", {
       csrfToken,
-      client: this.#toCorrespondenceAddressViewModel(correspondenceAddress),
+      client: this.formatter.toCorrespondenceAddressViewModel(
+        correspondenceAddress,
+      ),
     });
   }
 
@@ -275,9 +283,8 @@ export class ClientDetailsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    const correspondenceAddress = this.#buildClientCorrespondenceAddress(
-      req.body,
-    );
+    const correspondenceAddress =
+      this.formatter.buildClientCorrespondenceAddress(req.body);
     req.session.clientCorrespondenceAddress = correspondenceAddress;
     const correspondenceAddressErrors =
       this.formValidator.validateCorrespondenceAddress(req.body);
@@ -286,7 +293,9 @@ export class ClientDetailsAdaptor {
       res.render("apply/client-details/correspondence-address", {
         csrfToken,
         errorSummaries: correspondenceAddressErrors,
-        client: this.#toCorrespondenceAddressViewModel(correspondenceAddress),
+        client: this.formatter.toCorrespondenceAddressViewModel(
+          correspondenceAddress,
+        ),
       });
     } else {
       res.redirect("/apply/client-details/correspondence-recipient");
@@ -307,7 +316,12 @@ export class ClientDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const client = this.#buildCorrespondenceRecipientViewModel(req, params);
+    const recipient = this.#getClientCorrespondenceRecipient(req);
+    const client = this.formatter.buildCorrespondenceRecipientViewModel(
+      req,
+      recipient,
+      params,
+    );
 
     res.render("apply/client-details/correspondence-recipient", {
       csrfToken,
@@ -438,123 +452,6 @@ export class ClientDetailsAdaptor {
     );
   }
 
-  #toHomeAddressViewModel(clientHomeAddress: ClientHomeAddress | null): {
-    homeAddressLine1: string;
-    homeAddressLine2: string;
-    homeTownOrCity: string;
-    homeCounty: string;
-    homePostcode: string;
-    hasNoFixedAbode: boolean;
-  } {
-    if (clientHomeAddress === null) {
-      return {
-        homeAddressLine1: "",
-        homeAddressLine2: "",
-        homeTownOrCity: "",
-        homeCounty: "",
-        homePostcode: "",
-        hasNoFixedAbode: false,
-      };
-    }
-    const { addressLine1, addressLine2, townOrCity, county, postcode } =
-      clientHomeAddress;
-    return {
-      homeAddressLine1: addressLine1,
-      homeAddressLine2: addressLine2 ?? "",
-      homeTownOrCity: townOrCity,
-      homeCounty: county ?? "",
-      homePostcode: postcode,
-      hasNoFixedAbode: false,
-    };
-  }
-
-  #toCorrespondenceAddressViewModel(
-    correspondenceAddress: ClientHomeAddress | null,
-  ): {
-    correspondenceAddressLine1: string;
-    correspondenceAddressLine2: string;
-    correspondenceTownOrCity: string;
-    correspondenceCounty: string;
-    correspondencePostcode: string;
-  } {
-    if (correspondenceAddress === null) {
-      return {
-        correspondenceAddressLine1: "",
-        correspondenceAddressLine2: "",
-        correspondenceTownOrCity: "",
-        correspondenceCounty: "",
-        correspondencePostcode: "",
-      };
-    }
-    const { addressLine1, addressLine2, townOrCity, county, postcode } =
-      correspondenceAddress;
-    return {
-      correspondenceAddressLine1: addressLine1,
-      correspondenceAddressLine2: addressLine2 ?? "",
-      correspondenceTownOrCity: townOrCity,
-      correspondenceCounty: county ?? "",
-      correspondencePostcode: postcode,
-    };
-  }
-
-  #buildClientHomeAddress(
-    formBody: Partial<ClientDetailsFormData>,
-  ): ClientHomeAddress {
-    const {
-      "home-address-line-1": addressLine1,
-      "home-address-line-2": addressLine2,
-      "home-town-or-city": townOrCity,
-      "home-county": county,
-      "home-postcode": postcode,
-    } = formBody;
-
-    const normalizedAddressLine2 =
-      typeof addressLine2 === "string" && addressLine2.length > EMPTY_ARR_LENGTH
-        ? addressLine2
-        : null;
-    const normalizedCounty =
-      typeof county === "string" && county.length > EMPTY_ARR_LENGTH
-        ? county
-        : null;
-
-    return {
-      addressLine1: addressLine1 ?? "",
-      addressLine2: normalizedAddressLine2,
-      townOrCity: townOrCity ?? "",
-      county: normalizedCounty,
-      postcode: postcode ?? "",
-    };
-  }
-
-  #buildClientCorrespondenceAddress(
-    formBody: Partial<ClientDetailsFormData>,
-  ): ClientHomeAddress {
-    const {
-      "correspondence-address-line-1": addressLine1,
-      "correspondence-address-line-2": addressLine2,
-      "correspondence-town-or-city": townOrCity,
-      "correspondence-county": county,
-      "correspondence-postcode": postcode,
-    } = formBody;
-
-    const normalizedAddressLine2 =
-      typeof addressLine2 === "string" && addressLine2.length > EMPTY_ARR_LENGTH
-        ? addressLine2
-        : null;
-    const normalizedCounty =
-      typeof county === "string" && county.length > EMPTY_ARR_LENGTH
-        ? county
-        : null;
-
-    return {
-      addressLine1: addressLine1 ?? "",
-      addressLine2: normalizedAddressLine2,
-      townOrCity: townOrCity ?? "",
-      county: normalizedCounty,
-      postcode: postcode ?? "",
-    };
-  }
-
   #isCorrespondenceAddressSource(
     value: unknown,
   ): value is CorrespondenceAddressSourceValue {
@@ -637,85 +534,6 @@ export class ClientDetailsAdaptor {
       recipientType: selection,
       recipientName: recipientName ?? "",
     };
-  }
-
-  #buildCorrespondenceRecipientViewModel(
-    req: { session: Request["session"] },
-    params?: {
-      correspondenceRecipient?: string | undefined;
-      personName?: string | undefined;
-      organisationName?: string | undefined;
-    },
-  ): {
-    correspondenceRecipient: string;
-    correspondenceRecipientPersonName: string;
-    correspondenceRecipientOrganisationName: string;
-  } {
-    const recipient = this.#getClientCorrespondenceRecipient(req);
-
-    return {
-      correspondenceRecipient: this.#getCorrespondenceRecipientTypeValue(
-        req,
-        recipient,
-        params?.correspondenceRecipient,
-      ),
-      correspondenceRecipientPersonName: this.#getPersonRecipientNameValue(
-        recipient,
-        params?.personName,
-      ),
-      correspondenceRecipientOrganisationName:
-        this.#getOrganisationRecipientNameValue(
-          recipient,
-          params?.organisationName,
-        ),
-    };
-  }
-
-  #getCorrespondenceRecipientTypeValue(
-    req: { session: Request["session"] },
-    recipient: ClientCorrespondenceRecipient | null,
-    overrideValue: string | undefined,
-  ): string {
-    if (typeof overrideValue === "string") {
-      return overrideValue;
-    }
-
-    if (recipient !== null) {
-      return recipient.recipientType;
-    }
-
-    return this.#getNoRecipientSelection(req);
-  }
-
-  #getPersonRecipientNameValue(
-    recipient: ClientCorrespondenceRecipient | null,
-    overrideValue: string | undefined,
-  ): string {
-    if (typeof overrideValue === "string") {
-      return overrideValue;
-    }
-
-    return recipient?.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON
-      ? recipient.recipientName
-      : "";
-  }
-
-  #getOrganisationRecipientNameValue(
-    recipient: ClientCorrespondenceRecipient | null,
-    overrideValue: string | undefined,
-  ): string {
-    if (typeof overrideValue === "string") {
-      return overrideValue;
-    }
-
-    return recipient?.recipientType ===
-      CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION
-      ? recipient.recipientName
-      : "";
-  }
-
-  #getNoRecipientSelection(req: { session: Request["session"] }): "" | "NONE" {
-    return req.session.clientCorrespondenceRecipient === null ? "NONE" : "";
   }
 
   #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {
