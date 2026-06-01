@@ -27,9 +27,12 @@ export function createAuthRouter(
     },
   );
 
-  authRouter.get("/logout", (req: Request, res: Response): void => {
-    authAdaptor.logout(req, res);
-  });
+  authRouter.get(
+    "/logout",
+    (req: Request, res: Response, next: NextFunction): void => {
+      authAdaptor.logout(req, res, next);
+    },
+  );
 
   return authRouter;
 }
