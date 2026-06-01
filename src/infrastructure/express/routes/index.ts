@@ -21,6 +21,7 @@ import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
 import { SessionHelper } from "../session/sessionHelpers.js";
+import { requireAuth } from "../middleware/auth/requireAuth.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -34,11 +35,11 @@ const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
 /* GET home page. */
-indexRouter.get("/", (req: Request, res: Response): void => {
+indexRouter.get("/", requireAuth,(req: Request, res: Response): void => {
   res.render("main/index");
 });
 
-indexRouter.get("/apply", (req: Request, res: Response): void => {
+indexRouter.get("/apply", requireAuth, (req: Request, res: Response): void => {
   res.render("apply/declaration");
 });
 
@@ -58,6 +59,18 @@ indexRouter.get("/error", (req: Request, res: Response): void => {
     .status(UNSUCCESSFUL_REQUEST)
     .send("Internal Server Error");
 });
+
+//TODO: Move this into test file
+// Test-only: seed session with a userId without going through auth
+// Never reachable in production (NODE_ENV is never 'test' in production)
+if (config.app.environment === "test") {
+  indexRouter.get("/test/auth-session", (req: Request, res: Response): void => {
+    req.session["userId"] = "test-user-id";
+    req.session.save(() => {
+      res.status(SUCCESSFUL_REQUEST).send("session seeded");
+    });
+  });
+}
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
 const clientDetailsFormatter = new ClientDetailsFormatter();

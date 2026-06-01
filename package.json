@@ -21,7 +21,7 @@
     "build:ts": "tsc",
     "test": "yarn build && yarn test:unit && yarn test:e2e",
     "test:unit": "mocha",
-    "test:e2e": "yarn playwright test --config=tests/playwright/playwright.config.ts",
+    "test:e2e": "yarn build && yarn playwright test --config=tests/playwright/playwright.config.ts",
     "coverage": "c8 yarn test:unit --check-coverage"
   },
   "engines": {
@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.2",
+    "@azure/msal-node": "^5.2.2",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
     "@types/chai": "^5.2.3",

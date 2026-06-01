@@ -12,6 +12,7 @@ declare module "express-session" {
     clientCorrespondenceAddressSource?: CorrespondenceAddressSource;
     clientCorrespondenceRecipient?: ClientCorrespondenceRecipient | null;
     clientHasNoFixedAbode?: boolean;
+    userId?: string;
   }
 }
 

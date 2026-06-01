@@ -66,6 +66,16 @@ nvm use
 nvm install
 ```
 
+#### Install dependencies and run tests
+
+```shell
+yarn install
+yarn playwright install
+yarn test
+yarn test:unit
+yarn test:e2e
+```
+
 #### Install dependencies and run application for development
 
 ```shell
