@@ -17,6 +17,7 @@ import type {
 } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
+import { toClientHomeAddressOrNull } from "#src/adaptors/presenters/apply/models/address.mapper.js";
 
 export class ClientDetailsAdaptor {
   // # TODO Step 2: Move this to application/apply/clientDetails/useCases and keep this adaptor focused on HTTP mapping.
@@ -434,33 +435,12 @@ export class ClientDetailsAdaptor {
 
   #getClientHomeAddress(req: Request): ClientHomeAddress | null {
     // # TODO Step 1: Move this to domain/client/Address.ts via an Address mapper/value-object factory.
-    const { session } = req;
-    const { clientHomeAddress } = session;
-    return this.#isClientHomeAddress(clientHomeAddress)
-      ? clientHomeAddress
-      : null;
+    return toClientHomeAddressOrNull(req.session.clientHomeAddress);
   }
 
   #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
     // # TODO Step 1: Move this to domain/client/Address.ts correspondence reconstruction.
-    const { session } = req;
-    const { clientCorrespondenceAddress } = session;
-    return this.#isClientHomeAddress(clientCorrespondenceAddress)
-      ? clientCorrespondenceAddress
-      : null;
-  }
-
-  #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
-    // # TODO Step 1: Move this to domain/client/Address.ts as an Address invariant.
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-      return false;
-    }
-    const candidate = value as Partial<ClientHomeAddress>;
-    return (
-      typeof candidate.addressLine1 === "string" &&
-      typeof candidate.townOrCity === "string" &&
-      typeof candidate.postcode === "string"
-    );
+    return toClientHomeAddressOrNull(req.session.clientCorrespondenceAddress);
   }
 
   #isCorrespondenceAddressSource(

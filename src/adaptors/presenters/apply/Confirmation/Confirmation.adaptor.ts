@@ -23,6 +23,7 @@ import type {
   ClientDeclarationError,
   ClientDeclarationFormData,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
+import { toClientHomeAddressOrNull } from "#src/adaptors/presenters/apply/models/address.mapper.js";
 
 export class ConfirmationAdaptor {
   // # TODO Step 4: Move this to application/apply/confirmation/useCases/SubmitApplication.
@@ -429,20 +430,12 @@ export class ConfirmationAdaptor {
 
   #getClientHomeAddress(req: Request): ClientHomeAddress | null {
     // # TODO Step 1: Move this to domain/client/Address.ts reconstruction from persisted state.
-    const { session } = req;
-    const { clientHomeAddress } = session;
-    return this.#isClientHomeAddress(clientHomeAddress)
-      ? clientHomeAddress
-      : null;
+    return toClientHomeAddressOrNull(req.session.clientHomeAddress);
   }
 
   #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
     // # TODO Step 1: Move this to domain/client/Address.ts correspondence reconstruction.
-    const { session } = req;
-    const { clientCorrespondenceAddress } = session;
-    return this.#isClientHomeAddress(clientCorrespondenceAddress)
-      ? clientCorrespondenceAddress
-      : null;
+    return toClientHomeAddressOrNull(req.session.clientCorrespondenceAddress);
   }
 
   #getClientCorrespondenceRecipient(
@@ -456,19 +449,6 @@ export class ConfirmationAdaptor {
       : null;
   }
 
-  #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
-    // # TODO Step 1: Move this to domain/client/Address.ts address invariants.
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-      return false;
-    }
-
-    const candidate = value as Partial<ClientHomeAddress>;
-    return (
-      typeof candidate.addressLine1 === "string" &&
-      typeof candidate.townOrCity === "string" &&
-      typeof candidate.postcode === "string"
-    );
-  }
 
   #isClientCorrespondenceRecipient(
     value: unknown,
