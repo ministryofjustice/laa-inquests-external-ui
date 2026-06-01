@@ -17,7 +17,9 @@ import type {
 } from "../models/form.types.js";
 
 export class DeceasedDetailsValidator extends FormValidator {
+  // # TODO Step 3: Move this to application/apply/deceasedDetails/validators/DeceasedDetailsValidator.
   validateName(formBody: Partial<DeceasedDetailsFormData>): DeceasedNameError {
+    // # TODO Step 3: Move this to application/apply/deceasedDetails/validators with shared error contract.
     const errorSummaries: Partial<DeceasedNameError> = {};
 
     const { "deceased-first-name": firstName, "deceased-last-name": lastName } =
@@ -53,6 +55,7 @@ export class DeceasedDetailsValidator extends FormValidator {
   validateDeceasedDateOfDeath(
     formBody: Partial<DeceasedDetailsFormData>,
   ): Partial<DeceasedDateOfDeathError> {
+    // # TODO Step 3: Move this to application/apply/deceasedDetails/validators/dateOfDeathPolicy.
     const errorSummaries: Partial<DeceasedDateOfDeathError> = {};
 
     const {
@@ -85,6 +88,7 @@ export class DeceasedDetailsValidator extends FormValidator {
   validateDeceasedDateOfBirth(
     formBody: Partial<DeceasedDetailsFormData>,
   ): Partial<DeceasedDateOfBirthError> {
+    // # TODO Step 3: Move this to application/apply/deceasedDetails/validators/dateOfBirthPolicy.
     const errorSummaries: Partial<DeceasedDateOfBirthError> = {};
 
     const {
@@ -117,6 +121,8 @@ export class DeceasedDetailsValidator extends FormValidator {
   validateClientRelationship(
     formBody: Partial<DeceasedDetailsFormData>,
   ): Partial<DeceasedClientRelationshipError> {
+    // # TODO Step 1: Move this to domain/deceased/Relationship.ts (eligibility rule for "false" branch).
+    // # TODO Step 3: Move this to application/apply/deceasedDetails/validators/relationshipInputPolicy.
     const errorSummaries: Partial<DeceasedClientRelationshipError> = {};
     const {
       "deceased-has-client-relationship": hasClientRelationship,
@@ -158,6 +164,7 @@ export class DeceasedDetailsValidator extends FormValidator {
   validateCoronerReference(
     formBody: Partial<DeceasedDetailsFormData>,
   ): Partial<DeceasedCoronerReferenceError> {
+    // # TODO Step 3: Move this to application/apply/deceasedDetails/validators/coronerReferencePolicy.
     const errorSummaries: Partial<DeceasedCoronerReferenceError> = {};
     const { "deceased-coroner-reference": coronerReference } = formBody;
 
@@ -178,6 +185,7 @@ export class DeceasedDetailsValidator extends FormValidator {
   validateFurtherInformation(
     formBody: Partial<DeceasedDetailsFormData>,
   ): Partial<DeceasedFurtherInformationError> {
+    // # TODO Step 3: Move this to application/apply/deceasedDetails/validators/furtherInformationPolicy.
     const errorSummaries: Partial<DeceasedFurtherInformationError> = {};
     const {
       "deceased-has-further-information": hasFurtherInformation,

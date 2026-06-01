@@ -19,6 +19,7 @@ import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 
 export class ClientDetailsAdaptor {
+  // # TODO Step 2: Move this to application/apply/clientDetails/useCases and keep this adaptor focused on HTTP mapping.
   formValidator: ClientDetailsValidator;
   formatter: ClientDetailsFormatter;
   constructor(
@@ -52,6 +53,7 @@ export class ClientDetailsAdaptor {
     req: TypedRequestBody<Partial<ClientDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/clientDetails/useCases/ProcessClientNameAndDob.
     const {
       locals: { csrfToken },
     } = res;
@@ -110,6 +112,7 @@ export class ClientDetailsAdaptor {
     req: TypedRequestBody<Partial<ClientDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/clientDetails/useCases/ProcessClientNino.
     const {
       locals: { csrfToken },
     } = res;
@@ -155,6 +158,7 @@ export class ClientDetailsAdaptor {
     req: TypedRequestBody<Partial<ClientDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/clientDetails/useCases/ProcessClientHomeAddress.
     const {
       locals: { csrfToken },
     } = res;
@@ -220,6 +224,7 @@ export class ClientDetailsAdaptor {
     req: TypedRequestBody<Partial<ClientDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/clientDetails/useCases/ProcessCorrespondenceAddressSource.
     const {
       locals: { csrfToken },
     } = res;
@@ -280,6 +285,7 @@ export class ClientDetailsAdaptor {
     req: TypedRequestBody<Partial<ClientDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/clientDetails/useCases/ProcessCorrespondenceAddress.
     const {
       locals: { csrfToken },
     } = res;
@@ -334,6 +340,7 @@ export class ClientDetailsAdaptor {
     req: TypedRequestBody<Partial<ClientDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/clientDetails/useCases/ProcessCorrespondenceRecipient.
     const {
       body: {
         "correspondence-recipient": correspondenceRecipient,
@@ -393,6 +400,7 @@ export class ClientDetailsAdaptor {
     req: TypedRequestBody<Partial<ClientDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/clientDetails/useCases/ProcessHasPreviousApplication.
     const {
       locals: { csrfToken },
     } = res;
@@ -425,6 +433,7 @@ export class ClientDetailsAdaptor {
   }
 
   #getClientHomeAddress(req: Request): ClientHomeAddress | null {
+    // # TODO Step 1: Move this to domain/client/Address.ts via an Address mapper/value-object factory.
     const { session } = req;
     const { clientHomeAddress } = session;
     return this.#isClientHomeAddress(clientHomeAddress)
@@ -433,6 +442,7 @@ export class ClientDetailsAdaptor {
   }
 
   #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
+    // # TODO Step 1: Move this to domain/client/Address.ts correspondence reconstruction.
     const { session } = req;
     const { clientCorrespondenceAddress } = session;
     return this.#isClientHomeAddress(clientCorrespondenceAddress)
@@ -441,6 +451,7 @@ export class ClientDetailsAdaptor {
   }
 
   #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
+    // # TODO Step 1: Move this to domain/client/Address.ts as an Address invariant.
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
@@ -455,6 +466,7 @@ export class ClientDetailsAdaptor {
   #isCorrespondenceAddressSource(
     value: unknown,
   ): value is CorrespondenceAddressSourceValue {
+    // # TODO Step 1: Move this to domain/client/CorrespondenceAddressSource.ts.
     return (
       value === "USE_CLIENT_HOME_ADDRESS" ||
       value === "USE_SPECIFIED_ADDRESS" ||
@@ -465,6 +477,7 @@ export class ClientDetailsAdaptor {
   #getClientCorrespondenceAddressSource(
     req: Request,
   ): CorrespondenceAddressSourceValue | null {
+    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts state reconstruction.
     const { session } = req;
     return this.#isCorrespondenceAddressSource(
       session.clientCorrespondenceAddressSource,
@@ -476,6 +489,7 @@ export class ClientDetailsAdaptor {
   #getClientCorrespondenceRecipient(req: {
     session: Request["session"];
   }): ClientCorrespondenceRecipient | null {
+    // # TODO Step 1: Move this to domain/client/CorrespondenceRecipient.ts reconstruction.
     const { session } = req;
     return this.#isClientCorrespondenceRecipient(
       session.clientCorrespondenceRecipient,
@@ -487,6 +501,7 @@ export class ClientDetailsAdaptor {
   #isClientCorrespondenceRecipient(
     value: unknown,
   ): value is ClientCorrespondenceRecipient {
+    // # TODO Step 1: Move this to domain/client/CorrespondenceRecipient.ts as recipient invariants.
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
@@ -503,6 +518,7 @@ export class ClientDetailsAdaptor {
   #isCorrespondenceRecipientSelection(
     value: unknown,
   ): value is CorrespondenceRecipientSelectionValue {
+    // # TODO Step 1: Move this to domain/client/CorrespondenceAddressSource.ts enum/value parsing.
     return (
       value === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
       value === CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION ||
@@ -513,6 +529,7 @@ export class ClientDetailsAdaptor {
   #getCorrespondenceRecipientSelection(
     value: unknown,
   ): CorrespondenceRecipientSelectionValue | null {
+    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts selection parsing.
     return this.#isCorrespondenceRecipientSelection(value) ? value : null;
   }
 
@@ -521,6 +538,7 @@ export class ClientDetailsAdaptor {
     personName: string | undefined,
     organisationName: string | undefined,
   ): ClientCorrespondenceRecipient | null {
+    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts recipient construction rule.
     if (selection === "NONE") {
       return null;
     }
@@ -537,6 +555,7 @@ export class ClientDetailsAdaptor {
   }
 
   #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {
+    // # TODO Step 1: Move this to domain/client/Client.ts as a client behavior query.
     return req.session.clientHasNoFixedAbode === true;
   }
 }

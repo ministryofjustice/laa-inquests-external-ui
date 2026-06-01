@@ -25,9 +25,11 @@ export const PUBLIC_AUTHORITY_ERROR = {
 };
 
 export class PublicAuthorityValidator extends FormValidator {
+  // # TODO Step 3: Move this to application/apply/publicAuthority/validators/PublicAuthorityValidator.
   validatePublicAuthorityInput(
     formBody: Partial<PublicAuthorityFormData>,
   ): Partial<PublicAuthorityError> {
+    // # TODO Step 3: Move this to application/apply/publicAuthority/validators/selectionPolicy.
     const errorSummaries: Partial<PublicAuthorityError> = {};
 
     const { publicAuthorityOption } = formBody;
@@ -44,6 +46,7 @@ export class PublicAuthorityValidator extends FormValidator {
   validateAddAnotherPublicAuthority(
     formBody: Partial<PublicAuthorityFormData>,
   ): Partial<PublicAuthorityError> {
+    // # TODO Step 3: Move this to application/apply/publicAuthority/validators/addAnotherPolicy.
     const errorSummaries: Partial<PublicAuthorityError> = {};
 
     const { "add-another-public-authority": isAddingAnotherPublicAuthority } =
@@ -61,6 +64,7 @@ export class PublicAuthorityValidator extends FormValidator {
   validatePublicAuthorityList(
     selectedPublicAuthorities: unknown[],
   ): Partial<PublicAuthorityError> {
+    // # TODO Step 1: Move this to domain/publicAuthority/PublicAuthoritySelection.ts minimum-size invariant.
     const errorSummaries: Partial<PublicAuthorityError> = {};
 
     if (selectedPublicAuthorities.length === EMPTY_ARR_LENGTH) {

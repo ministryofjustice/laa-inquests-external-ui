@@ -9,9 +9,11 @@ import type {
 } from "../models/form.types.js";
 
 export class ProceedingsValidator extends FormValidator {
+  // # TODO Step 3: Move this to application/apply/proceedings/validators/ProceedingsValidator.
   validateProceedingInput(
     formBody: Partial<ProceedingsFormData>,
   ): Partial<ProceedingsError> {
+    // # TODO Step 3: Move this to application/apply/proceedings/validators/proceedingInputPolicy.
     const errorSummaries: Partial<ProceedingsError> = {};
 
     const { "proceeding-option": proceedingOption } = formBody;
@@ -28,6 +30,7 @@ export class ProceedingsValidator extends FormValidator {
   validateAddAnotherProceeding(
     formBody: Partial<ProceedingsFormData>,
   ): Partial<ProceedingsError> {
+    // # TODO Step 3: Move this to application/apply/proceedings/validators/addAnotherPolicy.
     const errorSummaries: Partial<ProceedingsError> = {};
 
     const { "add-another-proceeding": isAddingAnotherProceeding } = formBody;
@@ -43,6 +46,7 @@ export class ProceedingsValidator extends FormValidator {
   validateProceedingList(
     selectedProceedings: unknown[],
   ): Partial<ProceedingsError> {
+    // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts minimum-size invariant.
     const errorSummaries: Partial<ProceedingsError> = {};
 
     if (selectedProceedings.length === EMPTY_ARR_LENGTH) {

@@ -6,12 +6,14 @@ import type { DeceasedDetailsValidator } from "./DeceasedDetails.validator.js";
 import type { Request, Response } from "express";
 
 export class DeceasedDetailsAdaptor {
+  // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases.
   formValidator: DeceasedDetailsValidator;
   constructor(formValidator: DeceasedDetailsValidator) {
     this.formValidator = formValidator;
   }
 
   #getNameBackButtonUrl(proceedings: Proceeding[] | undefined | null): string {
+    // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases output policy.
     return proceedings !== undefined && proceedings !== null
       ? "/apply/proceedings/confirmation"
       : "/apply/proceedings";
@@ -40,6 +42,7 @@ export class DeceasedDetailsAdaptor {
     req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases/ProcessDeceasedName.
     const {
       body: {
         "deceased-first-name": firstName,
@@ -93,6 +96,7 @@ export class DeceasedDetailsAdaptor {
     req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases/ProcessDeceasedDateOfDeath.
     const {
       locals: { csrfToken },
     } = res;
@@ -146,6 +150,7 @@ export class DeceasedDetailsAdaptor {
     req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases/ProcessDeceasedDateOfBirth.
     const {
       locals: { csrfToken },
     } = res;
@@ -199,6 +204,7 @@ export class DeceasedDetailsAdaptor {
     req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases/ProcessDeceasedRelationship.
     const {
       locals: { csrfToken },
     } = res;
@@ -248,6 +254,7 @@ export class DeceasedDetailsAdaptor {
     req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases/ProcessDeceasedCoronerReference.
     const {
       locals: { csrfToken },
     } = res;
@@ -293,6 +300,7 @@ export class DeceasedDetailsAdaptor {
     req: TypedRequestBody<Partial<DeceasedDetailsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/deceasedDetails/useCases/ProcessDeceasedFurtherInformation.
     const {
       locals: { csrfToken },
     } = res;

@@ -25,6 +25,7 @@ import type {
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 
 export class ConfirmationAdaptor {
+  // # TODO Step 4: Move this to application/apply/confirmation/useCases/SubmitApplication.
   formatter: Formatter;
   applySubmitPort: ApplySubmitPort;
   sessionHelper: SessionHelper;
@@ -40,6 +41,7 @@ export class ConfirmationAdaptor {
   }
 
   renderCheckYourAnswers(req: Request, res: Response): void {
+    // # TODO Step 5: Move this to an application query/view-model mapper and keep this method render-only.
     const {
       locals: { csrfToken },
     } = res;
@@ -106,6 +108,7 @@ export class ConfirmationAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
+    // # TODO Step 4: Move this to application/apply/confirmation/useCases/SubmitApplication.
     const { "client-declaration-confirmation": declarationConfirmation } =
       req.body as ClientDeclarationFormData;
     const hasConfirmedDeclaration =
@@ -150,6 +153,7 @@ export class ConfirmationAdaptor {
   }
 
   #generateSubmitBody(req: Request): SubmitApplicationRequest {
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     const client = this.#buildClientForSubmit(req);
     this.#applyOptionalClientFields(client, req);
     this.#applyClientAddressesForSubmit(client, req);
@@ -172,6 +176,7 @@ export class ConfirmationAdaptor {
     client: SubmitApplicationRequest["client"],
     req: Request,
   ): void {
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     const { session } = req;
     const { clientLastNameAtBirth, clientNino } = session;
 
@@ -188,6 +193,8 @@ export class ConfirmationAdaptor {
     client: SubmitApplicationRequest["client"],
     req: Request,
   ): void {
+    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts (correspondence/home address decisions).
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
     client.hasNoFixedAbode = hasNoFixedAbode;
 
@@ -227,6 +234,8 @@ export class ConfirmationAdaptor {
     client: SubmitApplicationRequest["client"],
     req: Request,
   ): void {
+    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts (recipient decision rules).
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     const clientCorrespondenceRecipient =
       this.#getClientCorrespondenceRecipient(req);
 
@@ -261,6 +270,7 @@ export class ConfirmationAdaptor {
   }
 
   #createDateString(day?: string, month?: string, year?: string): string {
+    // # TODO Step 5: Move this to a presenter view-formatting mapper if still needed.
     return typeof day === "string" &&
       typeof month === "string" &&
       typeof year === "string"
@@ -274,10 +284,12 @@ export class ConfirmationAdaptor {
     townOrCity?: string,
     county?: string,
   ): string {
+    // # TODO Step 5: Move this to a presenter view-formatting mapper.
     return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrCity ?? ""} ${county ?? ""}`;
   }
 
   #getClientAddressSummary(req: Request): string {
+    // # TODO Step 5: Move this to application/apply/confirmation/viewModels/CheckYourAnswersQuery.
     if (this.#isClientNoFixedAbode(req)) {
       return "No fixed abode";
     }
@@ -301,6 +313,7 @@ export class ConfirmationAdaptor {
   }
 
   #getClientPostcodeSummary(req: Request): string {
+    // # TODO Step 5: Move this to application/apply/confirmation/viewModels/CheckYourAnswersQuery.
     if (this.#isClientNoFixedAbode(req)) {
       return "";
     }
@@ -316,6 +329,7 @@ export class ConfirmationAdaptor {
   }
 
   #buildClientForSubmit(req: Request): SubmitApplicationRequest["client"] {
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     return {
       clientFirstName: req.session.clientFirstName as string,
       clientLastName: req.session.clientLastName as string,
@@ -334,6 +348,7 @@ export class ConfirmationAdaptor {
   }
 
   #getClientCorrespondenceAddressSummary(req: Request): string {
+    // # TODO Step 5: Move this to presenter view-model mappers/checkYourAnswersMapper.
     const source = this.#getClientCorrespondenceAddressSource(req);
 
     if (source === CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS) {
@@ -360,6 +375,7 @@ export class ConfirmationAdaptor {
   }
 
   #buildDeceasedForSubmit(req: Request): SubmitApplicationRequest["deceased"] {
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     return {
       deceasedFirstName: req.session.deceasedFirstName as string,
       deceasedLastName: req.session.deceasedLastName as string,
@@ -384,6 +400,7 @@ export class ConfirmationAdaptor {
   #buildProceedingsForSubmit(
     req: Request,
   ): SubmitApplicationRequest["proceedings"] {
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     const selectedProceedings = req.session.selectedProceedings ?? [];
     return selectedProceedings.map((proceeding: Proceeding) => ({
       proceedingId: proceeding.proceedingId,
@@ -393,6 +410,7 @@ export class ConfirmationAdaptor {
   #buildPublicBodiesForSubmit(
     req: Request,
   ): SubmitApplicationRequest["publicBodies"] {
+    // # TODO Step 4: Move this to application/apply/confirmation/mappers/DomainToSubmitApplicationMapper.
     return (
       req.session.selectedPublicAuthorities?.map((body) => ({
         publicBodyId: body.publicAuthorityDescription,
@@ -401,6 +419,7 @@ export class ConfirmationAdaptor {
   }
 
   #getClientCorrespondenceRecipientSummary(req: Request): string {
+    // # TODO Step 5: Move this to presenter view-model mappers/checkYourAnswersMapper.
     const correspondenceRecipient = this.#getClientCorrespondenceRecipient(req);
     return (
       correspondenceRecipient?.recipientName ??
@@ -409,6 +428,7 @@ export class ConfirmationAdaptor {
   }
 
   #getClientHomeAddress(req: Request): ClientHomeAddress | null {
+    // # TODO Step 1: Move this to domain/client/Address.ts reconstruction from persisted state.
     const { session } = req;
     const { clientHomeAddress } = session;
     return this.#isClientHomeAddress(clientHomeAddress)
@@ -417,6 +437,7 @@ export class ConfirmationAdaptor {
   }
 
   #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
+    // # TODO Step 1: Move this to domain/client/Address.ts correspondence reconstruction.
     const { session } = req;
     const { clientCorrespondenceAddress } = session;
     return this.#isClientHomeAddress(clientCorrespondenceAddress)
@@ -427,6 +448,7 @@ export class ConfirmationAdaptor {
   #getClientCorrespondenceRecipient(
     req: Request,
   ): ClientCorrespondenceRecipient | null {
+    // # TODO Step 1: Move this to domain/client/CorrespondenceRecipient.ts reconstruction.
     const { session } = req;
     const { clientCorrespondenceRecipient } = session;
     return this.#isClientCorrespondenceRecipient(clientCorrespondenceRecipient)
@@ -435,6 +457,7 @@ export class ConfirmationAdaptor {
   }
 
   #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
+    // # TODO Step 1: Move this to domain/client/Address.ts address invariants.
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
@@ -450,6 +473,7 @@ export class ConfirmationAdaptor {
   #isClientCorrespondenceRecipient(
     value: unknown,
   ): value is ClientCorrespondenceRecipient {
+    // # TODO Step 1: Move this to domain/client/CorrespondenceRecipient.ts recipient invariants.
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
@@ -464,12 +488,14 @@ export class ConfirmationAdaptor {
   }
 
   #isClientNoFixedAbode(req: Request): boolean {
+    // # TODO Step 1: Move this to domain/client/Client.ts behavior query.
     return req.session.clientHasNoFixedAbode === true;
   }
 
   #getClientCorrespondenceAddressSource(
     req: Request,
   ): SubmitApplicationRequest["client"]["correspondenceAddressSource"] {
+    // # TODO Step 1: Move this to domain/client/CorrespondenceAddressSource.ts source selection rules.
     const {
       session: { clientCorrespondenceAddressSource },
     } = req;

@@ -5,6 +5,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 
 export class FormValidator {
+  // # TODO Step 3: Move this to application/common/validation/sharedRules and keep presenters unaware of this base class.
   protected exceedsMaxLength(
     inputValue: string | undefined,
     maxLength: number,
@@ -61,6 +62,7 @@ export class FormValidator {
       futureDate: string;
     },
   ): string | undefined {
+    // # TODO Step 3: Move this to application/common/validation/dateValidationService with reusable error contracts.
     if (this.checkDateFieldsAreEmpty(day, month, year)) {
       return errors.missing;
     }

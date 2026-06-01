@@ -7,6 +7,7 @@ import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/model
 import { Formatter } from "#src/utils/Formatter.js";
 
 export class ClientDetailsFormatter extends Formatter {
+  // # TODO Step 5: Move this to presenter view-model mappers only; move business normalization to domain/application services.
   toHomeAddressViewModel(clientHomeAddress: ClientHomeAddress | null): {
     homeAddressLine1: string;
     homeAddressLine2: string;
@@ -73,6 +74,7 @@ export class ClientDetailsFormatter extends Formatter {
   buildClientHomeAddress(
     formBody: Partial<ClientDetailsFormData>,
   ): ClientHomeAddress {
+    // # TODO Step 1: Move this to domain/client/Address.ts (construction and normalization).
     const {
       "home-address-line-1": addressLine1,
       "home-address-line-2": addressLine2,
@@ -102,6 +104,7 @@ export class ClientDetailsFormatter extends Formatter {
   buildClientCorrespondenceAddress(
     formBody: Partial<ClientDetailsFormData>,
   ): ClientHomeAddress {
+    // # TODO Step 1: Move this to domain/client/Address.ts (correspondence normalization).
     const {
       "correspondence-address-line-1": addressLine1,
       "correspondence-address-line-2": addressLine2,
@@ -141,6 +144,7 @@ export class ClientDetailsFormatter extends Formatter {
     correspondenceRecipientPersonName: string;
     correspondenceRecipientOrganisationName: string;
   } {
+    // # TODO Step 5: Move this to a dedicated presenter view-model mapper if it remains presentation-only.
     return {
       correspondenceRecipient: this.#getRecipientTypeValue(
         req,
@@ -163,6 +167,7 @@ export class ClientDetailsFormatter extends Formatter {
   getNoRecipientSelection(req: {
     session: Record<string, unknown>;
   }): "" | "NONE" {
+    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts (default recipient decision).
     return req.session.clientCorrespondenceRecipient === null ? "NONE" : "";
   }
 

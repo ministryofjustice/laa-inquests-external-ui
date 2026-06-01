@@ -10,6 +10,7 @@ import type { SummaryListRow } from "./models/summaryList.types.js";
 import type { ProceedingsValidator } from "./Proceedings/Proceedings.validator.js";
 
 export class ProceedingsAdaptor {
+  // # TODO Step 2: Move this to application/apply/proceedings/useCases if this legacy adaptor is still in use.
   formValidator: ProceedingsValidator;
   constructor(formValidator: ProceedingsValidator) {
     this.formValidator = formValidator;
@@ -149,6 +150,7 @@ export class ProceedingsAdaptor {
     selectedProceedings: Proceeding[],
     allProceedings: Proceeding[],
   ): Proceeding[] {
+    // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts filtering behavior.
     const formattedProceedingOptions = allProceedings.filter(
       (option) =>
         !selectedProceedings.some(
@@ -161,6 +163,7 @@ export class ProceedingsAdaptor {
   }
 
   #formatProceedingOptions(proceedingOptions: Proceeding[]): Option[] {
+    // # TODO Step 5: Move this to a presenter view-model mapper if this legacy file is retained.
     return proceedingOptions.map((proceeding) => ({
       text: proceeding.proceedingDescription,
       value: proceeding.proceedingId,

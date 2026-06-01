@@ -6,10 +6,12 @@ import type { Option } from "../adaptors/presenters/apply/models/form.types.js";
 import type { SummaryListRow } from "../adaptors/presenters/apply/models/summaryList.types.js";
 
 export class Formatter {
+  // # TODO Step 5: Move this to separate presenter view mappers and application/domain selection policy helpers.
   filterAvailableOptions(
     selectedProceedings: Proceeding[] | [],
     allProceedings: Proceeding[],
   ): Proceeding[] {
+    // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts option eligibility filtering.
     const formattedProceedingOptions = allProceedings.filter(
       (option) =>
         !selectedProceedings.some(
@@ -79,6 +81,7 @@ export class Formatter {
     selectedPublicAuthorities: PublicAuthority[] | [],
     allPublicAuthorities: PublicAuthority[],
   ): PublicAuthority[] {
+    // # TODO Step 1: Move this to domain/publicAuthority/PublicAuthoritySelection.ts option eligibility filtering.
     return allPublicAuthorities.filter(
       (option) =>
         !selectedPublicAuthorities.some(

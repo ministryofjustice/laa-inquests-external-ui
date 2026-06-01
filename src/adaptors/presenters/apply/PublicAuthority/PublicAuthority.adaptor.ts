@@ -12,6 +12,7 @@ import type {
 import type { Formatter } from "#src/utils/Formatter.js";
 
 export class PublicAuthorityAdaptor {
+  // # TODO Step 2: Move this to application/apply/publicAuthority/useCases.
   formValidator: PublicAuthorityValidator;
   formatter: Formatter;
 
@@ -53,6 +54,7 @@ export class PublicAuthorityAdaptor {
     req: TypedRequestBody<PublicAuthorityFormData>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/publicAuthority/useCases/ProcessPublicAuthoritySelection.
     const {
       locals: { csrfToken },
     } = res;
@@ -136,6 +138,7 @@ export class PublicAuthorityAdaptor {
     req: TypedRequestBody<PublicAuthorityFormData>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/publicAuthority/useCases/ConfirmPublicAuthorities.
     const {
       locals: { csrfToken },
     } = res;
@@ -213,6 +216,7 @@ export class PublicAuthorityAdaptor {
     req: TypedRequestBody<RemovePublicAuthorityFormData>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/publicAuthority/useCases/RemovePublicAuthority.
     const {
       body: {
         publicAuthorityId,
@@ -222,6 +226,7 @@ export class PublicAuthorityAdaptor {
     } = req;
 
     if (removePublicAuthority === "true") {
+      // # TODO Step 1: Move this to domain/publicAuthority/PublicAuthoritySelection.ts invariants.
       const updatedSelectedPublicAuthorities =
         selectedPublicAuthorities?.filter(
           (publicAuthority) =>

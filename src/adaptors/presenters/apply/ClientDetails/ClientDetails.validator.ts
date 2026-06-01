@@ -17,9 +17,11 @@ import {
 import { FormValidator } from "#src/utils/FormValidator.js";
 
 export class ClientDetailsValidator extends FormValidator {
+  // # TODO Step 3: Move this to application/apply/clientDetails/validators/ClientDetailsValidator.
   validateClientDob(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientNameDobError> {
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators with a ValidationResult contract.
     const errorSummaries: Partial<ClientNameDobError> = {};
     const {
       "dob-day": dateOfBirthDay,
@@ -66,6 +68,7 @@ export class ClientDetailsValidator extends FormValidator {
   validateClientName(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientNameDobError> {
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators/namePolicy.
     const errorSummaries: Partial<ClientNameDobError> = {};
 
     const {
@@ -120,6 +123,7 @@ export class ClientDetailsValidator extends FormValidator {
   validateNino(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientNinoError> {
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators/ninoPolicy.
     const errorSummaries: Partial<ClientNinoError> = {};
 
     const { "has-nino": hasNino, "nino-input": ninoInput } = formBody;
@@ -155,6 +159,7 @@ export class ClientDetailsValidator extends FormValidator {
   validatePrevApplicationReference(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientPrevApplicationRefError> {
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators/previousApplicationPolicy.
     const errorSummaries: Partial<ClientPrevApplicationRefError> = {};
     const {
       "has-prev-application": hasPrevApplication,
@@ -193,6 +198,7 @@ export class ClientDetailsValidator extends FormValidator {
   validateHomeAddress(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientHomeAddressError> {
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators/homeAddressPolicy.
     const errorSummaries: Partial<ClientHomeAddressError> = {};
     const {
       "home-address-line-1": addressLine1,
@@ -232,6 +238,8 @@ export class ClientDetailsValidator extends FormValidator {
     formBody: Partial<ClientDetailsFormData>,
     hasNoFixedAbode: boolean,
   ): Partial<ClientCorrespondenceAddressSourceError> {
+    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts (no-fixed-abode source compatibility).
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators/correspondenceSourcePolicy.
     const errorSummaries: Partial<ClientCorrespondenceAddressSourceError> = {};
 
     const { "correspondence-address-source": correspondenceAddressSource } =
@@ -260,6 +268,7 @@ export class ClientDetailsValidator extends FormValidator {
   validateCorrespondenceAddress(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientHomeAddressError> {
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators/correspondenceAddressPolicy.
     const errorSummaries: Partial<ClientHomeAddressError> = {};
     const {
       "correspondence-address-line-1": addressLine1,
@@ -298,6 +307,7 @@ export class ClientDetailsValidator extends FormValidator {
   validateCorrespondenceRecipient(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientCorrespondenceRecipientError> {
+    // # TODO Step 3: Move this to application/apply/clientDetails/validators/correspondenceRecipientPolicy.
     const errorSummaries: Partial<ClientCorrespondenceRecipientError> = {};
     const {
       "correspondence-recipient": correspondenceRecipient,

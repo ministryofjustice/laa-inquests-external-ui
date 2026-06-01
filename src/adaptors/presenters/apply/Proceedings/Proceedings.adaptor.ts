@@ -12,6 +12,7 @@ import type { ProceedingsValidator } from "./Proceedings.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
 
 export class ProceedingsAdaptor {
+  // # TODO Step 2: Move this to application/apply/proceedings/useCases.
   formValidator: ProceedingsValidator;
   formatter: Formatter;
   constructor(formValidator: ProceedingsValidator, formatter: Formatter) {
@@ -45,6 +46,7 @@ export class ProceedingsAdaptor {
     req: TypedRequestBody<Partial<ProceedingsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/proceedings/useCases/ProcessProceedingSelection.
     const {
       locals: { csrfToken },
     } = res;
@@ -125,6 +127,7 @@ export class ProceedingsAdaptor {
     req: TypedRequestBody<Partial<ProceedingsFormData>>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/proceedings/useCases/ConfirmProceedings.
     const {
       locals: { csrfToken },
     } = res;
@@ -206,12 +209,14 @@ export class ProceedingsAdaptor {
     req: TypedRequestBody<RemoveProceedingFormData>,
     res: Response,
   ): void {
+    // # TODO Step 2: Move this to application/apply/proceedings/useCases/RemoveProceeding.
     const {
       body: { proceedingId, "remove-proceeding": removeProceeding },
       session: { selectedProceedings },
     } = req;
 
     if (removeProceeding === "true") {
+      // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts invariants.
       const updatedSelectedProceedings = selectedProceedings?.filter(
         (proceeding) => proceeding.proceedingId !== proceedingId,
       );
