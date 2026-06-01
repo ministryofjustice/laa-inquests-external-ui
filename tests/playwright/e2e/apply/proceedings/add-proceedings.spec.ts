@@ -44,6 +44,30 @@ test.describe("Add proceedings", () => {
       PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
     );
   });
+
+  test("renders error message when a tampered proceeding value is submitted", async ({
+    page,
+  }) => {
+    await page.goto("/apply/proceedings");
+
+    const tamperedProceedingInput = page
+      .locator('input[name="proceeding-option"]')
+      .first();
+
+    await tamperedProceedingInput.evaluate((inputElement) => {
+      (inputElement as HTMLInputElement).value = "INVALID_PROCEEDING";
+    });
+
+    await tamperedProceedingInput.check();
+    await page.getByTestId("add-proceeding-form").getByRole("button").click();
+
+    const errorMessageElement = page.locator("#proceeding-option-error");
+    await expect(errorMessageElement).toBeVisible();
+    await expect(errorMessageElement).toContainText(
+      PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
+    );
+  });
+
   test("after adding another proceeding, on redirect, the page displays a summary list of proceedings already added", async ({
     page,
   }) => {

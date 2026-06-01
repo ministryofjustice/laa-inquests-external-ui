@@ -10,14 +10,26 @@ import type {
 } from "../models/form.types.js";
 import type { ProceedingsValidator } from "./Proceedings.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
+import { ProcessProceedingSelection } from "#src/application/apply/proceedings/useCases/ProcessProceedingSelection.js";
 
 export class ProceedingsAdaptor {
   // # TODO Step 2: Move this to application/apply/proceedings/useCases.
   formValidator: ProceedingsValidator;
   formatter: Formatter;
-  constructor(formValidator: ProceedingsValidator, formatter: Formatter) {
+  processProceedingSelection: ProcessProceedingSelection<
+    (typeof PROCEEDING_OPTIONS)[number]
+  >;
+  constructor(
+    formValidator: ProceedingsValidator,
+    formatter: Formatter,
+    processProceedingSelection = new ProcessProceedingSelection(
+      formValidator,
+      PROCEEDING_OPTIONS,
+    ),
+  ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
+    this.processProceedingSelection = processProceedingSelection;
   }
   renderProceedingSelectForm(req: Request, res: Response): void {
     const {
@@ -50,22 +62,14 @@ export class ProceedingsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    const {
-      body: { "proceeding-option": proceedingOption },
-    } = req;
-    const proceedingErrors = this.formValidator.validateProceedingInput(
-      req.body,
-    );
     const selectedProceedings = req.session.selectedProceedings ?? [];
-    const selectedProceeding = PROCEEDING_OPTIONS.find(
-      (option) => option.proceedingId === proceedingOption,
+
+    const processResult = this.processProceedingSelection.execute(
+      req.body,
+      selectedProceedings,
     );
 
-    if (
-      (proceedingOption === undefined &&
-        Object.keys(proceedingErrors).length > EMPTY_ARR_LENGTH) ||
-      selectedProceeding === undefined
-    ) {
+    if (processResult.type === "validationError") {
       const filteredProceedingOptions = this.formatter.filterAvailableOptions(
         selectedProceedings,
         PROCEEDING_OPTIONS,
@@ -81,16 +85,13 @@ export class ProceedingsAdaptor {
         proceedingOptions: formattedProceedingOptions,
         proceedingOption: req.session.proceedingOption,
         selectedProceedings: formattedSelectedProceedings,
-        errorSummaries: proceedingErrors,
+        errorSummaries: processResult.errorSummaries,
       };
 
       res.render("apply/proceedings/add-proceedings", renderOptions);
     } else {
-      req.session.proceedingOption = selectedProceeding;
-      req.session.selectedProceedings = [
-        selectedProceeding,
-        ...selectedProceedings,
-      ];
+      req.session.proceedingOption = processResult.selectedProceeding;
+      req.session.selectedProceedings = processResult.selectedProceedings;
       res.redirect("/apply/proceedings/confirmation");
     }
   }
