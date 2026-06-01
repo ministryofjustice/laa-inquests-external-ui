@@ -12,10 +12,12 @@ export class SessionHelper {
   getSessionData(
     req: Request,
     namespace: string,
-  ): Record<string, string> | null {
+  ): Record<string, unknown> | null {
     const { session } = req;
     const { [namespace]: data } = session;
-    return typeof data === "object" ? data : null;
+    return typeof data === "object" && data !== null && !Array.isArray(data)
+      ? data
+      : null;
   }
 
   clearSessionData(req: Request, namespace: string): void {

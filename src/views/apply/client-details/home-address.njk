@@ -1,0 +1,90 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/client-details/has-prev-application"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">What is your client's home address?</h1>
+        <form data-testid="home-address-form" action="/apply/client-details/home-address" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukInput({
+            label: {
+              text: "Address line 1",
+              classes: "govuk-label--s"
+            },
+            id: "home-address-line-1",
+            name: "home-address-line-1",
+            value: client.homeAddressLine1,
+            errorMessage: errorSummaries.addressLine1InputError
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Address line 2 (optional)",
+              classes: "govuk-label--s"
+            },
+            id: "home-address-line-2",
+            name: "home-address-line-2",
+            value: client.homeAddressLine2
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Town or city",
+              classes: "govuk-label--s"
+            },
+            id: "home-town-or-city",
+            name: "home-town-or-city",
+            value: client.homeTownOrCity,
+            errorMessage: errorSummaries.townOrCityInputError
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "County (optional)",
+              classes: "govuk-label--s"
+            },
+            id: "home-county",
+            name: "home-county",
+            value: client.homeCounty
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Postcode",
+              classes: "govuk-label--s"
+            },
+            id: "home-postcode",
+            name: "home-postcode",
+            classes: "govuk-input--width-10",
+            value: client.homePostcode,
+            errorMessage: errorSummaries.postcodeInputError
+          }) }}
+          {{ govukCheckboxes({
+            idPrefix: "has-no-fixed-abode",
+            name: "has-no-fixed-abode",
+            items: [
+              {
+                value: "true",
+                text: "Client has no fixed abode",
+                checked: client.hasNoFixedAbode
+              }
+            ]
+          }) }}
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

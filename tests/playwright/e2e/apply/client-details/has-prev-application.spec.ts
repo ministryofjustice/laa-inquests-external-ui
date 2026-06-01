@@ -58,7 +58,7 @@ test.describe("Previous application", () => {
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page.url()).toContain("apply/proceedings");
+    await expect(page.url()).toContain("apply/client-details/home-address");
   });
   test("renders error message when no input selected", async ({ page }) => {
     page.goto("/apply/client-details/has-prev-application");

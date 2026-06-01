@@ -12,6 +12,7 @@ import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/P
 import { createProceedingsRouter } from "./apply/proceedings.router.js";
 import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
 import { Formatter } from "#src/utils/Formatter.js";
+import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.adaptor.js";
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
@@ -59,8 +60,10 @@ indexRouter.get("/error", (req: Request, res: Response): void => {
 });
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
+const clientDetailsFormatter = new ClientDetailsFormatter();
 const clientDetailsAdaptor = new ClientDetailsAdaptor(
   clientDetailsFormValidator,
+  clientDetailsFormatter,
 );
 
 const deceasedDetailsFormValidator = new DeceasedDetailsValidator();

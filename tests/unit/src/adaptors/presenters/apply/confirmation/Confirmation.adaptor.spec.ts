@@ -45,18 +45,16 @@ describe("Confirmation adaptor", () => {
     requestStub.session.clientDobDay = "1";
     requestStub.session.clientDobMonth = "12";
     requestStub.session.clientDobYear = "1990";
-
-    requestStub.session.clientAddressLine1 = "4 Privet Drive";
-    requestStub.session.clientAddressLine2 = "";
-    requestStub.session.clientTownOrcity = "Little Whinging";
-    requestStub.session.clientCounty = "Surrey";
-    requestStub.session.clientPostcode = "B1 123b";
-
-    requestStub.session.clientCorrespondenceAddressLine1 = "1 test rd";
-    requestStub.session.clientCorrespondenceAddressLine2 = "";
-    requestStub.session.clientCorrespondenceTownOrcity = "test city";
-    requestStub.session.clientCorrespondenceCounty = "test county";
-    requestStub.session.clientCorrespondencePostcode = "B1 321b";
+    requestStub.session.clientHasNoFixedAbode = false;
+    requestStub.session.clientHomeAddress = {
+      addressLine1: "4 Privet Drive",
+      addressLine2: "Little Whinging",
+      townOrCity: "Little Whinging",
+      county: "Surrey",
+      postcode: "B1 123b",
+    };
+    requestStub.session.clientCorrespondenceAddressSource =
+      "USE_CLIENT_HOME_ADDRESS";
 
     requestStub.session.deceasedFirstName = "deceased first name";
     requestStub.session.deceasedLastName = "deceased last name";
@@ -99,8 +97,11 @@ describe("Confirmation adaptor", () => {
         clientFirstName: "test name",
         clientLastName: "last name",
         clientDob: "1/12/1990",
-        clientAddress: "4 Privet Drive Little Whinging Surrey B1 123b",
-        clientCorrespondenceAddress: "1 test rd test city test county B1 321b",
+        clientAddress:
+          "4 Privet DriveLittle Whinging Little Whinging Surrey B1 123b",
+        clientCorrespondenceAddress: "Same as client's home address",
+        clientCorrespondenceRecipient:
+          "Correspondence will be addressed to the client",
       },
       deceasedDetails: {
         deceasedFirstName: "deceased first name",
@@ -111,6 +112,47 @@ describe("Confirmation adaptor", () => {
       },
       publicAuthorities: expectedFormattedPublicAuthorities,
     });
+  });
+
+  it("renders care of recipient as client when correspondence recipient is null", () => {
+    requestStub.session.clientFirstName = "test name";
+    requestStub.session.clientLastName = "last name";
+    requestStub.session.clientDobDay = "1";
+    requestStub.session.clientDobMonth = "12";
+    requestStub.session.clientDobYear = "1990";
+    requestStub.session.clientHasNoFixedAbode = false;
+    requestStub.session.clientHomeAddress = {
+      addressLine1: "4 Privet Drive",
+      addressLine2: "Little Whinging",
+      townOrCity: "Little Whinging",
+      county: "Surrey",
+      postcode: "B1 123b",
+    };
+    requestStub.session.clientCorrespondenceAddressSource =
+      "USE_CLIENT_HOME_ADDRESS";
+    requestStub.session.clientCorrespondenceRecipient = null;
+
+    requestStub.session.deceasedFirstName = "deceased first name";
+    requestStub.session.deceasedLastName = "deceased last name";
+    requestStub.session.deceasedDateOfDeathDay = "6";
+    requestStub.session.deceasedDateOfDeathMonth = "8";
+    requestStub.session.deceasedDateOfDeathYear = "2001";
+    requestStub.session.deceasedClientRelationship = "brother";
+    requestStub.session.deceasedCoronerReference = "12345678910";
+    requestStub.session.selectedPublicAuthorities = [];
+
+    confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
+
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as {
+      client: { clientCorrespondenceRecipient: string };
+    };
+
+    assert.equal(
+      renderModel.client.clientCorrespondenceRecipient,
+      "Correspondence will be addressed to the client",
+    );
   });
 
   it("render confirm success page", () => {
@@ -271,6 +313,19 @@ describe("Confirmation adaptor", () => {
       assert.equal(submitBody.client.clientLastNameAtBirth, "Birthname");
       assert.equal(submitBody.client.dateOfBirth, "05-10-1989");
       assert.equal(submitBody.client.nationalInsuranceNumber, "AB123456C");
+      assert.equal(submitBody.client.hasNoFixedAbode, false);
+      assert.equal(
+        submitBody.client.correspondenceAddressSource,
+        "USE_PROVIDER_ADDRESS",
+      );
+      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "correspondenceRecipient",
+        ),
+        false,
+      );
 
       assert.equal(submitBody.deceased.deceasedFirstName, "Deceased");
       assert.equal(submitBody.deceased.deceasedLastName, "Two");
@@ -357,6 +412,199 @@ describe("Confirmation adaptor", () => {
         Object.prototype.hasOwnProperty.call(
           submitBody.client,
           "nationalInsuranceNumber",
+        ),
+        false,
+      );
+      assert.equal(submitBody.client.hasNoFixedAbode, false);
+      assert.equal(
+        submitBody.client.correspondenceAddressSource,
+        "USE_PROVIDER_ADDRESS",
+      );
+    });
+
+    it("includes specified correspondence address when source is USE_SPECIFIED_ADDRESS", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientCorrespondenceAddressSource =
+        "USE_SPECIFIED_ADDRESS";
+      requestStub.session.clientCorrespondenceAddress = {
+        addressLine1: "1 Acacia Avenue",
+        addressLine2: "Flat 2",
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      };
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await confirmationAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
+
+      assert.equal(
+        submitBody.client.correspondenceAddressSource,
+        "USE_SPECIFIED_ADDRESS",
+      );
+      assert.deepEqual(submitBody.client.correspondenceAddress, {
+        addressLine1: "1 Acacia Avenue",
+        addressLine2: "Flat 2",
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      });
+    });
+
+    it("includes correspondence recipient when set in session", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientCorrespondenceRecipient = {
+        recipientType: "PERSON",
+        recipientName: "Jane Doe",
+      };
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await confirmationAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
+
+      assert.equal(submitBody.client.isClientCorrespondenceRecipient, false);
+      assert.deepEqual(submitBody.client.correspondenceRecipient, {
+        recipientType: "PERSON",
+        recipientName: "Jane Doe",
+      });
+    });
+
+    it("keeps correspondenceRecipient as null when recipient is the client", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.clientCorrespondenceRecipient = null;
+      requestStub.session.deceasedClientRelationship = "Spouse";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.resolves({
+        statusCode: 201,
+        laaReference: 123,
+      });
+
+      await confirmationAdaptor.processClientDeclarationForm(
+        requestStub,
+        responseStub,
+      );
+
+      const submitBody = applySubmitPortStub.submitApplication.getCall(0)
+        .args[0] as SubmitApplicationRequest;
+
+      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
+      assert.equal(
+        Object.prototype.hasOwnProperty.call(
+          submitBody.client,
+          "correspondenceRecipient",
         ),
         false,
       );

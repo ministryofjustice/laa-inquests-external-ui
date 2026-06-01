@@ -8,6 +8,21 @@ export interface ClientDetailsFormData extends FormBody {
   "name-change": string | undefined;
   "has-nino": string;
   "nino-input": string;
+  "home-address-line-1": string;
+  "home-address-line-2": string;
+  "home-town-or-city": string;
+  "home-county": string;
+  "home-postcode": string;
+  "has-no-fixed-abode": string;
+  "correspondence-address-source": string;
+  "correspondence-address-line-1": string;
+  "correspondence-address-line-2": string;
+  "correspondence-town-or-city": string;
+  "correspondence-county": string;
+  "correspondence-postcode": string;
+  "correspondence-recipient": string;
+  "correspondence-recipient-person-name": string;
+  "correspondence-recipient-organisation-name": string;
   "has-prev-application": string;
   "prev-laa-reference-input": string;
   "dob-day": string;
@@ -36,6 +51,21 @@ export interface ClientNinoError {
 export interface ClientPrevApplicationRefError {
   noRadioSelected?: FormErrorMessage;
   referenceInputError?: FormErrorMessage;
+}
+
+export interface ClientHomeAddressError {
+  addressLine1InputError?: FormErrorMessage;
+  townOrCityInputError?: FormErrorMessage;
+  postcodeInputError?: FormErrorMessage;
+}
+
+export interface ClientCorrespondenceAddressSourceError {
+  noRadioSelected?: FormErrorMessage;
+}
+
+export interface ClientCorrespondenceRecipientError {
+  noRadioSelected?: FormErrorMessage;
+  recipientNameInputError?: FormErrorMessage;
 }
 
 export interface ClientDeclarationFormData extends FormBody {
@@ -92,6 +122,15 @@ export interface DeceasedDateOfDeathError {
   dateOfDeathInputError?: FormErrorMessage;
 }
 
+export type CorrespondenceAddressSourceValue =
+  | "USE_CLIENT_HOME_ADDRESS"
+  | "USE_SPECIFIED_ADDRESS"
+  | "USE_PROVIDER_ADDRESS";
+
+export type CorrespondenceRecipientSelectionValue =
+  | "PERSON"
+  | "ORGANISATION"
+  | "NONE";
 export interface DeceasedDateOfBirthError {
   dateOfBirthInputError?: FormErrorMessage;
 }

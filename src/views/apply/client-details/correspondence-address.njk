@@ -1,0 +1,80 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/apply/client-details/correspondence-address-source"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">What is the address you want to send the correspondence to?</h1>
+        <form data-testid="correspondence-address-form" action="/apply/client-details/correspondence-address" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukInput({
+            label: {
+              text: "Address line 1",
+              classes: "govuk-label--s"
+            },
+            id: "correspondence-address-line-1",
+            name: "correspondence-address-line-1",
+            value: client.correspondenceAddressLine1,
+            errorMessage: errorSummaries.addressLine1InputError
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Address line 2 (optional)",
+              classes: "govuk-label--s"
+            },
+            id: "correspondence-address-line-2",
+            name: "correspondence-address-line-2",
+            value: client.correspondenceAddressLine2
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Town or city",
+              classes: "govuk-label--s"
+            },
+            id: "correspondence-town-or-city",
+            name: "correspondence-town-or-city",
+            value: client.correspondenceTownOrCity,
+            errorMessage: errorSummaries.townOrCityInputError
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "County (optional)",
+              classes: "govuk-label--s"
+            },
+            id: "correspondence-county",
+            name: "correspondence-county",
+            value: client.correspondenceCounty
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Postcode",
+              classes: "govuk-label--s"
+            },
+            hint: {
+              text: "This must be a UK postcode, for example SW1A 2AA."
+            },
+            id: "correspondence-postcode",
+            name: "correspondence-postcode",
+            classes: "govuk-input--width-10",
+            value: client.correspondencePostcode,
+            errorMessage: errorSummaries.postcodeInputError
+          }) }}
+          {{ govukButton({
+            text: "Continue"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

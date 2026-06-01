@@ -30,7 +30,32 @@ export const CLIENT_DETAILS_ERROR = {
     "Application cannot exceed 35 characters",
   MISSING_PREV_APPLICATION_REF:
     "Please enter the reference for the previous application.",
+  MISSING_HOME_ADDRESS_LINE_1: "Please enter address line 1",
+  MISSING_HOME_TOWN_OR_CITY: "Please enter town or city",
+  MISSING_HOME_POSTCODE: "Please enter postcode",
+  INVALID_HOME_POSTCODE: "Please enter a valid UK postcode",
+  INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE:
+    "You cannot select your client's UK home address when they have no fixed abode",
+  MISSING_CORRESPONDENCE_ADDRESS_LINE_1: "Please enter address line 1",
+  MISSING_CORRESPONDENCE_TOWN_OR_CITY: "Please enter town or city",
+  MISSING_CORRESPONDENCE_POSTCODE: "Please enter postcode",
+  INVALID_CORRESPONDENCE_POSTCODE: "Please enter a valid UK postcode",
+  MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME:
+    "Please enter the person's name",
+  MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME:
+    "Please enter the organisation name",
 };
+
+export const CORRESPONDENCE_ADDRESS_SOURCE = {
+  USE_CLIENT_HOME_ADDRESS: "USE_CLIENT_HOME_ADDRESS",
+  USE_SPECIFIED_ADDRESS: "USE_SPECIFIED_ADDRESS",
+  USE_PROVIDER_ADDRESS: "USE_PROVIDER_ADDRESS",
+} as const;
+
+export const CORRESPONDENCE_RECIPIENT_TYPE = {
+  PERSON: "PERSON",
+  ORGANISATION: "ORGANISATION",
+} as const;
 
 export const DECEASED_DETAILS_ERROR = {
   MISSING_FIRST_NAME: "Enter your first name",
@@ -80,6 +105,9 @@ export const PROCEEDING_ERROR = {
 
 export const NINO_REGEX =
   /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
+
+export const UK_POSTCODE_REGEX =
+  /^(GIR\s?0AA|[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2})$/iv;
 
 export const PROCEEDING_OPTIONS = [
   {

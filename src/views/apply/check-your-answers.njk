@@ -12,7 +12,7 @@
     href: "/apply/fee-earner"
   }) }}
   <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">      
+    <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Check your answers</h1>
         {{ govukInsetText({
@@ -73,6 +73,14 @@
                   },
                   value: {
                     html: client.clientCorrespondenceAddress
+                  }
+                },
+                {
+                  key: {
+                    text: "Care of recipient"
+                  },
+                  value: {
+                    html: client.clientCorrespondenceRecipient
                   }
                 }
               ]
@@ -183,7 +191,7 @@
               ]
             }) }}
           </div>
-        
+
           {{ govukButton({
             text: "Continue",
             href: "/apply/confirmation/client-declaration"
