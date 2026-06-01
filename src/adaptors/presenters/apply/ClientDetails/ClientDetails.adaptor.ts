@@ -434,12 +434,10 @@ export class ClientDetailsAdaptor {
   }
 
   #getClientHomeAddress(req: Request): ClientHomeAddress | null {
-    // # TODO Step 1: Move this to domain/client/Address.ts via an Address mapper/value-object factory.
     return toClientHomeAddressOrNull(req.session.clientHomeAddress);
   }
 
   #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
-    // # TODO Step 1: Move this to domain/client/Address.ts correspondence reconstruction.
     return toClientHomeAddressOrNull(req.session.clientCorrespondenceAddress);
   }
 
