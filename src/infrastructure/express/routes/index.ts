@@ -17,6 +17,10 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
+import { createAuthRouter } from "./auth.router.js";
+import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
+import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
+import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
@@ -35,7 +39,7 @@ const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
 /* GET home page. */
-indexRouter.get("/", requireAuth,(req: Request, res: Response): void => {
+indexRouter.get("/", requireAuth, (req: Request, res: Response): void => {
   res.render("main/index");
 });
 
@@ -65,7 +69,7 @@ indexRouter.get("/error", (req: Request, res: Response): void => {
 // Never reachable in production (NODE_ENV is never 'test' in production)
 if (config.app.environment === "test") {
   indexRouter.get("/test/auth-session", (req: Request, res: Response): void => {
-    req.session["userId"] = "test-user-id";
+    req.session.userId = "test-user-id";
     req.session.save(() => {
       res.status(SUCCESSFUL_REQUEST).send("session seeded");
     });
@@ -119,5 +123,21 @@ indexRouter.use(
   createConfirmationRouter(confirmationRouter, confirmationAdaptor),
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
 );
+
+const entraClient = new ConfidentialClientApplication({
+  auth: {
+    clientId: config.AUTH_CLIENT_ID,
+    authority: config.AUTH_AUTHORITY_URL,
+    clientSecret: config.AUTH_CLIENT_SECRET,
+  },
+});
+const entraAuthAdaptor = new EntraAuthAdaptor(entraClient);
+const authAdaptor = new AuthAdaptor(
+  entraAuthAdaptor,
+  config.AUTH_REDIRECT_URI,
+  config.AUTH_POST_LOGOUT_URI,
+);
+
+indexRouter.use("/auth", createAuthRouter(express.Router(), authAdaptor));
 
 export default indexRouter;
