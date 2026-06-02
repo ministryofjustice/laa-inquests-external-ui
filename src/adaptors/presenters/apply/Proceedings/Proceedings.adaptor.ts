@@ -11,6 +11,7 @@ import type {
 import type { ProceedingsValidator } from "./Proceedings.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
 import { ProcessProceedingSelection } from "#src/application/apply/proceedings/useCases/ProcessProceedingSelection.js";
+import { ProceedingsSelection } from "#src/domain/proceedings/ProceedingsSelection.js";
 
 export class ProceedingsAdaptor {
   // # TODO Step 2: Move this to application/apply/proceedings/useCases.
@@ -90,8 +91,10 @@ export class ProceedingsAdaptor {
 
       res.render("apply/proceedings/add-proceedings", renderOptions);
     } else {
-      req.session.proceedingOption = processResult.selectedProceeding;
-      req.session.selectedProceedings = processResult.selectedProceedings;
+      const { selectedProceeding, selectedProceedings: updatedProceedings } =
+        processResult;
+      req.session.proceedingOption = selectedProceeding;
+      req.session.selectedProceedings = updatedProceedings;
       res.redirect("/apply/proceedings/confirmation");
     }
   }
@@ -217,9 +220,9 @@ export class ProceedingsAdaptor {
     } = req;
 
     if (removeProceeding === "true") {
-      // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts invariants.
-      const updatedSelectedProceedings = selectedProceedings?.filter(
-        (proceeding) => proceeding.proceedingId !== proceedingId,
+      const updatedSelectedProceedings = ProceedingsSelection.removeById(
+        selectedProceedings,
+        proceedingId,
       );
 
       req.session.selectedProceedings = updatedSelectedProceedings;

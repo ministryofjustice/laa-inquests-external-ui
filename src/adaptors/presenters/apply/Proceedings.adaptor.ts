@@ -8,6 +8,7 @@ import type { Option, ProceedingsFormData } from "./models/form.types.js";
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { SummaryListRow } from "./models/summaryList.types.js";
 import type { ProceedingsValidator } from "./Proceedings/Proceedings.validator.js";
+import { ProceedingsSelection } from "#src/domain/proceedings/ProceedingsSelection.js";
 
 export class ProceedingsAdaptor {
   // # TODO Step 2: Move this to application/apply/proceedings/useCases if this legacy adaptor is still in use.
@@ -150,16 +151,10 @@ export class ProceedingsAdaptor {
     selectedProceedings: Proceeding[],
     allProceedings: Proceeding[],
   ): Proceeding[] {
-    // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts filtering behavior.
-    const formattedProceedingOptions = allProceedings.filter(
-      (option) =>
-        !selectedProceedings.some(
-          (selectedOption) =>
-            selectedOption.proceedingId === option.proceedingId,
-        ),
+    return ProceedingsSelection.filterAvailable(
+      selectedProceedings,
+      allProceedings,
     );
-
-    return formattedProceedingOptions;
   }
 
   #formatProceedingOptions(proceedingOptions: Proceeding[]): Option[] {

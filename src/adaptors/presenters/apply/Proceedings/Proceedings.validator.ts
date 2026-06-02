@@ -1,7 +1,7 @@
 import {
   PROCEEDING_ERROR,
-  EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
+import { ProceedingsSelection } from "#src/domain/proceedings/ProceedingsSelection.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type {
   ProceedingsError,
@@ -46,10 +46,9 @@ export class ProceedingsValidator extends FormValidator {
   validateProceedingList(
     selectedProceedings: unknown[],
   ): Partial<ProceedingsError> {
-    // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts minimum-size invariant.
     const errorSummaries: Partial<ProceedingsError> = {};
 
-    if (selectedProceedings.length === EMPTY_ARR_LENGTH) {
+    if (!ProceedingsSelection.hasAtLeastOne(selectedProceedings)) {
       errorSummaries.noProceedingsInList = {
         text: PROCEEDING_ERROR.NO_PROCEEDINGS_IN_LIST,
       };

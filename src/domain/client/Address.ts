@@ -6,6 +6,14 @@ export interface PersistedAddress {
   postcode: string;
 }
 
+interface AddressFormFields {
+  addressLine1?: string;
+  addressLine2?: string;
+  townOrCity?: string;
+  county?: string;
+  postcode?: string;
+}
+
 export class Address {
   readonly addressLine1: string;
   readonly addressLine2: string | null;
@@ -14,19 +22,20 @@ export class Address {
   readonly postcode: string;
 
   private constructor(props: PersistedAddress) {
-	this.addressLine1 = props.addressLine1;
-	this.addressLine2 = props.addressLine2;
-	this.townOrCity = props.townOrCity;
-	this.county = props.county;
-	this.postcode = props.postcode;
+	const { addressLine1, addressLine2, townOrCity, county, postcode } = props;
+	this.addressLine1 = addressLine1;
+	this.addressLine2 = addressLine2;
+	this.townOrCity = townOrCity;
+	this.county = county;
+	this.postcode = postcode;
   }
 
   static fromPersisted(value: unknown): Address | null {
-	if (typeof value !== "object" || value === null || Array.isArray(value)) {
+	if (!Address.#isPersistedObjectCandidate(value)) {
 	  return null;
 	}
 
-	const candidate = value as Partial<PersistedAddress>;
+	const candidate = value;
 
 	if (
 	  typeof candidate.addressLine1 !== "string" ||
@@ -36,19 +45,11 @@ export class Address {
 	  return null;
 	}
 
-	if (
-	  candidate.addressLine2 !== undefined &&
-	  candidate.addressLine2 !== null &&
-	  typeof candidate.addressLine2 !== "string"
-	) {
+	if (!Address.#isOptionalString(candidate.addressLine2)) {
 	  return null;
 	}
 
-	if (
-	  candidate.county !== undefined &&
-	  candidate.county !== null &&
-	  typeof candidate.county !== "string"
-	) {
+	if (!Address.#isOptionalString(candidate.county)) {
 	  return null;
 	}
 
@@ -58,6 +59,16 @@ export class Address {
 	  townOrCity: candidate.townOrCity,
 	  county: candidate.county ?? null,
 	  postcode: candidate.postcode,
+	});
+  }
+
+  static fromFormFields(fields: AddressFormFields): Address {
+	return new Address({
+	  addressLine1: fields.addressLine1 ?? "",
+	  addressLine2: Address.#normalizeOptionalField(fields.addressLine2),
+	  townOrCity: fields.townOrCity ?? "",
+	  county: Address.#normalizeOptionalField(fields.county),
+	  postcode: fields.postcode ?? "",
 	});
   }
 
@@ -71,6 +82,17 @@ export class Address {
 	};
   }
 
+  static #normalizeOptionalField(value: string | undefined): string | null {
+	return typeof value === "string" && value !== "" ? value : null;
+  }
+
+  static #isPersistedObjectCandidate(
+	value: unknown,
+  ): value is Partial<PersistedAddress> {
+	return typeof value === "object" && value !== null && !Array.isArray(value);
+  }
+
+  static #isOptionalString(value: unknown): value is string | null | undefined {
+	return value === undefined || value === null || typeof value === "string";
+  }
 }
-
-

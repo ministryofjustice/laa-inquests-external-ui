@@ -1,3 +1,6 @@
+import type { CorrespondenceAddressSource } from "#src/domain/client/CorrespondenceAddressSource.js";
+import type { CorrespondenceRecipientSelection } from "#src/domain/client/CorrespondenceRecipient.js";
+
 export interface FormBody {
   _csrf: string;
 }
@@ -122,15 +125,10 @@ export interface DeceasedDateOfDeathError {
   dateOfDeathInputError?: FormErrorMessage;
 }
 
-export type CorrespondenceAddressSourceValue =
-  | "USE_CLIENT_HOME_ADDRESS"
-  | "USE_SPECIFIED_ADDRESS"
-  | "USE_PROVIDER_ADDRESS";
+export type CorrespondenceAddressSourceValue = CorrespondenceAddressSource;
 
 export type CorrespondenceRecipientSelectionValue =
-  | "PERSON"
-  | "ORGANISATION"
-  | "NONE";
+  CorrespondenceRecipientSelection;
 export interface DeceasedDateOfBirthError {
   dateOfBirthInputError?: FormErrorMessage;
 }

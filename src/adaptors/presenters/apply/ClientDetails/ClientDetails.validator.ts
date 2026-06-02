@@ -9,11 +9,12 @@ import type {
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
-  CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
   NINO_REGEX,
   UK_POSTCODE_REGEX,
 } from "#src/infrastructure/locales/constants.js";
+import { CorrespondenceAddressSourceValue } from "#src/domain/client/CorrespondenceAddressSource.js";
+import { CorrespondencePolicy } from "#src/domain/client/CorrespondencePolicy.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 
 export class ClientDetailsValidator extends FormValidator {
@@ -238,7 +239,6 @@ export class ClientDetailsValidator extends FormValidator {
     formBody: Partial<ClientDetailsFormData>,
     hasNoFixedAbode: boolean,
   ): Partial<ClientCorrespondenceAddressSourceError> {
-    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts (no-fixed-abode source compatibility).
     // # TODO Step 3: Move this to application/apply/clientDetails/validators/correspondenceSourcePolicy.
     const errorSummaries: Partial<ClientCorrespondenceAddressSourceError> = {};
 
@@ -252,10 +252,18 @@ export class ClientDetailsValidator extends FormValidator {
       return errorSummaries;
     }
 
+    if (!CorrespondenceAddressSourceValue.is(correspondenceAddressSource)) {
+      errorSummaries.noRadioSelected = {
+        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      };
+      return errorSummaries;
+    }
+
     if (
-      correspondenceAddressSource ===
-        CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS &&
-      hasNoFixedAbode
+      !CorrespondencePolicy.canUseAddressSource(
+        correspondenceAddressSource,
+        hasNoFixedAbode,
+      )
     ) {
       errorSummaries.noRadioSelected = {
         text: CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE,

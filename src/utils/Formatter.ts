@@ -2,6 +2,8 @@ import type {
   Proceeding,
   PublicAuthority,
 } from "#src/infrastructure/express/session/index.types.js";
+import { ProceedingsSelection } from "#src/domain/proceedings/ProceedingsSelection.js";
+import { PublicAuthoritySelection } from "#src/domain/publicAuthority/PublicAuthoritySelection.js";
 import type { Option } from "../adaptors/presenters/apply/models/form.types.js";
 import type { SummaryListRow } from "../adaptors/presenters/apply/models/summaryList.types.js";
 
@@ -11,16 +13,10 @@ export class Formatter {
     selectedProceedings: Proceeding[] | [],
     allProceedings: Proceeding[],
   ): Proceeding[] {
-    // # TODO Step 1: Move this to domain/proceedings/ProceedingsSelection.ts option eligibility filtering.
-    const formattedProceedingOptions = allProceedings.filter(
-      (option) =>
-        !selectedProceedings.some(
-          (selectedOption) =>
-            selectedOption.proceedingId === option.proceedingId,
-        ),
+    return ProceedingsSelection.filterAvailable(
+      selectedProceedings,
+      allProceedings,
     );
-
-    return formattedProceedingOptions;
   }
 
   formatOptionsIntoList(proceedingOptions: Proceeding[]): Option[] {
@@ -81,12 +77,9 @@ export class Formatter {
     selectedPublicAuthorities: PublicAuthority[] | [],
     allPublicAuthorities: PublicAuthority[],
   ): PublicAuthority[] {
-    // # TODO Step 1: Move this to domain/publicAuthority/PublicAuthoritySelection.ts option eligibility filtering.
-    return allPublicAuthorities.filter(
-      (option) =>
-        !selectedPublicAuthorities.some(
-          (selected) => selected.publicAuthorityId === option.publicAuthorityId,
-        ),
+    return PublicAuthoritySelection.filterAvailable(
+      selectedPublicAuthorities,
+      allPublicAuthorities,
     );
   }
 }

@@ -1,4 +1,5 @@
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import { Address } from "#src/domain/client/Address.js";
+import { CorrespondencePolicy } from "#src/domain/client/CorrespondencePolicy.js";
 import type {
   ClientCorrespondenceRecipient,
   ClientHomeAddress,
@@ -74,61 +75,25 @@ export class ClientDetailsFormatter extends Formatter {
   buildClientHomeAddress(
     formBody: Partial<ClientDetailsFormData>,
   ): ClientHomeAddress {
-    // # TODO Step 1: Move this to domain/client/Address.ts (construction and normalization).
-    const {
-      "home-address-line-1": addressLine1,
-      "home-address-line-2": addressLine2,
-      "home-town-or-city": townOrCity,
-      "home-county": county,
-      "home-postcode": postcode,
-    } = formBody;
-
-    const normalizedAddressLine2 =
-      typeof addressLine2 === "string" && addressLine2.length > EMPTY_ARR_LENGTH
-        ? addressLine2
-        : null;
-    const normalizedCounty =
-      typeof county === "string" && county.length > EMPTY_ARR_LENGTH
-        ? county
-        : null;
-
-    return {
-      addressLine1: addressLine1 ?? "",
-      addressLine2: normalizedAddressLine2,
-      townOrCity: townOrCity ?? "",
-      county: normalizedCounty,
-      postcode: postcode ?? "",
-    };
+    return Address.fromFormFields({
+      addressLine1: formBody["home-address-line-1"],
+      addressLine2: formBody["home-address-line-2"],
+      townOrCity: formBody["home-town-or-city"],
+      county: formBody["home-county"],
+      postcode: formBody["home-postcode"],
+    }).toPersisted();
   }
 
   buildClientCorrespondenceAddress(
     formBody: Partial<ClientDetailsFormData>,
   ): ClientHomeAddress {
-    // # TODO Step 1: Move this to domain/client/Address.ts (correspondence normalization).
-    const {
-      "correspondence-address-line-1": addressLine1,
-      "correspondence-address-line-2": addressLine2,
-      "correspondence-town-or-city": townOrCity,
-      "correspondence-county": county,
-      "correspondence-postcode": postcode,
-    } = formBody;
-
-    const normalizedAddressLine2 =
-      typeof addressLine2 === "string" && addressLine2.length > EMPTY_ARR_LENGTH
-        ? addressLine2
-        : null;
-    const normalizedCounty =
-      typeof county === "string" && county.length > EMPTY_ARR_LENGTH
-        ? county
-        : null;
-
-    return {
-      addressLine1: addressLine1 ?? "",
-      addressLine2: normalizedAddressLine2,
-      townOrCity: townOrCity ?? "",
-      county: normalizedCounty,
-      postcode: postcode ?? "",
-    };
+    return Address.fromFormFields({
+      addressLine1: formBody["correspondence-address-line-1"],
+      addressLine2: formBody["correspondence-address-line-2"],
+      townOrCity: formBody["correspondence-town-or-city"],
+      county: formBody["correspondence-county"],
+      postcode: formBody["correspondence-postcode"],
+    }).toPersisted();
   }
 
   buildCorrespondenceRecipientViewModel(
@@ -167,8 +132,9 @@ export class ClientDetailsFormatter extends Formatter {
   getNoRecipientSelection(req: {
     session: Record<string, unknown>;
   }): "" | "NONE" {
-    // # TODO Step 1: Move this to domain/client/CorrespondencePolicy.ts (default recipient decision).
-    return req.session.clientCorrespondenceRecipient === null ? "NONE" : "";
+    return CorrespondencePolicy.defaultRecipientSelection(
+      req.session.clientCorrespondenceRecipient as ClientCorrespondenceRecipient | null,
+    );
   }
 
   #getRecipientTypeValue(

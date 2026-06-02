@@ -1,3 +1,9 @@
+import type { PersistedAddress } from "#src/domain/client/Address.js";
+import type { CorrespondenceAddressSource as DomainCorrespondenceAddressSource } from "#src/domain/client/CorrespondenceAddressSource.js";
+import type { CorrespondenceRecipient as DomainCorrespondenceRecipient } from "#src/domain/client/CorrespondenceRecipient.js";
+import type { Proceeding as DomainProceeding } from "#src/domain/proceedings/Proceeding.js";
+import type { PublicAuthority as DomainPublicAuthority } from "#src/domain/publicAuthority/PublicAuthority.js";
+
 declare module "express-session" {
   interface SessionData extends Record<
     string,
@@ -20,36 +26,13 @@ interface FormError {
   message?: string;
 }
 
-export interface Proceeding {
-  // # TODO Step 1: Move this to domain/proceedings/Proceeding.ts and keep this file transport/session-only.
-  proceedingId: string;
-  proceedingDescription: string;
-  matterType: string;
-}
+export type Proceeding = DomainProceeding;
 
-export interface PublicAuthority {
-  // # TODO Step 1: Move this to domain/publicAuthority/PublicAuthority.ts.
-  publicAuthorityId: string;
-  publicAuthorityDescription: string;
-}
+export type PublicAuthority = DomainPublicAuthority;
 
-export interface ClientHomeAddress {
-  // # TODO Step 1: Move this to domain/client/Address.ts.
-  addressLine1: string;
-  addressLine2?: string | null;
-  townOrCity: string;
-  county?: string | null;
-  postcode: string;
-}
+export type ClientHomeAddress = PersistedAddress;
 
-export type CorrespondenceAddressSource =
-  // # TODO Step 1: Move this to domain/client/CorrespondenceAddressSource.ts.
-  | "USE_CLIENT_HOME_ADDRESS"
-  | "USE_SPECIFIED_ADDRESS"
-  | "USE_PROVIDER_ADDRESS";
+export type CorrespondenceAddressSource = DomainCorrespondenceAddressSource;
 
-export interface ClientCorrespondenceRecipient {
-  // # TODO Step 1: Move this to domain/client/CorrespondenceRecipient.ts.
-  recipientType: "PERSON" | "ORGANISATION";
-  recipientName: string;
-}
+export type ClientCorrespondenceRecipient = DomainCorrespondenceRecipient;
+
