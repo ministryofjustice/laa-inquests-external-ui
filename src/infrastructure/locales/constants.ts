@@ -8,6 +8,29 @@ export const DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH = 2;
 
 export const DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH = 500;
 
+export const HOME_ADDRESS_MIN_LENGTH = 2;
+
+export const HOME_ADDRESS_MAX_LENGTH = 100;
+
+export const HOME_TOWN_OR_CITY_MAX_LENGTH = 100;
+
+export const HOME_COUNTY_MIN_LENGTH = 3;
+
+export const HOME_COUNTY_MAX_LENGTH = 50;
+
+export const HOME_POSTCODE_MIN_LENGTH = 5;
+
+export const HOME_POSTCODE_MAX_LENGTH = 8;
+
+export const HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX =
+  /^(?:[A-Z0-9\s'.,\/\-]|&)+$/iv;
+
+export const HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX = /^[A-Z\s\-']+$/iv;
+
+export const HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX = /^[A-Z0-9\s]+$/iv;
+
+export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
+
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
 export const EMPTY_ARR_LENGTH = 0;
@@ -45,7 +68,7 @@ export const CLIENT_DETAILS_ERROR = {
     "Address line 2 must only include letters, numbers, spaces, hyphens, apostrophes, commas, full stops, forward slashes and ampersands",
   MISSING_HOME_TOWN_OR_CITY: "Please enter town or city",
   HOME_TOWN_OR_CITY_MIN_MAX_LENGTH:
-    "Town or city must be between 2 and 50 characters",
+    "Town or city must be between 2 and 100 characters",
   HOME_TOWN_OR_CITY_INVALID_CHARACTERS:
     "Town or city must only include letters, spaces, hyphens and apostrophes",
   HOME_COUNTY_MIN_MAX_LENGTH: "County must be between 3 and 50 characters",
