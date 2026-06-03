@@ -1,17 +1,17 @@
 import type { ClientHomeAddressError } from "#src/adaptors/presenters/apply/models/form.types.js";
-
-const ADDRESS_MIN_LENGTH = 2;
-const ADDRESS_MAX_LENGTH = 100;
-const TOWN_OR_CITY_MAX_LENGTH = 50;
-const COUNTY_MIN_LENGTH = 3;
-const COUNTY_MAX_LENGTH = 50;
-const POSTCODE_MIN_LENGTH = 5;
-const POSTCODE_MAX_LENGTH = 8;
-
-const ADDRESS_ALLOWED_CHARACTERS_REGEX = /^(?:[A-Z0-9\s'.,\/\-]|&)+$/iv;
-const TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX = /^[A-Z\s\-']+$/iv;
-const POSTCODE_ALLOWED_CHARACTERS_REGEX = /^[A-Z0-9\s]+$/iv;
-const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
+import {
+  ALPHANUMERIC_CHARACTER_REGEX,
+  HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX,
+  HOME_ADDRESS_MAX_LENGTH,
+  HOME_ADDRESS_MIN_LENGTH,
+  HOME_COUNTY_MAX_LENGTH,
+  HOME_COUNTY_MIN_LENGTH,
+  HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX,
+  HOME_POSTCODE_MAX_LENGTH,
+  HOME_POSTCODE_MIN_LENGTH,
+  HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX,
+  HOME_TOWN_OR_CITY_MAX_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 
 interface AddressValidationMessages {
   line1Missing: string;
@@ -83,8 +83,8 @@ function validateAddressLine1(
   if (
     isOutsideLengthRange(
       values.addressLine1,
-      ADDRESS_MIN_LENGTH,
-      ADDRESS_MAX_LENGTH,
+      HOME_ADDRESS_MIN_LENGTH,
+      HOME_ADDRESS_MAX_LENGTH,
     )
   ) {
     return { text: messages.line1MinMax };
@@ -94,7 +94,9 @@ function validateAddressLine1(
     return { text: messages.line1RequiresAlphanumeric };
   }
 
-  if (!matchesPattern(values.addressLine1, ADDRESS_ALLOWED_CHARACTERS_REGEX)) {
+  if (
+    !matchesPattern(values.addressLine1, HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX)
+  ) {
     return { text: messages.line1InvalidCharacters };
   }
 
@@ -112,8 +114,8 @@ function validateAddressLine2(
   if (
     isOutsideLengthRange(
       values.addressLine2,
-      ADDRESS_MIN_LENGTH,
-      ADDRESS_MAX_LENGTH,
+      HOME_ADDRESS_MIN_LENGTH,
+      HOME_ADDRESS_MAX_LENGTH,
     )
   ) {
     return { text: messages.line2MinMax };
@@ -123,7 +125,9 @@ function validateAddressLine2(
     return { text: messages.line2RequiresAlphanumeric };
   }
 
-  if (!matchesPattern(values.addressLine2, ADDRESS_ALLOWED_CHARACTERS_REGEX)) {
+  if (
+    !matchesPattern(values.addressLine2, HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX)
+  ) {
     return { text: messages.line2InvalidCharacters };
   }
 
@@ -141,15 +145,18 @@ function validateTownOrCity(
   if (
     isOutsideLengthRange(
       values.townOrCity,
-      ADDRESS_MIN_LENGTH,
-      TOWN_OR_CITY_MAX_LENGTH,
+      HOME_ADDRESS_MIN_LENGTH,
+      HOME_TOWN_OR_CITY_MAX_LENGTH,
     )
   ) {
     return { text: messages.townOrCityMinMax };
   }
 
   if (
-    !matchesPattern(values.townOrCity, TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX)
+    !matchesPattern(
+      values.townOrCity,
+      HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX,
+    )
   ) {
     return { text: messages.townOrCityInvalidCharacters };
   }
@@ -166,12 +173,18 @@ function validateCounty(
   }
 
   if (
-    isOutsideLengthRange(values.county, COUNTY_MIN_LENGTH, COUNTY_MAX_LENGTH)
+    isOutsideLengthRange(
+      values.county,
+      HOME_COUNTY_MIN_LENGTH,
+      HOME_COUNTY_MAX_LENGTH,
+    )
   ) {
     return { text: messages.countyMinMax };
   }
 
-  if (!matchesPattern(values.county, TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX)) {
+  if (
+    !matchesPattern(values.county, HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX)
+  ) {
     return { text: messages.countyInvalidCharacters };
   }
 
@@ -189,14 +202,16 @@ function validatePostcode(
   if (
     isOutsideLengthRange(
       values.postcode,
-      POSTCODE_MIN_LENGTH,
-      POSTCODE_MAX_LENGTH,
+      HOME_POSTCODE_MIN_LENGTH,
+      HOME_POSTCODE_MAX_LENGTH,
     )
   ) {
     return { text: messages.postcodeMinMax };
   }
 
-  if (!matchesPattern(values.postcode, POSTCODE_ALLOWED_CHARACTERS_REGEX)) {
+  if (
+    !matchesPattern(values.postcode, HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX)
+  ) {
     return { text: messages.postcodeInvalidCharacters };
   }
 
