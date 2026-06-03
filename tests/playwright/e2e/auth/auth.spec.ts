@@ -1,6 +1,6 @@
 import { test, expect } from "../../fixtures/index.js";
 
-const AUTH_AUTHORITY_URL = "https://login.microsoftonline.com/test-tenant-id";
+const AUTH_DIRECTORY_URL = "https://login.microsoftonline.com/test-tenant-id";
 
 test("redirects unauthenticated user to login page", async ({ request }) => {
   const response = await request.get("/", { maxRedirects: 0 });
@@ -12,7 +12,7 @@ test("redirects unauthenticated user to login page", async ({ request }) => {
 test("redirects to Entra on GET /auth/login", async ({ page }) => {
   const response = await page.goto("/auth/login", { waitUntil: "commit" });
 
-  expect(response?.url()).toContain(AUTH_AUTHORITY_URL);
+  expect(response?.url()).toContain(AUTH_DIRECTORY_URL);
 });
 
 test("renders home page when session contains userId", async ({ page }) => {
