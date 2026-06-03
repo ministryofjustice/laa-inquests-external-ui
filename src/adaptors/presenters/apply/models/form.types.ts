@@ -55,7 +55,9 @@ export interface ClientPrevApplicationRefError {
 
 export interface ClientHomeAddressError {
   addressLine1InputError?: FormErrorMessage;
+  addressLine2InputError?: FormErrorMessage;
   townOrCityInputError?: FormErrorMessage;
+  countyInputError?: FormErrorMessage;
   postcodeInputError?: FormErrorMessage;
 }
 

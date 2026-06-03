@@ -155,6 +155,26 @@ describe("Client details adaptor", () => {
     assert.equal(requestStub.session.clientHasNoFixedAbode, false);
   });
 
+  it("process home address form uppercases postcode before storing it in session", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "home-address-line-1": "4 Privet Drive",
+      "home-address-line-2": "",
+      "home-town-or-city": "Little Whinging",
+      "home-county": "",
+      "home-postcode": "sw1a 1aa",
+    };
+
+    clientDetailsAdaptor.processHomeAddressForm(requestStub, responseStub);
+
+    assert.equal(requestStub.session.clientHomeAddress?.postcode, "SW1A 1AA");
+  });
+
   it("process home address form sets no fixed abode and does not store home address", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);

@@ -35,7 +35,8 @@
             },
             id: "home-address-line-2",
             name: "home-address-line-2",
-            value: client.homeAddressLine2
+            value: client.homeAddressLine2,
+            errorMessage: errorSummaries.addressLine2InputError
           }) }}
           {{ govukInput({
             label: {
@@ -54,7 +55,8 @@
             },
             id: "home-county",
             name: "home-county",
-            value: client.homeCounty
+            value: client.homeCounty,
+            errorMessage: errorSummaries.countyInputError
           }) }}
           {{ govukInput({
             label: {

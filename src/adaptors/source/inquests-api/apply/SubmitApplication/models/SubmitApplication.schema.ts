@@ -53,7 +53,7 @@ export const SubmitApplicationRequestSchema = z.object({
       if (client.isClientCorrespondenceRecipient) {
         if (client.correspondenceRecipient !== undefined) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: "custom",
             path: ["correspondenceRecipient"],
             message:
               "correspondenceRecipient must not be provided when isClientCorrespondenceRecipient is true",
@@ -64,7 +64,7 @@ export const SubmitApplicationRequestSchema = z.object({
 
       if (client.correspondenceRecipient === undefined) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           path: ["correspondenceRecipient"],
           message:
             "correspondenceRecipient is required when isClientCorrespondenceRecipient is false",
