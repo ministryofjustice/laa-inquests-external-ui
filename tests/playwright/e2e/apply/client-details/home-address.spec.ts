@@ -19,7 +19,7 @@ const expectedHomeAddressErrors = {
   addressLine2MinMax: "Address line 2 must be between 2 and 100 characters",
   addressLine2InvalidCharacters:
     "Address line 2 must only include letters, numbers, spaces, hyphens, apostrophes, commas, full stops, forward slashes and ampersands",
-  townOrCityMinMax: "Town or city must be between 2 and 50 characters",
+  townOrCityMinMax: "Town or city must be between 2 and 100 characters",
   townOrCityInvalidCharacters:
     "Town or city must only include letters, spaces, hyphens and apostrophes",
   countyMinMax: "County must be between 3 and 50 characters",
@@ -354,7 +354,7 @@ test.describe("Client details - home address", () => {
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
-        "Town or city": "a".repeat(51),
+        "Town or city": "a".repeat(101),
       });
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
