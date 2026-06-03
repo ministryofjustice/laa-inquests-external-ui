@@ -9,6 +9,7 @@ import type {
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
+  CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH,
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
   NINO_REGEX,
@@ -314,6 +315,7 @@ export class ClientDetailsValidator extends FormValidator {
         postcode,
       },
       CORRESPONDENCE_ADDRESS_VALIDATION_MESSAGES,
+      { townOrCityMaxLength: CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH },
     );
   }
 

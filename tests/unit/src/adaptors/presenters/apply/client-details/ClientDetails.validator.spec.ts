@@ -875,6 +875,24 @@ describe("ClientDetailsValidator", () => {
         });
       });
 
+      it("adds error when correspondence town or city exceeds max character length", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "a".repeat(101),
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_TOWN_OR_CITY_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
       it("adds error when correspondence town or city contains invalid characters", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {

@@ -39,6 +39,14 @@ interface AddressValues {
   postcode: string | undefined;
 }
 
+interface AddressValidationRules {
+  townOrCityMaxLength: number;
+}
+
+const DEFAULT_ADDRESS_VALIDATION_RULES: AddressValidationRules = {
+  townOrCityMaxLength: HOME_TOWN_OR_CITY_MAX_LENGTH,
+};
+
 function hasValue(inputValue: string | undefined): inputValue is string {
   return typeof inputValue === "string" && inputValue !== "";
 }
@@ -137,6 +145,7 @@ function validateAddressLine2(
 function validateTownOrCity(
   values: AddressValues,
   messages: AddressValidationMessages,
+  rules: AddressValidationRules,
 ): { text: string } | undefined {
   if (isMissing(values.townOrCity)) {
     return { text: messages.townOrCityMissing };
@@ -146,7 +155,7 @@ function validateTownOrCity(
     isOutsideLengthRange(
       values.townOrCity,
       HOME_ADDRESS_MIN_LENGTH,
-      HOME_TOWN_OR_CITY_MAX_LENGTH,
+      rules.townOrCityMaxLength,
     )
   ) {
     return { text: messages.townOrCityMinMax };
@@ -221,11 +230,12 @@ function validatePostcode(
 export function validateAddressFields(
   values: AddressValues,
   messages: AddressValidationMessages,
+  rules: AddressValidationRules = DEFAULT_ADDRESS_VALIDATION_RULES,
 ): Partial<ClientHomeAddressError> {
   const errorSummaries: Partial<ClientHomeAddressError> = {};
   const addressLine1Error = validateAddressLine1(values, messages);
   const addressLine2Error = validateAddressLine2(values, messages);
-  const townOrCityError = validateTownOrCity(values, messages);
+  const townOrCityError = validateTownOrCity(values, messages, rules);
   const countyError = validateCounty(values, messages);
   const postcodeError = validatePostcode(values, messages);
 

@@ -19,7 +19,7 @@ const expectedCorrespondenceAddressErrors = {
   addressLine2MinMax: "Address line 2 must be between 2 and 100 characters",
   addressLine2InvalidCharacters:
     "Address line 2 must only include letters, numbers, spaces, hyphens, apostrophes, commas, full stops, forward slashes and ampersands",
-  townOrCityMinMax: "Town or city must be between 2 and 50 characters",
+  townOrCityMinMax: "Town or city must be between 2 and 100 characters",
   townOrCityInvalidCharacters:
     "Town or city must only include letters, spaces, hyphens and apostrophes",
   countyMinMax: "County must be between 3 and 50 characters",
@@ -288,6 +288,27 @@ test.describe("Client details - correspondence address", () => {
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
         expectedCorrespondenceAddressErrors.townOrCityInvalidCharacters,
+      );
+    });
+
+    test("if town or city exceeds max character length", async ({ page }) => {
+      await page.goto("/apply/client-details/correspondence-address");
+      const form = page.getByTestId("correspondence-address-form");
+
+      await getAndUpdateFormFields(page, {
+        ...validCorrespondenceAddress,
+        "Town or city": "a".repeat(101),
+      });
+
+      await form.getByRole("button", { name: "Continue" }).click();
+      await page.waitForLoadState("domcontentloaded");
+
+      const errorMessageElement = form.locator(
+        "#correspondence-town-or-city-error",
+      );
+      await expect(errorMessageElement).toBeVisible();
+      await expect(errorMessageElement).toContainText(
+        expectedCorrespondenceAddressErrors.townOrCityMinMax,
       );
     });
 

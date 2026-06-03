@@ -22,6 +22,8 @@ export const HOME_POSTCODE_MIN_LENGTH = 5;
 
 export const HOME_POSTCODE_MAX_LENGTH = 8;
 
+export const CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH = 100;
+
 export const HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX =
   /^(?:[A-Z0-9\s'.,\/\-]|&)+$/iv;
 
@@ -96,7 +98,7 @@ export const CLIENT_DETAILS_ERROR = {
     "Address line 2 must only include letters, numbers, spaces, hyphens, apostrophes, commas, full stops, forward slashes and ampersands",
   MISSING_CORRESPONDENCE_TOWN_OR_CITY: "Please enter town or city",
   CORRESPONDENCE_TOWN_OR_CITY_MIN_MAX_LENGTH:
-    "Town or city must be between 2 and 50 characters",
+    "Town or city must be between 2 and 100 characters",
   CORRESPONDENCE_TOWN_OR_CITY_INVALID_CHARACTERS:
     "Town or city must only include letters, spaces, hyphens and apostrophes",
   CORRESPONDENCE_COUNTY_MIN_MAX_LENGTH:
