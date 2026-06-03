@@ -426,6 +426,93 @@ describe("ClientDetailsValidator", () => {
         });
       });
 
+      it("adds error when address line 1 is less than 2 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "A",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_1_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when address line 1 contains no alphanumeric characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "---",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_1_REQUIRES_ALPHANUMERIC_CHARACTER,
+          },
+        });
+      });
+
+      it("adds error when address line 1 contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "Flat 1@",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_1_INVALID_CHARACTERS,
+          },
+        });
+      });
+
+      it("adds error when address line 2 is less than 2 characters when populated", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-address-line-2": "A",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine2InputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_2_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when address line 2 contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-address-line-2": "Flat 1@",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine2InputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_2_INVALID_CHARACTERS,
+          },
+        });
+      });
+
       it("adds error when town or city is missing", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
@@ -439,6 +526,76 @@ describe("ClientDetailsValidator", () => {
         assert.deepEqual(errorSummaries, {
           townOrCityInputError: {
             text: CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY,
+          },
+        });
+      });
+
+      it("adds error when town or city is less than 2 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "A",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_TOWN_OR_CITY_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when town or city contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "London2",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_TOWN_OR_CITY_INVALID_CHARACTERS,
+          },
+        });
+      });
+
+      it("adds error when county is less than 3 characters when populated", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "London",
+          "home-county": "AB",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          countyInputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_COUNTY_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when county contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "London",
+          "home-county": "Surrey2",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          countyInputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_COUNTY_INVALID_CHARACTERS,
           },
         });
       });
@@ -460,19 +617,36 @@ describe("ClientDetailsValidator", () => {
         });
       });
 
-      it("adds error when postcode is not a valid UK postcode", () => {
+      it("adds error when postcode is less than 5 characters", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "home-address-line-1": "4 Privet Drive",
           "home-town-or-city": "London",
-          "home-postcode": "not-valid",
+          "home-postcode": "A1 1",
         };
 
         const errorSummaries = formValidator.validateHomeAddress(formBody);
         assert.deepEqual(errorSummaries, {
           postcodeInputError: {
-            text: CLIENT_DETAILS_ERROR.INVALID_HOME_POSTCODE,
+            text: CLIENT_DETAILS_ERROR.HOME_POSTCODE_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when postcode contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A-1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          postcodeInputError: {
+            text: CLIENT_DETAILS_ERROR.HOME_POSTCODE_INVALID_CHARACTERS,
           },
         });
       });
@@ -484,6 +658,21 @@ describe("ClientDetailsValidator", () => {
           "home-address-line-1": "4 Privet Drive",
           "home-town-or-city": "London",
           "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(formBody);
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns no errors when optional fields are blank and values are within new rules", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "1A",
+          "home-address-line-2": "",
+          "home-town-or-city": "Ly",
+          "home-county": "",
+          "home-postcode": "A1 1A",
         };
 
         const errorSummaries = formValidator.validateHomeAddress(formBody);

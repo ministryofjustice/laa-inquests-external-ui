@@ -8,9 +8,20 @@ import type {
   ClientPrevApplicationRefError,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
+  ALPHANUMERIC_CHARACTER_REGEX,
   CLIENT_DETAILS_ERROR,
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
+  HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX,
+  HOME_ADDRESS_MAX_LENGTH,
+  HOME_ADDRESS_MIN_LENGTH,
+  HOME_COUNTY_MAX_LENGTH,
+  HOME_COUNTY_MIN_LENGTH,
+  HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX,
+  HOME_POSTCODE_MAX_LENGTH,
+  HOME_POSTCODE_MIN_LENGTH,
+  HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX,
+  HOME_TOWN_OR_CITY_MAX_LENGTH,
   NINO_REGEX,
   UK_POSTCODE_REGEX,
 } from "#src/infrastructure/locales/constants.js";
@@ -196,33 +207,36 @@ export class ClientDetailsValidator extends FormValidator {
     const errorSummaries: Partial<ClientHomeAddressError> = {};
     const {
       "home-address-line-1": addressLine1,
+      "home-address-line-2": addressLine2,
       "home-town-or-city": townOrCity,
+      "home-county": county,
       "home-postcode": postcode,
     } = formBody;
 
-    if (this.validateFormInputValue(addressLine1)) {
-      errorSummaries.addressLine1InputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
-      };
+    const addressLine1Error = this.#validateHomeAddressLine1(addressLine1);
+    const addressLine2Error = this.#validateHomeAddressLine2(addressLine2);
+    const townOrCityError = this.#validateHomeTownOrCity(townOrCity);
+    const countyError = this.#validateHomeCounty(county);
+    const postcodeError = this.#validateHomePostcode(postcode);
+
+    if (addressLine1Error !== undefined) {
+      errorSummaries.addressLine1InputError = addressLine1Error;
     }
 
-    if (this.validateFormInputValue(townOrCity)) {
-      errorSummaries.townOrCityInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY,
-      };
+    if (addressLine2Error !== undefined) {
+      errorSummaries.addressLine2InputError = addressLine2Error;
     }
 
-    if (this.validateFormInputValue(postcode)) {
-      errorSummaries.postcodeInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_HOME_POSTCODE,
-      };
-    } else if (
-      typeof postcode === "string" &&
-      !UK_POSTCODE_REGEX.test(postcode)
-    ) {
-      errorSummaries.postcodeInputError = {
-        text: CLIENT_DETAILS_ERROR.INVALID_HOME_POSTCODE,
-      };
+    if (townOrCityError !== undefined) {
+      errorSummaries.townOrCityInputError = townOrCityError;
+    }
+
+    if (countyError !== undefined) {
+      errorSummaries.countyInputError = countyError;
+    }
+
+    if (postcodeError !== undefined) {
+      errorSummaries.postcodeInputError = postcodeError;
     }
 
     return errorSummaries;
@@ -332,5 +346,174 @@ export class ClientDetailsValidator extends FormValidator {
     }
 
     return errorSummaries;
+  }
+
+  #hasValue(inputValue: string | undefined): inputValue is string {
+    return typeof inputValue === "string" && inputValue !== "";
+  }
+
+  #validateHomeAddressLine1(
+    inputValue: string | undefined,
+  ): { text: string } | undefined {
+    if (this.validateFormInputValue(inputValue)) {
+      return { text: CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1 };
+    }
+
+    if (
+      this.validateMinMaxLength(
+        inputValue,
+        HOME_ADDRESS_MIN_LENGTH,
+        HOME_ADDRESS_MAX_LENGTH,
+      )
+    ) {
+      return { text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_1_MIN_MAX_LENGTH };
+    }
+
+    if (!this.#containsAlphanumericCharacter(inputValue)) {
+      return {
+        text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_1_REQUIRES_ALPHANUMERIC_CHARACTER,
+      };
+    }
+
+    if (
+      !this.#matchesPattern(inputValue, HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX)
+    ) {
+      return {
+        text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_1_INVALID_CHARACTERS,
+      };
+    }
+
+    return undefined;
+  }
+
+  #validateHomeAddressLine2(
+    inputValue: string | undefined,
+  ): { text: string } | undefined {
+    if (!this.#hasValue(inputValue)) {
+      return undefined;
+    }
+
+    if (
+      this.validateMinMaxLength(
+        inputValue,
+        HOME_ADDRESS_MIN_LENGTH,
+        HOME_ADDRESS_MAX_LENGTH,
+      )
+    ) {
+      return { text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_2_MIN_MAX_LENGTH };
+    }
+
+    if (!this.#containsAlphanumericCharacter(inputValue)) {
+      return {
+        text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_2_REQUIRES_ALPHANUMERIC_CHARACTER,
+      };
+    }
+
+    if (
+      !this.#matchesPattern(inputValue, HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX)
+    ) {
+      return {
+        text: CLIENT_DETAILS_ERROR.HOME_ADDRESS_LINE_2_INVALID_CHARACTERS,
+      };
+    }
+
+    return undefined;
+  }
+
+  #validateHomeTownOrCity(
+    inputValue: string | undefined,
+  ): { text: string } | undefined {
+    if (this.validateFormInputValue(inputValue)) {
+      return { text: CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY };
+    }
+
+    if (
+      this.validateMinMaxLength(
+        inputValue,
+        HOME_ADDRESS_MIN_LENGTH,
+        HOME_TOWN_OR_CITY_MAX_LENGTH,
+      )
+    ) {
+      return { text: CLIENT_DETAILS_ERROR.HOME_TOWN_OR_CITY_MIN_MAX_LENGTH };
+    }
+
+    if (
+      !this.#matchesPattern(
+        inputValue,
+        HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX,
+      )
+    ) {
+      return {
+        text: CLIENT_DETAILS_ERROR.HOME_TOWN_OR_CITY_INVALID_CHARACTERS,
+      };
+    }
+
+    return undefined;
+  }
+
+  #validateHomeCounty(
+    inputValue: string | undefined,
+  ): { text: string } | undefined {
+    if (!this.#hasValue(inputValue)) {
+      return undefined;
+    }
+
+    if (
+      this.validateMinMaxLength(
+        inputValue,
+        HOME_COUNTY_MIN_LENGTH,
+        HOME_COUNTY_MAX_LENGTH,
+      )
+    ) {
+      return { text: CLIENT_DETAILS_ERROR.HOME_COUNTY_MIN_MAX_LENGTH };
+    }
+
+    if (
+      !this.#matchesPattern(
+        inputValue,
+        HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX,
+      )
+    ) {
+      return { text: CLIENT_DETAILS_ERROR.HOME_COUNTY_INVALID_CHARACTERS };
+    }
+
+    return undefined;
+  }
+
+  #validateHomePostcode(
+    inputValue: string | undefined,
+  ): { text: string } | undefined {
+    if (this.validateFormInputValue(inputValue)) {
+      return { text: CLIENT_DETAILS_ERROR.MISSING_HOME_POSTCODE };
+    }
+
+    if (
+      this.validateMinMaxLength(
+        inputValue,
+        HOME_POSTCODE_MIN_LENGTH,
+        HOME_POSTCODE_MAX_LENGTH,
+      )
+    ) {
+      return { text: CLIENT_DETAILS_ERROR.HOME_POSTCODE_MIN_MAX_LENGTH };
+    }
+
+    if (
+      !this.#matchesPattern(inputValue, HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX)
+    ) {
+      return { text: CLIENT_DETAILS_ERROR.HOME_POSTCODE_INVALID_CHARACTERS };
+    }
+
+    return undefined;
+  }
+
+  #containsAlphanumericCharacter(inputValue: string | undefined): boolean {
+    return (
+      typeof inputValue === "string" &&
+      ALPHANUMERIC_CHARACTER_REGEX.test(inputValue)
+    );
+  }
+
+  #matchesPattern(inputValue: string | undefined, pattern: RegExp): boolean {
+    return typeof inputValue === "string" && pattern.test(inputValue);
   }
 }
