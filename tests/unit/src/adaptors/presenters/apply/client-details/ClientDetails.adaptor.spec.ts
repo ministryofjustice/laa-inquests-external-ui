@@ -279,7 +279,7 @@ describe("Client details adaptor", () => {
       "correspondence-address-line-2": "Flat 2",
       "correspondence-town-or-city": "London",
       "correspondence-county": "Greater London",
-      "correspondence-postcode": "SW1A 1AA",
+      "correspondence-postcode": "sw1a 1aa",
     };
 
     clientDetailsAdaptor.processCorrespondenceAddressForm(

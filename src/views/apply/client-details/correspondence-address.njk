@@ -33,7 +33,8 @@
             },
             id: "correspondence-address-line-2",
             name: "correspondence-address-line-2",
-            value: client.correspondenceAddressLine2
+            value: client.correspondenceAddressLine2,
+            errorMessage: errorSummaries.addressLine2InputError
           }) }}
           {{ govukInput({
             label: {
@@ -52,7 +53,8 @@
             },
             id: "correspondence-county",
             name: "correspondence-county",
-            value: client.correspondenceCounty
+            value: client.correspondenceCounty,
+            errorMessage: errorSummaries.countyInputError
           }) }}
           {{ govukInput({
             label: {

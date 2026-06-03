@@ -59,8 +59,32 @@ export const CLIENT_DETAILS_ERROR = {
   INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE:
     "You cannot select your client's UK home address when they have no fixed abode",
   MISSING_CORRESPONDENCE_ADDRESS_LINE_1: "Please enter address line 1",
+  CORRESPONDENCE_ADDRESS_LINE_1_MIN_MAX_LENGTH:
+    "Address line 1 must be between 2 and 100 characters",
+  CORRESPONDENCE_ADDRESS_LINE_1_REQUIRES_ALPHANUMERIC_CHARACTER:
+    "Address line 1 must include at least 1 letter or number",
+  CORRESPONDENCE_ADDRESS_LINE_1_INVALID_CHARACTERS:
+    "Address line 1 must only include letters, numbers, spaces, hyphens, apostrophes, commas, full stops, forward slashes and ampersands",
+  CORRESPONDENCE_ADDRESS_LINE_2_MIN_MAX_LENGTH:
+    "Address line 2 must be between 2 and 100 characters",
+  CORRESPONDENCE_ADDRESS_LINE_2_REQUIRES_ALPHANUMERIC_CHARACTER:
+    "Address line 2 must include at least 1 letter or number",
+  CORRESPONDENCE_ADDRESS_LINE_2_INVALID_CHARACTERS:
+    "Address line 2 must only include letters, numbers, spaces, hyphens, apostrophes, commas, full stops, forward slashes and ampersands",
   MISSING_CORRESPONDENCE_TOWN_OR_CITY: "Please enter town or city",
+  CORRESPONDENCE_TOWN_OR_CITY_MIN_MAX_LENGTH:
+    "Town or city must be between 2 and 50 characters",
+  CORRESPONDENCE_TOWN_OR_CITY_INVALID_CHARACTERS:
+    "Town or city must only include letters, spaces, hyphens and apostrophes",
+  CORRESPONDENCE_COUNTY_MIN_MAX_LENGTH:
+    "County must be between 3 and 50 characters",
+  CORRESPONDENCE_COUNTY_INVALID_CHARACTERS:
+    "County must only include letters, spaces, hyphens and apostrophes",
   MISSING_CORRESPONDENCE_POSTCODE: "Please enter postcode",
+  CORRESPONDENCE_POSTCODE_MIN_MAX_LENGTH:
+    "Postcode must be between 5 and 8 characters",
+  CORRESPONDENCE_POSTCODE_INVALID_CHARACTERS:
+    "Postcode must only include letters, numbers and spaces",
   INVALID_CORRESPONDENCE_POSTCODE: "Please enter a valid UK postcode",
   MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME:
     "Please enter the person's name",
