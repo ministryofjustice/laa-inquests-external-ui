@@ -53,9 +53,9 @@ spec:
           env:
             - name: AUTH_CLIENT_ID
               valueFrom:
-                  secretKeyRef:
-                    name: {{ .Values.env.AWS_SECRETS_AUTH_CLIENT_ID }}
-                    key: AUTH_CLIENT_ID
+                secretKeyRef:
+                  name: {{ .Values.env.AWS_SECRETS_AUTH_CLIENT_ID }}
+                  key: AUTH_CLIENT_ID
             - name: AUTH_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
