@@ -66,4 +66,63 @@ test.describe("Client details - correspondence recipient", () => {
 
     await expect(page.url()).toContain("/apply/proceedings");
   });
+
+  test("clears no organisation specified error when switching from organisation to person option", async ({
+    page,
+  }) => {
+    await page.goto("/apply/client-details/correspondence-recipient");
+
+    const form = page.getByTestId("correspondence-recipient-form");
+
+    await page.getByLabel("Yes, an organisation").check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(
+      form.locator("#correspondence-recipient-organisation-name-error"),
+    ).toBeVisible();
+
+    await page.getByLabel("Yes, a person").check();
+
+    await expect(
+      form.locator("#correspondence-recipient-organisation-name-error"),
+    ).not.toBeVisible();
+
+    const personNameInput = page.locator(
+      "#correspondence-recipient-person-name",
+    );
+    await expect(personNameInput).toBeVisible();
+    await expect(
+      form.locator("#correspondence-recipient-person-name-error"),
+    ).not.toBeVisible();
+  });
+  test("clears no person specified error when switching from person to organisation option", async ({
+    page,
+  }) => {
+    await page.goto("/apply/client-details/correspondence-recipient");
+
+    const form = page.getByTestId("correspondence-recipient-form");
+
+    await page.getByLabel("Yes, a person").check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(
+      form.locator("#correspondence-recipient-person-name-error"),
+    ).toBeVisible();
+
+    await page.getByLabel("Yes, an organisation").check();
+
+    await expect(
+      form.locator("#correspondence-recipient-person-name-error"),
+    ).not.toBeVisible();
+
+    const orgNameInput = page.locator(
+      "#correspondence-recipient-organisation-name",
+    );
+    await expect(orgNameInput).toBeVisible();
+    await expect(
+      form.locator("#correspondence-recipient-organisation-name-error"),
+    ).not.toBeVisible();
+  });
 });

@@ -67,7 +67,8 @@ export interface ClientCorrespondenceAddressSourceError {
 
 export interface ClientCorrespondenceRecipientError {
   noRadioSelected?: FormErrorMessage;
-  recipientNameInputError?: FormErrorMessage;
+  recipientPersonNameInputError?: FormErrorMessage;
+  recipientOrganisationNameInputError?: FormErrorMessage;
 }
 
 export interface ClientDeclarationFormData extends FormBody {

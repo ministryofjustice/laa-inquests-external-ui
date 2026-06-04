@@ -1063,7 +1063,7 @@ describe("ClientDetailsValidator", () => {
           formValidator.validateCorrespondenceRecipient(formBody);
 
         assert.deepEqual(errorSummaries, {
-          recipientNameInputError: {
+          recipientPersonNameInputError: {
             text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
           },
         });
@@ -1081,7 +1081,7 @@ describe("ClientDetailsValidator", () => {
           formValidator.validateCorrespondenceRecipient(formBody);
 
         assert.deepEqual(errorSummaries, {
-          recipientNameInputError: {
+          recipientOrganisationNameInputError: {
             text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
           },
         });

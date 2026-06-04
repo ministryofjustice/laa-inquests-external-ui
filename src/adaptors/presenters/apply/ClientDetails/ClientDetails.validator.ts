@@ -340,7 +340,7 @@ export class ClientDetailsValidator extends FormValidator {
       correspondenceRecipient === CORRESPONDENCE_RECIPIENT_TYPE.PERSON &&
       this.validateFormInputValue(personName)
     ) {
-      errorSummaries.recipientNameInputError = {
+      errorSummaries.recipientPersonNameInputError = {
         text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
       };
       return errorSummaries;
@@ -350,7 +350,7 @@ export class ClientDetailsValidator extends FormValidator {
       correspondenceRecipient === CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION &&
       this.validateFormInputValue(organisationName)
     ) {
-      errorSummaries.recipientNameInputError = {
+      errorSummaries.recipientOrganisationNameInputError = {
         text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
       };
     }
