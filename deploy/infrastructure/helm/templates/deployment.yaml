@@ -66,6 +66,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.AWS_SECRETS_AUTH_DIRECTORY_URL }}
                   key: AUTH_DIRECTORY_URL
+            - name: AUTH_POST_LOGOUT_URI
+              value: "{{ .Values.env.AUTH_POST_LOGOUT_URI }}"
+            - name: AUTH_REDIRECT_URI
+              value: "{{ .Values.env.AUTH_REDIRECT_URI }}"
             - name: SERVICE_NAME
               value: "{{ .Values.env.SERVICE_NAME }}"
             - name: SERVICE_PHASE
