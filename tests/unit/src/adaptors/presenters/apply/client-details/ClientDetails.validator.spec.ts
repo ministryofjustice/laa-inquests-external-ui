@@ -1069,6 +1069,42 @@ describe("ClientDetailsValidator", () => {
         });
       });
 
+      it("adds error when person name is over 100 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "PERSON",
+          "correspondence-recipient-person-name": "a".repeat(101),
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          recipientPersonNameInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when person name contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "PERSON",
+          "correspondence-recipient-person-name": "John@Doe",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          recipientPersonNameInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS,
+          },
+        });
+      });
+
       it("adds error when organisation is selected without an organisation name", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
@@ -1085,6 +1121,56 @@ describe("ClientDetailsValidator", () => {
             text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
           },
         });
+      });
+
+      it("adds error when organisation name is over 100 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "ORGANISATION",
+          "correspondence-recipient-organisation-name": "a".repeat(101),
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          recipientOrganisationNameInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when organisation name contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "ORGANISATION",
+          "correspondence-recipient-organisation-name": "Org@Name",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          recipientOrganisationNameInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS,
+          },
+        });
+      });
+
+      it("returns no errors when person name contains unicode characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-recipient": "PERSON",
+          "correspondence-recipient-person-name": "Jos\u00E9 \u0141ukasz",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceRecipient(formBody);
+
+        assert.deepEqual(errorSummaries, {});
       });
 
       it("returns no errors when none is selected", () => {
