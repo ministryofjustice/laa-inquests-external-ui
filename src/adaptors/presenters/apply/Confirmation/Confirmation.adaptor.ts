@@ -7,9 +7,9 @@ import {
 } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
 import type {
   ClientCorrespondenceRecipient,
-  ClientHomeAddress,
   Proceeding,
 } from "#src/infrastructure/express/session/index.types.js";
+import type { Address } from "#src/domain/Client/Address.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import {
@@ -408,7 +408,7 @@ export class ConfirmationAdaptor {
     );
   }
 
-  #getClientHomeAddress(req: Request): ClientHomeAddress | null {
+  #getClientHomeAddress(req: Request): Address | null {
     const { session } = req;
     const { clientHomeAddress } = session;
     return this.#isClientHomeAddress(clientHomeAddress)
@@ -416,7 +416,7 @@ export class ConfirmationAdaptor {
       : null;
   }
 
-  #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
+  #getClientCorrespondenceAddress(req: Request): Address | null {
     const { session } = req;
     const { clientCorrespondenceAddress } = session;
     return this.#isClientHomeAddress(clientCorrespondenceAddress)
@@ -434,12 +434,12 @@ export class ConfirmationAdaptor {
       : null;
   }
 
-  #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
+  #isClientHomeAddress(value: unknown): value is Address {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
 
-    const candidate = value as Partial<ClientHomeAddress>;
+    const candidate = value as Partial<Address>;
     return (
       typeof candidate.addressLine1 === "string" &&
       typeof candidate.townOrCity === "string" &&
