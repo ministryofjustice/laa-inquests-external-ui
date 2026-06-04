@@ -31,6 +31,9 @@ export const HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX = /^[A-Z\s\-']+$/iv;
 
 export const HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX = /^[A-Z0-9\s]+$/iv;
 
+export const CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX =
+  /^(?:[\p{L}\p{N}\s'.,\-]|&)+$/v;
+
 export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
@@ -113,8 +116,16 @@ export const CLIENT_DETAILS_ERROR = {
   INVALID_CORRESPONDENCE_POSTCODE: "Please enter a valid UK postcode",
   MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME:
     "Please enter the person's name",
+  CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Person's name must be 100 characters or less",
+  CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS:
+    "Person's name must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
   MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME:
     "Please enter the organisation name",
+  CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Organisation name must be 100 characters or less",
+  CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS:
+    "Organisation name must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
 };
 
 export const CORRESPONDENCE_ADDRESS_SOURCE = {
