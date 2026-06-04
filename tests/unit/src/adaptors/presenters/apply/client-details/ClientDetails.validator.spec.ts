@@ -747,6 +747,98 @@ describe("ClientDetailsValidator", () => {
         });
       });
 
+      it("adds error when correspondence address line 1 is less than 2 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "A",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_LINE_1_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when correspondence address line 1 contains no alphanumeric characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "---",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_LINE_1_REQUIRES_ALPHANUMERIC_CHARACTER,
+          },
+        });
+      });
+
+      it("adds error when correspondence address line 1 contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "Flat 1@",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_LINE_1_INVALID_CHARACTERS,
+          },
+        });
+      });
+
+      it("adds error when correspondence address line 2 is less than 2 characters when populated", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-address-line-2": "A",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine2InputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_LINE_2_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when correspondence address line 2 contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-address-line-2": "Flat 1@",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          addressLine2InputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_LINE_2_INVALID_CHARACTERS,
+          },
+        });
+      });
+
       it("adds error when correspondence town or city is missing", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
@@ -765,20 +857,178 @@ describe("ClientDetailsValidator", () => {
         });
       });
 
-      it("adds error when correspondence postcode is invalid", () => {
+      it("adds error when correspondence town or city is less than 2 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "A",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_TOWN_OR_CITY_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when correspondence town or city exceeds max character length", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "a".repeat(101),
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_TOWN_OR_CITY_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when correspondence town or city contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "London2",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_TOWN_OR_CITY_INVALID_CHARACTERS,
+          },
+        });
+      });
+
+      it("adds error when correspondence county is less than 3 characters when populated", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
           "correspondence-address-line-1": "1 Acacia Avenue",
           "correspondence-town-or-city": "London",
-          "correspondence-postcode": "invalid",
+          "correspondence-county": "AB",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          countyInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_COUNTY_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when correspondence county contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "London",
+          "correspondence-county": "Surrey2",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          countyInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_COUNTY_INVALID_CHARACTERS,
+          },
+        });
+      });
+
+      it("adds error when correspondence postcode is less than 5 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "A1 1",
         };
 
         const errorSummaries =
           formValidator.validateCorrespondenceAddress(formBody);
         assert.deepEqual(errorSummaries, {
           postcodeInputError: {
-            text: CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_POSTCODE,
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_POSTCODE_MIN_MAX_LENGTH,
+          },
+        });
+      });
+
+      it("adds error when correspondence postcode contains invalid characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A-1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          postcodeInputError: {
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_POSTCODE_INVALID_CHARACTERS,
+          },
+        });
+      });
+
+      it("returns no errors when correspondence required fields are valid", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns no errors when optional correspondence fields are blank and values are within new rules", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1A",
+          "correspondence-address-line-2": "",
+          "correspondence-town-or-city": "Ly",
+          "correspondence-county": "",
+          "correspondence-postcode": "A1 1A",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("adds error when correspondence postcode is missing", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "correspondence-address-line-1": "1 Acacia Avenue",
+          "correspondence-town-or-city": "London",
+          "correspondence-postcode": "",
+        };
+
+        const errorSummaries =
+          formValidator.validateCorrespondenceAddress(formBody);
+        assert.deepEqual(errorSummaries, {
+          postcodeInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_POSTCODE,
           },
         });
       });

@@ -120,13 +120,15 @@ export class ClientDetailsFormatter extends Formatter {
       typeof county === "string" && county.length > EMPTY_ARR_LENGTH
         ? county
         : null;
+    const normalizedPostcode =
+      typeof postcode === "string" ? postcode.trim().toUpperCase() : "";
 
     return {
       addressLine1: addressLine1 ?? "",
       addressLine2: normalizedAddressLine2,
       townOrCity: townOrCity ?? "",
       county: normalizedCounty,
-      postcode: postcode ?? "",
+      postcode: normalizedPostcode,
     };
   }
 
