@@ -10,7 +10,7 @@ deploy_branch() {
 # Set the ingress name, needs release name, namespace and -green suffix
   IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-external-ui-$K8S_NAMESPACE-green"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
-  AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/redirect"
+  AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
   echo "Github ref: $branch_name; release name: $BRANCH_RELEASE_NAME; identifier: $IDENTIFIER; release host: $RELEASE_HOST"
   echo "Deploying commit: $GITHUB_SHA under release name: '$BRANCH_RELEASE_NAME'..."
 
@@ -50,7 +50,7 @@ deploy_branch() {
 deploy_main() {
   RELEASE_HOST="laa-inquests-external-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
-  AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/redirect"
+  AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
   helm upgrade laa-inquests-external-ui ./deploy/infrastructure/helm/. \
                           --install --wait --timeout 10m \
                           --namespace="${K8S_NAMESPACE}" \
