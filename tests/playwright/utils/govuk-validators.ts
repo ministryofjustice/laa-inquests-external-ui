@@ -85,7 +85,7 @@ export async function validateMojHeader(page: Page): Promise<void> {
   await expect(navigation).toBeVisible();
 
   // Validate account name link
-  const accountNameLink = navigation.getByRole("link", { name: "Account name" });
+  const accountNameLink = navigation.getByRole("link", { name: "Test User" });
   await expect(accountNameLink).toBeVisible();
 
   // Validate sign out link

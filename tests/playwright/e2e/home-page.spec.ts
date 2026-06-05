@@ -25,8 +25,16 @@ test.describe("Home page", () => {
     const navigation = header.getByRole("navigation", { name: "Account navigation" });
     const navLinks = navigation.getByRole("link");
 
-    await expect(navLinks.nth(0)).toHaveText("Account name");
+    await expect(navLinks.nth(0)).toHaveText("Test User");
     await expect(navLinks.nth(1)).toHaveText("Sign out");
+  });
+
+  test("should display the authenticated user name in the header", async ({ page }) => {
+    const header = page.getByRole("banner");
+    const navigation = header.getByRole("navigation", { name: "Account navigation" });
+    const accountLink = navigation.getByRole("link").nth(0);
+
+    await expect(accountLink).toHaveText("Test User");
   });
 
 })
