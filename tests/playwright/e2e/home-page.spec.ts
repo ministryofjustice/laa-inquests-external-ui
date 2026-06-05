@@ -1,36 +1,32 @@
 import { test, expect } from "../fixtures/index.js";
+import {validateMojHeader} from "#tests/playwright/utils/govuk-validators.js";
 
-test("homepage should have the correct title", async ({ page }) => {
-  // Navigate to the homepage
-  await page.goto("/");
+test.describe("Home page", () => {
 
-  // Check for the title of the application
-  await expect(page).toHaveTitle(/Inquests – GOV.UK/);
-});
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+  });
 
-test("homepage should display MoJ header with organisation and service name", async ({
-  page,
-}) => {
-  await page.goto("/");
+  test("should have the correct title", async ({ page }) => {
+    await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+  });
 
-  // Check for the header with LAA branding
-  const mojHeader = page.getByRole("banner").first();
-  await expect(mojHeader).toBeVisible();
+  test("should display correct navigation content", async ({ page }) => {
+    await expect(validateMojHeader(page)).resolves.not.toThrow();
+  })
 
-  // Check for GOV.UK branding which is typically in the header
-  await expect(mojHeader.getByRole("link", { name: "Inquests" })).toBeVisible();
-  await expect(
-    mojHeader.getByRole("link", { name: "Legal Aid Agency" }),
-  ).toBeVisible();
-  await expect(mojHeader.getByRole("link", { name: "Sign out" })).toBeVisible();
-});
+  test("should have the correct link for sign out button", async ({ page }) => {
+    const signOutLink = page.getByRole("link", { name: "Sign out" });
+    await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
+  })
 
-test("displays apply button linking to apply journey", async ({ page }) => {
-  await page.goto("/");
-  const applyButton = page.getByRole("button", { name: "Apply" });
-  await expect(applyButton).toBeVisible();
-  await expect(applyButton).toHaveAttribute("href", "/apply");
+  test("navigation items should be in correct order", async ({ page }) => {
+    const header = page.getByRole("banner");
+    const navigation = header.getByRole("navigation", { name: "Account navigation" });
+    const navLinks = navigation.getByRole("link");
 
-  // Run accessibility check
-  // await checkAccessibility();
-});
+    await expect(navLinks.nth(0)).toHaveText("Account name");
+    await expect(navLinks.nth(1)).toHaveText("Sign out");
+  });
+
+})

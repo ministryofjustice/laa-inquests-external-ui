@@ -67,3 +67,28 @@ export async function validateYesNoRadioWithConditionalInput(
   await yesRadioLabel.click();
   await expect(yesInputLabel).toBeVisible();
 }
+
+export async function validateMojHeader(page: Page): Promise<void> {
+  const header = page.getByRole("banner").first();
+  await expect(header).toBeVisible();
+
+  // Validate Legal Aid Agency organization label
+  const laaLink = header.getByRole("link", { name: "Legal Aid Agency" });
+  await expect(laaLink).toBeVisible();
+
+  // Validate Inquests service label
+  const inquestsLink = header.getByRole("link", { name: "Inquests" });
+  await expect(inquestsLink).toBeVisible();
+
+  // Validate account navigation
+  const navigation = header.getByRole("navigation", { name: "Account navigation" });
+  await expect(navigation).toBeVisible();
+
+  // Validate account name link
+  const accountNameLink = navigation.getByRole("link", { name: "Account name" });
+  await expect(accountNameLink).toBeVisible();
+
+  // Validate sign out link
+  const signOutLink = navigation.getByRole("link", { name: "Sign out" });
+  await expect(signOutLink).toBeVisible();
+}
