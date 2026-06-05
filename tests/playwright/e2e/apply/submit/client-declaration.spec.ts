@@ -7,7 +7,7 @@ import {
   validateCSRFToken,
   validateFormAttributes,
   validateHeader,
-} from "../deceased-details/form-validation-utils.js";
+} from "../../../utils/govuk-validators.js";
 
 const previousPage = "/apply/check-your-answers";
 const currentPage = "/apply/confirmation/client-declaration";

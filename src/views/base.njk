@@ -30,12 +30,12 @@
   navigation: {
     label: "Account navigation",
     items: [{
-      text: "Account name",
+      text: userName if userName else "Account name",
       href: "#",
       active: true
     }, {
       text: "Sign out",
-      href: "#"
+      href: "/auth/logout"
     }]
   }
 }) }}

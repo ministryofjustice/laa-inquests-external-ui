@@ -1,6 +1,16 @@
 name: "Deploy"
 description: "Deploy docker image to namespace"
 inputs:
+  auth_directory_url:
+    description: "Entra Authority URL"
+  auth_client_id:
+    description: "Entra Application ID"
+  auth_client_secret:
+    description: "Entra Application Secret"
+  auth_post_logout_uri:
+    description: "Logout URI"
+  auth_redirect_uri:
+    description: "Redirect URI back to the application"
   kube-cert:
     description: "Kubernetes cluster authentication certificate"
     required: true
@@ -77,6 +87,11 @@ runs:
     - name: Set environment variables
       shell: bash
       run: |
+        echo "AUTH_CLIENT_ID=${{ inputs.auth_client_id || '' }}" >> $GITHUB_ENV
+        echo "AUTH_CLIENT_SECRET=${{ inputs.auth_client_secret || '' }}" >> $GITHUB_ENV
+        echo "AUTH_DIRECTORY_URL=${{ inputs.auth_directory_url || '' }}" >> $GITHUB_ENV
+        echo "AUTH_POST_LOGOUT_URI=${{ inputs.auth_post_logout_uri || '' }}" >> $GITHUB_ENV
+        echo "AUTH_REDIRECT_URI=${{ inputs.auth_redirect_uri || '' }}" >> $GITHUB_ENV
         echo "NODE_ENV=production" >> $GITHUB_ENV
         echo "RATE_LIMIT_MAX=${{ inputs.ratelimit_max || '10000' }}" >> $GITHUB_ENV
         echo "RATE_WINDOW_MS=${{ inputs.ratewindow_ms || '900000' }}" >> $GITHUB_ENV

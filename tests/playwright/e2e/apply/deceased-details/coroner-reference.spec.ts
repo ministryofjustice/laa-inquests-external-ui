@@ -8,7 +8,7 @@ import {
   validateFormAttributes,
   validateHeader,
   continueToNextPage,
-} from "./form-validation-utils.js";
+} from "../../../utils/govuk-validators.js";
 
 test.describe("Provider can", () => {
   let form: Locator;

@@ -19,10 +19,32 @@ if (
     "SESSION_SECRET and SESSION_NAME must be defined in environment variables.",
   );
 }
+
+if (
+  process.env.AUTH_DIRECTORY_URL == null ||
+  process.env.AUTH_DIRECTORY_URL === "" ||
+  process.env.AUTH_CLIENT_ID == null ||
+  process.env.AUTH_CLIENT_ID === "" ||
+  process.env.AUTH_CLIENT_SECRET == null ||
+  process.env.AUTH_CLIENT_SECRET === "" ||
+  process.env.AUTH_REDIRECT_URI == null ||
+  process.env.AUTH_REDIRECT_URI === "" ||
+  process.env.AUTH_POST_LOGOUT_URI == null ||
+  process.env.AUTH_POST_LOGOUT_URI === ""
+) {
+  throw new Error(
+    "AUTH_DIRECTORY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
+  );
+}
 /* eslint-enable eqeqeq */
 
 // Get environment variables
 const config: Config = {
+  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL,
+  AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID,
+  AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET,
+  AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI,
+  AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI,
   CONTACT_EMAIL: process.env.CONTACT_EMAIL,
   CONTACT_PHONE: process.env.CONTACT_PHONE,
   DEPARTMENT_NAME: process.env.DEPARTMENT_NAME,
@@ -44,6 +66,11 @@ const config: Config = {
     name: process.env.SESSION_NAME,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+    },
   },
   app: {
     port: Number(process.env.PORT ?? DEFAULT_PORT),
