@@ -55,12 +55,8 @@ export function setupMiddleware(app: Application): void {
   app.use(session(config.session));
 
   app.use(setupRateLimiter(config));
-  app.use((_: Request, res: Response, next: NextFunction): void => {
-    res.locals.config = config;
-    next();
-  });
-
   app.use((req: Request, res: Response, next: NextFunction): void => {
+    res.locals.config = config;
     res.locals.userName = req.session.user?.name;
     next();
   });
