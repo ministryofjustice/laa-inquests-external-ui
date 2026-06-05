@@ -59,6 +59,11 @@ export function setupMiddleware(app: Application): void {
     res.locals.config = config;
     next();
   });
+
+  app.use((req: Request, res: Response, next: NextFunction): void => {
+    res.locals.userName = req.session.user?.name;
+    next();
+  });
   app.use(setupLocaleData);
   app.use(setupAxiosMiddleware());
   app.use(nonceMiddleware);
