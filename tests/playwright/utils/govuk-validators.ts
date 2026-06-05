@@ -1,5 +1,5 @@
 import type { Page, Locator } from "playwright-core";
-import { expect } from "../../../fixtures/index.js";
+import { expect } from "../fixtures/index.js";
 
 export async function validateHeader(
   page: Page,
