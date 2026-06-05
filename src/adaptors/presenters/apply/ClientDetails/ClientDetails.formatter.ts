@@ -1,13 +1,11 @@
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
-import type {
-  ClientCorrespondenceRecipient,
-  ClientHomeAddress,
-} from "#src/infrastructure/express/session/index.types.js";
+import type { ClientCorrespondenceRecipient } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { Formatter } from "#src/utils/Formatter.js";
+import { Address } from "#src/domain/Client/Address.js";
 
 export class ClientDetailsFormatter extends Formatter {
-  toHomeAddressViewModel(clientHomeAddress: ClientHomeAddress | null): {
+  toHomeAddressViewModel(clientHomeAddress: Address | null): {
     homeAddressLine1: string;
     homeAddressLine2: string;
     homeTownOrCity: string;
@@ -39,9 +37,7 @@ export class ClientDetailsFormatter extends Formatter {
     };
   }
 
-  toCorrespondenceAddressViewModel(
-    correspondenceAddress: ClientHomeAddress | null,
-  ): {
+  toCorrespondenceAddressViewModel(correspondenceAddress: Address | null): {
     correspondenceAddressLine1: string;
     correspondenceAddressLine2: string;
     correspondenceTownOrCity: string;
@@ -70,9 +66,7 @@ export class ClientDetailsFormatter extends Formatter {
     };
   }
 
-  buildClientHomeAddress(
-    formBody: Partial<ClientDetailsFormData>,
-  ): ClientHomeAddress {
+  buildClientHomeAddress(formBody: Partial<ClientDetailsFormData>): Address {
     const {
       "home-address-line-1": addressLine1,
       "home-address-line-2": addressLine2,
@@ -92,18 +86,18 @@ export class ClientDetailsFormatter extends Formatter {
     const normalizedPostcode =
       typeof postcode === "string" ? postcode.trim().toUpperCase() : "";
 
-    return {
+    return new Address({
       addressLine1: addressLine1 ?? "",
       addressLine2: normalizedAddressLine2,
       townOrCity: townOrCity ?? "",
       county: normalizedCounty,
       postcode: normalizedPostcode,
-    };
+    });
   }
 
   buildClientCorrespondenceAddress(
     formBody: Partial<ClientDetailsFormData>,
-  ): ClientHomeAddress {
+  ): Address {
     const {
       "correspondence-address-line-1": addressLine1,
       "correspondence-address-line-2": addressLine2,
@@ -123,13 +117,13 @@ export class ClientDetailsFormatter extends Formatter {
     const normalizedPostcode =
       typeof postcode === "string" ? postcode.trim().toUpperCase() : "";
 
-    return {
+    return new Address({
       addressLine1: addressLine1 ?? "",
       addressLine2: normalizedAddressLine2,
       townOrCity: townOrCity ?? "",
       county: normalizedCounty,
       postcode: normalizedPostcode,
-    };
+    });
   }
 
   buildCorrespondenceRecipientViewModel(

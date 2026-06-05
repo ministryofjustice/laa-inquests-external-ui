@@ -3,6 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
+import { Address } from "#src/domain/Client/Address.js";
 
 describe("Client details adaptor", () => {
   it("render name and dob form", () => {
@@ -145,13 +146,16 @@ describe("Client details adaptor", () => {
 
     clientDetailsAdaptor.processHomeAddressForm(requestStub, responseStub);
 
-    assert.deepEqual(requestStub.session.clientHomeAddress, {
-      addressLine1: "4 Privet Drive",
-      addressLine2: null,
-      townOrCity: "Little Whinging",
-      county: null,
-      postcode: "SW1A 1AA",
-    });
+    assert.deepEqual(
+      requestStub.session.clientHomeAddress,
+      new Address({
+        addressLine1: "4 Privet Drive",
+        addressLine2: null,
+        townOrCity: "Little Whinging",
+        county: null,
+        postcode: "SW1A 1AA",
+      }),
+    );
     assert.equal(requestStub.session.clientHasNoFixedAbode, false);
   });
 
@@ -287,13 +291,16 @@ describe("Client details adaptor", () => {
       responseStub,
     );
 
-    assert.deepEqual(requestStub.session.clientCorrespondenceAddress, {
-      addressLine1: "1 Acacia Avenue",
-      addressLine2: "Flat 2",
-      townOrCity: "London",
-      county: "Greater London",
-      postcode: "SW1A 1AA",
-    });
+    assert.deepEqual(
+      requestStub.session.clientCorrespondenceAddress,
+      new Address({
+        addressLine1: "1 Acacia Avenue",
+        addressLine2: "Flat 2",
+        townOrCity: "London",
+        county: "Greater London",
+        postcode: "SW1A 1AA",
+      }),
+    );
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
     assert.equal(

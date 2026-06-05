@@ -12,11 +12,11 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type {
   ClientCorrespondenceRecipient,
-  ClientHomeAddress,
   Proceeding,
 } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
+import type { Address } from "#src/domain/Client/Address.js";
 
 export class ClientDetailsAdaptor {
   formValidator: ClientDetailsValidator;
@@ -424,7 +424,7 @@ export class ClientDetailsAdaptor {
     }
   }
 
-  #getClientHomeAddress(req: Request): ClientHomeAddress | null {
+  #getClientHomeAddress(req: Request): Address | null {
     const { session } = req;
     const { clientHomeAddress } = session;
     return this.#isClientHomeAddress(clientHomeAddress)
@@ -432,7 +432,7 @@ export class ClientDetailsAdaptor {
       : null;
   }
 
-  #getClientCorrespondenceAddress(req: Request): ClientHomeAddress | null {
+  #getClientCorrespondenceAddress(req: Request): Address | null {
     const { session } = req;
     const { clientCorrespondenceAddress } = session;
     return this.#isClientHomeAddress(clientCorrespondenceAddress)
@@ -440,11 +440,11 @@ export class ClientDetailsAdaptor {
       : null;
   }
 
-  #isClientHomeAddress(value: unknown): value is ClientHomeAddress {
+  #isClientHomeAddress(value: unknown): value is Address {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
-    const candidate = value as Partial<ClientHomeAddress>;
+    const candidate = value as Partial<Address>;
     return (
       typeof candidate.addressLine1 === "string" &&
       typeof candidate.townOrCity === "string" &&

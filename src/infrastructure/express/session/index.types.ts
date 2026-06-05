@@ -1,3 +1,5 @@
+import type { Address } from "#src/domain/Client/Address.js";
+
 declare module "express-session" {
   interface SessionData extends Record<
     string,
@@ -30,13 +32,7 @@ export interface PublicAuthority {
   publicAuthorityDescription: string;
 }
 
-export interface ClientHomeAddress {
-  addressLine1: string;
-  addressLine2?: string | null;
-  townOrCity: string;
-  county?: string | null;
-  postcode: string;
-}
+export type ClientHomeAddress = Address;
 
 export type CorrespondenceAddressSource =
   | "USE_CLIENT_HOME_ADDRESS"
