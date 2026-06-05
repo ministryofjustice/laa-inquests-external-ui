@@ -1,8 +1,8 @@
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
-import type { ClientCorrespondenceRecipient } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { Formatter } from "#src/utils/Formatter.js";
 import { Address } from "#src/domain/Client/Address.js";
+import type {CorrespondenceRecipient} from "#src/domain/Client/CorrespondenceRecipient.js";
 
 export class ClientDetailsFormatter extends Formatter {
   toHomeAddressViewModel(clientHomeAddress: Address | null): {
@@ -128,7 +128,7 @@ export class ClientDetailsFormatter extends Formatter {
 
   buildCorrespondenceRecipientViewModel(
     req: { session: Record<string, unknown> },
-    recipient: ClientCorrespondenceRecipient | null,
+    recipient: CorrespondenceRecipient | null,
     params?: {
       correspondenceRecipient?: string | undefined;
       personName?: string | undefined;
@@ -166,7 +166,7 @@ export class ClientDetailsFormatter extends Formatter {
 
   #getRecipientTypeValue(
     req: { session: Record<string, unknown> },
-    recipient: ClientCorrespondenceRecipient | null,
+    recipient: CorrespondenceRecipient | null,
     overrideValue: string | undefined,
   ): string {
     return (
@@ -177,7 +177,7 @@ export class ClientDetailsFormatter extends Formatter {
   }
 
   #getRecipientNameValue(
-    recipient: ClientCorrespondenceRecipient | null,
+    recipient: CorrespondenceRecipient | null,
     overrideValue: string | undefined,
     recipientType: "PERSON" | "ORGANISATION",
   ): string {

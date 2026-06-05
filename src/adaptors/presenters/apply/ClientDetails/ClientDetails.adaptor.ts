@@ -11,12 +11,12 @@ import {
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
 import type {
-  ClientCorrespondenceRecipient,
   Proceeding,
 } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 import type { Address } from "#src/domain/Client/Address.js";
+import {CorrespondenceRecipient} from "#src/domain/Client/CorrespondenceRecipient.js";
 
 export class ClientDetailsAdaptor {
   formValidator: ClientDetailsValidator;
@@ -475,7 +475,7 @@ export class ClientDetailsAdaptor {
 
   #getClientCorrespondenceRecipient(req: {
     session: Request["session"];
-  }): ClientCorrespondenceRecipient | null {
+  }): CorrespondenceRecipient | null {
     const { session } = req;
     return this.#isClientCorrespondenceRecipient(
       session.clientCorrespondenceRecipient,
@@ -486,12 +486,12 @@ export class ClientDetailsAdaptor {
 
   #isClientCorrespondenceRecipient(
     value: unknown,
-  ): value is ClientCorrespondenceRecipient {
+  ): value is CorrespondenceRecipient {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
 
-    const candidate = value as Partial<ClientCorrespondenceRecipient>;
+    const candidate = value as Partial<CorrespondenceRecipient>;
     return (
       (candidate.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
         candidate.recipientType ===
@@ -520,7 +520,7 @@ export class ClientDetailsAdaptor {
     selection: CorrespondenceRecipientSelectionValue,
     personName: string | undefined,
     organisationName: string | undefined,
-  ): ClientCorrespondenceRecipient | null {
+  ): CorrespondenceRecipient | null {
     if (selection === "NONE") {
       return null;
     }
@@ -530,10 +530,7 @@ export class ClientDetailsAdaptor {
         ? personName
         : organisationName;
 
-    return {
-      recipientType: selection,
-      recipientName: recipientName ?? "",
-    };
+    return new CorrespondenceRecipient(selection, recipientName ?? "");
   }
 
   #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {
