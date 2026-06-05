@@ -7,7 +7,9 @@ export default function createTestRouter(router: Router): Router {
   router.get(
     "/test/auth-session",
     (
-      req: Request & { session: Session & { userId?: string; user?: { name?: string } } },
+      req: Request & {
+        session: Session & { userId?: string; user?: { name?: string } };
+      },
       res: Response,
     ): void => {
       req.session.userId = "test-user-id";
