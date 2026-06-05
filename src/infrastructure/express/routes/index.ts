@@ -39,14 +39,21 @@ const publicAuthorityRouter = express.Router();
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
-/* GET home page. */
-indexRouter.get("/", requireAuth, (req: Request, res: Response): void => {
-  res.render("main/index");
+const entraClient = new ConfidentialClientApplication({
+  auth: {
+    clientId: config.AUTH_CLIENT_ID,
+    authority: config.AUTH_DIRECTORY_URL,
+    clientSecret: config.AUTH_CLIENT_SECRET,
+  },
 });
+const entraAuthAdaptor = new EntraAuthAdaptor(entraClient);
+const authAdaptor = new AuthAdaptor(
+  entraAuthAdaptor,
+  config.AUTH_REDIRECT_URI,
+  config.AUTH_POST_LOGOUT_URI,
+);
 
-indexRouter.get("/apply", requireAuth, (req: Request, res: Response): void => {
-  res.render("apply/declaration");
-});
+indexRouter.use("/auth", createAuthRouter(express.Router(), authAdaptor));
 
 // liveness and readiness probes for Helm deployments
 indexRouter.get("/status", (req: Request, res: Response): void => {
@@ -67,7 +74,16 @@ indexRouter.get("/error", (req: Request, res: Response): void => {
 
 if (process.env.NODE_ENV === "test") {
   indexRouter.use("/", createTestRouter(express.Router()));
-}
+} else indexRouter.use(requireAuth);
+
+/* GET home page. */
+indexRouter.get("/", (req: Request, res: Response): void => {
+  res.render("main/index");
+});
+
+indexRouter.get("/apply", (req: Request, res: Response): void => {
+  res.render("apply/declaration");
+});
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
 const clientDetailsFormatter = new ClientDetailsFormatter();
@@ -116,21 +132,5 @@ indexRouter.use(
   createConfirmationRouter(confirmationRouter, confirmationAdaptor),
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
 );
-
-const entraClient = new ConfidentialClientApplication({
-  auth: {
-    clientId: config.AUTH_CLIENT_ID,
-    authority: config.AUTH_DIRECTORY_URL,
-    clientSecret: config.AUTH_CLIENT_SECRET,
-  },
-});
-const entraAuthAdaptor = new EntraAuthAdaptor(entraClient);
-const authAdaptor = new AuthAdaptor(
-  entraAuthAdaptor,
-  config.AUTH_REDIRECT_URI,
-  config.AUTH_POST_LOGOUT_URI,
-);
-
-indexRouter.use("/auth", createAuthRouter(express.Router(), authAdaptor));
 
 export default indexRouter;
