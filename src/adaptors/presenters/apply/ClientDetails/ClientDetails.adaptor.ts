@@ -10,13 +10,11 @@ import {
   CORRESPONDENCE_RECIPIENT_TYPE,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
-import type {
-  Proceeding,
-} from "#src/infrastructure/express/session/index.types.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 import type { Address } from "#src/domain/Client/Address.js";
-import {CorrespondenceRecipient} from "#src/domain/Client/CorrespondenceRecipient.js";
+import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 
 export class ClientDetailsAdaptor {
   formValidator: ClientDetailsValidator;

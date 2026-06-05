@@ -4,7 +4,7 @@ import type { Request, Response } from "express";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 import { Address } from "#src/domain/Client/Address.js";
-import {CorrespondenceRecipient} from "#src/domain/Client/CorrespondenceRecipient.js";
+import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 
 describe("Client details adaptor", () => {
   it("render name and dob form", () => {
@@ -328,9 +328,10 @@ describe("Client details adaptor", () => {
       responseStub,
     );
 
-    assert.deepEqual(requestStub.session.clientCorrespondenceRecipient, new CorrespondenceRecipient("PERSON",
-      "Jane Doe"
-    ));
+    assert.deepEqual(
+      requestStub.session.clientCorrespondenceRecipient,
+      new CorrespondenceRecipient("PERSON", "Jane Doe"),
+    );
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
     assert.equal(redirectArgs[0], "/apply/proceedings");

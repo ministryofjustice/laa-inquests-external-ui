@@ -5,9 +5,7 @@ import {
   SubmitApplicationRequestSchema,
   SubmitApplicationResponseSchema,
 } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
-import type {
-  Proceeding,
-} from "#src/infrastructure/express/session/index.types.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { Address } from "#src/domain/Client/Address.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
@@ -22,7 +20,7 @@ import type {
   ClientDeclarationError,
   ClientDeclarationFormData,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
-import type {CorrespondenceRecipient} from "#src/domain/Client/CorrespondenceRecipient.js";
+import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 
 export class ConfirmationAdaptor {
   formatter: Formatter;
