@@ -28,3 +28,12 @@ test("logout clears the session and redirects to post-logout URI", async ({
   expect(response.status()).toBe(302);
   expect(response.headers()["location"]).toContain("http://localhost:3000");
 });
+
+test("completes full login flow via mock OAuth provider", async ({ page }) => {
+  await page.context().clearCookies();
+
+  await page.goto("/auth/login");
+  await page.waitForURL("/");
+
+  await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+});
