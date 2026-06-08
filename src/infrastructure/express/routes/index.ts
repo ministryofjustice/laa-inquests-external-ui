@@ -74,7 +74,9 @@ indexRouter.get("/error", (req: Request, res: Response): void => {
 
 if (process.env.NODE_ENV === "test") {
   indexRouter.use("/", createTestRouter(express.Router()));
-} else indexRouter.use(requireAuth);
+}
+
+indexRouter.use(requireAuth);
 
 /* GET home page. */
 indexRouter.get("/", (req: Request, res: Response): void => {

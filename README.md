@@ -47,6 +47,10 @@ This project uses Yarn 4.10.3 managed by corepack (built into Node.js 16.10+). T
 - Corepack is the preferred `yarn` way, to install the package manager, instead of `npm install -g yarn` in your ci/cd pipeline
 - `yarn install --immutable` ensures that the lockfile (`yarn.lock`) is not modified during the installation process
 
+### Initialize pre-commit hooks
+
+Run `npx husky init`
+
 ### Start the application
 
 #### Set local environment variables
