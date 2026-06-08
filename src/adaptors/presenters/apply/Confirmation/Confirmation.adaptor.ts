@@ -5,10 +5,7 @@ import {
   SubmitApplicationRequestSchema,
   SubmitApplicationResponseSchema,
 } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
-import type {
-  ClientCorrespondenceRecipient,
-  Proceeding,
-} from "#src/infrastructure/express/session/index.types.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { Address } from "#src/domain/Client/Address.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
@@ -23,6 +20,7 @@ import type {
   ClientDeclarationError,
   ClientDeclarationFormData,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
+import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 
 export class ConfirmationAdaptor {
   formatter: Formatter;
@@ -426,7 +424,7 @@ export class ConfirmationAdaptor {
 
   #getClientCorrespondenceRecipient(
     req: Request,
-  ): ClientCorrespondenceRecipient | null {
+  ): CorrespondenceRecipient | null {
     const { session } = req;
     const { clientCorrespondenceRecipient } = session;
     return this.#isClientCorrespondenceRecipient(clientCorrespondenceRecipient)
@@ -449,12 +447,12 @@ export class ConfirmationAdaptor {
 
   #isClientCorrespondenceRecipient(
     value: unknown,
-  ): value is ClientCorrespondenceRecipient {
+  ): value is CorrespondenceRecipient {
     if (typeof value !== "object" || value === null || Array.isArray(value)) {
       return false;
     }
 
-    const candidate = value as Partial<ClientCorrespondenceRecipient>;
+    const candidate = value as Partial<CorrespondenceRecipient>;
     return (
       (candidate.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
         candidate.recipientType ===

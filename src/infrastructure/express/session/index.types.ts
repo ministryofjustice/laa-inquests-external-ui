@@ -1,4 +1,5 @@
 import type { Address } from "#src/domain/Client/Address.js";
+import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 
 declare module "express-session" {
   interface SessionData extends Record<
@@ -12,7 +13,7 @@ declare module "express-session" {
     clientHomeAddress?: ClientHomeAddress;
     clientCorrespondenceAddress?: ClientHomeAddress;
     clientCorrespondenceAddressSource?: CorrespondenceAddressSource;
-    clientCorrespondenceRecipient?: ClientCorrespondenceRecipient | null;
+    clientCorrespondenceRecipient?: CorrespondenceRecipient | null;
     clientHasNoFixedAbode?: boolean;
     userId?: string;
     user?: { name?: string };
@@ -40,8 +41,3 @@ export type CorrespondenceAddressSource =
   | "USE_CLIENT_HOME_ADDRESS"
   | "USE_SPECIFIED_ADDRESS"
   | "USE_PROVIDER_ADDRESS";
-
-export interface ClientCorrespondenceRecipient {
-  recipientType: "PERSON" | "ORGANISATION";
-  recipientName: string;
-}
