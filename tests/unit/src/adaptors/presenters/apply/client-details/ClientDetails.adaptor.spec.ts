@@ -3,8 +3,8 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
-import { Address } from "#src/domain/Client/Address.js";
-import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import { Address } from "#src/domain/client/Address.js";
+import { CorrespondenceRecipient } from "#src/domain/client/CorrespondenceRecipient.js";
 
 describe("Client details adaptor", () => {
   it("render name and dob form", () => {

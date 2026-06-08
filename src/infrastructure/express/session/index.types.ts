@@ -1,5 +1,5 @@
-import type { Address } from "#src/domain/Client/Address.js";
-import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import type { Address } from "#src/domain/client/Address.js";
+import type { CorrespondenceRecipient } from "#src/domain/client/CorrespondenceRecipient.js";
 
 declare module "express-session" {
   interface SessionData extends Record<

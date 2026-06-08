@@ -1,8 +1,8 @@
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { ClientDetailsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { Formatter } from "#src/utils/Formatter.js";
-import { Address } from "#src/domain/Client/Address.js";
-import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import { Address } from "#src/domain/client/Address.js";
+import type { CorrespondenceRecipient } from "#src/domain/client/CorrespondenceRecipient.js";
 
 export class ClientDetailsFormatter extends Formatter {
   toHomeAddressViewModel(clientHomeAddress: Address | null): {
