@@ -2,18 +2,16 @@ import { test, expect } from "../../fixtures/index.js";
 
 const MOCK_OAUTH_URL = process.env.MOCK_OAUTH_URL ?? "http://localhost:4001";
 
-test("redirects unauthenticated user to Entra on GET /auth/login", async ({
-  page,
-}) => {
-  const response = await page.request.get("/auth/login", { maxRedirects: 0 });
+test("completes full login flow via mock OAuth provider", async ({ page }) => {
+  await page.context().clearCookies();
 
-  expect(response.status()).toBe(302);
-  expect(response.headers()["location"]).toContain(MOCK_OAUTH_URL);
+  await page.goto("/auth/login");
+  await page.waitForURL("/");
+
+  await expect(page).toHaveTitle(/Inquests – GOV.UK/);
 });
 
-test("renders home page when authenticated and session has UserId", async ({
-  page,
-}) => {
+test("renders home page when authenticated", async ({ page }) => {
   const response = await page.goto("/");
 
   expect(response?.status()).toBe(200);
@@ -29,11 +27,11 @@ test("logout clears the session and redirects to post-logout URI", async ({
   expect(response.headers()["location"]).toContain("http://localhost:3000");
 });
 
-test("completes full login flow via mock OAuth provider", async ({ page }) => {
-  await page.context().clearCookies();
+test("redirects unauthenticated user to Entra on GET /auth/login", async ({
+  page,
+}) => {
+  const response = await page.request.get("/auth/login", { maxRedirects: 0 });
 
-  await page.goto("/auth/login");
-  await page.waitForURL("/");
-
-  await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+  expect(response.status()).toBe(302);
+  expect(response.headers()["location"]).toContain(MOCK_OAUTH_URL);
 });
