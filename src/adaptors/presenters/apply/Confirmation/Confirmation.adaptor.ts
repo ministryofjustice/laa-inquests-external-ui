@@ -7,6 +7,7 @@ import {
 } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { Address } from "#src/domain/client/Address.js";
+import { Client } from "#src/domain/client/Client.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import {
@@ -148,7 +149,7 @@ export class ConfirmationAdaptor {
   }
 
   #generateSubmitBody(req: Request): SubmitApplicationRequest {
-    const client = this.#buildClientForSubmit(req);
+    const client = this.#toSubmitClient(this.#buildClientForSubmit(req));
     this.#applyOptionalClientFields(client, req);
     this.#applyClientAddressesForSubmit(client, req);
     this.#applyClientCorrespondenceRecipientForSubmit(client, req);
@@ -313,21 +314,39 @@ export class ConfirmationAdaptor {
     return clientHomeAddress.postcode;
   }
 
-  #buildClientForSubmit(req: Request): SubmitApplicationRequest["client"] {
-    return {
+  #buildClientForSubmit(req: Request): Client {
+    return new Client({
       clientFirstName: req.session.clientFirstName as string,
       clientLastName: req.session.clientLastName as string,
+      clientLastNameAtBirth: null,
       dateOfBirth: formatDateDDMMYYYY(
         req.session.clientDobYear,
         req.session.clientDobMonth,
         req.session.clientDobDay,
       ),
+      nationalInsuranceNumber: null,
+      hasAppliedPreviously: false,
+      prevApplicationReference: null,
       hasNoFixedAbode: false,
       correspondenceAddressSource:
         CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
       homeAddress: null,
       correspondenceAddress: null,
       isClientCorrespondenceRecipient: true,
+      correspondenceRecipient: null,
+    });
+  }
+
+  #toSubmitClient(client: Client): SubmitApplicationRequest["client"] {
+    return {
+      clientFirstName: client.clientFirstName,
+      clientLastName: client.clientLastName,
+      dateOfBirth: client.dateOfBirth,
+      hasNoFixedAbode: client.hasNoFixedAbode,
+      correspondenceAddressSource: client.correspondenceAddressSource,
+      correspondenceAddress: client.correspondenceAddress,
+      homeAddress: client.homeAddress,
+      isClientCorrespondenceRecipient: client.isClientCorrespondenceRecipient,
     };
   }
 
