@@ -20,6 +20,7 @@ import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/appl
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
+import { MockAuthAdaptor } from "#src/adaptors/source/auth/MockAuth.adaptor.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
@@ -39,16 +40,24 @@ const publicAuthorityRouter = express.Router();
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
-const entraClient = new ConfidentialClientApplication({
-  auth: {
-    clientId: config.AUTH_CLIENT_ID,
-    authority: config.AUTH_DIRECTORY_URL,
-    clientSecret: config.AUTH_CLIENT_SECRET,
-  },
-});
-const entraAuthAdaptor = new EntraAuthAdaptor(entraClient);
+function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
+  if (process.env.NODE_ENV === "test") {
+    return new MockAuthAdaptor(
+      config.MOCK_OAUTH_URL ?? "http://localhost:4001",
+    );
+  }
+  const entraClient = new ConfidentialClientApplication({
+    auth: {
+      clientId: config.AUTH_CLIENT_ID,
+      authority: config.AUTH_DIRECTORY_URL,
+      clientSecret: config.AUTH_CLIENT_SECRET,
+    },
+  });
+  return new EntraAuthAdaptor(entraClient);
+}
+
 const authAdaptor = new AuthAdaptor(
-  entraAuthAdaptor,
+  createAuthSource(),
   config.AUTH_REDIRECT_URI,
   config.AUTH_POST_LOGOUT_URI,
 );
