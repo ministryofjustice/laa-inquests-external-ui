@@ -58,7 +58,7 @@ Run `npx husky init`
 Create your local config file `.env` from the template file:
 
 ```shell
-cp .env.example .env
+cp .env.example ../.env.external
 ```
 
 #### Align to the Node Version specified for this project
