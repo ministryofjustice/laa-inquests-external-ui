@@ -5,6 +5,7 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler => {
   /**
    * Rate limiter for general routes.
    * Limits each IP to a configurable number of requests per time window.
+   * Disabled in test environment to avoid interference with E2E tests.
    */
   const generalLimiter = rateLimit({
     windowMs:
@@ -15,6 +16,7 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler => {
       typeof config.RATE_LIMIT_MAX === "string"
         ? parseInt(config.RATE_LIMIT_MAX, 10)
         : config.RATE_LIMIT_MAX,
+    skip: () => process.env.NODE_ENV === "test",
     message: "Too many requests, please try again later.",
   });
 

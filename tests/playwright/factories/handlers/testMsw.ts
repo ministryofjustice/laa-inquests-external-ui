@@ -7,6 +7,7 @@
 
 import { setupServer } from "msw/node";
 import { handlers } from "#tests/playwright/factories/handlers/index.js";
+import { startMockOAuthServer } from "#tests/playwright/factories/mockOAuthServer.js";
 
 // Initialize MSW before importing the app
 const mswServer = setupServer(...handlers);
@@ -36,8 +37,12 @@ process.env.AUTH_CLIENT_ID ??= "test-client-id";
 process.env.AUTH_CLIENT_SECRET ??= "test-client-secret";
 process.env.AUTH_REDIRECT_URI ??= "http://localhost:3000/auth/callback";
 process.env.AUTH_POST_LOGOUT_URI ??= "http://localhost:3000";
+process.env.MOCK_OAUTH_URL = "http://localhost:4001";
 process.env.INQUESTS_API_URL =
   "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk";
+
+// Start mock OAuth server before the app so MOCK_OAUTH_URL is available in config
+startMockOAuthServer();
 
 // Now import and start the actual Express application
 const appModulePath = "#public/app.js";
