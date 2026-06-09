@@ -6,7 +6,7 @@ import {
   SubmitApplicationResponseSchema,
 } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
-import type { Address } from "#src/domain/client/Address.js";
+import { Address } from "#src/domain/client/Address.js";
 import { Client } from "#src/domain/client/Client.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
@@ -237,20 +237,19 @@ export class ConfirmationAdaptor {
   }
 
   #buildClientForSubmit(req: Request): Client {
-    const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
     const correspondenceAddressSource =
       this.#getClientCorrespondenceAddressSource(req);
 
     const clientHomeAddress = this.#getClientHomeAddress(req);
     const homeAddress =
-      !hasNoFixedAbode && clientHomeAddress !== null
-        ? {
+      !this.#isClientNoFixedAbode(req) && clientHomeAddress !== null
+        ? new Address({
             addressLine1: clientHomeAddress.addressLine1,
             addressLine2: clientHomeAddress.addressLine2 ?? null,
             townOrCity: clientHomeAddress.townOrCity,
             county: clientHomeAddress.county ?? null,
             postcode: clientHomeAddress.postcode,
-          }
+          })
         : null;
 
     const clientCorrespondenceAddress =
@@ -285,7 +284,7 @@ export class ConfirmationAdaptor {
       nationalInsuranceNumber: this.#toNullableString(req.session.clientNino),
       hasAppliedPreviously: false,
       prevApplicationReference: null,
-      hasNoFixedAbode,
+      hasNoFixedAbode: this.#isClientNoFixedAbode(req),
       correspondenceAddressSource,
       homeAddress,
       correspondenceAddress,
@@ -299,7 +298,7 @@ export class ConfirmationAdaptor {
   }
 
   #toSubmitClient(client: Client): SubmitApplicationRequest["client"] {
-    return {
+    const submitClient = {
       clientFirstName: client.clientFirstName,
       clientLastName: client.clientLastName,
       dateOfBirth: client.dateOfBirth,
@@ -308,21 +307,22 @@ export class ConfirmationAdaptor {
       correspondenceAddress: client.correspondenceAddress,
       homeAddress: client.homeAddress,
       isClientCorrespondenceRecipient: client.isClientCorrespondenceRecipient,
-      ...(client.clientLastNameAtBirth === null
-        ? {}
-        : { clientLastNameAtBirth: client.clientLastNameAtBirth }),
-      ...(client.nationalInsuranceNumber === null
-        ? {}
-        : { nationalInsuranceNumber: client.nationalInsuranceNumber }),
-      ...(client.correspondenceRecipient === null
-        ? {}
-        : {
-            correspondenceRecipient: {
-              recipientType: client.correspondenceRecipient.recipientType,
-              recipientName: client.correspondenceRecipient.recipientName,
-            },
-          }),
+      clientLastNameAtBirth: client.clientLastNameAtBirth ?? undefined,
+      nationalInsuranceNumber: client.nationalInsuranceNumber ?? undefined,
+      correspondenceRecipient: client.correspondenceRecipient ?? undefined,
     };
+
+    if (submitClient.clientLastNameAtBirth === undefined) {
+      delete submitClient.clientLastNameAtBirth;
+    }
+    if (submitClient.nationalInsuranceNumber === undefined) {
+      delete submitClient.nationalInsuranceNumber;
+    }
+    if (submitClient.correspondenceRecipient === undefined) {
+      delete submitClient.correspondenceRecipient;
+    }
+
+    return submitClient;
   }
 
   #getClientCorrespondenceAddressSummary(req: Request): string {
