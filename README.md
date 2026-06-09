@@ -119,7 +119,7 @@ Prerequisites, Docker Desktop
 - To run the docker image
 
   ```shell
-  docker run -d -p 8888:3000 laa-inquests-external-ui:latest
+  docker run --env-file=../.env.external -d -p 8888:3000 laa-inquests-external-ui:latest
   ```
 
   (The application should be running at http://localhost:8888)
