@@ -150,9 +150,6 @@ export class ConfirmationAdaptor {
 
   #generateSubmitBody(req: Request): SubmitApplicationRequest {
     const client = this.#toSubmitClient(this.#buildClientForSubmit(req));
-    this.#applyOptionalClientFields(client, req);
-    this.#applyClientAddressesForSubmit(client, req);
-    this.#applyClientCorrespondenceRecipientForSubmit(client, req);
 
     const submitBodyWithDetails = {
       client,
@@ -165,81 +162,6 @@ export class ConfirmationAdaptor {
       submitBodyWithDetails,
     );
     return submitBody;
-  }
-
-  #applyOptionalClientFields(
-    client: SubmitApplicationRequest["client"],
-    req: Request,
-  ): void {
-    const { session } = req;
-    const { clientLastNameAtBirth, clientNino } = session;
-
-    if (typeof clientLastNameAtBirth === "string") {
-      client.clientLastNameAtBirth = clientLastNameAtBirth;
-    }
-
-    if (typeof clientNino === "string") {
-      client.nationalInsuranceNumber = clientNino;
-    }
-  }
-
-  #applyClientAddressesForSubmit(
-    client: SubmitApplicationRequest["client"],
-    req: Request,
-  ): void {
-    const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
-    client.hasNoFixedAbode = hasNoFixedAbode;
-
-    const correspondenceAddressSource =
-      this.#getClientCorrespondenceAddressSource(req);
-    client.correspondenceAddressSource = correspondenceAddressSource;
-
-    const clientCorrespondenceAddress =
-      this.#getClientCorrespondenceAddress(req);
-    if (
-      correspondenceAddressSource ===
-        CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS &&
-      clientCorrespondenceAddress !== null
-    ) {
-      client.correspondenceAddress = {
-        addressLine1: clientCorrespondenceAddress.addressLine1,
-        addressLine2: clientCorrespondenceAddress.addressLine2 ?? null,
-        townOrCity: clientCorrespondenceAddress.townOrCity,
-        county: clientCorrespondenceAddress.county ?? null,
-        postcode: clientCorrespondenceAddress.postcode,
-      };
-    }
-
-    const clientHomeAddress = this.#getClientHomeAddress(req);
-    if (!hasNoFixedAbode && clientHomeAddress !== null) {
-      client.homeAddress = {
-        addressLine1: clientHomeAddress.addressLine1,
-        addressLine2: clientHomeAddress.addressLine2 ?? null,
-        townOrCity: clientHomeAddress.townOrCity,
-        county: clientHomeAddress.county ?? null,
-        postcode: clientHomeAddress.postcode,
-      };
-    }
-  }
-
-  #applyClientCorrespondenceRecipientForSubmit(
-    client: SubmitApplicationRequest["client"],
-    req: Request,
-  ): void {
-    const clientCorrespondenceRecipient =
-      this.#getClientCorrespondenceRecipient(req);
-
-    client.isClientCorrespondenceRecipient =
-      clientCorrespondenceRecipient === null;
-
-    if (clientCorrespondenceRecipient === null) {
-      delete client.correspondenceRecipient;
-    } else {
-      client.correspondenceRecipient = {
-        recipientType: clientCorrespondenceRecipient.recipientType,
-        recipientName: clientCorrespondenceRecipient.recipientName,
-      };
-    }
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {
@@ -315,26 +237,65 @@ export class ConfirmationAdaptor {
   }
 
   #buildClientForSubmit(req: Request): Client {
+    const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
+    const correspondenceAddressSource =
+      this.#getClientCorrespondenceAddressSource(req);
+
+    const clientHomeAddress = this.#getClientHomeAddress(req);
+    const homeAddress =
+      !hasNoFixedAbode && clientHomeAddress !== null
+        ? {
+            addressLine1: clientHomeAddress.addressLine1,
+            addressLine2: clientHomeAddress.addressLine2 ?? null,
+            townOrCity: clientHomeAddress.townOrCity,
+            county: clientHomeAddress.county ?? null,
+            postcode: clientHomeAddress.postcode,
+          }
+        : null;
+
+    const clientCorrespondenceAddress =
+      this.#getClientCorrespondenceAddress(req);
+    const correspondenceAddress =
+      correspondenceAddressSource ===
+        CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS &&
+      clientCorrespondenceAddress !== null
+        ? {
+            addressLine1: clientCorrespondenceAddress.addressLine1,
+            addressLine2: clientCorrespondenceAddress.addressLine2 ?? null,
+            townOrCity: clientCorrespondenceAddress.townOrCity,
+            county: clientCorrespondenceAddress.county ?? null,
+            postcode: clientCorrespondenceAddress.postcode,
+          }
+        : null;
+
+    const clientCorrespondenceRecipient =
+      this.#getClientCorrespondenceRecipient(req);
+
     return new Client({
       clientFirstName: req.session.clientFirstName as string,
       clientLastName: req.session.clientLastName as string,
-      clientLastNameAtBirth: null,
+      clientLastNameAtBirth: this.#toNullableString(
+        req.session.clientLastNameAtBirth,
+      ),
       dateOfBirth: formatDateDDMMYYYY(
         req.session.clientDobYear,
         req.session.clientDobMonth,
         req.session.clientDobDay,
       ),
-      nationalInsuranceNumber: null,
+      nationalInsuranceNumber: this.#toNullableString(req.session.clientNino),
       hasAppliedPreviously: false,
       prevApplicationReference: null,
-      hasNoFixedAbode: false,
-      correspondenceAddressSource:
-        CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
-      homeAddress: null,
-      correspondenceAddress: null,
-      isClientCorrespondenceRecipient: true,
-      correspondenceRecipient: null,
+      hasNoFixedAbode,
+      correspondenceAddressSource,
+      homeAddress,
+      correspondenceAddress,
+      isClientCorrespondenceRecipient: clientCorrespondenceRecipient === null,
+      correspondenceRecipient: clientCorrespondenceRecipient,
     });
+  }
+
+  #toNullableString(value: unknown): string | null {
+    return typeof value === "string" ? value : null;
   }
 
   #toSubmitClient(client: Client): SubmitApplicationRequest["client"] {
@@ -347,6 +308,20 @@ export class ConfirmationAdaptor {
       correspondenceAddress: client.correspondenceAddress,
       homeAddress: client.homeAddress,
       isClientCorrespondenceRecipient: client.isClientCorrespondenceRecipient,
+      ...(client.clientLastNameAtBirth === null
+        ? {}
+        : { clientLastNameAtBirth: client.clientLastNameAtBirth }),
+      ...(client.nationalInsuranceNumber === null
+        ? {}
+        : { nationalInsuranceNumber: client.nationalInsuranceNumber }),
+      ...(client.correspondenceRecipient === null
+        ? {}
+        : {
+            correspondenceRecipient: {
+              recipientType: client.correspondenceRecipient.recipientType,
+              recipientName: client.correspondenceRecipient.recipientName,
+            },
+          }),
     };
   }
 
