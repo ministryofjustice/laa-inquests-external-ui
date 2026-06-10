@@ -58,7 +58,7 @@ Run `npx husky init`
 Create your local config file `.env` from the template file:
 
 ```shell
-cp .env.example .env
+cp .env.example ../.env.external
 ```
 
 #### Align to the Node Version specified for this project
@@ -110,33 +110,17 @@ nvm install node
 
 Prerequisites, Docker Desktop
 
-- To build the docker image
-
-  ```shell
-  docker build -t laa-inquests-external-ui:latest .
-  ```
+Update your `AUTH_REDIRECT_URI` and `AUTH_POST_LOGOUT_URI` in your `.env.external` to `localhost:8888` instead of `3000`
 
 - To run the docker image
 
   ```shell
-  docker run -d -p 8888:3000 laa-inquests-external-ui:latest
+  docker compose -f docker-compose.test.yaml up --build
   ```
 
   (The application should be running at http://localhost:8888)
 
-- To stop the container
-
-  obtain the container id
-
-  ```shell
-  docker ps
-  ```
-
-  stop the container
-
-  ```shell
-  docker stop {container_id}
-  ```
+- To stop the container just ctrl-c out of the process.
 
   ### Test router
 
