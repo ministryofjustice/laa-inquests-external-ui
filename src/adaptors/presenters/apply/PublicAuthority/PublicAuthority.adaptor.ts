@@ -1,8 +1,5 @@
 import type { Request, Response } from "express";
-import {
-  EMPTY_ARR_LENGTH,
-  PUBLIC_AUTHORITY_OPTIONS,
-} from "#src/infrastructure/locales/constants.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
   PublicAuthorityValidator,
@@ -10,14 +7,37 @@ import type {
   RemovePublicAuthorityFormData,
 } from "./PublicAuthority.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
+import { BuildPublicAuthoritySelectionViewUseCase } from "#src/use-cases/apply/publicAuthority/BuildPublicAuthoritySelectionView.useCase.js";
+import { AddPublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/AddPublicAuthority.useCase.js";
+import { RemovePublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/RemovePublicAuthority.useCase.js";
+
+interface PublicAuthorityUseCases {
+  buildPublicAuthoritySelectionView: BuildPublicAuthoritySelectionViewUseCase;
+  addPublicAuthority: AddPublicAuthorityUseCase;
+  removePublicAuthority: RemovePublicAuthorityUseCase;
+}
 
 export class PublicAuthorityAdaptor {
   formValidator: PublicAuthorityValidator;
   formatter: Formatter;
+  buildPublicAuthoritySelectionViewUseCase: BuildPublicAuthoritySelectionViewUseCase;
+  addPublicAuthorityUseCase: AddPublicAuthorityUseCase;
+  removePublicAuthorityUseCase: RemovePublicAuthorityUseCase;
 
-  constructor(formValidator: PublicAuthorityValidator, formatter: Formatter) {
+  constructor(
+    formValidator: PublicAuthorityValidator,
+    formatter: Formatter,
+    useCases?: Partial<PublicAuthorityUseCases>,
+  ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
+    this.buildPublicAuthoritySelectionViewUseCase =
+      useCases?.buildPublicAuthoritySelectionView ??
+      new BuildPublicAuthoritySelectionViewUseCase(formatter);
+    this.addPublicAuthorityUseCase =
+      useCases?.addPublicAuthority ?? new AddPublicAuthorityUseCase();
+    this.removePublicAuthorityUseCase =
+      useCases?.removePublicAuthority ?? new RemovePublicAuthorityUseCase();
   }
 
   renderPublicAuthoritySelectForm(req: Request, res: Response): void {
@@ -25,27 +45,18 @@ export class PublicAuthorityAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const selectedPublicAuthorities =
-      req.session.selectedPublicAuthorities ?? [];
-
-    const filteredOptions = this.formatter.filterAvailablePublicAuthorities(
-      selectedPublicAuthorities,
-      PUBLIC_AUTHORITY_OPTIONS,
-    );
-
-    const formattedOptions =
-      this.formatter.formatPublicAuthorityOptionsIntoList(filteredOptions);
-
-    const formattedSelected = this.formatter.formatIntoTableRows(
-      selectedPublicAuthorities,
+    const selectionView = this.buildPublicAuthoritySelectionViewUseCase.execute(
+      {
+        selectedPublicAuthorities: req.session.selectedPublicAuthorities,
+      },
     );
 
     res.render("apply/public-authority/add-public-authority", {
       csrfToken,
-      publicAuthorityOptions: formattedOptions,
+      publicAuthorityOptions: selectionView.publicAuthorityOptions,
       publicAuthorityOption: req.session.publicAuthorityOption,
-      selectedPublicAuthorities: formattedSelected,
-      isAddingAnother: selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
+      selectedPublicAuthorities: selectionView.selectedPublicAuthorities,
+      isAddingAnother: selectionView.isAddingAnother,
     });
   }
 
@@ -63,44 +74,38 @@ export class PublicAuthorityAdaptor {
 
     const errors = this.formValidator.validatePublicAuthorityInput(req.body);
 
-    const selectedPublicAuthorities =
-      req.session.selectedPublicAuthorities ?? [];
-
-    const selectedOption = PUBLIC_AUTHORITY_OPTIONS.find(
-      (option) => option.publicAuthorityId === publicAuthorityOption,
+    const addPublicAuthorityResult = this.addPublicAuthorityUseCase.execute(
+      publicAuthorityOption,
+      {
+        selectedPublicAuthorities: req.session.selectedPublicAuthorities,
+      },
     );
 
     if (
       (publicAuthorityOption === undefined &&
         Object.keys(errors).length > EMPTY_ARR_LENGTH) ||
-      selectedOption === undefined
+      addPublicAuthorityResult.status !== "SUCCESS" ||
+      addPublicAuthorityResult.data === undefined
     ) {
-      const filteredOptions = this.formatter.filterAvailablePublicAuthorities(
-        selectedPublicAuthorities,
-        PUBLIC_AUTHORITY_OPTIONS,
-      );
-
-      const formattedOptions =
-        this.formatter.formatPublicAuthorityOptionsIntoList(filteredOptions);
-
-      const formattedSelected = this.formatter.formatIntoTableRows(
-        selectedPublicAuthorities,
-      );
+      const selectionView =
+        this.buildPublicAuthoritySelectionViewUseCase.execute({
+          selectedPublicAuthorities: req.session.selectedPublicAuthorities,
+        });
 
       res.render("apply/public-authority/add-public-authority", {
         csrfToken,
-        publicAuthorityOptions: formattedOptions,
+        publicAuthorityOptions: selectionView.publicAuthorityOptions,
         publicAuthorityOption: req.session.publicAuthorityOption,
-        selectedPublicAuthorities: formattedSelected,
+        selectedPublicAuthorities: selectionView.selectedPublicAuthorities,
         errorSummaries: errors,
-        isAddingAnother: selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
+        isAddingAnother: selectionView.isAddingAnother,
       });
     } else {
-      req.session.publicAuthorityOption = selectedOption;
-      req.session.selectedPublicAuthorities = [
-        selectedOption,
-        ...selectedPublicAuthorities,
-      ];
+      const { data } = addPublicAuthorityResult;
+      const { selectedPublicAuthority, selectedPublicAuthorities } = data;
+
+      req.session.publicAuthorityOption = { ...selectedPublicAuthority };
+      req.session.selectedPublicAuthorities = selectedPublicAuthorities;
 
       res.redirect("/apply/public-authority/confirmation");
     }
@@ -120,13 +125,14 @@ export class PublicAuthorityAdaptor {
     } else {
       req.session.successMessage = undefined;
 
-      const formattedSelected = this.formatter.formatIntoTableRows(
-        selectedPublicAuthorities,
-      );
+      const selectionView =
+        this.buildPublicAuthoritySelectionViewUseCase.execute({
+          selectedPublicAuthorities,
+        });
 
       res.render("apply/public-authority/confirmation", {
         csrfToken,
-        selectedPublicAuthorities: formattedSelected,
+        selectedPublicAuthorities: selectionView.selectedPublicAuthorities,
         successMessage,
       });
     }
@@ -221,15 +227,26 @@ export class PublicAuthorityAdaptor {
       session: { selectedPublicAuthorities },
     } = req;
 
-    if (removePublicAuthority === "true") {
-      const updatedSelectedPublicAuthorities =
-        selectedPublicAuthorities?.filter(
-          (publicAuthority) =>
-            publicAuthority.publicAuthorityId !== publicAuthorityId,
-        ) ?? [];
+    const removePublicAuthorityResult =
+      this.removePublicAuthorityUseCase.execute(
+        publicAuthorityId,
+        removePublicAuthority,
+        {
+          selectedPublicAuthorities,
+        },
+      );
 
-      req.session.selectedPublicAuthorities = updatedSelectedPublicAuthorities;
-      req.session.successMessage = "Public authority has been removed";
+    if (
+      removePublicAuthorityResult.status === "SUCCESS" &&
+      removePublicAuthorityResult.data?.successMessage !== undefined
+    ) {
+      const { data } = removePublicAuthorityResult;
+      const {
+        selectedPublicAuthorities: updatedPublicAuthorities,
+        successMessage,
+      } = data;
+      req.session.selectedPublicAuthorities = updatedPublicAuthorities;
+      req.session.successMessage = successMessage;
     }
 
     res.redirect("/apply/public-authority/confirmation");

@@ -1,8 +1,5 @@
 import type { Request, Response } from "express";
-import {
-  EMPTY_ARR_LENGTH,
-  PROCEEDING_OPTIONS,
-} from "#src/infrastructure/locales/constants.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
   ProceedingsFormData,
@@ -10,34 +7,51 @@ import type {
 } from "../models/form.types.js";
 import type { ProceedingsValidator } from "./Proceedings.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
+import { BuildProceedingsSelectionViewUseCase } from "#src/use-cases/apply/proceedings/BuildProceedingsSelectionView.useCase.js";
+import { AddProceedingUseCase } from "#src/use-cases/apply/proceedings/AddProceeding.useCase.js";
+import { RemoveProceedingUseCase } from "#src/use-cases/apply/proceedings/RemoveProceeding.useCase.js";
+
+interface ProceedingsUseCases {
+  buildProceedingsSelectionView: BuildProceedingsSelectionViewUseCase;
+  addProceeding: AddProceedingUseCase;
+  removeProceeding: RemoveProceedingUseCase;
+}
 
 export class ProceedingsAdaptor {
   formValidator: ProceedingsValidator;
   formatter: Formatter;
-  constructor(formValidator: ProceedingsValidator, formatter: Formatter) {
+  buildProceedingsSelectionViewUseCase: BuildProceedingsSelectionViewUseCase;
+  addProceedingUseCase: AddProceedingUseCase;
+  removeProceedingUseCase: RemoveProceedingUseCase;
+
+  constructor(
+    formValidator: ProceedingsValidator,
+    formatter: Formatter,
+    useCases?: Partial<ProceedingsUseCases>,
+  ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
+    this.buildProceedingsSelectionViewUseCase =
+      useCases?.buildProceedingsSelectionView ??
+      new BuildProceedingsSelectionViewUseCase(formatter);
+    this.addProceedingUseCase =
+      useCases?.addProceeding ?? new AddProceedingUseCase();
+    this.removeProceedingUseCase =
+      useCases?.removeProceeding ?? new RemoveProceedingUseCase();
   }
   renderProceedingSelectForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
     } = res;
-    const selectedProceedings = req.session.selectedProceedings ?? [];
-    const filteredProceedingOptions = this.formatter.filterAvailableOptions(
-      selectedProceedings,
-      PROCEEDING_OPTIONS,
-    );
-    const formattedProceedingOptions = this.formatter.formatOptionsIntoList(
-      filteredProceedingOptions,
-    );
-    const formattedSelectedProceedings =
-      this.formatter.formatSelectedIntoTableRows(selectedProceedings);
+    const selectionView = this.buildProceedingsSelectionViewUseCase.execute({
+      selectedProceedings: req.session.selectedProceedings,
+    });
 
     res.render("apply/proceedings/add-proceedings", {
       csrfToken,
-      proceedingOptions: formattedProceedingOptions,
+      proceedingOptions: selectionView.proceedingOptions,
       proceedingInput: req.session.proceedingInput,
-      selectedProceedings: formattedSelectedProceedings,
+      selectedProceedings: selectionView.selectedProceedings,
     });
   }
 
@@ -54,41 +68,38 @@ export class ProceedingsAdaptor {
     const proceedingErrors = this.formValidator.validateProceedingInput(
       req.body,
     );
-    const selectedProceedings = req.session.selectedProceedings ?? [];
-    const selectedProceeding = PROCEEDING_OPTIONS.find(
-      (option) => option.proceedingId === proceedingOption,
+    const addProceedingResult = this.addProceedingUseCase.execute(
+      proceedingOption,
+      {
+        selectedProceedings: req.session.selectedProceedings,
+      },
     );
 
     if (
       (proceedingOption === undefined &&
         Object.keys(proceedingErrors).length > EMPTY_ARR_LENGTH) ||
-      selectedProceeding === undefined
+      addProceedingResult.status !== "SUCCESS" ||
+      addProceedingResult.data === undefined
     ) {
-      const filteredProceedingOptions = this.formatter.filterAvailableOptions(
-        selectedProceedings,
-        PROCEEDING_OPTIONS,
-      );
-      const formattedProceedingOptions = this.formatter.formatOptionsIntoList(
-        filteredProceedingOptions,
-      );
-      const formattedSelectedProceedings =
-        this.formatter.formatSelectedIntoTableRows(selectedProceedings);
+      const selectionView = this.buildProceedingsSelectionViewUseCase.execute({
+        selectedProceedings: req.session.selectedProceedings,
+      });
 
       const renderOptions = {
         csrfToken,
-        proceedingOptions: formattedProceedingOptions,
+        proceedingOptions: selectionView.proceedingOptions,
         proceedingOption: req.session.proceedingOption,
-        selectedProceedings: formattedSelectedProceedings,
+        selectedProceedings: selectionView.selectedProceedings,
         errorSummaries: proceedingErrors,
       };
 
       res.render("apply/proceedings/add-proceedings", renderOptions);
     } else {
-      req.session.proceedingOption = selectedProceeding;
-      req.session.selectedProceedings = [
-        selectedProceeding,
-        ...selectedProceedings,
-      ];
+      const { data } = addProceedingResult;
+      const { selectedProceeding, selectedProceedings } = data;
+
+      req.session.proceedingOption = { ...selectedProceeding };
+      req.session.selectedProceedings = selectedProceedings;
       res.redirect("/apply/proceedings/confirmation");
     }
   }
@@ -107,14 +118,15 @@ export class ProceedingsAdaptor {
     if (selectedProceedings === undefined) {
       res.redirect("/apply/proceedings");
     } else {
-      const formattedSelectedProceedings =
-        this.formatter.formatSelectedIntoTableRows(selectedProceedings);
+      const selectionView = this.buildProceedingsSelectionViewUseCase.execute({
+        selectedProceedings,
+      });
 
       req.session.successMessage = undefined;
 
       const renderOptions = {
         csrfToken,
-        selectedProceedings: formattedSelectedProceedings,
+        selectedProceedings: selectionView.selectedProceedings,
         successMessage,
       };
       res.render("apply/proceedings/confirmation", renderOptions);
@@ -211,13 +223,22 @@ export class ProceedingsAdaptor {
       session: { selectedProceedings },
     } = req;
 
-    if (removeProceeding === "true") {
-      const updatedSelectedProceedings = selectedProceedings?.filter(
-        (proceeding) => proceeding.proceedingId !== proceedingId,
-      );
+    const removeProceedingResult = this.removeProceedingUseCase.execute(
+      proceedingId,
+      removeProceeding,
+      {
+        selectedProceedings,
+      },
+    );
 
-      req.session.selectedProceedings = updatedSelectedProceedings;
-      req.session.successMessage = "Proceeding has been removed";
+    if (
+      removeProceedingResult.status === "SUCCESS" &&
+      removeProceedingResult.data?.successMessage !== undefined
+    ) {
+      const { data } = removeProceedingResult;
+      const { selectedProceedings: updatedProceedings, successMessage } = data;
+      req.session.selectedProceedings = updatedProceedings;
+      req.session.successMessage = successMessage;
     }
 
     res.redirect("/apply/proceedings/confirmation");

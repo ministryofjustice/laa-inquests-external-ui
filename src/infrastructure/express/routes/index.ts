@@ -20,6 +20,13 @@ import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/appl
 import { BuildCheckYourAnswersUseCase } from "#src/use-cases/apply/confirmation/BuildCheckYourAnswers.useCase.js";
 import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
+import { BuildProceedingsSelectionViewUseCase } from "#src/use-cases/apply/proceedings/BuildProceedingsSelectionView.useCase.js";
+import { AddProceedingUseCase } from "#src/use-cases/apply/proceedings/AddProceeding.useCase.js";
+import { RemoveProceedingUseCase } from "#src/use-cases/apply/proceedings/RemoveProceeding.useCase.js";
+import { BuildPublicAuthoritySelectionViewUseCase } from "#src/use-cases/apply/publicAuthority/BuildPublicAuthoritySelectionView.useCase.js";
+import { AddPublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/AddPublicAuthority.useCase.js";
+import { RemovePublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/RemovePublicAuthority.useCase.js";
+import { BuildDeceasedDetailsViewUseCase } from "#src/use-cases/apply/deceasedDetails/BuildDeceasedDetailsView.useCase.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -107,22 +114,44 @@ const clientDetailsAdaptor = new ClientDetailsAdaptor(
 );
 
 const deceasedDetailsFormValidator = new DeceasedDetailsValidator();
+const buildDeceasedDetailsViewUseCase = new BuildDeceasedDetailsViewUseCase();
 const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(
   deceasedDetailsFormValidator,
+  {
+    buildDeceasedDetailsView: buildDeceasedDetailsViewUseCase,
+  },
 );
 
 const proceedingsFormatter = new Formatter();
 const proceedingsValidator = new ProceedingsValidator();
+const buildProceedingsSelectionViewUseCase =
+  new BuildProceedingsSelectionViewUseCase(proceedingsFormatter);
+const addProceedingUseCase = new AddProceedingUseCase();
+const removeProceedingUseCase = new RemoveProceedingUseCase();
 const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsValidator,
   proceedingsFormatter,
+  {
+    buildProceedingsSelectionView: buildProceedingsSelectionViewUseCase,
+    addProceeding: addProceedingUseCase,
+    removeProceeding: removeProceedingUseCase,
+  },
 );
 
 const publicAuthorityFormatter = new Formatter();
 const publicAuthorityValidator = new PublicAuthorityValidator();
+const buildPublicAuthoritySelectionViewUseCase =
+  new BuildPublicAuthoritySelectionViewUseCase(publicAuthorityFormatter);
+const addPublicAuthorityUseCase = new AddPublicAuthorityUseCase();
+const removePublicAuthorityUseCase = new RemovePublicAuthorityUseCase();
 const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
   publicAuthorityValidator,
   publicAuthorityFormatter,
+  {
+    buildPublicAuthoritySelectionView: buildPublicAuthoritySelectionViewUseCase,
+    addPublicAuthority: addPublicAuthorityUseCase,
+    removePublicAuthority: removePublicAuthorityUseCase,
+  },
 );
 
 const submitApplicationSource = new SubmitApplicationAdaptor(
