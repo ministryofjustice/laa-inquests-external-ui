@@ -17,6 +17,9 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
+import { BuildCheckYourAnswersUseCase } from "#src/use-cases/apply/confirmation/BuildCheckYourAnswers.useCase.js";
+import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
+import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -129,10 +132,22 @@ const submitApplicationSource = new SubmitApplicationAdaptor(
 
 const confirmationFormatter = new Formatter();
 const sessionHelper = new SessionHelper();
+const buildCheckYourAnswersUseCase = new BuildCheckYourAnswersUseCase(
+  confirmationFormatter,
+);
+const validateClientDeclarationUseCase = new ValidateClientDeclarationUseCase();
+const submitApplicationUseCase = new SubmitApplicationUseCase(
+  submitApplicationSource,
+);
 const confirmationAdaptor = new ConfirmationAdaptor(
   confirmationFormatter,
   submitApplicationSource,
   sessionHelper,
+  {
+    buildCheckYourAnswers: buildCheckYourAnswersUseCase,
+    validateClientDeclaration: validateClientDeclarationUseCase,
+    submitApplication: submitApplicationUseCase,
+  },
 );
 
 indexRouter.use(

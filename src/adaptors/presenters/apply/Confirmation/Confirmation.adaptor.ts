@@ -1,40 +1,45 @@
 import type { Request, Response } from "express";
 import type { Formatter } from "#src/utils/Formatter.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
-import {
-  SubmitApplicationRequestSchema,
-  SubmitApplicationResponseSchema,
-} from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
-import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
-import type { Address } from "#src/domain/Client/Address.js";
-import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
-import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
-import {
-  CORRESPONDENCE_ADDRESS_SOURCE,
-  CORRESPONDENCE_RECIPIENT_TYPE,
-  CLIENT_DECLARATION_ERROR,
-  HTTP_CREATED,
-} from "#src/infrastructure/locales/constants.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
-import type {
-  ClientDeclarationError,
-  ClientDeclarationFormData,
-} from "#src/adaptors/presenters/apply/models/form.types.js";
-import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import type { ClientDeclarationFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
+import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
+import { BuildCheckYourAnswersUseCase } from "#src/use-cases/apply/confirmation/BuildCheckYourAnswers.useCase.js";
+import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
+import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
+
+interface ConfirmationUseCases {
+  buildCheckYourAnswers: BuildCheckYourAnswersUseCase;
+  validateClientDeclaration: ValidateClientDeclarationUseCase;
+  submitApplication: SubmitApplicationUseCase;
+}
 
 export class ConfirmationAdaptor {
-  formatter: Formatter;
-  applySubmitPort: ApplySubmitPort;
   sessionHelper: SessionHelper;
+  buildCheckYourAnswersUseCase: BuildCheckYourAnswersUseCase;
+  validateClientDeclarationUseCase: ValidateClientDeclarationUseCase;
+  submitApplicationUseCase: SubmitApplicationUseCase;
 
   constructor(
     formatter: Formatter,
     applySubmitPort: ApplySubmitPort,
     sessionHelper: SessionHelper,
+    useCases?: Partial<ConfirmationUseCases>,
   ) {
-    this.formatter = formatter;
-    this.applySubmitPort = applySubmitPort;
+    const buildCheckYourAnswersUseCase =
+      useCases?.buildCheckYourAnswers ??
+      new BuildCheckYourAnswersUseCase(formatter);
+    const validateClientDeclarationUseCase =
+      useCases?.validateClientDeclaration ??
+      new ValidateClientDeclarationUseCase();
+    const submitApplicationUseCase =
+      useCases?.submitApplication ??
+      new SubmitApplicationUseCase(applySubmitPort);
+
     this.sessionHelper = sessionHelper;
+    this.buildCheckYourAnswersUseCase = buildCheckYourAnswersUseCase;
+    this.validateClientDeclarationUseCase = validateClientDeclarationUseCase;
+    this.submitApplicationUseCase = submitApplicationUseCase;
   }
 
   renderCheckYourAnswers(req: Request, res: Response): void {
@@ -42,47 +47,13 @@ export class ConfirmationAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const publicAuthorities = this.formatter.formatIntoTableRows(
-      req.session.selectedPublicAuthorities ?? [],
-    );
-
-    const clientDob = this.#createDateString(
-      req.session.clientDobDay as string,
-      req.session.clientDobMonth as string,
-      req.session.clientDobYear as string,
-    );
-    const dateOfDeath = this.#createDateString(
-      req.session.deceasedDateOfDeathDay as string,
-      req.session.deceasedDateOfDeathMonth as string,
-      req.session.deceasedDateOfDeathYear as string,
-    );
-
-    const clientAddress = this.#getClientAddressSummary(req);
-    const clientPostcode = this.#getClientPostcodeSummary(req);
-    const clientCorrespondenceAddress =
-      this.#getClientCorrespondenceAddressSummary(req);
-    const clientCorrespondenceRecipient =
-      this.#getClientCorrespondenceRecipientSummary(req);
+    const confirmationState = this.#getConfirmationSessionState(req);
+    const checkYourAnswersData =
+      this.buildCheckYourAnswersUseCase.execute(confirmationState);
 
     res.render("apply/check-your-answers", {
       csrfToken,
-      client: {
-        clientFirstName: req.session.clientFirstName ?? "",
-        clientLastName: req.session.clientLastName ?? "",
-        clientDob,
-        clientAddress: `${clientAddress} ${clientPostcode}`,
-        clientCorrespondenceAddress,
-        clientCorrespondenceRecipient,
-      },
-      deceasedDetails: {
-        deceasedFirstName: req.session.deceasedFirstName ?? "",
-        deceasedLastName: req.session.deceasedLastName ?? "",
-        dateOfDeath,
-        deceasedClientRelationship:
-          req.session.deceasedClientRelationship ?? "",
-        deceasedCoronerReference: req.session.deceasedCoronerReference ?? "",
-      },
-      publicAuthorities,
+      ...checkYourAnswersData,
     });
   }
 
@@ -106,21 +77,14 @@ export class ConfirmationAdaptor {
   ): Promise<void> {
     const { "client-declaration-confirmation": declarationConfirmation } =
       req.body as ClientDeclarationFormData;
-    const hasConfirmedDeclaration =
-      declarationConfirmation === "true" ||
-      (Array.isArray(declarationConfirmation) &&
-        declarationConfirmation.includes("true"));
+    const validationResult = this.validateClientDeclarationUseCase.execute(
+      declarationConfirmation,
+    );
 
-    if (!hasConfirmedDeclaration) {
+    if (validationResult.status === "VALIDATION_FAILED") {
       const {
         locals: { csrfToken },
       } = res;
-
-      const errorSummaries: ClientDeclarationError = {
-        noDeclarationConfirmation: {
-          text: CLIENT_DECLARATION_ERROR.NO_CONFIRMATION,
-        },
-      };
 
       res.render("apply/submit/client-declaration", {
         csrfToken,
@@ -128,116 +92,21 @@ export class ConfirmationAdaptor {
           firstName: req.session.clientFirstName ?? "",
           lastName: req.session.clientLastName ?? "",
         },
-        errorSummaries,
+        errorSummaries: validationResult.errorSummaries,
       });
       return;
     }
 
-    const submitBody = this.#generateSubmitBody(req);
     const { session } = req;
-    const responseRaw =
-      await this.applySubmitPort.submitApplication(submitBody);
-    const { statusCode, laaReference } =
-      SubmitApplicationResponseSchema.parse(responseRaw);
+    const confirmationState = this.#getConfirmationSessionState(req);
+    const submitResult =
+      await this.submitApplicationUseCase.execute(confirmationState);
 
-    if (statusCode === HTTP_CREATED) {
+    if (submitResult.status === "SUCCESS") {
       this.sessionHelper.clearApplyFormData(req);
-      session.applicationReferenceNumber = laaReference.toString();
+      session.applicationReferenceNumber =
+        submitResult.data?.laaReference.toString() ?? "";
       res.redirect("/apply/confirmation/success");
-    }
-  }
-
-  #generateSubmitBody(req: Request): SubmitApplicationRequest {
-    const client = this.#buildClientForSubmit(req);
-    this.#applyOptionalClientFields(client, req);
-    this.#applyClientAddressesForSubmit(client, req);
-    this.#applyClientCorrespondenceRecipientForSubmit(client, req);
-
-    const submitBodyWithDetails = {
-      client,
-      deceased: this.#buildDeceasedForSubmit(req),
-      proceedings: this.#buildProceedingsForSubmit(req),
-      publicBodies: this.#buildPublicBodiesForSubmit(req),
-    };
-
-    const submitBody = SubmitApplicationRequestSchema.parse(
-      submitBodyWithDetails,
-    );
-    return submitBody;
-  }
-
-  #applyOptionalClientFields(
-    client: SubmitApplicationRequest["client"],
-    req: Request,
-  ): void {
-    const { session } = req;
-    const { clientLastNameAtBirth, clientNino } = session;
-
-    if (typeof clientLastNameAtBirth === "string") {
-      client.clientLastNameAtBirth = clientLastNameAtBirth;
-    }
-
-    if (typeof clientNino === "string") {
-      client.nationalInsuranceNumber = clientNino;
-    }
-  }
-
-  #applyClientAddressesForSubmit(
-    client: SubmitApplicationRequest["client"],
-    req: Request,
-  ): void {
-    const hasNoFixedAbode = this.#isClientNoFixedAbode(req);
-    client.hasNoFixedAbode = hasNoFixedAbode;
-
-    const correspondenceAddressSource =
-      this.#getClientCorrespondenceAddressSource(req);
-    client.correspondenceAddressSource = correspondenceAddressSource;
-
-    const clientCorrespondenceAddress =
-      this.#getClientCorrespondenceAddress(req);
-    if (
-      correspondenceAddressSource ===
-        CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS &&
-      clientCorrespondenceAddress !== null
-    ) {
-      client.correspondenceAddress = {
-        addressLine1: clientCorrespondenceAddress.addressLine1,
-        addressLine2: clientCorrespondenceAddress.addressLine2 ?? null,
-        townOrCity: clientCorrespondenceAddress.townOrCity,
-        county: clientCorrespondenceAddress.county ?? null,
-        postcode: clientCorrespondenceAddress.postcode,
-      };
-    }
-
-    const clientHomeAddress = this.#getClientHomeAddress(req);
-    if (!hasNoFixedAbode && clientHomeAddress !== null) {
-      client.homeAddress = {
-        addressLine1: clientHomeAddress.addressLine1,
-        addressLine2: clientHomeAddress.addressLine2 ?? null,
-        townOrCity: clientHomeAddress.townOrCity,
-        county: clientHomeAddress.county ?? null,
-        postcode: clientHomeAddress.postcode,
-      };
-    }
-  }
-
-  #applyClientCorrespondenceRecipientForSubmit(
-    client: SubmitApplicationRequest["client"],
-    req: Request,
-  ): void {
-    const clientCorrespondenceRecipient =
-      this.#getClientCorrespondenceRecipient(req);
-
-    client.isClientCorrespondenceRecipient =
-      clientCorrespondenceRecipient === null;
-
-    if (clientCorrespondenceRecipient === null) {
-      delete client.correspondenceRecipient;
-    } else {
-      client.correspondenceRecipient = {
-        recipientType: clientCorrespondenceRecipient.recipientType,
-        recipientName: clientCorrespondenceRecipient.recipientName,
-      };
     }
   }
 
@@ -258,234 +127,91 @@ export class ConfirmationAdaptor {
     this.sessionHelper.clearApplyFormData(req);
   }
 
-  #createDateString(day?: string, month?: string, year?: string): string {
-    return typeof day === "string" &&
-      typeof month === "string" &&
-      typeof year === "string"
-      ? `${day}/${month}/${year}`
-      : "";
-  }
+  #getConfirmationSessionState(req: Request): ConfirmationSessionState {
+    const { session } = req;
 
-  #createAddressString(
-    addressLine1?: string,
-    addressLine2?: string,
-    townOrCity?: string,
-    county?: string,
-  ): string {
-    return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrCity ?? ""} ${county ?? ""}`;
-  }
-
-  #getClientAddressSummary(req: Request): string {
-    if (this.#isClientNoFixedAbode(req)) {
-      return "No fixed abode";
-    }
-
-    const clientHomeAddress = this.#getClientHomeAddress(req);
-    if (clientHomeAddress === null) {
-      return this.#createAddressString(
-        req.session.clientAddressLine1 as string,
-        req.session.clientAddressLine2 as string,
-        req.session.clientTownOrCity as string,
-        req.session.clientCounty as string,
-      );
-    }
-
-    return this.#createAddressString(
-      clientHomeAddress.addressLine1,
-      clientHomeAddress.addressLine2 ?? undefined,
-      clientHomeAddress.townOrCity,
-      clientHomeAddress.county ?? undefined,
-    );
-  }
-
-  #getClientPostcodeSummary(req: Request): string {
-    if (this.#isClientNoFixedAbode(req)) {
-      return "";
-    }
-
-    const clientHomeAddress = this.#getClientHomeAddress(req);
-    if (clientHomeAddress === null) {
-      return typeof req.session.clientPostcode === "string"
-        ? req.session.clientPostcode
-        : "";
-    }
-
-    return clientHomeAddress.postcode;
-  }
-
-  #buildClientForSubmit(req: Request): SubmitApplicationRequest["client"] {
     return {
-      clientFirstName: req.session.clientFirstName as string,
-      clientLastName: req.session.clientLastName as string,
-      dateOfBirth: formatDateDDMMYYYY(
-        req.session.clientDobYear,
-        req.session.clientDobMonth,
-        req.session.clientDobDay,
-      ),
-      hasNoFixedAbode: false,
-      correspondenceAddressSource:
-        CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
-      homeAddress: null,
-      correspondenceAddress: null,
-      isClientCorrespondenceRecipient: true,
+      ...this.#getClientState(session),
+      ...this.#getDeceasedState(session),
+      selectedProceedings: Array.isArray(session.selectedProceedings)
+        ? session.selectedProceedings
+        : undefined,
+      selectedPublicAuthorities: Array.isArray(
+        session.selectedPublicAuthorities,
+      )
+        ? session.selectedPublicAuthorities
+        : undefined,
     };
   }
 
-  #getClientCorrespondenceAddressSummary(req: Request): string {
-    const source = this.#getClientCorrespondenceAddressSource(req);
-
-    if (source === CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS) {
-      return "Same as client's home address";
-    }
-
-    if (source === CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS) {
-      return "My office address";
-    }
-
-    const correspondenceAddress = this.#getClientCorrespondenceAddress(req);
-    if (correspondenceAddress === null) {
-      return "";
-    }
-
-    const addressString = this.#createAddressString(
-      correspondenceAddress.addressLine1,
-      correspondenceAddress.addressLine2 ?? undefined,
-      correspondenceAddress.townOrCity,
-      correspondenceAddress.county ?? undefined,
-    );
-
-    return `${addressString} ${correspondenceAddress.postcode}`.trim();
-  }
-
-  #buildDeceasedForSubmit(req: Request): SubmitApplicationRequest["deceased"] {
+  #getClientState(session: Request["session"]): ConfirmationSessionState {
     return {
-      deceasedFirstName: req.session.deceasedFirstName as string,
-      deceasedLastName: req.session.deceasedLastName as string,
-      deceasedDateOfBirth: formatDateDDMMYYYY(
-        req.session.deceasedDateOfBirthYear,
-        req.session.deceasedDateOfBirthMonth,
-        req.session.deceasedDateOfBirthDay,
-      ),
-      deceasedDateOfDeath: formatDateDDMMYYYY(
-        req.session.deceasedDateOfDeathYear,
-        req.session.deceasedDateOfDeathMonth,
-        req.session.deceasedDateOfDeathDay,
-      ),
-      coronersReference: (req.session.deceasedCoronerReference ?? "") as string,
-      furtherInformation: (req.session.deceasedFurtherInformation ??
-        "") as string,
-      clientRelationshipToDeceased: (req.session.deceasedClientRelationship ??
-        "") as string,
+      clientFirstName: this.#getStringValue(session.clientFirstName),
+      clientLastName: this.#getStringValue(session.clientLastName),
+      clientLastNameAtBirth:
+        typeof session.clientLastNameAtBirth === "string" ||
+        session.clientLastNameAtBirth === null
+          ? session.clientLastNameAtBirth
+          : undefined,
+      clientDobDay: this.#getStringValue(session.clientDobDay),
+      clientDobMonth: this.#getStringValue(session.clientDobMonth),
+      clientDobYear: this.#getStringValue(session.clientDobYear),
+      clientNino:
+        typeof session.clientNino === "string" || session.clientNino === null
+          ? session.clientNino
+          : undefined,
+      clientHomeAddress: session.clientHomeAddress,
+      clientCorrespondenceAddress: session.clientCorrespondenceAddress,
+      clientCorrespondenceAddressSource: this.#getStringValue(
+        session.clientCorrespondenceAddressSource,
+      ) as
+        | ConfirmationSessionState["clientCorrespondenceAddressSource"]
+        | undefined,
+      clientCorrespondenceRecipient:
+        (typeof session.clientCorrespondenceRecipient === "object" &&
+          session.clientCorrespondenceRecipient !== null) ||
+        session.clientCorrespondenceRecipient === null
+          ? session.clientCorrespondenceRecipient
+          : undefined,
+      clientHasNoFixedAbode: session.clientHasNoFixedAbode === true,
     };
   }
 
-  #buildProceedingsForSubmit(
-    req: Request,
-  ): SubmitApplicationRequest["proceedings"] {
-    const selectedProceedings = req.session.selectedProceedings ?? [];
-    return selectedProceedings.map((proceeding: Proceeding) => ({
-      proceedingId: proceeding.proceedingId,
-    }));
+  #getDeceasedState(session: Request["session"]): ConfirmationSessionState {
+    return {
+      deceasedFirstName: this.#getStringValue(session.deceasedFirstName),
+      deceasedLastName: this.#getStringValue(session.deceasedLastName),
+      deceasedDateOfBirthDay: this.#getStringValue(
+        session.deceasedDateOfBirthDay,
+      ),
+      deceasedDateOfBirthMonth: this.#getStringValue(
+        session.deceasedDateOfBirthMonth,
+      ),
+      deceasedDateOfBirthYear: this.#getStringValue(
+        session.deceasedDateOfBirthYear,
+      ),
+      deceasedDateOfDeathDay: this.#getStringValue(
+        session.deceasedDateOfDeathDay,
+      ),
+      deceasedDateOfDeathMonth: this.#getStringValue(
+        session.deceasedDateOfDeathMonth,
+      ),
+      deceasedDateOfDeathYear: this.#getStringValue(
+        session.deceasedDateOfDeathYear,
+      ),
+      deceasedClientRelationship: this.#getStringValue(
+        session.deceasedClientRelationship,
+      ),
+      deceasedCoronerReference: this.#getStringValue(
+        session.deceasedCoronerReference,
+      ),
+      deceasedFurtherInformation: this.#getStringValue(
+        session.deceasedFurtherInformation,
+      ),
+    };
   }
 
-  #buildPublicBodiesForSubmit(
-    req: Request,
-  ): SubmitApplicationRequest["publicBodies"] {
-    return (
-      req.session.selectedPublicAuthorities?.map((body) => ({
-        publicBodyId: body.publicAuthorityDescription,
-      })) ?? []
-    );
-  }
-
-  #getClientCorrespondenceRecipientSummary(req: Request): string {
-    const correspondenceRecipient = this.#getClientCorrespondenceRecipient(req);
-    return (
-      correspondenceRecipient?.recipientName ??
-      "Correspondence will be addressed to the client"
-    );
-  }
-
-  #getClientHomeAddress(req: Request): Address | null {
-    const { session } = req;
-    const { clientHomeAddress } = session;
-    return this.#isClientHomeAddress(clientHomeAddress)
-      ? clientHomeAddress
-      : null;
-  }
-
-  #getClientCorrespondenceAddress(req: Request): Address | null {
-    const { session } = req;
-    const { clientCorrespondenceAddress } = session;
-    return this.#isClientHomeAddress(clientCorrespondenceAddress)
-      ? clientCorrespondenceAddress
-      : null;
-  }
-
-  #getClientCorrespondenceRecipient(
-    req: Request,
-  ): CorrespondenceRecipient | null {
-    const { session } = req;
-    const { clientCorrespondenceRecipient } = session;
-    return this.#isClientCorrespondenceRecipient(clientCorrespondenceRecipient)
-      ? clientCorrespondenceRecipient
-      : null;
-  }
-
-  #isClientHomeAddress(value: unknown): value is Address {
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-      return false;
-    }
-
-    const candidate = value as Partial<Address>;
-    return (
-      typeof candidate.addressLine1 === "string" &&
-      typeof candidate.townOrCity === "string" &&
-      typeof candidate.postcode === "string"
-    );
-  }
-
-  #isClientCorrespondenceRecipient(
-    value: unknown,
-  ): value is CorrespondenceRecipient {
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-      return false;
-    }
-
-    const candidate = value as Partial<CorrespondenceRecipient>;
-    return (
-      (candidate.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
-        candidate.recipientType ===
-          CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION) &&
-      typeof candidate.recipientName === "string"
-    );
-  }
-
-  #isClientNoFixedAbode(req: Request): boolean {
-    return req.session.clientHasNoFixedAbode === true;
-  }
-
-  #getClientCorrespondenceAddressSource(
-    req: Request,
-  ): SubmitApplicationRequest["client"]["correspondenceAddressSource"] {
-    const {
-      session: { clientCorrespondenceAddressSource },
-    } = req;
-
-    if (
-      clientCorrespondenceAddressSource ===
-      CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS
-    ) {
-      return CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS;
-    }
-
-    if (
-      clientCorrespondenceAddressSource ===
-      CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS
-    ) {
-      return CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS;
-    }
-
-    return CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS;
+  #getStringValue(value: unknown): string | undefined {
+    return typeof value === "string" ? value : undefined;
   }
 }
