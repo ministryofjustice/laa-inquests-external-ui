@@ -123,7 +123,7 @@ describe("EntraAuthAdaptor", () => {
       assert.equal(result.officeId, "001");
     });
 
-    it("throws when FIRM_CODE claim is missing", async () => {
+    it("returns undefined firmCode when FIRM_CODE claim is missing", async () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
@@ -131,13 +131,16 @@ describe("EntraAuthAdaptor", () => {
         },
       } as any);
 
-      await assert.rejects(
-        () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-        /FIRM_CODE/,
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
       );
+
+      assert.equal(result.firmCode, undefined);
     });
 
-    it("throws when ACCOUNTS claim is missing", async () => {
+    it("returns undefined officeId when ACCOUNTS claim is missing", async () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
@@ -145,10 +148,13 @@ describe("EntraAuthAdaptor", () => {
         },
       } as any);
 
-      await assert.rejects(
-        () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-        /ACCOUNTS/,
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
       );
+
+      assert.equal(result.officeId, undefined);
     });
 
     it("throws when MSAL returns null", async () => {

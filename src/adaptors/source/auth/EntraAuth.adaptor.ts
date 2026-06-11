@@ -33,15 +33,19 @@ export class EntraAuthAdaptor implements AuthPort {
     };
   }
 
-  #extractFirmCode(claims: Record<string, unknown> | undefined): string {
+  #extractFirmCode(
+    claims: Record<string, unknown> | undefined,
+  ): string | undefined {
     const value = claims?.FIRM_CODE;
-    if (typeof value !== "string" || value === "") {
-      throw new Error("Missing required token claim: FIRM_CODE");
+    if (typeof value === "string" && value !== "") {
+      return value;
     }
-    return value;
+    return undefined;
   }
 
-  #extractOfficeId(claims: Record<string, unknown> | undefined): string {
+  #extractOfficeId(
+    claims: Record<string, unknown> | undefined,
+  ): string | undefined {
     const value = claims?.ACCOUNTS;
     if (typeof value === "string" && value !== "") {
       return value;
@@ -53,6 +57,6 @@ export class EntraAuthAdaptor implements AuthPort {
     ) {
       return value[EMPTY_ARR_LENGTH];
     }
-    throw new Error("Missing required token claim: ACCOUNTS");
+    return undefined;
   }
 }
