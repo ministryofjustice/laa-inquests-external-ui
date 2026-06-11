@@ -27,6 +27,13 @@ import { BuildPublicAuthoritySelectionViewUseCase } from "#src/use-cases/apply/p
 import { AddPublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/AddPublicAuthority.useCase.js";
 import { RemovePublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/RemovePublicAuthority.useCase.js";
 import { BuildDeceasedDetailsViewUseCase } from "#src/use-cases/apply/deceasedDetails/BuildDeceasedDetailsView.useCase.js";
+import { BuildClientNameDobViewUseCase } from "#src/use-cases/apply/clientDetails/BuildClientNameDobView.useCase.js";
+import { BuildClientHomeAddressViewUseCase } from "#src/use-cases/apply/clientDetails/BuildClientHomeAddressView.useCase.js";
+import { BuildCorrespondenceAddressSourceViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceAddressSourceView.useCase.js";
+import { BuildCorrespondenceAddressViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceAddressView.useCase.js";
+import { BuildCorrespondenceRecipientViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceRecipientView.useCase.js";
+import { UpdateCorrespondenceRecipientUseCase } from "#src/use-cases/apply/clientDetails/UpdateCorrespondenceRecipient.useCase.js";
+import { BuildPreviousApplicationViewUseCase } from "#src/use-cases/apply/clientDetails/BuildPreviousApplicationView.useCase.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -108,9 +115,33 @@ indexRouter.get("/apply", (req: Request, res: Response): void => {
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
 const clientDetailsFormatter = new ClientDetailsFormatter();
+const buildClientNameDobViewUseCase = new BuildClientNameDobViewUseCase();
+const buildClientHomeAddressViewUseCase = new BuildClientHomeAddressViewUseCase(
+  clientDetailsFormatter,
+);
+const buildCorrespondenceAddressSourceViewUseCase =
+  new BuildCorrespondenceAddressSourceViewUseCase();
+const buildCorrespondenceAddressViewUseCase =
+  new BuildCorrespondenceAddressViewUseCase(clientDetailsFormatter);
+const buildCorrespondenceRecipientViewUseCase =
+  new BuildCorrespondenceRecipientViewUseCase(clientDetailsFormatter);
+const updateCorrespondenceRecipientUseCase =
+  new UpdateCorrespondenceRecipientUseCase();
+const buildPreviousApplicationViewUseCase =
+  new BuildPreviousApplicationViewUseCase();
 const clientDetailsAdaptor = new ClientDetailsAdaptor(
   clientDetailsFormValidator,
   clientDetailsFormatter,
+  {
+    buildClientNameDobView: buildClientNameDobViewUseCase,
+    buildClientHomeAddressView: buildClientHomeAddressViewUseCase,
+    buildCorrespondenceAddressSourceView:
+      buildCorrespondenceAddressSourceViewUseCase,
+    buildCorrespondenceAddressView: buildCorrespondenceAddressViewUseCase,
+    buildCorrespondenceRecipientView: buildCorrespondenceRecipientViewUseCase,
+    updateCorrespondenceRecipient: updateCorrespondenceRecipientUseCase,
+    buildPreviousApplicationView: buildPreviousApplicationViewUseCase,
+  },
 );
 
 const deceasedDetailsFormValidator = new DeceasedDetailsValidator();
