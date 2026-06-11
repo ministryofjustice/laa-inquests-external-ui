@@ -115,7 +115,7 @@ Update your `AUTH_REDIRECT_URI` and `AUTH_POST_LOGOUT_URI` in your `.env.externa
 - To run the docker image
 
   ```shell
-  docker compose -f docker-compose.test.yaml up --build
+  yarn docker
   ```
 
   (The application should be running at http://localhost:8888)
