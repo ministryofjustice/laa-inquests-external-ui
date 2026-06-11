@@ -27,7 +27,10 @@ export class SessionHelper {
   clearApplyFormData(req: Request): void {
     const sessionKeys = Object.keys(req.session);
     sessionKeys
-      .filter((k) => !["cookie", "user", "userId", "firmCode", "officeId"].includes(k))
+      .filter(
+        (k) =>
+          !["cookie", "user", "userId", "firmCode", "officeId"].includes(k),
+      )
       .forEach((key) => {
         req.session[key] = undefined;
       });
