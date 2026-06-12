@@ -1,5 +1,8 @@
 import type { Request, Response } from "express";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  EMPTY_ARR_LENGTH,
+  PROCEEDING_OPTIONS,
+} from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
   ProceedingsFormData,
@@ -7,12 +10,11 @@ import type {
 } from "../models/form.types.js";
 import type { ProceedingsValidator } from "./Proceedings.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
-import { BuildProceedingsSelectionViewUseCase } from "#src/use-cases/apply/proceedings/BuildProceedingsSelectionView.useCase.js";
 import { AddProceedingUseCase } from "#src/use-cases/apply/proceedings/AddProceeding.useCase.js";
 import { RemoveProceedingUseCase } from "#src/use-cases/apply/proceedings/RemoveProceeding.useCase.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 
 interface ProceedingsUseCases {
-  buildProceedingsSelectionView: BuildProceedingsSelectionViewUseCase;
   addProceeding: AddProceedingUseCase;
   removeProceeding: RemoveProceedingUseCase;
 }
@@ -20,7 +22,6 @@ interface ProceedingsUseCases {
 export class ProceedingsAdaptor {
   formValidator: ProceedingsValidator;
   formatter: Formatter;
-  buildProceedingsSelectionViewUseCase: BuildProceedingsSelectionViewUseCase;
   addProceedingUseCase: AddProceedingUseCase;
   removeProceedingUseCase: RemoveProceedingUseCase;
 
@@ -31,9 +32,6 @@ export class ProceedingsAdaptor {
   ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
-    this.buildProceedingsSelectionViewUseCase =
-      useCases?.buildProceedingsSelectionView ??
-      new BuildProceedingsSelectionViewUseCase();
     this.addProceedingUseCase =
       useCases?.addProceeding ?? new AddProceedingUseCase();
     this.removeProceedingUseCase =
@@ -43,7 +41,7 @@ export class ProceedingsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    const selectionView = this.buildProceedingsSelectionViewUseCase.execute({
+    const selectionView = this.#buildProceedingsSelectionView({
       selectedProceedings: req.session.selectedProceedings,
     });
 
@@ -85,7 +83,7 @@ export class ProceedingsAdaptor {
       addProceedingResult.status !== "SUCCESS" ||
       addProceedingResult.data === undefined
     ) {
-      const selectionView = this.buildProceedingsSelectionViewUseCase.execute({
+      const selectionView = this.#buildProceedingsSelectionView({
         selectedProceedings: req.session.selectedProceedings,
       });
 
@@ -126,7 +124,7 @@ export class ProceedingsAdaptor {
     if (selectedProceedings === undefined) {
       res.redirect("/apply/proceedings");
     } else {
-      const selectionView = this.buildProceedingsSelectionViewUseCase.execute({
+      const selectionView = this.#buildProceedingsSelectionView({
         selectedProceedings,
       });
 
@@ -252,5 +250,26 @@ export class ProceedingsAdaptor {
     }
 
     res.redirect("/apply/proceedings/confirmation");
+  }
+
+  #buildProceedingsSelectionView(state: {
+    selectedProceedings?: Proceeding[];
+  }): {
+    availableProceedings: Proceeding[];
+    selectedProceedings: Proceeding[];
+  } {
+    const selectedProceedings = state.selectedProceedings ?? [];
+    const availableProceedings = PROCEEDING_OPTIONS.filter(
+      (option) =>
+        !selectedProceedings.some(
+          (selectedOption) =>
+            selectedOption.proceedingId === option.proceedingId,
+        ),
+    );
+
+    return {
+      availableProceedings,
+      selectedProceedings,
+    };
   }
 }

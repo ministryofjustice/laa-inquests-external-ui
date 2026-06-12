@@ -14,37 +14,19 @@ import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
-import { BuildClientNameDobViewUseCase } from "#src/use-cases/apply/clientDetails/BuildClientNameDobView.useCase.js";
-import { BuildClientHomeAddressViewUseCase } from "#src/use-cases/apply/clientDetails/BuildClientHomeAddressView.useCase.js";
-import { BuildCorrespondenceAddressSourceViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceAddressSourceView.useCase.js";
-import { BuildCorrespondenceAddressViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceAddressView.useCase.js";
-import { BuildCorrespondenceRecipientViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceRecipientView.useCase.js";
 import { UpdateCorrespondenceRecipientUseCase } from "#src/use-cases/apply/clientDetails/UpdateCorrespondenceRecipient.useCase.js";
-import { BuildPreviousApplicationViewUseCase } from "#src/use-cases/apply/clientDetails/BuildPreviousApplicationView.useCase.js";
 import { ProcessClientDetailsJourneyUseCase } from "#src/use-cases/apply/clientDetails/ProcessClientDetailsJourney.useCase.js";
 import { getStringValue } from "#src/utils/sessionValue.js";
 
 interface ClientDetailsUseCases {
-  buildClientNameDobView: BuildClientNameDobViewUseCase;
-  buildClientHomeAddressView: BuildClientHomeAddressViewUseCase;
-  buildCorrespondenceAddressSourceView: BuildCorrespondenceAddressSourceViewUseCase;
-  buildCorrespondenceAddressView: BuildCorrespondenceAddressViewUseCase;
-  buildCorrespondenceRecipientView: BuildCorrespondenceRecipientViewUseCase;
   updateCorrespondenceRecipient: UpdateCorrespondenceRecipientUseCase;
-  buildPreviousApplicationView: BuildPreviousApplicationViewUseCase;
   processClientDetailsJourney: ProcessClientDetailsJourneyUseCase;
 }
 
 export class ClientDetailsAdaptor {
   formValidator: ClientDetailsValidator;
   formatter: ClientDetailsFormatter;
-  buildClientNameDobViewUseCase: BuildClientNameDobViewUseCase;
-  buildClientHomeAddressViewUseCase: BuildClientHomeAddressViewUseCase;
-  buildCorrespondenceAddressSourceViewUseCase: BuildCorrespondenceAddressSourceViewUseCase;
-  buildCorrespondenceAddressViewUseCase: BuildCorrespondenceAddressViewUseCase;
-  buildCorrespondenceRecipientViewUseCase: BuildCorrespondenceRecipientViewUseCase;
   updateCorrespondenceRecipientUseCase: UpdateCorrespondenceRecipientUseCase;
-  buildPreviousApplicationViewUseCase: BuildPreviousApplicationViewUseCase;
   processClientDetailsJourneyUseCase: ProcessClientDetailsJourneyUseCase;
 
   constructor(
@@ -53,28 +35,12 @@ export class ClientDetailsAdaptor {
     useCases?: Partial<ClientDetailsUseCases>,
   ) {
     const resolvedUseCases = this.#resolveUseCases(formValidator, useCases);
-    const {
-      buildClientNameDobView,
-      buildClientHomeAddressView,
-      buildCorrespondenceAddressSourceView,
-      buildCorrespondenceAddressView,
-      buildCorrespondenceRecipientView,
-      updateCorrespondenceRecipient,
-      buildPreviousApplicationView,
-      processClientDetailsJourney,
-    } = resolvedUseCases;
+    const { updateCorrespondenceRecipient, processClientDetailsJourney } =
+      resolvedUseCases;
 
     this.formValidator = formValidator;
     this.formatter = formatter;
-    this.buildClientNameDobViewUseCase = buildClientNameDobView;
-    this.buildClientHomeAddressViewUseCase = buildClientHomeAddressView;
-    this.buildCorrespondenceAddressSourceViewUseCase =
-      buildCorrespondenceAddressSourceView;
-    this.buildCorrespondenceAddressViewUseCase = buildCorrespondenceAddressView;
-    this.buildCorrespondenceRecipientViewUseCase =
-      buildCorrespondenceRecipientView;
     this.updateCorrespondenceRecipientUseCase = updateCorrespondenceRecipient;
-    this.buildPreviousApplicationViewUseCase = buildPreviousApplicationView;
     this.processClientDetailsJourneyUseCase = processClientDetailsJourney;
   }
 
@@ -83,16 +49,7 @@ export class ClientDetailsAdaptor {
     useCases?: Partial<ClientDetailsUseCases>,
   ): ClientDetailsUseCases {
     const defaultUseCases: ClientDetailsUseCases = {
-      buildClientNameDobView: new BuildClientNameDobViewUseCase(),
-      buildClientHomeAddressView: new BuildClientHomeAddressViewUseCase(),
-      buildCorrespondenceAddressSourceView:
-        new BuildCorrespondenceAddressSourceViewUseCase(),
-      buildCorrespondenceAddressView:
-        new BuildCorrespondenceAddressViewUseCase(),
-      buildCorrespondenceRecipientView:
-        new BuildCorrespondenceRecipientViewUseCase(),
       updateCorrespondenceRecipient: new UpdateCorrespondenceRecipientUseCase(),
-      buildPreviousApplicationView: new BuildPreviousApplicationViewUseCase(),
       processClientDetailsJourney: new ProcessClientDetailsJourneyUseCase(
         formValidator,
       ),
@@ -113,7 +70,7 @@ export class ClientDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const nameDobView = this.buildClientNameDobViewUseCase.execute({
+    const nameDobView = this.#buildClientNameDobView({
       clientFirstName: getStringValue(req.session.clientFirstName),
       clientLastName: getStringValue(req.session.clientLastName),
       clientLastNameAtBirth: getStringValue(req.session.clientLastNameAtBirth),
@@ -161,7 +118,7 @@ export class ClientDetailsAdaptor {
     });
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      const nameDobView = this.buildClientNameDobViewUseCase.execute({
+      const nameDobView = this.#buildClientNameDobView({
         clientFirstName: getStringValue(req.session.clientFirstName),
         clientLastName: getStringValue(req.session.clientLastName),
         clientLastNameAtBirth: getStringValue(
@@ -229,7 +186,7 @@ export class ClientDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const homeAddressView = this.buildClientHomeAddressViewUseCase.execute({
+    const homeAddressView = this.#buildClientHomeAddressView({
       clientHomeAddress: this.#getClientHomeAddress(req),
       clientHasNoFixedAbode: this.#isClientNoFixedAbode(req),
     });
@@ -289,7 +246,7 @@ export class ClientDetailsAdaptor {
         step: "HOME_ADDRESS",
         formBody: req.body,
       });
-    const homeAddressView = this.buildClientHomeAddressViewUseCase.execute({
+    const homeAddressView = this.#buildClientHomeAddressView({
       clientHomeAddress: homeAddress,
       clientHasNoFixedAbode: false,
     });
@@ -316,7 +273,7 @@ export class ClientDetailsAdaptor {
       locals: { csrfToken },
     } = res;
     const correspondenceAddressSourceView =
-      this.buildCorrespondenceAddressSourceViewUseCase.execute({
+      this.#buildCorrespondenceAddressSourceView({
         clientCorrespondenceAddressSource:
           this.#getClientCorrespondenceAddressSource(req) ?? undefined,
       });
@@ -347,7 +304,7 @@ export class ClientDetailsAdaptor {
 
     if (Object.keys(sourceErrors).length > EMPTY_ARR_LENGTH) {
       const correspondenceAddressSourceView =
-        this.buildCorrespondenceAddressSourceViewUseCase.execute({
+        this.#buildCorrespondenceAddressSourceView({
           clientCorrespondenceAddressSource:
             this.#isCorrespondenceAddressSource(correspondenceAddressSource)
               ? correspondenceAddressSource
@@ -373,7 +330,7 @@ export class ClientDetailsAdaptor {
       res.redirect("/apply/client-details/correspondence-recipient");
     } else {
       const correspondenceAddressSourceView =
-        this.buildCorrespondenceAddressSourceViewUseCase.execute({
+        this.#buildCorrespondenceAddressSourceView({
           clientCorrespondenceAddressSource: undefined,
         });
 
@@ -389,10 +346,9 @@ export class ClientDetailsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    const correspondenceAddressView =
-      this.buildCorrespondenceAddressViewUseCase.execute({
-        clientCorrespondenceAddress: this.#getClientCorrespondenceAddress(req),
-      });
+    const correspondenceAddressView = this.#buildCorrespondenceAddressView({
+      clientCorrespondenceAddress: this.#getClientCorrespondenceAddress(req),
+    });
 
     res.render("apply/client-details/correspondence-address", {
       csrfToken,
@@ -419,10 +375,9 @@ export class ClientDetailsAdaptor {
       });
 
     if (Object.keys(correspondenceAddressErrors).length > EMPTY_ARR_LENGTH) {
-      const correspondenceAddressView =
-        this.buildCorrespondenceAddressViewUseCase.execute({
-          clientCorrespondenceAddress: correspondenceAddress,
-        });
+      const correspondenceAddressView = this.#buildCorrespondenceAddressView({
+        clientCorrespondenceAddress: correspondenceAddress,
+      });
 
       res.render("apply/client-details/correspondence-address", {
         csrfToken,
@@ -451,19 +406,18 @@ export class ClientDetailsAdaptor {
     } = res;
 
     const recipient = this.#getClientCorrespondenceRecipient(req);
-    const correspondenceRecipientView =
-      this.buildCorrespondenceRecipientViewUseCase.execute(
-        {
-          clientCorrespondenceRecipient:
-            this.#getClientCorrespondenceRecipientState(req),
-        },
-        recipient,
-        {
-          correspondenceRecipient: params?.correspondenceRecipient,
-          personName: params?.personName,
-          organisationName: params?.organisationName,
-        },
-      );
+    const correspondenceRecipientView = this.#buildCorrespondenceRecipientView(
+      {
+        clientCorrespondenceRecipient:
+          this.#getClientCorrespondenceRecipientState(req),
+      },
+      recipient,
+      {
+        correspondenceRecipient: params?.correspondenceRecipient,
+        personName: params?.personName,
+        organisationName: params?.organisationName,
+      },
+    );
 
     const correspondenceRecipientClient =
       this.formatter.buildCorrespondenceRecipientViewModel(
@@ -577,15 +531,14 @@ export class ClientDetailsAdaptor {
       });
 
     if (Object.keys(prevApplicationRefErrors).length > EMPTY_ARR_LENGTH) {
-      const previousApplicationView =
-        this.buildPreviousApplicationViewUseCase.execute({
-          clientHasPrevApplication: getStringValue(
-            req.session.clientHasPrevApplication,
-          ),
-          prevLaaReferenceInput: getStringValue(
-            req.session.prevLaaReferenceInput,
-          ),
-        });
+      const previousApplicationView = this.#buildPreviousApplicationView({
+        clientHasPrevApplication: getStringValue(
+          req.session.clientHasPrevApplication,
+        ),
+        prevLaaReferenceInput: getStringValue(
+          req.session.prevLaaReferenceInput,
+        ),
+      });
 
       res.render("apply/client-details/has-prev-application", {
         csrfToken,
@@ -690,5 +643,116 @@ export class ClientDetailsAdaptor {
 
   #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {
     return req.session.clientHasNoFixedAbode === true;
+  }
+
+  #buildClientNameDobView(state: {
+    clientFirstName?: string;
+    clientLastName?: string;
+    clientLastNameAtBirth?: string;
+    hasNameChanged?: string;
+    clientDobDay?: string;
+    clientDobMonth?: string;
+    clientDobYear?: string;
+  }): {
+    client: {
+      clientFirstName: string;
+      clientLastName: string;
+      clientLastNameAtBirth: string;
+      hasNameChanged: string;
+      clientDobDay: string;
+      clientDobMonth: string;
+      clientDobYear: string;
+    };
+  } {
+    return {
+      client: {
+        clientFirstName: state.clientFirstName ?? "",
+        clientLastName: state.clientLastName ?? "",
+        clientLastNameAtBirth: state.clientLastNameAtBirth ?? "",
+        hasNameChanged: state.hasNameChanged ?? "",
+        clientDobDay: state.clientDobDay ?? "",
+        clientDobMonth: state.clientDobMonth ?? "",
+        clientDobYear: state.clientDobYear ?? "",
+      },
+    };
+  }
+
+  #buildClientHomeAddressView(state: {
+    clientHomeAddress?: Address | null;
+    clientHasNoFixedAbode?: boolean;
+  }): {
+    clientHomeAddress: Address | null;
+    clientHasNoFixedAbode: boolean;
+  } {
+    return {
+      clientHomeAddress: state.clientHomeAddress ?? null,
+      clientHasNoFixedAbode: state.clientHasNoFixedAbode === true,
+    };
+  }
+
+  #buildCorrespondenceAddressSourceView(state: {
+    clientCorrespondenceAddressSource?: string;
+  }): {
+    client: { correspondenceAddressSource: string };
+  } {
+    return {
+      client: {
+        correspondenceAddressSource:
+          state.clientCorrespondenceAddressSource ?? "",
+      },
+    };
+  }
+
+  #buildCorrespondenceAddressView(state: {
+    clientCorrespondenceAddress?: Address | null;
+  }): {
+    clientCorrespondenceAddress: Address | null;
+  } {
+    return {
+      clientCorrespondenceAddress: state.clientCorrespondenceAddress ?? null,
+    };
+  }
+
+  #buildCorrespondenceRecipientView(
+    state: {
+      clientCorrespondenceRecipient: CorrespondenceRecipient | null | undefined;
+    },
+    recipient: CorrespondenceRecipient | null,
+    params?: {
+      correspondenceRecipient?: string;
+      personName?: string;
+      organisationName?: string;
+    },
+  ): {
+    clientCorrespondenceRecipient: CorrespondenceRecipient | null | undefined;
+    recipient: CorrespondenceRecipient | null;
+    params?: {
+      correspondenceRecipient?: string;
+      personName?: string;
+      organisationName?: string;
+    };
+  } {
+    return {
+      clientCorrespondenceRecipient: state.clientCorrespondenceRecipient,
+      recipient,
+      params,
+    };
+  }
+
+  #buildPreviousApplicationView(state: {
+    clientHasPrevApplication?: string;
+    prevLaaReferenceInput?: string;
+  }): {
+    client: {
+      hasPrevApplication: string;
+      prevLaaReference: string;
+    };
+  } {
+    return {
+      client: {
+        hasPrevApplication: state.clientHasPrevApplication ?? "",
+        prevLaaReference: state.prevLaaReferenceInput ?? "",
+      },
+    };
   }
 }

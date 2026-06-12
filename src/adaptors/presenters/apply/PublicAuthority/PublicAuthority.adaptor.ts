@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import {
   EMPTY_ARR_LENGTH,
+  PUBLIC_AUTHORITY_OPTIONS,
   PUBLIC_AUTHORITY_SUCCESS,
 } from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
@@ -10,12 +11,11 @@ import type {
   RemovePublicAuthorityFormData,
 } from "./PublicAuthority.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
-import { BuildPublicAuthoritySelectionViewUseCase } from "#src/use-cases/apply/publicAuthority/BuildPublicAuthoritySelectionView.useCase.js";
 import { AddPublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/AddPublicAuthority.useCase.js";
 import { RemovePublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/RemovePublicAuthority.useCase.js";
+import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
 
 interface PublicAuthorityUseCases {
-  buildPublicAuthoritySelectionView: BuildPublicAuthoritySelectionViewUseCase;
   addPublicAuthority: AddPublicAuthorityUseCase;
   removePublicAuthority: RemovePublicAuthorityUseCase;
 }
@@ -23,7 +23,6 @@ interface PublicAuthorityUseCases {
 export class PublicAuthorityAdaptor {
   formValidator: PublicAuthorityValidator;
   formatter: Formatter;
-  buildPublicAuthoritySelectionViewUseCase: BuildPublicAuthoritySelectionViewUseCase;
   addPublicAuthorityUseCase: AddPublicAuthorityUseCase;
   removePublicAuthorityUseCase: RemovePublicAuthorityUseCase;
 
@@ -34,9 +33,6 @@ export class PublicAuthorityAdaptor {
   ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
-    this.buildPublicAuthoritySelectionViewUseCase =
-      useCases?.buildPublicAuthoritySelectionView ??
-      new BuildPublicAuthoritySelectionViewUseCase();
     this.addPublicAuthorityUseCase =
       useCases?.addPublicAuthority ?? new AddPublicAuthorityUseCase();
     this.removePublicAuthorityUseCase =
@@ -48,11 +44,9 @@ export class PublicAuthorityAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const selectionView = this.buildPublicAuthoritySelectionViewUseCase.execute(
-      {
-        selectedPublicAuthorities: req.session.selectedPublicAuthorities,
-      },
-    );
+    const selectionView = this.#buildPublicAuthoritySelectionView({
+      selectedPublicAuthorities: req.session.selectedPublicAuthorities,
+    });
 
     res.render("apply/public-authority/add-public-authority", {
       csrfToken,
@@ -96,10 +90,9 @@ export class PublicAuthorityAdaptor {
       addPublicAuthorityResult.status !== "SUCCESS" ||
       addPublicAuthorityResult.data === undefined
     ) {
-      const selectionView =
-        this.buildPublicAuthoritySelectionViewUseCase.execute({
-          selectedPublicAuthorities: req.session.selectedPublicAuthorities,
-        });
+      const selectionView = this.#buildPublicAuthoritySelectionView({
+        selectedPublicAuthorities: req.session.selectedPublicAuthorities,
+      });
 
       res.render("apply/public-authority/add-public-authority", {
         csrfToken,
@@ -140,10 +133,9 @@ export class PublicAuthorityAdaptor {
     } else {
       req.session.successMessage = undefined;
 
-      const selectionView =
-        this.buildPublicAuthoritySelectionViewUseCase.execute({
-          selectedPublicAuthorities,
-        });
+      const selectionView = this.#buildPublicAuthoritySelectionView({
+        selectedPublicAuthorities,
+      });
 
       res.render("apply/public-authority/confirmation", {
         csrfToken,
@@ -269,5 +261,25 @@ export class PublicAuthorityAdaptor {
     }
 
     res.redirect("/apply/public-authority/confirmation");
+  }
+
+  #buildPublicAuthoritySelectionView(state: {
+    selectedPublicAuthorities?: PublicAuthority[];
+  }): {
+    availablePublicAuthorities: PublicAuthority[];
+    selectedPublicAuthorities: PublicAuthority[];
+  } {
+    const selectedPublicAuthorities = state.selectedPublicAuthorities ?? [];
+    const availablePublicAuthorities = PUBLIC_AUTHORITY_OPTIONS.filter(
+      (option) =>
+        !selectedPublicAuthorities.some(
+          (selected) => selected.publicAuthorityId === option.publicAuthorityId,
+        ),
+    );
+
+    return {
+      availablePublicAuthorities,
+      selectedPublicAuthorities,
+    };
   }
 }
