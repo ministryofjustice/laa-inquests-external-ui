@@ -110,15 +110,13 @@ nvm install node
 
 Prerequisites, Docker Desktop
 
-Update your `AUTH_REDIRECT_URI` and `AUTH_POST_LOGOUT_URI` in your `.env.external` to `localhost:8888` instead of `3000`
-
 - To run the docker image
 
   ```shell
   yarn docker
   ```
 
-  (The application should be running at http://localhost:8888)
+  (The application should be running at http://localhost:3000)
 
 - To stop the container just ctrl-c out of the process.
 
