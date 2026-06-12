@@ -1,34 +1,26 @@
-import type { Formatter } from "#src/utils/Formatter.js";
 import { PROCEEDING_OPTIONS } from "#src/infrastructure/locales/constants.js";
-import type { Option } from "#src/adaptors/presenters/apply/models/form.types.js";
-import type { SummaryListRow } from "#src/adaptors/presenters/apply/models/summaryList.types.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { ProceedingsSessionState } from "#src/use-cases/apply/proceedings/models/proceedingsSessionState.types.js";
 
-interface BuildProceedingsSelectionViewOutput {
-  proceedingOptions: Option[];
-  selectedProceedings: SummaryListRow[];
+export interface BuildProceedingsSelectionViewOutput {
+  availableProceedings: Proceeding[];
+  selectedProceedings: Proceeding[];
 }
 
 export class BuildProceedingsSelectionViewUseCase {
-  formatter: Formatter;
-
-  constructor(formatter: Formatter) {
-    this.formatter = formatter;
-  }
-
   execute(state: ProceedingsSessionState): BuildProceedingsSelectionViewOutput {
     const selectedProceedings = state.selectedProceedings ?? [];
-    const filteredProceedingOptions = this.formatter.filterAvailableOptions(
-      selectedProceedings,
-      PROCEEDING_OPTIONS,
+    const availableProceedings = PROCEEDING_OPTIONS.filter(
+      (option) =>
+        !selectedProceedings.some(
+          (selectedOption) =>
+            selectedOption.proceedingId === option.proceedingId,
+        ),
     );
 
     return {
-      proceedingOptions: this.formatter.formatOptionsIntoList(
-        filteredProceedingOptions,
-      ),
-      selectedProceedings:
-        this.formatter.formatSelectedIntoTableRows(selectedProceedings),
+      availableProceedings,
+      selectedProceedings,
     };
   }
 }

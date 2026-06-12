@@ -313,6 +313,7 @@ export class SubmitApplicationUseCase {
   #getClientCorrespondenceAddressSource(
     state: ConfirmationSessionState,
   ): SubmitApplicationRequest["client"]["correspondenceAddressSource"] {
+    // COPILOT TODO: Is this function really necessary
     const { clientCorrespondenceAddressSource } = state;
 
     if (

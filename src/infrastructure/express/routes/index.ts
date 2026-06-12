@@ -17,23 +17,6 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
-import { BuildCheckYourAnswersUseCase } from "#src/use-cases/apply/confirmation/BuildCheckYourAnswers.useCase.js";
-import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
-import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
-import { BuildProceedingsSelectionViewUseCase } from "#src/use-cases/apply/proceedings/BuildProceedingsSelectionView.useCase.js";
-import { AddProceedingUseCase } from "#src/use-cases/apply/proceedings/AddProceeding.useCase.js";
-import { RemoveProceedingUseCase } from "#src/use-cases/apply/proceedings/RemoveProceeding.useCase.js";
-import { BuildPublicAuthoritySelectionViewUseCase } from "#src/use-cases/apply/publicAuthority/BuildPublicAuthoritySelectionView.useCase.js";
-import { AddPublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/AddPublicAuthority.useCase.js";
-import { RemovePublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/RemovePublicAuthority.useCase.js";
-import { BuildDeceasedDetailsViewUseCase } from "#src/use-cases/apply/deceasedDetails/BuildDeceasedDetailsView.useCase.js";
-import { BuildClientNameDobViewUseCase } from "#src/use-cases/apply/clientDetails/BuildClientNameDobView.useCase.js";
-import { BuildClientHomeAddressViewUseCase } from "#src/use-cases/apply/clientDetails/BuildClientHomeAddressView.useCase.js";
-import { BuildCorrespondenceAddressSourceViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceAddressSourceView.useCase.js";
-import { BuildCorrespondenceAddressViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceAddressView.useCase.js";
-import { BuildCorrespondenceRecipientViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceRecipientView.useCase.js";
-import { UpdateCorrespondenceRecipientUseCase } from "#src/use-cases/apply/clientDetails/UpdateCorrespondenceRecipient.useCase.js";
-import { BuildPreviousApplicationViewUseCase } from "#src/use-cases/apply/clientDetails/BuildPreviousApplicationView.useCase.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -115,74 +98,28 @@ indexRouter.get("/apply", (req: Request, res: Response): void => {
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
 const clientDetailsFormatter = new ClientDetailsFormatter();
-const buildClientNameDobViewUseCase = new BuildClientNameDobViewUseCase();
-const buildClientHomeAddressViewUseCase = new BuildClientHomeAddressViewUseCase(
-  clientDetailsFormatter,
-);
-const buildCorrespondenceAddressSourceViewUseCase =
-  new BuildCorrespondenceAddressSourceViewUseCase();
-const buildCorrespondenceAddressViewUseCase =
-  new BuildCorrespondenceAddressViewUseCase(clientDetailsFormatter);
-const buildCorrespondenceRecipientViewUseCase =
-  new BuildCorrespondenceRecipientViewUseCase(clientDetailsFormatter);
-const updateCorrespondenceRecipientUseCase =
-  new UpdateCorrespondenceRecipientUseCase();
-const buildPreviousApplicationViewUseCase =
-  new BuildPreviousApplicationViewUseCase();
 const clientDetailsAdaptor = new ClientDetailsAdaptor(
   clientDetailsFormValidator,
   clientDetailsFormatter,
-  {
-    buildClientNameDobView: buildClientNameDobViewUseCase,
-    buildClientHomeAddressView: buildClientHomeAddressViewUseCase,
-    buildCorrespondenceAddressSourceView:
-      buildCorrespondenceAddressSourceViewUseCase,
-    buildCorrespondenceAddressView: buildCorrespondenceAddressViewUseCase,
-    buildCorrespondenceRecipientView: buildCorrespondenceRecipientViewUseCase,
-    updateCorrespondenceRecipient: updateCorrespondenceRecipientUseCase,
-    buildPreviousApplicationView: buildPreviousApplicationViewUseCase,
-  },
 );
 
 const deceasedDetailsFormValidator = new DeceasedDetailsValidator();
-const buildDeceasedDetailsViewUseCase = new BuildDeceasedDetailsViewUseCase();
 const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(
   deceasedDetailsFormValidator,
-  {
-    buildDeceasedDetailsView: buildDeceasedDetailsViewUseCase,
-  },
 );
 
 const proceedingsFormatter = new Formatter();
 const proceedingsValidator = new ProceedingsValidator();
-const buildProceedingsSelectionViewUseCase =
-  new BuildProceedingsSelectionViewUseCase(proceedingsFormatter);
-const addProceedingUseCase = new AddProceedingUseCase();
-const removeProceedingUseCase = new RemoveProceedingUseCase();
 const proceedingsAdaptor = new ProceedingsAdaptor(
   proceedingsValidator,
   proceedingsFormatter,
-  {
-    buildProceedingsSelectionView: buildProceedingsSelectionViewUseCase,
-    addProceeding: addProceedingUseCase,
-    removeProceeding: removeProceedingUseCase,
-  },
 );
 
 const publicAuthorityFormatter = new Formatter();
 const publicAuthorityValidator = new PublicAuthorityValidator();
-const buildPublicAuthoritySelectionViewUseCase =
-  new BuildPublicAuthoritySelectionViewUseCase(publicAuthorityFormatter);
-const addPublicAuthorityUseCase = new AddPublicAuthorityUseCase();
-const removePublicAuthorityUseCase = new RemovePublicAuthorityUseCase();
 const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
   publicAuthorityValidator,
   publicAuthorityFormatter,
-  {
-    buildPublicAuthoritySelectionView: buildPublicAuthoritySelectionViewUseCase,
-    addPublicAuthority: addPublicAuthorityUseCase,
-    removePublicAuthority: removePublicAuthorityUseCase,
-  },
 );
 
 const submitApplicationSource = new SubmitApplicationAdaptor(
@@ -192,22 +129,10 @@ const submitApplicationSource = new SubmitApplicationAdaptor(
 
 const confirmationFormatter = new Formatter();
 const sessionHelper = new SessionHelper();
-const buildCheckYourAnswersUseCase = new BuildCheckYourAnswersUseCase(
-  confirmationFormatter,
-);
-const validateClientDeclarationUseCase = new ValidateClientDeclarationUseCase();
-const submitApplicationUseCase = new SubmitApplicationUseCase(
-  submitApplicationSource,
-);
 const confirmationAdaptor = new ConfirmationAdaptor(
   confirmationFormatter,
   submitApplicationSource,
   sessionHelper,
-  {
-    buildCheckYourAnswers: buildCheckYourAnswersUseCase,
-    validateClientDeclaration: validateClientDeclarationUseCase,
-    submitApplication: submitApplicationUseCase,
-  },
 );
 
 indexRouter.use(

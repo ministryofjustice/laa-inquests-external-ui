@@ -33,7 +33,7 @@ export class ProceedingsAdaptor {
     this.formatter = formatter;
     this.buildProceedingsSelectionViewUseCase =
       useCases?.buildProceedingsSelectionView ??
-      new BuildProceedingsSelectionViewUseCase(formatter);
+      new BuildProceedingsSelectionViewUseCase();
     this.addProceedingUseCase =
       useCases?.addProceeding ?? new AddProceedingUseCase();
     this.removeProceedingUseCase =
@@ -49,9 +49,13 @@ export class ProceedingsAdaptor {
 
     res.render("apply/proceedings/add-proceedings", {
       csrfToken,
-      proceedingOptions: selectionView.proceedingOptions,
+      proceedingOptions: this.formatter.formatOptionsIntoList(
+        selectionView.availableProceedings,
+      ),
       proceedingInput: req.session.proceedingInput,
-      selectedProceedings: selectionView.selectedProceedings,
+      selectedProceedings: this.formatter.formatSelectedIntoTableRows(
+        selectionView.selectedProceedings,
+      ),
     });
   }
 
@@ -87,9 +91,13 @@ export class ProceedingsAdaptor {
 
       const renderOptions = {
         csrfToken,
-        proceedingOptions: selectionView.proceedingOptions,
+        proceedingOptions: this.formatter.formatOptionsIntoList(
+          selectionView.availableProceedings,
+        ),
         proceedingOption: req.session.proceedingOption,
-        selectedProceedings: selectionView.selectedProceedings,
+        selectedProceedings: this.formatter.formatSelectedIntoTableRows(
+          selectionView.selectedProceedings,
+        ),
         errorSummaries: proceedingErrors,
       };
 
@@ -126,7 +134,9 @@ export class ProceedingsAdaptor {
 
       const renderOptions = {
         csrfToken,
-        selectedProceedings: selectionView.selectedProceedings,
+        selectedProceedings: this.formatter.formatSelectedIntoTableRows(
+          selectionView.selectedProceedings,
+        ),
         successMessage,
       };
       res.render("apply/proceedings/confirmation", renderOptions);

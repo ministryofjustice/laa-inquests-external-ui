@@ -1,10 +1,14 @@
 import type { Request, Response } from "express";
 import type { Formatter } from "#src/utils/Formatter.js";
+import { CORRESPONDENCE_ADDRESS_SOURCE } from "#src/infrastructure/locales/constants.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 import type { ClientDeclarationFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
-import { BuildCheckYourAnswersUseCase } from "#src/use-cases/apply/confirmation/BuildCheckYourAnswers.useCase.js";
+import {
+  BuildCheckYourAnswersUseCase,
+  type BuildCheckYourAnswersOutput,
+} from "#src/use-cases/apply/confirmation/BuildCheckYourAnswers.useCase.js";
 import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
 
@@ -15,6 +19,7 @@ interface ConfirmationUseCases {
 }
 
 export class ConfirmationAdaptor {
+  formatter: Formatter;
   sessionHelper: SessionHelper;
   buildCheckYourAnswersUseCase: BuildCheckYourAnswersUseCase;
   validateClientDeclarationUseCase: ValidateClientDeclarationUseCase;
@@ -27,8 +32,7 @@ export class ConfirmationAdaptor {
     useCases?: Partial<ConfirmationUseCases>,
   ) {
     const buildCheckYourAnswersUseCase =
-      useCases?.buildCheckYourAnswers ??
-      new BuildCheckYourAnswersUseCase(formatter);
+      useCases?.buildCheckYourAnswers ?? new BuildCheckYourAnswersUseCase();
     const validateClientDeclarationUseCase =
       useCases?.validateClientDeclaration ??
       new ValidateClientDeclarationUseCase();
@@ -36,6 +40,7 @@ export class ConfirmationAdaptor {
       useCases?.submitApplication ??
       new SubmitApplicationUseCase(applySubmitPort);
 
+    this.formatter = formatter;
     this.sessionHelper = sessionHelper;
     this.buildCheckYourAnswersUseCase = buildCheckYourAnswersUseCase;
     this.validateClientDeclarationUseCase = validateClientDeclarationUseCase;
@@ -50,10 +55,12 @@ export class ConfirmationAdaptor {
     const confirmationState = this.#getConfirmationSessionState(req);
     const checkYourAnswersData =
       this.buildCheckYourAnswersUseCase.execute(confirmationState);
+    const formattedCheckYourAnswersData =
+      this.#toCheckYourAnswersViewModel(checkYourAnswersData);
 
     res.render("apply/check-your-answers", {
       csrfToken,
-      ...checkYourAnswersData,
+      ...formattedCheckYourAnswersData,
     });
   }
 
@@ -99,6 +106,8 @@ export class ConfirmationAdaptor {
 
     const { session } = req;
     const confirmationState = this.#getConfirmationSessionState(req);
+    // COPILOT TODO: There shouldn't be 2 usecase calls within the same presenter call. They should happen together in
+    //  the same one
     const submitResult =
       await this.submitApplicationUseCase.execute(confirmationState);
 
@@ -145,6 +154,7 @@ export class ConfirmationAdaptor {
   }
 
   #getClientState(session: Request["session"]): ConfirmationSessionState {
+    // COPILOT TODO: This is a little gross, can we make it feel more understandable. I particularly don't like where the assignment is going over multiple lines
     return {
       clientFirstName: this.#getStringValue(session.clientFirstName),
       clientLastName: this.#getStringValue(session.clientLastName),
@@ -213,5 +223,144 @@ export class ConfirmationAdaptor {
 
   #getStringValue(value: unknown): string | undefined {
     return typeof value === "string" ? value : undefined;
+  }
+
+  #toCheckYourAnswersViewModel(data: BuildCheckYourAnswersOutput): {
+    client: {
+      clientFirstName: string;
+      clientLastName: string;
+      clientDob: string;
+      clientAddress: string;
+      clientCorrespondenceAddress: string;
+      clientCorrespondenceRecipient: string;
+    };
+    deceasedDetails: {
+      deceasedFirstName: string;
+      deceasedLastName: string;
+      dateOfDeath: string;
+      deceasedClientRelationship: string;
+      deceasedCoronerReference: string;
+    };
+    publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
+  } {
+    const clientAddress = this.#getClientAddressSummary(data);
+    const clientPostcode = this.#getClientPostcodeSummary(data);
+
+    return {
+      client: {
+        clientFirstName: data.client.clientFirstName ?? "",
+        clientLastName: data.client.clientLastName ?? "",
+        clientDob: this.#createDateString(
+          data.client.clientDobDay,
+          data.client.clientDobMonth,
+          data.client.clientDobYear,
+        ),
+        clientAddress: `${clientAddress} ${clientPostcode}`,
+        clientCorrespondenceAddress:
+          this.#getClientCorrespondenceAddressSummary(data),
+        clientCorrespondenceRecipient:
+          data.client.clientCorrespondenceRecipient?.recipientName ??
+          "Correspondence will be addressed to the client",
+      },
+      deceasedDetails: {
+        deceasedFirstName: data.deceasedDetails.deceasedFirstName ?? "",
+        deceasedLastName: data.deceasedDetails.deceasedLastName ?? "",
+        dateOfDeath: this.#createDateString(
+          data.deceasedDetails.dateOfDeathDay,
+          data.deceasedDetails.dateOfDeathMonth,
+          data.deceasedDetails.dateOfDeathYear,
+        ),
+        deceasedClientRelationship:
+          data.deceasedDetails.deceasedClientRelationship ?? "",
+        deceasedCoronerReference:
+          data.deceasedDetails.deceasedCoronerReference ?? "",
+      },
+      publicAuthorities: this.formatter.formatIntoTableRows(
+        data.publicAuthorities,
+      ),
+    };
+  }
+
+  #createDateString(day?: string, month?: string, year?: string): string {
+    return typeof day === "string" &&
+      typeof month === "string" &&
+      typeof year === "string"
+      ? `${day}/${month}/${year}`
+      : "";
+  }
+
+  #createAddressString(
+    addressLine1?: string,
+    addressLine2?: string,
+    townOrCity?: string,
+    county?: string,
+  ): string {
+    return `${addressLine1 ?? ""}${addressLine2 ?? " "} ${townOrCity ?? ""} ${county ?? ""}`;
+  }
+
+  #getClientAddressSummary(data: BuildCheckYourAnswersOutput): string {
+    const { client } = data;
+    const { clientHasNoFixedAbode, clientHomeAddress } = client;
+
+    if (clientHasNoFixedAbode === true) {
+      return "No fixed abode";
+    }
+
+    if (clientHomeAddress === null || clientHomeAddress === undefined) {
+      return "";
+    }
+
+    return this.#createAddressString(
+      clientHomeAddress.addressLine1,
+      clientHomeAddress.addressLine2 ?? undefined,
+      clientHomeAddress.townOrCity,
+      clientHomeAddress.county ?? undefined,
+    );
+  }
+
+  #getClientPostcodeSummary(data: BuildCheckYourAnswersOutput): string {
+    const { client } = data;
+    const { clientHasNoFixedAbode, clientHomeAddress } = client;
+
+    if (clientHasNoFixedAbode === true) {
+      return "";
+    }
+
+    if (clientHomeAddress === null || clientHomeAddress === undefined) {
+      return "";
+    }
+
+    return clientHomeAddress.postcode;
+  }
+
+  #getClientCorrespondenceAddressSummary(
+    data: BuildCheckYourAnswersOutput,
+  ): string {
+    const { client } = data;
+    const {
+      clientCorrespondenceAddressSource: source,
+      clientCorrespondenceAddress: correspondenceAddress,
+    } = client;
+
+    if (source === CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS) {
+      return "Same as client's home address";
+    }
+
+    if (source === CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS) {
+      return "My office address";
+    }
+
+    if (correspondenceAddress === null || correspondenceAddress === undefined) {
+      return "";
+    }
+
+    const addressString = this.#createAddressString(
+      correspondenceAddress.addressLine1,
+      correspondenceAddress.addressLine2 ?? undefined,
+      correspondenceAddress.townOrCity,
+      correspondenceAddress.county ?? undefined,
+    );
+
+    return `${addressString} ${correspondenceAddress.postcode}`.trim();
   }
 }

@@ -33,7 +33,7 @@ export class PublicAuthorityAdaptor {
     this.formatter = formatter;
     this.buildPublicAuthoritySelectionViewUseCase =
       useCases?.buildPublicAuthoritySelectionView ??
-      new BuildPublicAuthoritySelectionViewUseCase(formatter);
+      new BuildPublicAuthoritySelectionViewUseCase();
     this.addPublicAuthorityUseCase =
       useCases?.addPublicAuthority ?? new AddPublicAuthorityUseCase();
     this.removePublicAuthorityUseCase =
@@ -53,10 +53,16 @@ export class PublicAuthorityAdaptor {
 
     res.render("apply/public-authority/add-public-authority", {
       csrfToken,
-      publicAuthorityOptions: selectionView.publicAuthorityOptions,
+      publicAuthorityOptions:
+        this.formatter.formatPublicAuthorityOptionsIntoList(
+          selectionView.availablePublicAuthorities,
+        ),
       publicAuthorityOption: req.session.publicAuthorityOption,
-      selectedPublicAuthorities: selectionView.selectedPublicAuthorities,
-      isAddingAnother: selectionView.isAddingAnother,
+      selectedPublicAuthorities: this.formatter.formatIntoTableRows(
+        selectionView.selectedPublicAuthorities,
+      ),
+      isAddingAnother:
+        selectionView.selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
     });
   }
 
@@ -94,11 +100,17 @@ export class PublicAuthorityAdaptor {
 
       res.render("apply/public-authority/add-public-authority", {
         csrfToken,
-        publicAuthorityOptions: selectionView.publicAuthorityOptions,
+        publicAuthorityOptions:
+          this.formatter.formatPublicAuthorityOptionsIntoList(
+            selectionView.availablePublicAuthorities,
+          ),
         publicAuthorityOption: req.session.publicAuthorityOption,
-        selectedPublicAuthorities: selectionView.selectedPublicAuthorities,
+        selectedPublicAuthorities: this.formatter.formatIntoTableRows(
+          selectionView.selectedPublicAuthorities,
+        ),
         errorSummaries: errors,
-        isAddingAnother: selectionView.isAddingAnother,
+        isAddingAnother:
+          selectionView.selectedPublicAuthorities.length > EMPTY_ARR_LENGTH,
       });
     } else {
       const { data } = addPublicAuthorityResult;
@@ -132,7 +144,9 @@ export class PublicAuthorityAdaptor {
 
       res.render("apply/public-authority/confirmation", {
         csrfToken,
-        selectedPublicAuthorities: selectionView.selectedPublicAuthorities,
+        selectedPublicAuthorities: this.formatter.formatIntoTableRows(
+          selectionView.selectedPublicAuthorities,
+        ),
         successMessage,
       });
     }

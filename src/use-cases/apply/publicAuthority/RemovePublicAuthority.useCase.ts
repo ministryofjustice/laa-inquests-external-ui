@@ -31,6 +31,7 @@ export class RemovePublicAuthorityUseCase {
           (publicAuthority) =>
             publicAuthority.publicAuthorityId !== publicAuthorityId,
         ),
+        // COPILOT TODO: success messages (or error messages) should not be defined in the use case, that's in the presenter
         successMessage: "Public authority has been removed",
       },
     };
