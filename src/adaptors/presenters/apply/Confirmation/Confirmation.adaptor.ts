@@ -158,6 +158,10 @@ export class ConfirmationAdaptor {
       deceased: this.#buildDeceasedForSubmit(req),
       proceedings: this.#buildProceedingsForSubmit(req),
       publicBodies: this.#buildPublicBodiesForSubmit(req),
+      provider: {
+        firmCode: req.session.firmCode!,
+        officeId: req.session.officeId!,
+      },
     };
 
     const submitBody = SubmitApplicationRequestSchema.parse(
