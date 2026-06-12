@@ -17,7 +17,12 @@ export class MockAuthAdaptor implements AuthPort {
   }
 
   async acquireTokenByCode(code: string): Promise<AuthTokenResult> {
-    return await Promise.resolve({ userId: code, userName: "Test User" });
+    return await Promise.resolve({
+      userId: code,
+      userName: "Test User",
+      firmCode: "0A123B",
+      officeId: "001",
+    });
   }
 }
 

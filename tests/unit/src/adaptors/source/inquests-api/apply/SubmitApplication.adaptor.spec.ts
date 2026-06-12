@@ -57,6 +57,10 @@ describe("SubmitApplicationAdaptor", () => {
         },
         proceedings: selectedProceedings,
         publicBodies: selectedPublicAuthorities,
+        provider: {
+          firmCode: "0A123B",
+          officeId: "001",
+        },
       };
 
       const applicationResponse =

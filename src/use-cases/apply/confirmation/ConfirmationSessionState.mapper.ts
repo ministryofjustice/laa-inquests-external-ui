@@ -11,6 +11,8 @@ export class ConfirmationSessionStateMapper {
     return {
       ...this.#mapClientState(session),
       ...this.#mapDeceasedState(session),
+      firmCode: getStringValue(session.firmCode),
+      officeId: getStringValue(session.officeId),
       selectedProceedings: Array.isArray(session.selectedProceedings)
         ? session.selectedProceedings
         : undefined,

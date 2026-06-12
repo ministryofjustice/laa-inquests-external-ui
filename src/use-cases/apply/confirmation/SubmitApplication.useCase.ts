@@ -96,6 +96,10 @@ export class SubmitApplicationUseCase {
         deceased: this.#buildDeceasedForSubmit(state),
         proceedings: this.#buildProceedingsForSubmit(state),
         publicBodies: this.#buildPublicBodiesForSubmit(state),
+        provider: {
+          firmCode: state.firmCode!,
+          officeId: state.officeId!,
+        },
       };
 
       const parseRequestResult = SubmitApplicationRequestSchema.safeParse(

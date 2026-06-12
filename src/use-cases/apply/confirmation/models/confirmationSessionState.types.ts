@@ -32,4 +32,6 @@ export interface ConfirmationSessionState {
   deceasedFurtherInformation?: string;
   selectedProceedings?: Proceeding[];
   selectedPublicAuthorities?: PublicAuthority[];
+  firmCode?: string;
+  officeId?: string;
 }
