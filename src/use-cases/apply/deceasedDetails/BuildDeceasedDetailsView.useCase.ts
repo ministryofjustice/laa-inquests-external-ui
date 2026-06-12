@@ -14,6 +14,7 @@ interface BuildDeceasedDetailsViewOutput {
 
 export class BuildDeceasedDetailsViewUseCase {
   execute(
+    //   COPILOT TODO: I don't want this called step, I think it could be called "detail" or similar
     step: DeceasedDetailsStep,
     state: DeceasedDetailsSessionState,
   ): BuildDeceasedDetailsViewOutput {

@@ -48,18 +48,16 @@ export class ClientDetailsAdaptor {
     formatter: ClientDetailsFormatter = new ClientDetailsFormatter(),
     useCases?: Partial<ClientDetailsUseCases>,
   ) {
+    // COPILOT TODO: This is a different pattern to the other adaptors. Choose one.
     const defaultUseCases: ClientDetailsUseCases = {
       buildClientNameDobView: new BuildClientNameDobViewUseCase(),
-      buildClientHomeAddressView: new BuildClientHomeAddressViewUseCase(
-        formatter,
-      ),
+      buildClientHomeAddressView: new BuildClientHomeAddressViewUseCase(),
       buildCorrespondenceAddressSourceView:
         new BuildCorrespondenceAddressSourceViewUseCase(),
-      buildCorrespondenceAddressView: new BuildCorrespondenceAddressViewUseCase(
-        formatter,
-      ),
+      buildCorrespondenceAddressView:
+        new BuildCorrespondenceAddressViewUseCase(),
       buildCorrespondenceRecipientView:
-        new BuildCorrespondenceRecipientViewUseCase(formatter),
+        new BuildCorrespondenceRecipientViewUseCase(),
       updateCorrespondenceRecipient: new UpdateCorrespondenceRecipientUseCase(),
       buildPreviousApplicationView: new BuildPreviousApplicationViewUseCase(),
     };
@@ -139,6 +137,7 @@ export class ClientDetailsAdaptor {
     req.session.clientDobMonth = dobMonth;
     req.session.clientDobYear = dobYear;
 
+    // COPILOT TODO: This should be taking place within a use case
     const nameErrors = this.formValidator.validateClientName(req.body);
     const dobErrors = this.formValidator.validateClientDob(req.body);
 
@@ -190,6 +189,7 @@ export class ClientDetailsAdaptor {
     req.session.clientHasNino = hasNino;
     req.session.clientNino = hasNino === "true" ? ninoInput : null;
 
+    // COPILOT TODO: Validation should be taking place in a use case
     const ninoErrors = this.formValidator.validateNino(req.body);
     if (Object.keys(ninoErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/client-details/nino", {
@@ -214,10 +214,16 @@ export class ClientDetailsAdaptor {
       clientHomeAddress: this.#getClientHomeAddress(req),
       clientHasNoFixedAbode: this.#isClientNoFixedAbode(req),
     });
+    const homeAddressClient = {
+      ...this.formatter.toHomeAddressViewModel(
+        homeAddressView.clientHomeAddress,
+      ),
+      hasNoFixedAbode: homeAddressView.clientHasNoFixedAbode,
+    };
 
     res.render("apply/client-details/home-address", {
       csrfToken,
-      client: homeAddressView.client,
+      client: homeAddressClient,
     });
   }
 
@@ -264,12 +270,18 @@ export class ClientDetailsAdaptor {
       clientHomeAddress: homeAddress,
       clientHasNoFixedAbode: false,
     });
+    const homeAddressClient = {
+      ...this.formatter.toHomeAddressViewModel(
+        homeAddressView.clientHomeAddress,
+      ),
+      hasNoFixedAbode: homeAddressView.clientHasNoFixedAbode,
+    };
 
     if (Object.keys(homeAddressErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/client-details/home-address", {
         csrfToken,
         errorSummaries: homeAddressErrors,
-        client: homeAddressView.client,
+        client: homeAddressClient,
       });
     } else {
       res.redirect("/apply/client-details/correspondence-address-source");
@@ -359,7 +371,9 @@ export class ClientDetailsAdaptor {
 
     res.render("apply/client-details/correspondence-address", {
       csrfToken,
-      client: correspondenceAddressView.client,
+      client: this.formatter.toCorrespondenceAddressViewModel(
+        correspondenceAddressView.clientCorrespondenceAddress,
+      ),
     });
   }
 
@@ -385,7 +399,9 @@ export class ClientDetailsAdaptor {
       res.render("apply/client-details/correspondence-address", {
         csrfToken,
         errorSummaries: correspondenceAddressErrors,
-        client: correspondenceAddressView.client,
+        client: this.formatter.toCorrespondenceAddressViewModel(
+          correspondenceAddressView.clientCorrespondenceAddress,
+        ),
       });
     } else {
       res.redirect("/apply/client-details/correspondence-recipient");
@@ -421,10 +437,22 @@ export class ClientDetailsAdaptor {
         },
       );
 
+    const correspondenceRecipientClient =
+      this.formatter.buildCorrespondenceRecipientViewModel(
+        {
+          session: {
+            clientCorrespondenceRecipient:
+              correspondenceRecipientView.clientCorrespondenceRecipient,
+          },
+        },
+        correspondenceRecipientView.recipient,
+        correspondenceRecipientView.params,
+      );
+
     res.render("apply/client-details/correspondence-recipient", {
       csrfToken,
       errorSummaries: params?.errorSummaries,
-      client: correspondenceRecipientView.client,
+      client: correspondenceRecipientClient,
     });
   }
 

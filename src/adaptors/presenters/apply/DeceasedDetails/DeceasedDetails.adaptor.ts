@@ -408,6 +408,7 @@ export class DeceasedDetailsAdaptor {
     }
   }
 
+  // COPILOT TODO: I've seen this repeated a lot. Could this be centralised in the use case layer somewhere?
   #getStringValue(value: unknown): string | undefined {
     return typeof value === "string" ? value : undefined;
   }
