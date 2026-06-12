@@ -9,6 +9,7 @@ import {
   BuildCheckYourAnswersUseCase,
   type BuildCheckYourAnswersOutput,
 } from "#src/use-cases/apply/confirmation/BuildCheckYourAnswers.useCase.js";
+import { ConfirmationSessionStateMapper } from "#src/use-cases/apply/confirmation/ConfirmationSessionState.mapper.js";
 import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
 
@@ -16,6 +17,7 @@ interface ConfirmationUseCases {
   buildCheckYourAnswers: BuildCheckYourAnswersUseCase;
   validateClientDeclaration: ValidateClientDeclarationUseCase;
   submitApplication: SubmitApplicationUseCase;
+  confirmationSessionStateMapper: ConfirmationSessionStateMapper;
 }
 
 export class ConfirmationAdaptor {
@@ -24,6 +26,7 @@ export class ConfirmationAdaptor {
   buildCheckYourAnswersUseCase: BuildCheckYourAnswersUseCase;
   validateClientDeclarationUseCase: ValidateClientDeclarationUseCase;
   submitApplicationUseCase: SubmitApplicationUseCase;
+  confirmationSessionStateMapper: ConfirmationSessionStateMapper;
 
   constructor(
     formatter: Formatter,
@@ -31,20 +34,48 @@ export class ConfirmationAdaptor {
     sessionHelper: SessionHelper,
     useCases?: Partial<ConfirmationUseCases>,
   ) {
-    const buildCheckYourAnswersUseCase =
-      useCases?.buildCheckYourAnswers ?? new BuildCheckYourAnswersUseCase();
-    const validateClientDeclarationUseCase =
-      useCases?.validateClientDeclaration ??
-      new ValidateClientDeclarationUseCase();
-    const submitApplicationUseCase =
-      useCases?.submitApplication ??
-      new SubmitApplicationUseCase(applySubmitPort);
+    const resolvedUseCases = this.#resolveUseCases(applySubmitPort, useCases);
+    const {
+      buildCheckYourAnswers,
+      validateClientDeclaration,
+      submitApplication,
+      confirmationSessionStateMapper,
+    } = resolvedUseCases;
 
     this.formatter = formatter;
     this.sessionHelper = sessionHelper;
-    this.buildCheckYourAnswersUseCase = buildCheckYourAnswersUseCase;
-    this.validateClientDeclarationUseCase = validateClientDeclarationUseCase;
-    this.submitApplicationUseCase = submitApplicationUseCase;
+    this.buildCheckYourAnswersUseCase = buildCheckYourAnswers;
+    this.validateClientDeclarationUseCase = validateClientDeclaration;
+    this.submitApplicationUseCase = submitApplication;
+    this.confirmationSessionStateMapper = confirmationSessionStateMapper;
+  }
+
+  #resolveUseCases(
+    applySubmitPort: ApplySubmitPort,
+    useCases?: Partial<ConfirmationUseCases>,
+  ): ConfirmationUseCases {
+    const defaultValidateClientDeclarationUseCase =
+      new ValidateClientDeclarationUseCase();
+    const defaultSubmitApplicationUseCase = new SubmitApplicationUseCase(
+      applySubmitPort,
+    );
+    const defaultUseCases: ConfirmationUseCases = {
+      buildCheckYourAnswers: new BuildCheckYourAnswersUseCase(),
+      validateClientDeclaration: defaultValidateClientDeclarationUseCase,
+      submitApplication: defaultSubmitApplicationUseCase,
+      confirmationSessionStateMapper: new ConfirmationSessionStateMapper(),
+    };
+
+    if (useCases === undefined) {
+      return defaultUseCases;
+    }
+
+    const resolvedUseCases: ConfirmationUseCases = {
+      ...defaultUseCases,
+      ...useCases,
+    };
+
+    return resolvedUseCases;
   }
 
   renderCheckYourAnswers(req: Request, res: Response): void {
@@ -84,11 +115,12 @@ export class ConfirmationAdaptor {
   ): Promise<void> {
     const { "client-declaration-confirmation": declarationConfirmation } =
       req.body as ClientDeclarationFormData;
-    const validationResult = this.validateClientDeclarationUseCase.execute(
+    const sessionState = this.#getConfirmationSessionState(req);
+    const result = this.validateClientDeclarationUseCase.execute(
       declarationConfirmation,
     );
 
-    if (validationResult.status === "VALIDATION_FAILED") {
+    if (result.status === "VALIDATION_FAILED") {
       const {
         locals: { csrfToken },
       } = res;
@@ -99,19 +131,18 @@ export class ConfirmationAdaptor {
           firstName: req.session.clientFirstName ?? "",
           lastName: req.session.clientLastName ?? "",
         },
-        errorSummaries: validationResult.errorSummaries,
+        errorSummaries: result.errorSummaries,
       });
       return;
     }
 
     const { session } = req;
-    const confirmationState = this.#getConfirmationSessionState(req);
-    // COPILOT TODO: There shouldn't be 2 usecase calls within the same presenter call. They should happen together in
-    //  the same one
-    const submitResult =
-      await this.submitApplicationUseCase.execute(confirmationState);
-
-    if (submitResult.status === "SUCCESS") {
+    if (result.status === "SUCCESS") {
+      const submitResult =
+        await this.submitApplicationUseCase.execute(sessionState);
+      if (submitResult.status !== "SUCCESS") {
+        return;
+      }
       this.sessionHelper.clearApplyFormData(req);
       session.applicationReferenceNumber =
         submitResult.data?.laaReference.toString() ?? "";
@@ -137,92 +168,7 @@ export class ConfirmationAdaptor {
   }
 
   #getConfirmationSessionState(req: Request): ConfirmationSessionState {
-    const { session } = req;
-
-    return {
-      ...this.#getClientState(session),
-      ...this.#getDeceasedState(session),
-      selectedProceedings: Array.isArray(session.selectedProceedings)
-        ? session.selectedProceedings
-        : undefined,
-      selectedPublicAuthorities: Array.isArray(
-        session.selectedPublicAuthorities,
-      )
-        ? session.selectedPublicAuthorities
-        : undefined,
-    };
-  }
-
-  #getClientState(session: Request["session"]): ConfirmationSessionState {
-    // COPILOT TODO: This is a little gross, can we make it feel more understandable. I particularly don't like where the assignment is going over multiple lines
-    return {
-      clientFirstName: this.#getStringValue(session.clientFirstName),
-      clientLastName: this.#getStringValue(session.clientLastName),
-      clientLastNameAtBirth:
-        typeof session.clientLastNameAtBirth === "string" ||
-        session.clientLastNameAtBirth === null
-          ? session.clientLastNameAtBirth
-          : undefined,
-      clientDobDay: this.#getStringValue(session.clientDobDay),
-      clientDobMonth: this.#getStringValue(session.clientDobMonth),
-      clientDobYear: this.#getStringValue(session.clientDobYear),
-      clientNino:
-        typeof session.clientNino === "string" || session.clientNino === null
-          ? session.clientNino
-          : undefined,
-      clientHomeAddress: session.clientHomeAddress,
-      clientCorrespondenceAddress: session.clientCorrespondenceAddress,
-      clientCorrespondenceAddressSource: this.#getStringValue(
-        session.clientCorrespondenceAddressSource,
-      ) as
-        | ConfirmationSessionState["clientCorrespondenceAddressSource"]
-        | undefined,
-      clientCorrespondenceRecipient:
-        (typeof session.clientCorrespondenceRecipient === "object" &&
-          session.clientCorrespondenceRecipient !== null) ||
-        session.clientCorrespondenceRecipient === null
-          ? session.clientCorrespondenceRecipient
-          : undefined,
-      clientHasNoFixedAbode: session.clientHasNoFixedAbode === true,
-    };
-  }
-
-  #getDeceasedState(session: Request["session"]): ConfirmationSessionState {
-    return {
-      deceasedFirstName: this.#getStringValue(session.deceasedFirstName),
-      deceasedLastName: this.#getStringValue(session.deceasedLastName),
-      deceasedDateOfBirthDay: this.#getStringValue(
-        session.deceasedDateOfBirthDay,
-      ),
-      deceasedDateOfBirthMonth: this.#getStringValue(
-        session.deceasedDateOfBirthMonth,
-      ),
-      deceasedDateOfBirthYear: this.#getStringValue(
-        session.deceasedDateOfBirthYear,
-      ),
-      deceasedDateOfDeathDay: this.#getStringValue(
-        session.deceasedDateOfDeathDay,
-      ),
-      deceasedDateOfDeathMonth: this.#getStringValue(
-        session.deceasedDateOfDeathMonth,
-      ),
-      deceasedDateOfDeathYear: this.#getStringValue(
-        session.deceasedDateOfDeathYear,
-      ),
-      deceasedClientRelationship: this.#getStringValue(
-        session.deceasedClientRelationship,
-      ),
-      deceasedCoronerReference: this.#getStringValue(
-        session.deceasedCoronerReference,
-      ),
-      deceasedFurtherInformation: this.#getStringValue(
-        session.deceasedFurtherInformation,
-      ),
-    };
-  }
-
-  #getStringValue(value: unknown): string | undefined {
-    return typeof value === "string" ? value : undefined;
+    return this.confirmationSessionStateMapper.map(req.session);
   }
 
   #toCheckYourAnswersViewModel(data: BuildCheckYourAnswersOutput): {

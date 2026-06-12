@@ -301,6 +301,10 @@ export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
 };
 
+export const PUBLIC_AUTHORITY_SUCCESS = {
+  REMOVED: "Public authority has been removed",
+};
+
 export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:
     "You need to confirm the declaration to submit this application",

@@ -21,6 +21,8 @@ import { BuildCorrespondenceAddressViewUseCase } from "#src/use-cases/apply/clie
 import { BuildCorrespondenceRecipientViewUseCase } from "#src/use-cases/apply/clientDetails/BuildCorrespondenceRecipientView.useCase.js";
 import { UpdateCorrespondenceRecipientUseCase } from "#src/use-cases/apply/clientDetails/UpdateCorrespondenceRecipient.useCase.js";
 import { BuildPreviousApplicationViewUseCase } from "#src/use-cases/apply/clientDetails/BuildPreviousApplicationView.useCase.js";
+import { ProcessClientDetailsJourneyUseCase } from "#src/use-cases/apply/clientDetails/ProcessClientDetailsJourney.useCase.js";
+import { getStringValue } from "#src/utils/sessionValue.js";
 
 interface ClientDetailsUseCases {
   buildClientNameDobView: BuildClientNameDobViewUseCase;
@@ -30,6 +32,7 @@ interface ClientDetailsUseCases {
   buildCorrespondenceRecipientView: BuildCorrespondenceRecipientViewUseCase;
   updateCorrespondenceRecipient: UpdateCorrespondenceRecipientUseCase;
   buildPreviousApplicationView: BuildPreviousApplicationViewUseCase;
+  processClientDetailsJourney: ProcessClientDetailsJourneyUseCase;
 }
 
 export class ClientDetailsAdaptor {
@@ -42,29 +45,14 @@ export class ClientDetailsAdaptor {
   buildCorrespondenceRecipientViewUseCase: BuildCorrespondenceRecipientViewUseCase;
   updateCorrespondenceRecipientUseCase: UpdateCorrespondenceRecipientUseCase;
   buildPreviousApplicationViewUseCase: BuildPreviousApplicationViewUseCase;
+  processClientDetailsJourneyUseCase: ProcessClientDetailsJourneyUseCase;
 
   constructor(
     formValidator: ClientDetailsValidator,
     formatter: ClientDetailsFormatter = new ClientDetailsFormatter(),
     useCases?: Partial<ClientDetailsUseCases>,
   ) {
-    // COPILOT TODO: This is a different pattern to the other adaptors. Choose one.
-    const defaultUseCases: ClientDetailsUseCases = {
-      buildClientNameDobView: new BuildClientNameDobViewUseCase(),
-      buildClientHomeAddressView: new BuildClientHomeAddressViewUseCase(),
-      buildCorrespondenceAddressSourceView:
-        new BuildCorrespondenceAddressSourceViewUseCase(),
-      buildCorrespondenceAddressView:
-        new BuildCorrespondenceAddressViewUseCase(),
-      buildCorrespondenceRecipientView:
-        new BuildCorrespondenceRecipientViewUseCase(),
-      updateCorrespondenceRecipient: new UpdateCorrespondenceRecipientUseCase(),
-      buildPreviousApplicationView: new BuildPreviousApplicationViewUseCase(),
-    };
-    const resolvedUseCases = {
-      ...defaultUseCases,
-      ...useCases,
-    };
+    const resolvedUseCases = this.#resolveUseCases(formValidator, useCases);
     const {
       buildClientNameDobView,
       buildClientHomeAddressView,
@@ -73,6 +61,7 @@ export class ClientDetailsAdaptor {
       buildCorrespondenceRecipientView,
       updateCorrespondenceRecipient,
       buildPreviousApplicationView,
+      processClientDetailsJourney,
     } = resolvedUseCases;
 
     this.formValidator = formValidator;
@@ -86,6 +75,37 @@ export class ClientDetailsAdaptor {
       buildCorrespondenceRecipientView;
     this.updateCorrespondenceRecipientUseCase = updateCorrespondenceRecipient;
     this.buildPreviousApplicationViewUseCase = buildPreviousApplicationView;
+    this.processClientDetailsJourneyUseCase = processClientDetailsJourney;
+  }
+
+  #resolveUseCases(
+    formValidator: ClientDetailsValidator,
+    useCases?: Partial<ClientDetailsUseCases>,
+  ): ClientDetailsUseCases {
+    const defaultUseCases: ClientDetailsUseCases = {
+      buildClientNameDobView: new BuildClientNameDobViewUseCase(),
+      buildClientHomeAddressView: new BuildClientHomeAddressViewUseCase(),
+      buildCorrespondenceAddressSourceView:
+        new BuildCorrespondenceAddressSourceViewUseCase(),
+      buildCorrespondenceAddressView:
+        new BuildCorrespondenceAddressViewUseCase(),
+      buildCorrespondenceRecipientView:
+        new BuildCorrespondenceRecipientViewUseCase(),
+      updateCorrespondenceRecipient: new UpdateCorrespondenceRecipientUseCase(),
+      buildPreviousApplicationView: new BuildPreviousApplicationViewUseCase(),
+      processClientDetailsJourney: new ProcessClientDetailsJourneyUseCase(
+        formValidator,
+      ),
+    };
+
+    if (useCases === undefined) {
+      return defaultUseCases;
+    }
+
+    return {
+      ...defaultUseCases,
+      ...useCases,
+    };
   }
 
   renderNameForm(req: Request, res: Response): void {
@@ -94,15 +114,13 @@ export class ClientDetailsAdaptor {
     } = res;
 
     const nameDobView = this.buildClientNameDobViewUseCase.execute({
-      clientFirstName: this.#getStringValue(req.session.clientFirstName),
-      clientLastName: this.#getStringValue(req.session.clientLastName),
-      clientLastNameAtBirth: this.#getStringValue(
-        req.session.clientLastNameAtBirth,
-      ),
-      hasNameChanged: this.#getStringValue(req.session.hasNameChanged),
-      clientDobDay: this.#getStringValue(req.session.clientDobDay),
-      clientDobMonth: this.#getStringValue(req.session.clientDobMonth),
-      clientDobYear: this.#getStringValue(req.session.clientDobYear),
+      clientFirstName: getStringValue(req.session.clientFirstName),
+      clientLastName: getStringValue(req.session.clientLastName),
+      clientLastNameAtBirth: getStringValue(req.session.clientLastNameAtBirth),
+      hasNameChanged: getStringValue(req.session.hasNameChanged),
+      clientDobDay: getStringValue(req.session.clientDobDay),
+      clientDobMonth: getStringValue(req.session.clientDobMonth),
+      clientDobYear: getStringValue(req.session.clientDobYear),
     });
 
     res.render("apply/client-details/name-and-dob", {
@@ -137,29 +155,27 @@ export class ClientDetailsAdaptor {
     req.session.clientDobMonth = dobMonth;
     req.session.clientDobYear = dobYear;
 
-    // COPILOT TODO: This should be taking place within a use case
-    const nameErrors = this.formValidator.validateClientName(req.body);
-    const dobErrors = this.formValidator.validateClientDob(req.body);
+    const { errorSummaries } = this.processClientDetailsJourneyUseCase.execute({
+      step: "NAME_DOB",
+      formBody: req.body,
+    });
 
-    if (
-      Object.keys(nameErrors).length > EMPTY_ARR_LENGTH ||
-      Object.keys(dobErrors).length > EMPTY_ARR_LENGTH
-    ) {
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       const nameDobView = this.buildClientNameDobViewUseCase.execute({
-        clientFirstName: this.#getStringValue(req.session.clientFirstName),
-        clientLastName: this.#getStringValue(req.session.clientLastName),
-        clientLastNameAtBirth: this.#getStringValue(
+        clientFirstName: getStringValue(req.session.clientFirstName),
+        clientLastName: getStringValue(req.session.clientLastName),
+        clientLastNameAtBirth: getStringValue(
           req.session.clientLastNameAtBirth,
         ),
-        hasNameChanged: this.#getStringValue(req.session.hasNameChanged),
-        clientDobDay: this.#getStringValue(req.session.clientDobDay),
-        clientDobMonth: this.#getStringValue(req.session.clientDobMonth),
-        clientDobYear: this.#getStringValue(req.session.clientDobYear),
+        hasNameChanged: getStringValue(req.session.hasNameChanged),
+        clientDobDay: getStringValue(req.session.clientDobDay),
+        clientDobMonth: getStringValue(req.session.clientDobMonth),
+        clientDobYear: getStringValue(req.session.clientDobYear),
       });
 
       res.render("apply/client-details/name-and-dob", {
         csrfToken,
-        errorSummaries: { ...nameErrors, ...dobErrors },
+        errorSummaries,
         client: nameDobView.client,
       });
     } else {
@@ -189,8 +205,11 @@ export class ClientDetailsAdaptor {
     req.session.clientHasNino = hasNino;
     req.session.clientNino = hasNino === "true" ? ninoInput : null;
 
-    // COPILOT TODO: Validation should be taking place in a use case
-    const ninoErrors = this.formValidator.validateNino(req.body);
+    const { errorSummaries: ninoErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "NINO",
+        formBody: req.body,
+      });
     if (Object.keys(ninoErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/client-details/nino", {
         csrfToken,
@@ -265,7 +284,11 @@ export class ClientDetailsAdaptor {
 
     req.session.clientHomeAddress = homeAddress;
 
-    const homeAddressErrors = this.formValidator.validateHomeAddress(req.body);
+    const { errorSummaries: homeAddressErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "HOME_ADDRESS",
+        formBody: req.body,
+      });
     const homeAddressView = this.buildClientHomeAddressViewUseCase.execute({
       clientHomeAddress: homeAddress,
       clientHasNoFixedAbode: false,
@@ -315,10 +338,12 @@ export class ClientDetailsAdaptor {
       body: { "correspondence-address-source": correspondenceAddressSource },
     } = req;
 
-    const sourceErrors = this.formValidator.validateCorrespondenceAddressSource(
-      req.body,
-      this.#isClientNoFixedAbode(req),
-    );
+    const { errorSummaries: sourceErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "CORRESPONDENCE_ADDRESS_SOURCE",
+        formBody: req.body,
+        hasNoFixedAbode: this.#isClientNoFixedAbode(req),
+      });
 
     if (Object.keys(sourceErrors).length > EMPTY_ARR_LENGTH) {
       const correspondenceAddressSourceView =
@@ -387,8 +412,11 @@ export class ClientDetailsAdaptor {
     const correspondenceAddress =
       this.formatter.buildClientCorrespondenceAddress(req.body);
     req.session.clientCorrespondenceAddress = correspondenceAddress;
-    const correspondenceAddressErrors =
-      this.formValidator.validateCorrespondenceAddress(req.body);
+    const { errorSummaries: correspondenceAddressErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "CORRESPONDENCE_ADDRESS",
+        formBody: req.body,
+      });
 
     if (Object.keys(correspondenceAddressErrors).length > EMPTY_ARR_LENGTH) {
       const correspondenceAddressView =
@@ -468,9 +496,11 @@ export class ClientDetailsAdaptor {
       },
     } = req;
 
-    const recipientErrors = this.formValidator.validateCorrespondenceRecipient(
-      req.body,
-    );
+    const { errorSummaries: recipientErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "CORRESPONDENCE_RECIPIENT",
+        formBody: req.body,
+      });
 
     if (Object.keys(recipientErrors).length > EMPTY_ARR_LENGTH) {
       this.renderCorrespondenceRecipientForm(req, res, {
@@ -540,16 +570,19 @@ export class ClientDetailsAdaptor {
     req.session.prevLaaReferenceInput =
       hasPrevApplication === "true" ? prevLaaReferenceInput : null;
 
-    const prevApplicationRefErrors =
-      this.formValidator.validatePrevApplicationReference(req.body);
+    const { errorSummaries: prevApplicationRefErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "PREV_APPLICATION_REFERENCE",
+        formBody: req.body,
+      });
 
     if (Object.keys(prevApplicationRefErrors).length > EMPTY_ARR_LENGTH) {
       const previousApplicationView =
         this.buildPreviousApplicationViewUseCase.execute({
-          clientHasPrevApplication: this.#getStringValue(
+          clientHasPrevApplication: getStringValue(
             req.session.clientHasPrevApplication,
           ),
-          prevLaaReferenceInput: this.#getStringValue(
+          prevLaaReferenceInput: getStringValue(
             req.session.prevLaaReferenceInput,
           ),
         });
@@ -657,9 +690,5 @@ export class ClientDetailsAdaptor {
 
   #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {
     return req.session.clientHasNoFixedAbode === true;
-  }
-
-  #getStringValue(value: unknown): string | undefined {
-    return typeof value === "string" ? value : undefined;
   }
 }

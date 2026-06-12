@@ -1,5 +1,8 @@
 import type { Request, Response } from "express";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  EMPTY_ARR_LENGTH,
+  PUBLIC_AUTHORITY_SUCCESS,
+} from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
   PublicAuthorityValidator,
@@ -252,15 +255,17 @@ export class PublicAuthorityAdaptor {
 
     if (
       removePublicAuthorityResult.status === "SUCCESS" &&
-      removePublicAuthorityResult.data?.successMessage !== undefined
+      removePublicAuthorityResult.data !== undefined
     ) {
       const { data } = removePublicAuthorityResult;
       const {
         selectedPublicAuthorities: updatedPublicAuthorities,
-        successMessage,
+        hasRemovedPublicAuthority,
       } = data;
       req.session.selectedPublicAuthorities = updatedPublicAuthorities;
-      req.session.successMessage = successMessage;
+      req.session.successMessage = hasRemovedPublicAuthority
+        ? PUBLIC_AUTHORITY_SUCCESS.REMOVED
+        : undefined;
     }
 
     res.redirect("/apply/public-authority/confirmation");

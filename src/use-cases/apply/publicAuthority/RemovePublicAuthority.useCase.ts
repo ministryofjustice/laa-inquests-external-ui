@@ -4,7 +4,7 @@ import type { PublicAuthoritySessionState } from "#src/use-cases/apply/publicAut
 
 interface RemovePublicAuthorityOutput {
   selectedPublicAuthorities: PublicAuthority[];
-  successMessage?: string;
+  hasRemovedPublicAuthority: boolean;
 }
 
 export class RemovePublicAuthorityUseCase {
@@ -18,6 +18,7 @@ export class RemovePublicAuthorityUseCase {
         status: "SUCCESS",
         data: {
           selectedPublicAuthorities: state.selectedPublicAuthorities ?? [],
+          hasRemovedPublicAuthority: false,
         },
       };
     }
@@ -31,8 +32,7 @@ export class RemovePublicAuthorityUseCase {
           (publicAuthority) =>
             publicAuthority.publicAuthorityId !== publicAuthorityId,
         ),
-        // COPILOT TODO: success messages (or error messages) should not be defined in the use case, that's in the presenter
-        successMessage: "Public authority has been removed",
+        hasRemovedPublicAuthority: true,
       },
     };
   }

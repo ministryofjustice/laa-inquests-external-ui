@@ -5,6 +5,7 @@ import type { DeceasedDetailsFormData } from "../models/form.types.js";
 import type { DeceasedDetailsValidator } from "./DeceasedDetails.validator.js";
 import type { Request, Response } from "express";
 import { BuildDeceasedDetailsViewUseCase } from "#src/use-cases/apply/deceasedDetails/BuildDeceasedDetailsView.useCase.js";
+import { getStringValue } from "#src/utils/sessionValue.js";
 
 interface DeceasedDetailsUseCases {
   buildDeceasedDetailsView: BuildDeceasedDetailsViewUseCase;
@@ -39,8 +40,8 @@ export class DeceasedDetailsAdaptor {
       req.session.selectedProceedings,
     );
     const nameView = this.buildDeceasedDetailsViewUseCase.execute("name", {
-      deceasedFirstName: this.#getStringValue(req.session.deceasedFirstName),
-      deceasedLastName: this.#getStringValue(req.session.deceasedLastName),
+      deceasedFirstName: getStringValue(req.session.deceasedFirstName),
+      deceasedLastName: getStringValue(req.session.deceasedLastName),
     });
 
     res.render("apply/deceased-details/name", {
@@ -97,13 +98,13 @@ export class DeceasedDetailsAdaptor {
     const dateOfDeathView = this.buildDeceasedDetailsViewUseCase.execute(
       "dateOfDeath",
       {
-        deceasedDateOfDeathDay: this.#getStringValue(
+        deceasedDateOfDeathDay: getStringValue(
           req.session.deceasedDateOfDeathDay,
         ),
-        deceasedDateOfDeathMonth: this.#getStringValue(
+        deceasedDateOfDeathMonth: getStringValue(
           req.session.deceasedDateOfDeathMonth,
         ),
-        deceasedDateOfDeathYear: this.#getStringValue(
+        deceasedDateOfDeathYear: getStringValue(
           req.session.deceasedDateOfDeathYear,
         ),
       },
@@ -166,13 +167,13 @@ export class DeceasedDetailsAdaptor {
     const dateOfBirthView = this.buildDeceasedDetailsViewUseCase.execute(
       "dateOfBirth",
       {
-        deceasedDateOfBirthDay: this.#getStringValue(
+        deceasedDateOfBirthDay: getStringValue(
           req.session.deceasedDateOfBirthDay,
         ),
-        deceasedDateOfBirthMonth: this.#getStringValue(
+        deceasedDateOfBirthMonth: getStringValue(
           req.session.deceasedDateOfBirthMonth,
         ),
-        deceasedDateOfBirthYear: this.#getStringValue(
+        deceasedDateOfBirthYear: getStringValue(
           req.session.deceasedDateOfBirthYear,
         ),
       },
@@ -236,10 +237,10 @@ export class DeceasedDetailsAdaptor {
     const clientRelationshipView = this.buildDeceasedDetailsViewUseCase.execute(
       "clientRelationship",
       {
-        deceasedHasClientRelationship: this.#getStringValue(
+        deceasedHasClientRelationship: getStringValue(
           req.session.deceasedHasClientRelationship,
         ),
-        deceasedClientRelationship: this.#getStringValue(
+        deceasedClientRelationship: getStringValue(
           req.session.deceasedClientRelationship,
         ),
       },
@@ -298,7 +299,7 @@ export class DeceasedDetailsAdaptor {
     const coronerReferenceView = this.buildDeceasedDetailsViewUseCase.execute(
       "coronerReference",
       {
-        deceasedCoronerReference: this.#getStringValue(
+        deceasedCoronerReference: getStringValue(
           req.session.deceasedCoronerReference,
         ),
       },
@@ -354,10 +355,10 @@ export class DeceasedDetailsAdaptor {
     const furtherInformationView = this.buildDeceasedDetailsViewUseCase.execute(
       "furtherInformation",
       {
-        deceasedHasFurtherInformation: this.#getStringValue(
+        deceasedHasFurtherInformation: getStringValue(
           req.session.deceasedHasFurtherInformation,
         ),
-        deceasedFurtherInformation: this.#getStringValue(
+        deceasedFurtherInformation: getStringValue(
           req.session.deceasedFurtherInformation,
         ),
       },
@@ -406,10 +407,5 @@ export class DeceasedDetailsAdaptor {
     } else {
       res.redirect("/apply/public-authority");
     }
-  }
-
-  // COPILOT TODO: I've seen this repeated a lot. Could this be centralised in the use case layer somewhere?
-  #getStringValue(value: unknown): string | undefined {
-    return typeof value === "string" ? value : undefined;
   }
 }

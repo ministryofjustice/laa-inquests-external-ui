@@ -144,7 +144,8 @@ export class SubmitApplicationUseCase {
     client.hasNoFixedAbode = hasNoFixedAbode;
 
     const correspondenceAddressSource =
-      this.#getClientCorrespondenceAddressSource(state);
+      state.clientCorrespondenceAddressSource ??
+      CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS;
     client.correspondenceAddressSource = correspondenceAddressSource;
 
     const clientCorrespondenceAddress =
@@ -308,28 +309,5 @@ export class SubmitApplicationUseCase {
           CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION) &&
       typeof candidate.recipientName === "string"
     );
-  }
-
-  #getClientCorrespondenceAddressSource(
-    state: ConfirmationSessionState,
-  ): SubmitApplicationRequest["client"]["correspondenceAddressSource"] {
-    // COPILOT TODO: Is this function really necessary
-    const { clientCorrespondenceAddressSource } = state;
-
-    if (
-      clientCorrespondenceAddressSource ===
-      CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS
-    ) {
-      return CORRESPONDENCE_ADDRESS_SOURCE.USE_CLIENT_HOME_ADDRESS;
-    }
-
-    if (
-      clientCorrespondenceAddressSource ===
-      CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS
-    ) {
-      return CORRESPONDENCE_ADDRESS_SOURCE.USE_SPECIFIED_ADDRESS;
-    }
-
-    return CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS;
   }
 }
