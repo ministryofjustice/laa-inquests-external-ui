@@ -4,7 +4,6 @@ import type { Request, Response } from "express";
 import type {
   ClientDetailsFormData,
   CorrespondenceAddressSourceValue,
-  CorrespondenceRecipientSelectionValue,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CORRESPONDENCE_RECIPIENT_TYPE,
@@ -14,17 +13,56 @@ import type { Proceeding } from "#src/infrastructure/express/session/index.types
 import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 import type { Address } from "#src/domain/Client/Address.js";
-import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import { UpdateCorrespondenceRecipientUseCase } from "#src/use-cases/apply/clientDetails/UpdateCorrespondenceRecipient.useCase.js";
+import { ProcessClientDetailsJourneyUseCase } from "#src/use-cases/apply/clientDetails/ProcessClientDetailsJourney.useCase.js";
+import { getStringValue } from "#src/utils/sessionValue.js";
+
+interface ClientDetailsUseCases {
+  updateCorrespondenceRecipient: UpdateCorrespondenceRecipientUseCase;
+  processClientDetailsJourney: ProcessClientDetailsJourneyUseCase;
+}
 
 export class ClientDetailsAdaptor {
   formValidator: ClientDetailsValidator;
   formatter: ClientDetailsFormatter;
+  updateCorrespondenceRecipientUseCase: UpdateCorrespondenceRecipientUseCase;
+  processClientDetailsJourneyUseCase: ProcessClientDetailsJourneyUseCase;
+
   constructor(
     formValidator: ClientDetailsValidator,
     formatter: ClientDetailsFormatter = new ClientDetailsFormatter(),
+    useCases?: Partial<ClientDetailsUseCases>,
   ) {
+    const resolvedUseCases = this.#resolveUseCases(formValidator, useCases);
+    const { updateCorrespondenceRecipient, processClientDetailsJourney } =
+      resolvedUseCases;
+
     this.formValidator = formValidator;
     this.formatter = formatter;
+    this.updateCorrespondenceRecipientUseCase = updateCorrespondenceRecipient;
+    this.processClientDetailsJourneyUseCase = processClientDetailsJourney;
+  }
+
+  #resolveUseCases(
+    formValidator: ClientDetailsValidator,
+    useCases?: Partial<ClientDetailsUseCases>,
+  ): ClientDetailsUseCases {
+    const defaultUseCases: ClientDetailsUseCases = {
+      updateCorrespondenceRecipient: new UpdateCorrespondenceRecipientUseCase(),
+      processClientDetailsJourney: new ProcessClientDetailsJourneyUseCase(
+        formValidator,
+      ),
+    };
+
+    if (useCases === undefined) {
+      return defaultUseCases;
+    }
+
+    return {
+      ...defaultUseCases,
+      ...useCases,
+    };
   }
 
   renderNameForm(req: Request, res: Response): void {
@@ -32,17 +70,19 @@ export class ClientDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
+    const nameDobView = this.#buildClientNameDobView({
+      clientFirstName: getStringValue(req.session.clientFirstName),
+      clientLastName: getStringValue(req.session.clientLastName),
+      clientLastNameAtBirth: getStringValue(req.session.clientLastNameAtBirth),
+      hasNameChanged: getStringValue(req.session.hasNameChanged),
+      clientDobDay: getStringValue(req.session.clientDobDay),
+      clientDobMonth: getStringValue(req.session.clientDobMonth),
+      clientDobYear: getStringValue(req.session.clientDobYear),
+    });
+
     res.render("apply/client-details/name-and-dob", {
       csrfToken,
-      client: {
-        clientFirstName: req.session.clientFirstName ?? "",
-        clientLastName: req.session.clientLastName ?? "",
-        clientLastNameAtBirth: req.session.clientLastNameAtBirth ?? "",
-        hasNameChanged: req.session.hasNameChanged ?? "",
-        clientDobDay: req.session.clientDobDay ?? "",
-        clientDobMonth: req.session.clientDobMonth ?? "",
-        clientDobYear: req.session.clientDobYear ?? "",
-      },
+      client: nameDobView.client,
     });
   }
 
@@ -72,25 +112,28 @@ export class ClientDetailsAdaptor {
     req.session.clientDobMonth = dobMonth;
     req.session.clientDobYear = dobYear;
 
-    const nameErrors = this.formValidator.validateClientName(req.body);
-    const dobErrors = this.formValidator.validateClientDob(req.body);
+    const { errorSummaries } = this.processClientDetailsJourneyUseCase.execute({
+      step: "NAME_DOB",
+      formBody: req.body,
+    });
 
-    if (
-      Object.keys(nameErrors).length > EMPTY_ARR_LENGTH ||
-      Object.keys(dobErrors).length > EMPTY_ARR_LENGTH
-    ) {
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const nameDobView = this.#buildClientNameDobView({
+        clientFirstName: getStringValue(req.session.clientFirstName),
+        clientLastName: getStringValue(req.session.clientLastName),
+        clientLastNameAtBirth: getStringValue(
+          req.session.clientLastNameAtBirth,
+        ),
+        hasNameChanged: getStringValue(req.session.hasNameChanged),
+        clientDobDay: getStringValue(req.session.clientDobDay),
+        clientDobMonth: getStringValue(req.session.clientDobMonth),
+        clientDobYear: getStringValue(req.session.clientDobYear),
+      });
+
       res.render("apply/client-details/name-and-dob", {
         csrfToken,
-        errorSummaries: { ...nameErrors, ...dobErrors },
-        client: {
-          clientFirstName: req.session.clientFirstName,
-          clientLastName: req.session.clientLastName,
-          clientLastNameAtBirth: req.session.clientLastNameAtBirth,
-          hasNameChanged: req.session.hasNameChanged,
-          clientDobDay: req.session.clientDobDay,
-          clientDobMonth: req.session.clientDobMonth,
-          clientDobYear: req.session.clientDobYear,
-        },
+        errorSummaries,
+        client: nameDobView.client,
       });
     } else {
       res.redirect("/apply/client-details/nino");
@@ -119,7 +162,11 @@ export class ClientDetailsAdaptor {
     req.session.clientHasNino = hasNino;
     req.session.clientNino = hasNino === "true" ? ninoInput : null;
 
-    const ninoErrors = this.formValidator.validateNino(req.body);
+    const { errorSummaries: ninoErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "NINO",
+        formBody: req.body,
+      });
     if (Object.keys(ninoErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/client-details/nino", {
         csrfToken,
@@ -139,13 +186,20 @@ export class ClientDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const clientHomeAddress = this.#getClientHomeAddress(req);
-    const client = this.formatter.toHomeAddressViewModel(clientHomeAddress);
-    client.hasNoFixedAbode = this.#isClientNoFixedAbode(req);
+    const homeAddressView = this.#buildClientHomeAddressView({
+      clientHomeAddress: this.#getClientHomeAddress(req),
+      clientHasNoFixedAbode: this.#isClientNoFixedAbode(req),
+    });
+    const homeAddressClient = {
+      ...this.formatter.toHomeAddressViewModel(
+        homeAddressView.clientHomeAddress,
+      ),
+      hasNoFixedAbode: homeAddressView.clientHasNoFixedAbode,
+    };
 
     res.render("apply/client-details/home-address", {
       csrfToken,
-      client,
+      client: homeAddressClient,
     });
   }
 
@@ -187,14 +241,27 @@ export class ClientDetailsAdaptor {
 
     req.session.clientHomeAddress = homeAddress;
 
-    const homeAddressErrors = this.formValidator.validateHomeAddress(req.body);
-    const client = this.formatter.toHomeAddressViewModel(homeAddress);
+    const { errorSummaries: homeAddressErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "HOME_ADDRESS",
+        formBody: req.body,
+      });
+    const homeAddressView = this.#buildClientHomeAddressView({
+      clientHomeAddress: homeAddress,
+      clientHasNoFixedAbode: false,
+    });
+    const homeAddressClient = {
+      ...this.formatter.toHomeAddressViewModel(
+        homeAddressView.clientHomeAddress,
+      ),
+      hasNoFixedAbode: homeAddressView.clientHasNoFixedAbode,
+    };
 
     if (Object.keys(homeAddressErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/client-details/home-address", {
         csrfToken,
         errorSummaries: homeAddressErrors,
-        client,
+        client: homeAddressClient,
       });
     } else {
       res.redirect("/apply/client-details/correspondence-address-source");
@@ -205,12 +272,15 @@ export class ClientDetailsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
+    const correspondenceAddressSourceView =
+      this.#buildCorrespondenceAddressSourceView({
+        clientCorrespondenceAddressSource:
+          this.#getClientCorrespondenceAddressSource(req) ?? undefined,
+      });
+
     res.render("apply/client-details/correspondence-address-source", {
       csrfToken,
-      client: {
-        correspondenceAddressSource:
-          this.#getClientCorrespondenceAddressSource(req) ?? "",
-      },
+      client: correspondenceAddressSourceView.client,
     });
   }
 
@@ -225,18 +295,26 @@ export class ClientDetailsAdaptor {
       body: { "correspondence-address-source": correspondenceAddressSource },
     } = req;
 
-    const sourceErrors = this.formValidator.validateCorrespondenceAddressSource(
-      req.body,
-      this.#isClientNoFixedAbode(req),
-    );
+    const { errorSummaries: sourceErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "CORRESPONDENCE_ADDRESS_SOURCE",
+        formBody: req.body,
+        hasNoFixedAbode: this.#isClientNoFixedAbode(req),
+      });
 
     if (Object.keys(sourceErrors).length > EMPTY_ARR_LENGTH) {
+      const correspondenceAddressSourceView =
+        this.#buildCorrespondenceAddressSourceView({
+          clientCorrespondenceAddressSource:
+            this.#isCorrespondenceAddressSource(correspondenceAddressSource)
+              ? correspondenceAddressSource
+              : undefined,
+        });
+
       res.render("apply/client-details/correspondence-address-source", {
         csrfToken,
         errorSummaries: sourceErrors,
-        client: {
-          correspondenceAddressSource: correspondenceAddressSource ?? "",
-        },
+        client: correspondenceAddressSourceView.client,
       });
     } else if (correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
       req.session.clientCorrespondenceAddressSource =
@@ -251,12 +329,15 @@ export class ClientDetailsAdaptor {
         correspondenceAddressSource;
       res.redirect("/apply/client-details/correspondence-recipient");
     } else {
+      const correspondenceAddressSourceView =
+        this.#buildCorrespondenceAddressSourceView({
+          clientCorrespondenceAddressSource: undefined,
+        });
+
       res.render("apply/client-details/correspondence-address-source", {
         csrfToken,
         errorSummaries: sourceErrors,
-        client: {
-          correspondenceAddressSource: "",
-        },
+        client: correspondenceAddressSourceView.client,
       });
     }
   }
@@ -265,11 +346,14 @@ export class ClientDetailsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    const correspondenceAddress = this.#getClientCorrespondenceAddress(req);
+    const correspondenceAddressView = this.#buildCorrespondenceAddressView({
+      clientCorrespondenceAddress: this.#getClientCorrespondenceAddress(req),
+    });
+
     res.render("apply/client-details/correspondence-address", {
       csrfToken,
       client: this.formatter.toCorrespondenceAddressViewModel(
-        correspondenceAddress,
+        correspondenceAddressView.clientCorrespondenceAddress,
       ),
     });
   }
@@ -284,15 +368,22 @@ export class ClientDetailsAdaptor {
     const correspondenceAddress =
       this.formatter.buildClientCorrespondenceAddress(req.body);
     req.session.clientCorrespondenceAddress = correspondenceAddress;
-    const correspondenceAddressErrors =
-      this.formValidator.validateCorrespondenceAddress(req.body);
+    const { errorSummaries: correspondenceAddressErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "CORRESPONDENCE_ADDRESS",
+        formBody: req.body,
+      });
 
     if (Object.keys(correspondenceAddressErrors).length > EMPTY_ARR_LENGTH) {
+      const correspondenceAddressView = this.#buildCorrespondenceAddressView({
+        clientCorrespondenceAddress: correspondenceAddress,
+      });
+
       res.render("apply/client-details/correspondence-address", {
         csrfToken,
         errorSummaries: correspondenceAddressErrors,
         client: this.formatter.toCorrespondenceAddressViewModel(
-          correspondenceAddress,
+          correspondenceAddressView.clientCorrespondenceAddress,
         ),
       });
     } else {
@@ -315,16 +406,35 @@ export class ClientDetailsAdaptor {
     } = res;
 
     const recipient = this.#getClientCorrespondenceRecipient(req);
-    const client = this.formatter.buildCorrespondenceRecipientViewModel(
-      req,
+    const correspondenceRecipientView = this.#buildCorrespondenceRecipientView(
+      {
+        clientCorrespondenceRecipient:
+          this.#getClientCorrespondenceRecipientState(req),
+      },
       recipient,
-      params,
+      {
+        correspondenceRecipient: params?.correspondenceRecipient,
+        personName: params?.personName,
+        organisationName: params?.organisationName,
+      },
     );
+
+    const correspondenceRecipientClient =
+      this.formatter.buildCorrespondenceRecipientViewModel(
+        {
+          session: {
+            clientCorrespondenceRecipient:
+              correspondenceRecipientView.clientCorrespondenceRecipient,
+          },
+        },
+        correspondenceRecipientView.recipient,
+        correspondenceRecipientView.params,
+      );
 
     res.render("apply/client-details/correspondence-recipient", {
       csrfToken,
       errorSummaries: params?.errorSummaries,
-      client,
+      client: correspondenceRecipientClient,
     });
   }
 
@@ -340,9 +450,11 @@ export class ClientDetailsAdaptor {
       },
     } = req;
 
-    const recipientErrors = this.formValidator.validateCorrespondenceRecipient(
-      req.body,
-    );
+    const { errorSummaries: recipientErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "CORRESPONDENCE_RECIPIENT",
+        formBody: req.body,
+      });
 
     if (Object.keys(recipientErrors).length > EMPTY_ARR_LENGTH) {
       this.renderCorrespondenceRecipientForm(req, res, {
@@ -351,33 +463,40 @@ export class ClientDetailsAdaptor {
         personName,
         organisationName,
       });
-    } else {
-      const selection = this.#getCorrespondenceRecipientSelection(
-        correspondenceRecipient,
-      );
-      if (selection === null) {
-        this.renderCorrespondenceRecipientForm(req, res, {
-          errorSummaries: recipientErrors,
-          correspondenceRecipient: "",
-          personName,
-          organisationName,
-        });
-      } else {
-        const checkProceedings = (
-          proceedings: Proceeding[] | undefined | null,
-        ): boolean => proceedings !== undefined && proceedings !== null;
-        const redirectUrl = checkProceedings(req.session.selectedProceedings)
-          ? "/apply/proceedings/confirmation"
-          : "/apply/proceedings";
-        req.session.clientCorrespondenceRecipient =
-          this.#buildClientCorrespondenceRecipient(
-            selection,
-            personName,
-            organisationName,
-          );
-        res.redirect(redirectUrl);
-      }
+      return;
     }
+
+    const updatedRecipientResult =
+      this.updateCorrespondenceRecipientUseCase.execute(
+        correspondenceRecipient,
+        personName,
+        organisationName,
+      );
+
+    if (
+      updatedRecipientResult.status !== "SUCCESS" ||
+      updatedRecipientResult.data === undefined
+    ) {
+      this.renderCorrespondenceRecipientForm(req, res, {
+        errorSummaries: recipientErrors,
+        correspondenceRecipient: "",
+        personName,
+        organisationName,
+      });
+      return;
+    }
+
+    const checkProceedings = (
+      proceedings: Proceeding[] | undefined | null,
+    ): boolean => proceedings !== undefined && proceedings !== null;
+    const redirectUrl = checkProceedings(req.session.selectedProceedings)
+      ? "/apply/proceedings/confirmation"
+      : "/apply/proceedings";
+
+    const { data } = updatedRecipientResult;
+    const { clientCorrespondenceRecipient } = data;
+    req.session.clientCorrespondenceRecipient = clientCorrespondenceRecipient;
+    res.redirect(redirectUrl);
   }
 
   renderHasPrevApplicationForm(req: Request, res: Response): void {
@@ -405,17 +524,26 @@ export class ClientDetailsAdaptor {
     req.session.prevLaaReferenceInput =
       hasPrevApplication === "true" ? prevLaaReferenceInput : null;
 
-    const prevApplicationRefErrors =
-      this.formValidator.validatePrevApplicationReference(req.body);
+    const { errorSummaries: prevApplicationRefErrors } =
+      this.processClientDetailsJourneyUseCase.execute({
+        step: "PREV_APPLICATION_REFERENCE",
+        formBody: req.body,
+      });
 
     if (Object.keys(prevApplicationRefErrors).length > EMPTY_ARR_LENGTH) {
+      const previousApplicationView = this.#buildPreviousApplicationView({
+        clientHasPrevApplication: getStringValue(
+          req.session.clientHasPrevApplication,
+        ),
+        prevLaaReferenceInput: getStringValue(
+          req.session.prevLaaReferenceInput,
+        ),
+      });
+
       res.render("apply/client-details/has-prev-application", {
         csrfToken,
         errorSummaries: prevApplicationRefErrors,
-        client: {
-          hasPrevApplication: req.session.clientHasPrevApplication,
-          prevLaaReference: req.session.prevLaaReferenceInput,
-        },
+        client: previousApplicationView.client,
       });
     } else {
       res.redirect("/apply/client-details/home-address");
@@ -482,6 +610,21 @@ export class ClientDetailsAdaptor {
       : null;
   }
 
+  #getClientCorrespondenceRecipientState(req: {
+    session: Request["session"];
+  }): CorrespondenceRecipient | null | undefined {
+    const { session } = req;
+    const { clientCorrespondenceRecipient } = session;
+
+    if (clientCorrespondenceRecipient === null) {
+      return null;
+    }
+
+    return this.#isClientCorrespondenceRecipient(clientCorrespondenceRecipient)
+      ? clientCorrespondenceRecipient
+      : undefined;
+  }
+
   #isClientCorrespondenceRecipient(
     value: unknown,
   ): value is CorrespondenceRecipient {
@@ -498,40 +641,118 @@ export class ClientDetailsAdaptor {
     );
   }
 
-  #isCorrespondenceRecipientSelection(
-    value: unknown,
-  ): value is CorrespondenceRecipientSelectionValue {
-    return (
-      value === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
-      value === CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION ||
-      value === "NONE"
-    );
-  }
-
-  #getCorrespondenceRecipientSelection(
-    value: unknown,
-  ): CorrespondenceRecipientSelectionValue | null {
-    return this.#isCorrespondenceRecipientSelection(value) ? value : null;
-  }
-
-  #buildClientCorrespondenceRecipient(
-    selection: CorrespondenceRecipientSelectionValue,
-    personName: string | undefined,
-    organisationName: string | undefined,
-  ): CorrespondenceRecipient | null {
-    if (selection === "NONE") {
-      return null;
-    }
-
-    const recipientName =
-      selection === CORRESPONDENCE_RECIPIENT_TYPE.PERSON
-        ? personName
-        : organisationName;
-
-    return new CorrespondenceRecipient(selection, recipientName ?? "");
-  }
-
   #isClientNoFixedAbode(req: { session: Request["session"] }): boolean {
     return req.session.clientHasNoFixedAbode === true;
+  }
+
+  #buildClientNameDobView(state: {
+    clientFirstName?: string;
+    clientLastName?: string;
+    clientLastNameAtBirth?: string;
+    hasNameChanged?: string;
+    clientDobDay?: string;
+    clientDobMonth?: string;
+    clientDobYear?: string;
+  }): {
+    client: {
+      clientFirstName: string;
+      clientLastName: string;
+      clientLastNameAtBirth: string;
+      hasNameChanged: string;
+      clientDobDay: string;
+      clientDobMonth: string;
+      clientDobYear: string;
+    };
+  } {
+    return {
+      client: {
+        clientFirstName: state.clientFirstName ?? "",
+        clientLastName: state.clientLastName ?? "",
+        clientLastNameAtBirth: state.clientLastNameAtBirth ?? "",
+        hasNameChanged: state.hasNameChanged ?? "",
+        clientDobDay: state.clientDobDay ?? "",
+        clientDobMonth: state.clientDobMonth ?? "",
+        clientDobYear: state.clientDobYear ?? "",
+      },
+    };
+  }
+
+  #buildClientHomeAddressView(state: {
+    clientHomeAddress?: Address | null;
+    clientHasNoFixedAbode?: boolean;
+  }): {
+    clientHomeAddress: Address | null;
+    clientHasNoFixedAbode: boolean;
+  } {
+    return {
+      clientHomeAddress: state.clientHomeAddress ?? null,
+      clientHasNoFixedAbode: state.clientHasNoFixedAbode === true,
+    };
+  }
+
+  #buildCorrespondenceAddressSourceView(state: {
+    clientCorrespondenceAddressSource?: string;
+  }): {
+    client: { correspondenceAddressSource: string };
+  } {
+    return {
+      client: {
+        correspondenceAddressSource:
+          state.clientCorrespondenceAddressSource ?? "",
+      },
+    };
+  }
+
+  #buildCorrespondenceAddressView(state: {
+    clientCorrespondenceAddress?: Address | null;
+  }): {
+    clientCorrespondenceAddress: Address | null;
+  } {
+    return {
+      clientCorrespondenceAddress: state.clientCorrespondenceAddress ?? null,
+    };
+  }
+
+  #buildCorrespondenceRecipientView(
+    state: {
+      clientCorrespondenceRecipient: CorrespondenceRecipient | null | undefined;
+    },
+    recipient: CorrespondenceRecipient | null,
+    params?: {
+      correspondenceRecipient?: string;
+      personName?: string;
+      organisationName?: string;
+    },
+  ): {
+    clientCorrespondenceRecipient: CorrespondenceRecipient | null | undefined;
+    recipient: CorrespondenceRecipient | null;
+    params?: {
+      correspondenceRecipient?: string;
+      personName?: string;
+      organisationName?: string;
+    };
+  } {
+    return {
+      clientCorrespondenceRecipient: state.clientCorrespondenceRecipient,
+      recipient,
+      params,
+    };
+  }
+
+  #buildPreviousApplicationView(state: {
+    clientHasPrevApplication?: string;
+    prevLaaReferenceInput?: string;
+  }): {
+    client: {
+      hasPrevApplication: string;
+      prevLaaReference: string;
+    };
+  } {
+    return {
+      client: {
+        hasPrevApplication: state.clientHasPrevApplication ?? "",
+        prevLaaReference: state.prevLaaReferenceInput ?? "",
+      },
+    };
   }
 }

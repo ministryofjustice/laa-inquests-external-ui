@@ -4,9 +4,19 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { DeceasedDetailsFormData } from "../models/form.types.js";
 import type { DeceasedDetailsValidator } from "./DeceasedDetails.validator.js";
 import type { Request, Response } from "express";
+import { getStringValue } from "#src/utils/sessionValue.js";
+
+type DeceasedDetailsStep =
+  | "name"
+  | "dateOfDeath"
+  | "dateOfBirth"
+  | "clientRelationship"
+  | "coronerReference"
+  | "furtherInformation";
 
 export class DeceasedDetailsAdaptor {
   formValidator: DeceasedDetailsValidator;
+
   constructor(formValidator: DeceasedDetailsValidator) {
     this.formValidator = formValidator;
   }
@@ -25,14 +35,15 @@ export class DeceasedDetailsAdaptor {
     const backButtonUrl = this.#getNameBackButtonUrl(
       req.session.selectedProceedings,
     );
+    const nameView = this.#buildDeceasedDetailsView("name", {
+      deceasedFirstName: getStringValue(req.session.deceasedFirstName),
+      deceasedLastName: getStringValue(req.session.deceasedLastName),
+    });
 
     res.render("apply/deceased-details/name", {
       csrfToken,
       backButtonUrl,
-      deceasedDetails: {
-        firstName: req.session.deceasedFirstName,
-        lastName: req.session.deceasedLastName,
-      },
+      deceasedDetails: nameView.deceasedDetails,
     });
   }
 
@@ -59,15 +70,16 @@ export class DeceasedDetailsAdaptor {
       const backButtonUrl = this.#getNameBackButtonUrl(
         req.session.selectedProceedings,
       );
+      const nameView = this.#buildDeceasedDetailsView("name", {
+        deceasedFirstName: firstName,
+        deceasedLastName: lastName,
+      });
 
       res.render("apply/deceased-details/name", {
         csrfToken,
         backButtonUrl,
         errorSummaries,
-        deceasedDetails: {
-          firstName,
-          lastName,
-        },
+        deceasedDetails: nameView.deceasedDetails,
       });
     } else {
       res.redirect("/apply/deceased-details/dod");
@@ -79,13 +91,21 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
+    const dateOfDeathView = this.#buildDeceasedDetailsView("dateOfDeath", {
+      deceasedDateOfDeathDay: getStringValue(
+        req.session.deceasedDateOfDeathDay,
+      ),
+      deceasedDateOfDeathMonth: getStringValue(
+        req.session.deceasedDateOfDeathMonth,
+      ),
+      deceasedDateOfDeathYear: getStringValue(
+        req.session.deceasedDateOfDeathYear,
+      ),
+    });
+
     res.render("apply/deceased-details/date-of-death", {
       csrfToken,
-      deceasedDetails: {
-        dateOfDeathDay: req.session.deceasedDateOfDeathDay,
-        dateOfDeathMonth: req.session.deceasedDateOfDeathMonth,
-        dateOfDeathYear: req.session.deceasedDateOfDeathYear,
-      },
+      deceasedDetails: dateOfDeathView.deceasedDetails,
     });
   }
 
@@ -113,14 +133,16 @@ export class DeceasedDetailsAdaptor {
       req.body,
     );
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const dateOfDeathView = this.#buildDeceasedDetailsView("dateOfDeath", {
+        deceasedDateOfDeathDay: dateOfDeathDay,
+        deceasedDateOfDeathMonth: dateOfDeathMonth,
+        deceasedDateOfDeathYear: dateOfDeathYear,
+      });
+
       res.render("apply/deceased-details/date-of-death", {
         csrfToken,
         errorSummaries,
-        deceasedDetails: {
-          dateOfDeathDay,
-          dateOfDeathMonth,
-          dateOfDeathYear,
-        },
+        deceasedDetails: dateOfDeathView.deceasedDetails,
       });
     } else {
       res.redirect("/apply/deceased-details/dob");
@@ -132,13 +154,21 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
+    const dateOfBirthView = this.#buildDeceasedDetailsView("dateOfBirth", {
+      deceasedDateOfBirthDay: getStringValue(
+        req.session.deceasedDateOfBirthDay,
+      ),
+      deceasedDateOfBirthMonth: getStringValue(
+        req.session.deceasedDateOfBirthMonth,
+      ),
+      deceasedDateOfBirthYear: getStringValue(
+        req.session.deceasedDateOfBirthYear,
+      ),
+    });
+
     res.render("apply/deceased-details/dob", {
       csrfToken,
-      deceasedDetails: {
-        dateOfBirthDay: req.session.deceasedDateOfBirthDay,
-        dateOfBirthMonth: req.session.deceasedDateOfBirthMonth,
-        dateOfBirthYear: req.session.deceasedDateOfBirthYear,
-      },
+      deceasedDetails: dateOfBirthView.deceasedDetails,
     });
   }
 
@@ -167,14 +197,16 @@ export class DeceasedDetailsAdaptor {
     );
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const dateOfBirthView = this.#buildDeceasedDetailsView("dateOfBirth", {
+        deceasedDateOfBirthDay: dateOfBirthDay,
+        deceasedDateOfBirthMonth: dateOfBirthMonth,
+        deceasedDateOfBirthYear: dateOfBirthYear,
+      });
+
       res.render("apply/deceased-details/dob", {
         csrfToken,
         errorSummaries,
-        deceasedDetails: {
-          dateOfBirthDay,
-          dateOfBirthMonth,
-          dateOfBirthYear,
-        },
+        deceasedDetails: dateOfBirthView.deceasedDetails,
       });
     } else {
       res.redirect("/apply/deceased-details/client-relationship");
@@ -186,12 +218,21 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
+    const clientRelationshipView = this.#buildDeceasedDetailsView(
+      "clientRelationship",
+      {
+        deceasedHasClientRelationship: getStringValue(
+          req.session.deceasedHasClientRelationship,
+        ),
+        deceasedClientRelationship: getStringValue(
+          req.session.deceasedClientRelationship,
+        ),
+      },
+    );
+
     res.render("apply/deceased-details/client-relationship", {
       csrfToken,
-      deceasedDetails: {
-        hasClientRelationship: req.session.deceasedHasClientRelationship,
-        clientRelationship: req.session.deceasedClientRelationship,
-      },
+      deceasedDetails: clientRelationshipView.deceasedDetails,
     });
   }
 
@@ -218,13 +259,18 @@ export class DeceasedDetailsAdaptor {
     );
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const clientRelationshipView = this.#buildDeceasedDetailsView(
+        "clientRelationship",
+        {
+          deceasedHasClientRelationship,
+          deceasedClientRelationship,
+        },
+      );
+
       res.render("apply/deceased-details/client-relationship", {
         csrfToken,
         errorSummaries,
-        deceasedDetails: {
-          hasClientRelationship: deceasedHasClientRelationship,
-          clientRelationship: deceasedClientRelationship,
-        },
+        deceasedDetails: clientRelationshipView.deceasedDetails,
       });
     } else {
       res.redirect("/apply/deceased-details/coroner-reference");
@@ -236,11 +282,18 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
+    const coronerReferenceView = this.#buildDeceasedDetailsView(
+      "coronerReference",
+      {
+        deceasedCoronerReference: getStringValue(
+          req.session.deceasedCoronerReference,
+        ),
+      },
+    );
+
     res.render("apply/deceased-details/coroner-reference", {
       csrfToken,
-      deceasedDetails: {
-        coronerReference: req.session.deceasedCoronerReference,
-      },
+      deceasedDetails: coronerReferenceView.deceasedDetails,
     });
   }
 
@@ -263,12 +316,17 @@ export class DeceasedDetailsAdaptor {
     );
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const coronerReferenceView = this.#buildDeceasedDetailsView(
+        "coronerReference",
+        {
+          deceasedCoronerReference,
+        },
+      );
+
       res.render("apply/deceased-details/coroner-reference", {
         csrfToken,
         errorSummaries,
-        deceasedDetails: {
-          coronerReference: deceasedCoronerReference,
-        },
+        deceasedDetails: coronerReferenceView.deceasedDetails,
       });
     } else {
       res.redirect("/apply/deceased-details/further-information");
@@ -280,12 +338,21 @@ export class DeceasedDetailsAdaptor {
       locals: { csrfToken },
     } = res;
 
+    const furtherInformationView = this.#buildDeceasedDetailsView(
+      "furtherInformation",
+      {
+        deceasedHasFurtherInformation: getStringValue(
+          req.session.deceasedHasFurtherInformation,
+        ),
+        deceasedFurtherInformation: getStringValue(
+          req.session.deceasedFurtherInformation,
+        ),
+      },
+    );
+
     res.render("apply/deceased-details/further-information", {
       csrfToken,
-      deceasedDetails: {
-        hasFurtherInformation: req.session.deceasedHasFurtherInformation,
-        furtherInformation: req.session.deceasedFurtherInformation,
-      },
+      deceasedDetails: furtherInformationView.deceasedDetails,
     });
   }
 
@@ -312,16 +379,93 @@ export class DeceasedDetailsAdaptor {
     );
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const furtherInformationView = this.#buildDeceasedDetailsView(
+        "furtherInformation",
+        {
+          deceasedHasFurtherInformation,
+          deceasedFurtherInformation,
+        },
+      );
+
       res.render("apply/deceased-details/further-information", {
         csrfToken,
         errorSummaries,
-        deceasedDetails: {
-          hasFurtherInformation: deceasedHasFurtherInformation,
-          furtherInformation: deceasedFurtherInformation,
-        },
+        deceasedDetails: furtherInformationView.deceasedDetails,
       });
     } else {
       res.redirect("/apply/public-authority");
     }
+  }
+
+  #buildDeceasedDetailsView(
+    step: DeceasedDetailsStep,
+    state: {
+      deceasedFirstName?: string;
+      deceasedLastName?: string;
+      deceasedDateOfDeathDay?: string;
+      deceasedDateOfDeathMonth?: string;
+      deceasedDateOfDeathYear?: string;
+      deceasedDateOfBirthDay?: string;
+      deceasedDateOfBirthMonth?: string;
+      deceasedDateOfBirthYear?: string;
+      deceasedHasClientRelationship?: string;
+      deceasedClientRelationship?: string;
+      deceasedCoronerReference?: string;
+      deceasedHasFurtherInformation?: string;
+      deceasedFurtherInformation?: string;
+    },
+  ): { deceasedDetails: Record<string, string | undefined> } {
+    if (step === "name") {
+      return {
+        deceasedDetails: {
+          firstName: state.deceasedFirstName,
+          lastName: state.deceasedLastName,
+        },
+      };
+    }
+
+    if (step === "dateOfDeath") {
+      return {
+        deceasedDetails: {
+          dateOfDeathDay: state.deceasedDateOfDeathDay,
+          dateOfDeathMonth: state.deceasedDateOfDeathMonth,
+          dateOfDeathYear: state.deceasedDateOfDeathYear,
+        },
+      };
+    }
+
+    if (step === "dateOfBirth") {
+      return {
+        deceasedDetails: {
+          dateOfBirthDay: state.deceasedDateOfBirthDay,
+          dateOfBirthMonth: state.deceasedDateOfBirthMonth,
+          dateOfBirthYear: state.deceasedDateOfBirthYear,
+        },
+      };
+    }
+
+    if (step === "clientRelationship") {
+      return {
+        deceasedDetails: {
+          hasClientRelationship: state.deceasedHasClientRelationship,
+          clientRelationship: state.deceasedClientRelationship,
+        },
+      };
+    }
+
+    if (step === "coronerReference") {
+      return {
+        deceasedDetails: {
+          coronerReference: state.deceasedCoronerReference,
+        },
+      };
+    }
+
+    return {
+      deceasedDetails: {
+        hasFurtherInformation: state.deceasedHasFurtherInformation,
+        furtherInformation: state.deceasedFurtherInformation,
+      },
+    };
   }
 }

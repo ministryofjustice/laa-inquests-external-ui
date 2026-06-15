@@ -19,9 +19,10 @@
 ### Checks before completing any task
 
 ```bash
+yarn lint:fix
 yarn lint   # ESLint + Prettier
 yarn tsc    # TypeScript type check
-yarn test   # All tests
+yarn test   # RUN ALL tests, do NOT run yarn test:unit
 ```
 
 ### When editing existing files
