@@ -8,7 +8,7 @@ import {
   validateFormAttributes,
 } from "../../utils/govuk-validators.js";
 
-test.describe.only("Provider can", () => {
+test.describe("Provider can", () => {
   let form: Locator;
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/upload-coroners-letter");
