@@ -29,7 +29,7 @@ export async function validateCSRFToken(form: Locator): Promise<void> {
 }
 
 export async function validateContinueButton(form: Locator): Promise<void> {
-  const continueButton = form.getByRole("button");
+  const continueButton = form.getByRole("button", { name: "Continue" });
 
   await expect(continueButton).toBeVisible();
   await expect(continueButton).toHaveText("Continue");
@@ -48,7 +48,7 @@ export async function continueToNextPage(
   form: Locator,
   page: Page,
 ): Promise<void> {
-  const continueButton = form.getByRole("button");
+  const continueButton = form.getByRole("button", { name: "Continue" });
   await continueButton.click();
   await page.waitForLoadState("domcontentloaded");
 }
