@@ -21,8 +21,8 @@ import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
 import { MockAuthAdaptor } from "#src/adaptors/source/auth/MockAuth.adaptor.js";
-import { createEvidenceRouter } from "./apply/evidence.router.js";
-import { EvidenceAdaptor } from "#src/adaptors/presenters/apply/Evidence/Evidence.adaptor.js";
+import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
+import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
@@ -38,7 +38,7 @@ const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
 const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
-const evidenceRouter = express.Router();
+const coronersLetterRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -138,7 +138,7 @@ const confirmationAdaptor = new ConfirmationAdaptor(
   sessionHelper,
 );
 
-const evidenceAdaptor = new EvidenceAdaptor();
+const coronersLetterAdaptor = new CoronersLetterAdaptor();
 
 indexRouter.use(
   "/apply",
@@ -147,7 +147,7 @@ indexRouter.use(
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
   createConfirmationRouter(confirmationRouter, confirmationAdaptor),
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
-  createEvidenceRouter(evidenceRouter, evidenceAdaptor),
+  createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
 
 export default indexRouter;

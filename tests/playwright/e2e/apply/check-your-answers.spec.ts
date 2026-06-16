@@ -173,7 +173,7 @@ test.describe("Apply - check your answers", () => {
 
     await expect(coronersLetterChangeLink).toHaveAttribute(
       "href",
-      "/apply/upload",
+      "/apply/upload-coroners-letter",
     );
 
     const fileNameRowTitle = coronersLetterSummaryList.getByText("File name");
