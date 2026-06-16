@@ -1,0 +1,16 @@
+{% extends "base.njk" %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper">
+    <h1 class="govuk-heading-l">Upload coroner's letter</h1>
+    <form action="/apply/evidence/upload" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+      {{ govukFileUpload({ ... }) }}
+      {{ govukButton({ text: "Continue" }) }}
+    </form>
+  </main>
+</div>
+{% endblock %}
