@@ -19,7 +19,7 @@ export class CoronersLetterAdaptor {
     } = res;
 
     res.render("apply/upload-coroners-letter", {
-      csrfToken: csrfToken,
+      csrfToken,
       uploadedFile: req.session.coronersLetterFile,
     });
   }
