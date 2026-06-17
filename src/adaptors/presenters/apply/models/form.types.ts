@@ -75,6 +75,10 @@ export interface ClientDeclarationFormData extends FormBody {
   "client-declaration-confirmation"?: string | string[];
 }
 
+export interface CoronersLetterFormData extends FormBody {
+  "coroners-letter-file-upload": string;
+}
+
 export interface ClientDeclarationError {
   noDeclarationConfirmation?: FormErrorMessage;
 }

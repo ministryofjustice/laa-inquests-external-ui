@@ -12,5 +12,12 @@ export function createCoronersLetterRouter(
     },
   );
 
+  coronersLetterRouter.post(
+    "/upload-coroners-letter",
+    async (req: Request, res: Response): Promise<void> => {
+      await coronersLetterAdaptor.processCoronersLetterUploadForm(req, res);
+    },
+  );
+
   return coronersLetterRouter;
 }
