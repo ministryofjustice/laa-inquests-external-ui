@@ -30,6 +30,7 @@ export class AuthAdaptor {
       userId: user.userId,
       firmCode: user.firmCode,
       officeId: user.officeId,
+      providerEmail: user.providerEmail,
     });
     req.session.user = { name: user.userName };
     res.redirect("/");

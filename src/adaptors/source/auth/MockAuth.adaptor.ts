@@ -22,6 +22,7 @@ export class MockAuthAdaptor implements AuthPort {
       userName: "Test User",
       firmCode: "0A123B",
       officeId: "001",
+      providerEmail: "test@example.com",
     });
   }
 }

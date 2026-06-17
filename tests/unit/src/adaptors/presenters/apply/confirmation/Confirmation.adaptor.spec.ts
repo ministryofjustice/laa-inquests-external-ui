@@ -267,6 +267,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientNino = "AB123456C";
       requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";
@@ -351,6 +352,7 @@ describe("Confirmation adaptor", () => {
       assert.deepEqual(submitBody.provider, {
         firmCode: "0A123B",
         officeId: "001",
+        emailAddress: "test@example.com",
       });
 
       assert.equal(requestStub.session.applicationReferenceNumber, "123");
@@ -369,6 +371,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobYear = "1989";
       requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";
@@ -440,6 +443,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobYear = "1989";
       requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceAddressSource =
         "USE_SPECIFIED_ADDRESS";
       requestStub.session.clientCorrespondenceAddress = {
@@ -512,6 +516,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobYear = "1989";
       requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = {
         recipientType: "PERSON",
         recipientName: "Jane Doe",
@@ -573,6 +578,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobYear = "1989";
       requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = null;
       requestStub.session.deceasedClientRelationship = "Spouse";
 
@@ -636,6 +642,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientNino = null as unknown as string;
       requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";
@@ -704,6 +711,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientNino = "AB123456C";
       requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";
