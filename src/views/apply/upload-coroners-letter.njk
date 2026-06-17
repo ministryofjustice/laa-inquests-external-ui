@@ -12,7 +12,7 @@
   <main class="govuk-main-wrapper">
     <h1 class="govuk-heading-l">Upload coroner's letter</h1>
     <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post">
-      <input type="hidden" name="_csrf" value={{csrfToken}}/>
+      <input type="hidden" name="_csrf" value="{{csrfToken}}" />
       {{ govukFileUpload({
         id: "coroners-letter-upload",
         name: "coroners-letter-file-upload",
