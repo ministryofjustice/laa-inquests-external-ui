@@ -29,7 +29,7 @@ export class SessionHelper {
     sessionKeys
       .filter(
         (k) =>
-          !["cookie", "user", "userId", "firmCode", "officeId"].includes(k),
+          !["cookie", "user", "userId", "firmCode", "officeId", "providerEmail"].includes(k),
       )
       .forEach((key) => {
         req.session[key] = undefined;

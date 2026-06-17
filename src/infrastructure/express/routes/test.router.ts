@@ -13,6 +13,7 @@ export default function createTestRouter(router: Router): Router {
           user?: { name?: string };
           firmCode?: string;
           officeId?: string;
+          providerEmail?: string;
         };
       },
       res: Response,
@@ -21,6 +22,7 @@ export default function createTestRouter(router: Router): Router {
       req.session.user = { name: "Test User" };
       req.session.firmCode = "0A123B";
       req.session.officeId = "001";
+      req.session.providerEmail = "test@example.com";
       req.session.save(() => {
         res.status(SUCCESSFUL_REQUEST).send("Session was seeded successfully.");
       });
