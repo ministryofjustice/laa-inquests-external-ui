@@ -189,6 +189,18 @@ describe("DeceasedDetails.validator", () => {
       validateDate: (formBody) =>
         formValidator.validateDeceasedDateOfDeath(formBody),
     });
+
+    it("should not return an error for valid date with single-digit day and month", () => {
+      const formBody = buildDateFormBody(
+        "1/6/2020",
+        "deceased-date-of-death-day",
+        "deceased-date-of-death-month",
+        "deceased-date-of-death-year",
+      );
+      const errorSummaries =
+        formValidator.validateDeceasedDateOfDeath(formBody);
+      assert.deepEqual(errorSummaries, {});
+    });
   });
 
   describe("validateDeceasedDateOfBirth", () => {
@@ -253,6 +265,18 @@ describe("DeceasedDetails.validator", () => {
       errorField: "dateOfBirthInputError",
       validateDate: (formBody) =>
         formValidator.validateDeceasedDateOfBirth(formBody),
+    });
+
+    it("should not return an error for valid date with single-digit day and month", () => {
+      const formBody = buildDateFormBody(
+        "1/6/1990",
+        "deceased-date-of-birth-day",
+        "deceased-date-of-birth-month",
+        "deceased-date-of-birth-year",
+      );
+      const errorSummaries =
+        formValidator.validateDeceasedDateOfBirth(formBody);
+      assert.deepEqual(errorSummaries, {});
     });
   });
 

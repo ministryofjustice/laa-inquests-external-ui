@@ -47,7 +47,15 @@ export class FormValidator {
     month: string | undefined,
     year: string | undefined,
   ): boolean {
-    return moment(`${year}-${month}-${day}`).isValid();
+    const dayNum = Number(day);
+    const monthNum = Number(month);
+    const yearNum = Number(year);
+
+    return moment([
+      yearNum,
+      monthNum - DATE_MONTH_INDEX_OFFSET,
+      dayNum,
+    ]).isValid();
   }
 
   protected validateDateInput(
