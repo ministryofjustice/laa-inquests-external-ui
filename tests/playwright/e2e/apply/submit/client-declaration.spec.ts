@@ -367,6 +367,9 @@ test.describe("Provider can", () => {
       No: "",
     });
     await continueNextPage("add-another-public-authority-form");
+    await expect(page.url()).toContain("/apply/upload-coroners-letter");
+
+    await continueNextPage("upload-coroners-letter-form");
     await expect(page.url()).toContain("/apply/check-your-answers");
 
     await page.getByRole("button", { name: "Continue" }).click();

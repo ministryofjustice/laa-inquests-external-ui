@@ -332,7 +332,7 @@ describe("PublicAuthority adaptor", () => {
       const redirectArgs = responseStub.redirect.getCall(0).args;
       assert.equal(
         redirectArgs[0] as unknown as string,
-        "/apply/check-your-answers",
+        "/apply/upload-coroners-letter",
       );
     });
   });
