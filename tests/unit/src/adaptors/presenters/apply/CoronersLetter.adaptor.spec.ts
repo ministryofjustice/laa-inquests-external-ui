@@ -19,9 +19,6 @@ describe("Coroners Letter adaptor", () => {
   beforeEach(() => {
     requestStub = stubInterface<Request>();
     responseStub = stubInterface<Response>();
-    responseStub.locals = {
-      csrfToken: "abcdefg",
-    };
   });
 
   it("renders the coroners upload letter view with the correct arguments", () => {
@@ -35,7 +32,6 @@ describe("Coroners Letter adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/upload-coroners-letter");
     assert.deepEqual(renderArgs[1], {
-      csrfToken: "abcdefg",
       uploadedFile: "test-file",
     });
   });
