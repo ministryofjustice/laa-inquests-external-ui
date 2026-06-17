@@ -107,6 +107,7 @@ describe("SubmitApplicationUseCase", () => {
       provider: {
         firmCode: state.firmCode,
         officeId: state.officeId,
+        emailAddress: state.providerEmail,
       },
     });
   });
@@ -226,6 +227,7 @@ function createValidState(
     ],
     firmCode: "0A123B",
     officeId: "001",
+    providerEmail: "test@example.com",
     ...overrides,
   };
 }
