@@ -59,6 +59,7 @@ const externalModules: string[] = [
   "csrf-sync",
   "http-errors",
   "@azure/msal-node",
+  "multer",
   "*.node",
 ];
 
