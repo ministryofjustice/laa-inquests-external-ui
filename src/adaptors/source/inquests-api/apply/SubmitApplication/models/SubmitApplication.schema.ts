@@ -94,6 +94,7 @@ export const SubmitApplicationRequestSchema = z.object({
     firmCode: z.string(),
     officeId: z.string(),
   }),
+  coronersLetterId: z.string(),
 });
 
 export const SubmitApplicationResponseSchema = z.object({
