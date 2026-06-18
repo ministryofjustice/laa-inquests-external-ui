@@ -3,11 +3,13 @@ import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/Save
 import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
 
 interface SaveCoronersLetterInput {
-  fileName: string;
+  buffer: Buffer;
+  mimetype: string;
+  originalname: string;
 }
 
 interface SaveCoronersLetterOutput {
-  status: string;
+  fileId: string;
 }
 
 export class SaveCoronersLetterUseCase {
@@ -20,11 +22,13 @@ export class SaveCoronersLetterUseCase {
   async execute(
     input: SaveCoronersLetterInput,
   ): Promise<UseCaseResult<SaveCoronersLetterOutput>> {
-    const { fileName } = input;
+    const { buffer, mimetype, originalname } = input;
 
     try {
       const responseRaw = await this.saveCoronersLetterPort.saveCoronersLetter({
-        coronersLetter: fileName,
+        buffer,
+        mimetype,
+        originalname,
       });
 
       const { statusCode } = responseRaw;
@@ -32,6 +36,7 @@ export class SaveCoronersLetterUseCase {
       if (statusCode === HTTP_CREATED) {
         return {
           status: "SUCCESS",
+          data: { fileId: responseRaw.fileId },
         };
       }
 

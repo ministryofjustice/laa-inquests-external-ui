@@ -1,9 +1,12 @@
 import { z } from "zod";
 
 export const SaveCoronersLetterRequestSchema = z.object({
-  coronersLetter: z.string(),
+  buffer: z.instanceof(Buffer),
+  mimetype: z.string(),
+  originalname: z.string(),
 });
 
 export const SaveCoronersLetterResponseSchema = z.object({
   statusCode: z.number(),
+  fileId: z.string(),
 });

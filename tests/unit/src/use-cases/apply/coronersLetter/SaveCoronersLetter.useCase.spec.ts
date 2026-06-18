@@ -8,7 +8,9 @@ describe("SaveCoronersLetterUseCase", () => {
   let saveCoronersLetterPort: StubbedInstance<SaveCoronersLetterPort>;
   let useCase: SaveCoronersLetterUseCase;
   const testCoronerLetter = {
-    fileName: "coroners-letter.pdf",
+    buffer: Buffer.from("coroners-letter-content"),
+    mimetype: "application/pdf",
+    originalname: "coroners-letter.pdf",
   };
 
   beforeEach(() => {
@@ -19,18 +21,21 @@ describe("SaveCoronersLetterUseCase", () => {
   it("returns success with laa reference when the API returns HTTP_CREATED", async () => {
     saveCoronersLetterPort.saveCoronersLetter.resolves({
       statusCode: HTTP_CREATED,
+      fileId: "test-file-id.pdf",
     });
 
     const result = await useCase.execute(testCoronerLetter);
 
     assert.deepEqual(result, {
       status: "SUCCESS",
+      data: { fileId: "test-file-id.pdf" },
     });
   });
 
   it("returns upstream rejected when API status code is not HTTP_CREATED", async () => {
     saveCoronersLetterPort.saveCoronersLetter.resolves({
       statusCode: 500,
+      fileId: "",
     });
 
     const result = await useCase.execute(testCoronerLetter);

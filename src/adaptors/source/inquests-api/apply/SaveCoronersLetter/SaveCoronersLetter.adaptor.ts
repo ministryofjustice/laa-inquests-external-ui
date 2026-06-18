@@ -12,16 +12,25 @@ export class SaveCoronersLetterAdaptor implements SaveCoronersLetterPort {
   ) {}
 
   async saveCoronersLetter(
-    _body: SaveCoronersLetterRequest,
+    body: SaveCoronersLetterRequest,
   ): Promise<SaveCoronersLetterResponse> {
-    const response: AxiosResponse<SaveCoronersLetterResponse> =
-      await this.http.post(
-        `${this.baseUrl}/applications/save_coroners_letter`,
-        _body,
-      );
+    const formData = new FormData();
+    formData.append(
+      "file",
+      new Blob([body.buffer as unknown as ArrayBuffer], {
+        type: body.mimetype,
+      }),
+      body.originalname,
+    );
+
+    const response: AxiosResponse<{ fileId: string }> = await this.http.post(
+      `${this.baseUrl}/applications/upload-coroners-letter`,
+      formData,
+    );
 
     return {
       statusCode: response.status,
+      fileId: response.data.fileId,
     };
   }
 }

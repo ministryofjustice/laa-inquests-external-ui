@@ -1,8 +1,6 @@
 import type { Request, Response } from "express";
-import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import { SaveCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/SaveCoronersLetter.useCase.js";
 import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/SaveCoronersLetter.port.js";
-import type { CoronersLetterFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 
 export class CoronersLetterAdaptor {
   saveCoronersLetterUseCase: SaveCoronersLetterUseCase;
@@ -20,14 +18,26 @@ export class CoronersLetterAdaptor {
   }
 
   async processCoronersLetterUploadForm(
-    req: TypedRequestBody<CoronersLetterFormData>,
+    req: Request,
     res: Response,
   ): Promise<void> {
-    const {
-      body: { "coroners-letter-file-upload": fileName },
-    } = req;
+    const { file } = req;
 
-    await this.saveCoronersLetterUseCase.execute({ fileName });
+    // TODO: Remove this block when validation is included. Only here currently to not break E2E tests and allow continueing
+    if (file === undefined) {
+      req.session.coronersLetterFileId = "TemporaryId";
+    } else {
+      const result = await this.saveCoronersLetterUseCase.execute({
+        buffer: file.buffer,
+        mimetype: file.mimetype,
+        originalname: file.originalname,
+      });
+
+      if (result.status === "SUCCESS") {
+        // eslint-disable-next-line require-atomic-updates -- TODO: Refactor to resolve potential race condition and remove eslint-disable
+        req.session.coronersLetterFileId = result.data?.fileId;
+      }
+    }
 
     res.redirect("/apply/check-your-answers");
   }

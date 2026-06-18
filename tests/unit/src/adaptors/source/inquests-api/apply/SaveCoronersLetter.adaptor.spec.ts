@@ -10,6 +10,7 @@ describe("SaveCoronersLetterAdaptor", () => {
     axiosStub = stubInterface<AxiosInstance>();
     axiosStub.post.resolves({
       status: 201,
+      data: { fileId: "test-file-id.pdf" },
     });
 
     saveCoronersLetterAdaptor = new SaveCoronersLetterAdaptor(
@@ -19,10 +20,13 @@ describe("SaveCoronersLetterAdaptor", () => {
   });
   const expectedApiResponse = {
     statusCode: 201,
+    fileId: "test-file-id.pdf",
   };
 
   const submitBodyRaw = {
-    coronersLetter: "coroners-letter.pdf",
+    buffer: Buffer.from("coroners-letter-content"),
+    mimetype: "application/pdf",
+    originalname: "coroners-letter.pdf",
   };
 
   it("returns a successful response", async () => {
@@ -33,8 +37,7 @@ describe("SaveCoronersLetterAdaptor", () => {
   });
 
   it("calls api correctly", async () => {
-    const fileSaveResponse =
-      await saveCoronersLetterAdaptor.saveCoronersLetter(submitBodyRaw);
+    await saveCoronersLetterAdaptor.saveCoronersLetter(submitBodyRaw);
 
     assert(axiosStub.post.calledOnce);
 
@@ -44,8 +47,8 @@ describe("SaveCoronersLetterAdaptor", () => {
 
     assert.equal(
       actualUrl,
-      "http://localhost/applications/save_coroners_letter",
+      "http://localhost/applications/upload-coroners-letter",
     );
-    assert.equal(actualBody, submitBodyRaw);
+    assert.instanceOf(actualBody, FormData);
   });
 });

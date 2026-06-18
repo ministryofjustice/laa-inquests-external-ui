@@ -61,6 +61,7 @@ describe("SubmitApplicationAdaptor", () => {
           firmCode: "0A123B",
           officeId: "001",
         },
+        coronersLetterId: "test-coroners-letter-id.pdf",
       };
 
       const applicationResponse =

@@ -37,10 +37,16 @@ describe("Coroners Letter adaptor", () => {
   });
 
   it("saves the file and redirects on 201", async () => {
-    requestStub.body["coroners-letter-file-upload"] = "test-file";
+    const testBuffer = Buffer.from("test-file-content");
+    requestStub.file = {
+      buffer: testBuffer,
+      mimetype: "application/pdf",
+      originalname: "test-file.pdf",
+    } as Express.Multer.File;
 
     saveCoronersLetterPort.saveCoronersLetter.resolves({
       statusCode: 201,
+      fileId: "test-file-id.pdf",
     });
 
     await coronersLetterAdaptor.processCoronersLetterUploadForm(
@@ -53,7 +59,13 @@ describe("Coroners Letter adaptor", () => {
     const uploadBody = saveCoronersLetterPort.saveCoronersLetter.getCall(0)
       .args[0] as SaveCoronersLetterRequest;
 
-    assert.deepEqual(uploadBody, { coronersLetter: "test-file" });
+    assert.deepEqual(uploadBody, {
+      buffer: testBuffer,
+      mimetype: "application/pdf",
+      originalname: "test-file.pdf",
+    });
+
+    assert.equal(requestStub.session.coronersLetterFileId, "test-file-id.pdf");
 
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
