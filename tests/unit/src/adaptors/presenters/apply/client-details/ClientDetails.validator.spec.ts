@@ -119,7 +119,7 @@ describe("ClientDetailsValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           dobInputError: {
-            text: CLIENT_DETAILS_ERROR.NON_NUMERIC_DATE,
+            text: CLIENT_DETAILS_ERROR.INVALID_DATE,
           },
         });
       });
