@@ -100,6 +100,7 @@ export class SubmitApplicationUseCase {
           firmCode: state.firmCode!,
           officeId: state.officeId!,
         },
+        coronersLetterId: state.coronersLetterId!,
       };
 
       const parseRequestResult = SubmitApplicationRequestSchema.safeParse(

@@ -226,6 +226,10 @@ describe("Confirmation adaptor", () => {
   });
 
   describe("processClientDeclarationForm", () => {
+    beforeEach(() => {
+      requestStub.session.coronersLetterId = "test-coroners-letter-id.pdf";
+    });
+
     it("re-renders declaration form with error when declaration checkbox is not selected", async () => {
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";

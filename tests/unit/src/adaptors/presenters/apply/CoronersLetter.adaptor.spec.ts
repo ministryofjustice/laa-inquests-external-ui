@@ -65,7 +65,7 @@ describe("Coroners Letter adaptor", () => {
       originalname: "test-file.pdf",
     });
 
-    assert.equal(requestStub.session.coronersLetterFileId, "test-file-id.pdf");
+    assert.equal(requestStub.session.coronersLetterId, "test-file-id.pdf");
 
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;

@@ -108,7 +108,7 @@ describe("SubmitApplicationUseCase", () => {
         firmCode: state.firmCode,
         officeId: state.officeId,
       },
-      coronersLetterId: state.coronersLetterFileId,
+      coronersLetterId: state.coronersLetterId,
     });
   });
 
@@ -227,7 +227,7 @@ function createValidState(
     ],
     firmCode: "0A123B",
     officeId: "001",
-    coronersLetterFileId: "test-coroners-letter-id.pdf",
+    coronersLetterId: "test-coroners-letter-id.pdf",
     ...overrides,
   };
 }

@@ -25,7 +25,7 @@ export class CoronersLetterAdaptor {
 
     // TODO: Remove this block when validation is included. Only here currently to not break E2E tests and allow continueing
     if (file === undefined) {
-      req.session.coronersLetterFileId = "TemporaryId";
+      req.session.coronersLetterId = "TemporaryId";
     } else {
       const result = await this.saveCoronersLetterUseCase.execute({
         buffer: file.buffer,
@@ -35,7 +35,7 @@ export class CoronersLetterAdaptor {
 
       if (result.status === "SUCCESS") {
         // eslint-disable-next-line require-atomic-updates -- TODO: Refactor to resolve potential race condition and remove eslint-disable
-        req.session.coronersLetterFileId = result.data?.fileId;
+        req.session.coronersLetterId = result.data?.fileId;
       }
     }
 
