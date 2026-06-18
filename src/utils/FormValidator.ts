@@ -81,12 +81,12 @@ export class FormValidator {
       return errors.invalidDate;
     }
 
-    const date = new Date(
+    const date = moment([
       Number(year),
       Number(month) - DATE_MONTH_INDEX_OFFSET,
       Number(day),
-    );
-    if (date > new Date()) {
+    ]);
+    if (date.toDate() > new Date()) {
       return errors.futureDate;
     }
 
