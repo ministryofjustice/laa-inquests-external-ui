@@ -35,4 +35,17 @@ describe("FormValidator - validateDateInput", () => {
     );
     assert.isUndefined(errors);
   });
+
+  const tests = [{ date: ["", "", ""], error: STANDARD_ERRORS.missing }];
+  tests.forEach(({ date, error }) => {
+    it("returns appropriate error for invalid date", () => {
+      const actualErrors = validator.callValidateDateInput(
+        date[0],
+        date[1],
+        date[2],
+        STANDARD_ERRORS,
+      );
+      assert.deepEqual(actualErrors, error);
+    });
+  });
 });
