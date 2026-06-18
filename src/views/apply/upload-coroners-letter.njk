@@ -11,7 +11,7 @@
         }) }}
   <main class="govuk-main-wrapper">
     <h1 class="govuk-heading-l">Upload coroner's letter</h1>
-    <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post">
+    <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post" enctype="multipart/form-data">
       <input type="hidden" name="_csrf" value="{{csrfToken}}" />
       {{ govukFileUpload({
         id: "coroners-letter-upload",
