@@ -126,6 +126,44 @@ describe("SubmitApplicationUseCase", () => {
     assert.equal(applySubmitPort.submitApplication.called, false);
   });
 
+  it("returns invalid input state when client date of birth day is missing", async () => {
+    const state = createValidState({
+      clientDobDay: undefined,
+    });
+
+    applySubmitPort.submitApplication.resolves({
+      statusCode: HTTP_CREATED,
+      laaReference: 123456,
+    });
+
+    const result = await useCase.execute(state);
+
+    assert.deepEqual(result, {
+      status: "TECHNICAL_FAILURE",
+      reason: "INVALID_INPUT_STATE",
+    });
+    assert.equal(applySubmitPort.submitApplication.called, false);
+  });
+
+  it("returns invalid input state when deceased date of death month is missing", async () => {
+    const state = createValidState({
+      deceasedDateOfDeathMonth: undefined,
+    });
+
+    applySubmitPort.submitApplication.resolves({
+      statusCode: HTTP_CREATED,
+      laaReference: 123456,
+    });
+
+    const result = await useCase.execute(state);
+
+    assert.deepEqual(result, {
+      status: "TECHNICAL_FAILURE",
+      reason: "INVALID_INPUT_STATE",
+    });
+    assert.equal(applySubmitPort.submitApplication.called, false);
+  });
+
   it("returns invalid response when adapter response fails schema validation", async () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({

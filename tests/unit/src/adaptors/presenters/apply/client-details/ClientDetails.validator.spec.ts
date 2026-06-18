@@ -102,6 +102,27 @@ describe("ClientDetailsValidator", () => {
           },
         });
       });
+
+      it("adds error when date is not a real calendar date", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "first-name": "",
+          "last-name": "fgdsfg",
+          "last-name-at-birth": "",
+          "dob-day": "31",
+          "dob-month": "2",
+          "dob-year": "2024",
+          "name-change": "false",
+        };
+        const errorSummaries = formValidator.validateClientDob(formBody);
+
+        assert.deepEqual(errorSummaries, {
+          dobInputError: {
+            text: CLIENT_DETAILS_ERROR.NON_NUMERIC_DATE,
+          },
+        });
+      });
     });
     describe("validateClientName", () => {
       it("add error for no first name input when first name value is empty", () => {
