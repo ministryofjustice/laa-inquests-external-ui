@@ -88,6 +88,14 @@ yarn build
 yarn dev
 ```
 
+Or to run in development with auth bypass enabled:
+
+```shell
+yarn dev:skip-auth
+```
+
+`yarn dev:skip-auth` only applies in the development environment and seeds a local authenticated user session.
+
 Then, load http://localhost:3000/ in your browser to access the app.
 
 #### Install dependencies and run application for production

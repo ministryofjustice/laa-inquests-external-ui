@@ -27,6 +27,7 @@ import axios from "axios";
 import config from "#src/infrastructure/config/config.js";
 import { SessionHelper } from "../session/sessionHelpers.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
+import { seedDevAuthSession } from "../middleware/auth/devAuthBypass.js";
 import createTestRouter from "./test.router.js";
 
 // Create a new router
@@ -83,6 +84,10 @@ indexRouter.get("/error", (req: Request, res: Response): void => {
 
 if (process.env.NODE_ENV === "test") {
   indexRouter.use("/", createTestRouter(express.Router()));
+}
+
+if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
+  indexRouter.use(seedDevAuthSession);
 }
 
 indexRouter.use(requireAuth);

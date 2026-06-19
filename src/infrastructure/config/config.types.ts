@@ -5,6 +5,7 @@ export interface AppConfig {
   environment: string;
   appName: string;
   useHttps: boolean;
+  skipAuthInDev: boolean;
   // Add any other app configuration properties
 }
 
