@@ -57,6 +57,7 @@
     "@axe-core/playwright": "^4.11.3",
     "@azure/msal-node": "^5.2.3",
     "@eslint/js": "^10.0.1",
+    "@playwright/cli": "^0.1.14",
     "@playwright/test": "^1.60.0",
     "@types/chai": "^5.2.3",
     "@types/compression": "^1.7.5",
