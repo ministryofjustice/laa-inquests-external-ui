@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node public/app.js",
     "clean": "rm -rf public",
-    "build": "yarn clean && yarn build:ts && node public/esbuild.js",
+    "build": "yarn clean && cross-env NODE_ENV=production yarn build:ts:prod && node public/esbuild.js",
     "lint": "yarn eslint .  --concurrency=auto && yarn prettier . --check",
     "lint:fix": "yarn eslint . --fix --concurrency=auto; yarn prettier . --write",
     "dev": "yarn build:ts && concurrently \"tsc --watch\" \"node public/esbuild.js --watch\" \"nodemon\"",
@@ -21,6 +21,7 @@
     "prepare": "husky",
     "tsc": "tsc --noEmit",
     "build:ts": "tsc",
+    "build:ts:prod": "tsc -p tsconfig.build.prod.json",
     "test": "yarn build && yarn test:unit && yarn test:e2e",
     "test:unit": "mocha",
     "test:e2e": "yarn build && yarn playwright test --config=tests/playwright/playwright.config.ts",

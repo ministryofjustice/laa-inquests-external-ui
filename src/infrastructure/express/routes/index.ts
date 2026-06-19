@@ -1,5 +1,5 @@
 import express from "express";
-import type { Request, Response } from "express";
+import type { Request, Response, RequestHandler } from "express";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
@@ -27,8 +27,10 @@ import axios from "axios";
 import config from "#src/infrastructure/config/config.js";
 import { SessionHelper } from "../session/sessionHelpers.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
-import { seedDevAuthSession } from "../middleware/auth/devAuthBypass.js";
 import createTestRouter from "./test.router.js";
+
+const DEV_AUTH_BYPASS_MODULE_PATH =
+  "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -87,6 +89,11 @@ if (process.env.NODE_ENV === "test") {
 }
 
 if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
+  const { seedDevAuthSession } = (await import(
+    DEV_AUTH_BYPASS_MODULE_PATH
+  )) as {
+    seedDevAuthSession: RequestHandler;
+  };
   indexRouter.use(seedDevAuthSession);
 }
 
