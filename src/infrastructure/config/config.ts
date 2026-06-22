@@ -6,6 +6,9 @@ const DEFAULT_RATE_LIMIT_MAX = 10000;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
 const DEFAULT_PORT = 3000;
+const isSkipAuthInDevelopment =
+  process.env.NODE_ENV === "development" &&
+  process.env.DEV_SKIP_AUTH === "true";
 
 // Validate required session env vars
 /* eslint-disable eqeqeq -- need looser assertion against null */
@@ -20,31 +23,33 @@ if (
   );
 }
 
-if (
-  process.env.AUTH_DIRECTORY_URL == null ||
-  process.env.AUTH_DIRECTORY_URL === "" ||
-  process.env.AUTH_CLIENT_ID == null ||
-  process.env.AUTH_CLIENT_ID === "" ||
-  process.env.AUTH_CLIENT_SECRET == null ||
-  process.env.AUTH_CLIENT_SECRET === "" ||
-  process.env.AUTH_REDIRECT_URI == null ||
-  process.env.AUTH_REDIRECT_URI === "" ||
-  process.env.AUTH_POST_LOGOUT_URI == null ||
-  process.env.AUTH_POST_LOGOUT_URI === ""
-) {
-  throw new Error(
-    "AUTH_DIRECTORY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
-  );
+if (!isSkipAuthInDevelopment) {
+  if (
+    process.env.AUTH_DIRECTORY_URL == null ||
+    process.env.AUTH_DIRECTORY_URL === "" ||
+    process.env.AUTH_CLIENT_ID == null ||
+    process.env.AUTH_CLIENT_ID === "" ||
+    process.env.AUTH_CLIENT_SECRET == null ||
+    process.env.AUTH_CLIENT_SECRET === "" ||
+    process.env.AUTH_REDIRECT_URI == null ||
+    process.env.AUTH_REDIRECT_URI === "" ||
+    process.env.AUTH_POST_LOGOUT_URI == null ||
+    process.env.AUTH_POST_LOGOUT_URI === ""
+  ) {
+    throw new Error(
+      "AUTH_DIRECTORY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
+    );
+  }
 }
 /* eslint-enable eqeqeq */
 
 // Get environment variables
 const config: Config = {
-  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL,
-  AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID,
-  AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET,
-  AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI,
-  AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI,
+  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL ?? "",
+  AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID ?? "",
+  AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET ?? "",
+  AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI ?? "",
+  AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI ?? "",
   MOCK_OAUTH_URL: process.env.MOCK_OAUTH_URL,
   CONTACT_EMAIL: process.env.CONTACT_EMAIL,
   CONTACT_PHONE: process.env.CONTACT_PHONE,
@@ -78,6 +83,7 @@ const config: Config = {
     environment: process.env.NODE_ENV ?? "development",
     appName: process.env.SERVICE_NAME ?? "Inquests",
     useHttps: process.env.NODE_ENV === "production", // Use HTTPS in production
+    skipAuthInDev: isSkipAuthInDevelopment,
   },
   csrf: {
     cookieName: "_csrf",
