@@ -25,7 +25,7 @@ export class CoronersLetterAdaptor {
 
     // TODO: Remove this block when validation is included. Only here currently to not break E2E tests and allow continueing
     if (file === undefined) {
-      req.session.coronersLetterId = "TemporaryId";
+      throw new Error("No file uploaded");
     } else {
       const result = await this.saveCoronersLetterUseCase.execute({
         buffer: file.buffer,

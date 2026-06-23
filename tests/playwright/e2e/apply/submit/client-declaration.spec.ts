@@ -90,6 +90,17 @@ test.describe("Provider can", () => {
       await continueToNextPage(form, page);
     };
 
+    const uploadDummyCoronersLetter = async (): Promise<void> => {
+      const fileInput = page.locator(
+        'input[name="coroners-letter-file-upload"]',
+      );
+      await fileInput.setInputFiles({
+        name: "dummy-coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("dummy coroners letter content"),
+      });
+    };
+
     await page.goto("/apply/client-details/name-and-dob");
     await getAndUpdateFormFields(
       page,
@@ -218,6 +229,7 @@ test.describe("Provider can", () => {
     await continueNextPage("add-another-public-authority-form");
     await expect(page.url()).toContain("/apply/upload-coroners-letter");
 
+    await uploadDummyCoronersLetter();
     await continueNextPage("upload-coroners-letter-form");
     await expect(page.url()).toContain("/apply/check-your-answers");
 
