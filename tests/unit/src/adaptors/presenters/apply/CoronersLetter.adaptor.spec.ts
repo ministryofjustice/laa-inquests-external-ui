@@ -1,23 +1,23 @@
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
-import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/SaveCoronersLetter.port.js";
+import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 import { strict as assert } from "assert";
 import type { Request, Response } from "express";
-import { SaveCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/SaveCoronersLetter/models/SaveCoronersLetter.types.js";
+import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
 
 describe("Coroners Letter adaptor", () => {
   let coronersLetterAdaptor: CoronersLetterAdaptor;
   let requestStub: StubbedInstance<Request>;
   let responseStub: StubbedInstance<Response>;
 
-  const saveCoronersLetterPort = stubInterface<SaveCoronersLetterPort>();
-  saveCoronersLetterPort.saveCoronersLetter.resolves({
+  const uploadCoronersLetterPort = stubInterface<UploadCoronersLetterPort>();
+  uploadCoronersLetterPort.uploadCoronersLetter.resolves({
     status: "SUCCESS",
     fileId: "test-file-id.pdf",
   });
 
   before(() => {
-    coronersLetterAdaptor = new CoronersLetterAdaptor(saveCoronersLetterPort);
+    coronersLetterAdaptor = new CoronersLetterAdaptor(uploadCoronersLetterPort);
   });
 
   beforeEach(() => {
@@ -58,10 +58,10 @@ describe("Coroners Letter adaptor", () => {
       responseStub,
     );
 
-    assert.equal(saveCoronersLetterPort.saveCoronersLetter.callCount, 1);
+    assert.equal(uploadCoronersLetterPort.uploadCoronersLetter.callCount, 1);
 
-    const uploadBody = saveCoronersLetterPort.saveCoronersLetter.getCall(0)
-      .args[0] as SaveCoronersLetterRequest;
+    const uploadBody = uploadCoronersLetterPort.uploadCoronersLetter.getCall(0)
+      .args[0] as UploadCoronersLetterRequest;
 
     assert.deepEqual(uploadBody, {
       buffer: buffer,
@@ -77,7 +77,7 @@ describe("Coroners Letter adaptor", () => {
   it("saves the letter id to session on successful upload", async () => {
     setupRequestFile();
 
-    saveCoronersLetterPort.saveCoronersLetter.resolves({
+    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
       status: "SUCCESS",
       fileId: "test-file-id.pdf",
     });

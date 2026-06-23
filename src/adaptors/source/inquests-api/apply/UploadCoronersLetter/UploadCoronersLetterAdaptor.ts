@@ -1,19 +1,19 @@
-import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/SaveCoronersLetter.port.js";
+import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type {
-  SaveCoronersLetterRequest,
-  SaveCoronersLetterResponse,
-} from "./models/SaveCoronersLetter.types.js";
+  UploadCoronersLetterRequest,
+  UploadCoronersLetterResponse,
+} from "./models/UploadCoronersLetter.types.js";
 
-export class SaveCoronersLetterAdaptor implements SaveCoronersLetterPort {
+export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
   constructor(
     private readonly http: AxiosInstance,
     private readonly baseUrl: string,
   ) {}
 
-  async saveCoronersLetter(
-    body: SaveCoronersLetterRequest,
-  ): Promise<SaveCoronersLetterResponse> {
+  async uploadCoronersLetter(
+    body: UploadCoronersLetterRequest,
+  ): Promise<UploadCoronersLetterResponse> {
     const formData = new FormData();
     formData.append(
       "file",

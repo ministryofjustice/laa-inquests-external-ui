@@ -1,11 +1,11 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
-import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/SaveCoronersLetter.port.js";
-import { SaveCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/SaveCoronersLetter.useCase.js";
+import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
+import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
 
-describe("SaveCoronersLetterUseCase", () => {
-  let saveCoronersLetterPort: StubbedInstance<SaveCoronersLetterPort>;
-  let useCase: SaveCoronersLetterUseCase;
+describe("UploadCoronersLetterUseCase", () => {
+  let uploadCoronersLetterPort: StubbedInstance<UploadCoronersLetterPort>;
+  let useCase: UploadCoronersLetterUseCase;
   const testCoronerLetter = {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
@@ -13,12 +13,12 @@ describe("SaveCoronersLetterUseCase", () => {
   };
 
   beforeEach(() => {
-    saveCoronersLetterPort = stubInterface<SaveCoronersLetterPort>();
-    useCase = new SaveCoronersLetterUseCase(saveCoronersLetterPort);
+    uploadCoronersLetterPort = stubInterface<UploadCoronersLetterPort>();
+    useCase = new UploadCoronersLetterUseCase(uploadCoronersLetterPort);
   });
 
   it("returns success with laa reference when the API returns SUCCESS", async () => {
-    saveCoronersLetterPort.saveCoronersLetter.resolves({
+    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
       status: "SUCCESS",
       fileId: "test-file-id.pdf",
     });
@@ -32,7 +32,7 @@ describe("SaveCoronersLetterUseCase", () => {
   });
 
   it("returns upstream rejected when API status is not SUCCESS", async () => {
-    saveCoronersLetterPort.saveCoronersLetter.resolves({
+    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
       status: "FAILURE",
       fileId: "",
     });
@@ -46,7 +46,7 @@ describe("SaveCoronersLetterUseCase", () => {
   });
 
   it("returns unexpected exception when adapter throws", async () => {
-    saveCoronersLetterPort.saveCoronersLetter.rejects(
+    uploadCoronersLetterPort.uploadCoronersLetter.rejects(
       new Error("network failure"),
     );
 

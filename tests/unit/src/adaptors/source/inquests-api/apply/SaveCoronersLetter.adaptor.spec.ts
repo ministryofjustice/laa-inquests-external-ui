@@ -1,11 +1,11 @@
 import { assert } from "chai";
 import { AxiosInstance } from "axios";
 import { StubbedInstance, stubInterface } from "ts-sinon";
-import { SaveCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/SaveCoronersLetter/SaveCoronersLetter.adaptor.js";
+import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 
-describe("SaveCoronersLetterAdaptor", () => {
+describe("UploadCoronersLetterAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
-  let saveCoronersLetterAdaptor: SaveCoronersLetterAdaptor;
+  let uploadCoronersLetterAdaptor: UploadCoronersLetterAdaptor;
   beforeEach(() => {
     axiosStub = stubInterface<AxiosInstance>();
     axiosStub.post.resolves({
@@ -13,7 +13,7 @@ describe("SaveCoronersLetterAdaptor", () => {
       data: { fileId: "test-file-id.pdf" },
     });
 
-    saveCoronersLetterAdaptor = new SaveCoronersLetterAdaptor(
+    uploadCoronersLetterAdaptor = new UploadCoronersLetterAdaptor(
       axiosStub,
       "http://localhost",
     );
@@ -31,13 +31,13 @@ describe("SaveCoronersLetterAdaptor", () => {
 
   it("returns a successful response on successful upload", async () => {
     const fileSaveResponse =
-      await saveCoronersLetterAdaptor.saveCoronersLetter(submitBodyRaw);
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
 
     assert.deepEqual(expectedApiResponse, fileSaveResponse);
   });
 
   it("calls correct api endpoint with parameters", async () => {
-    await saveCoronersLetterAdaptor.saveCoronersLetter(submitBodyRaw);
+    await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
 
     assert(axiosStub.post.calledOnce);
 

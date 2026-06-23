@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
-import { SaveCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/SaveCoronersLetter.useCase.js";
-import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/SaveCoronersLetter.port.js";
+import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 
 export class CoronersLetterAdaptor {
-  saveCoronersLetterUseCase: SaveCoronersLetterUseCase;
+  uploadCoronersLetterUseCase: UploadCoronersLetterUseCase;
 
-  constructor(saveCoronersLetterPort: SaveCoronersLetterPort) {
-    this.saveCoronersLetterUseCase = new SaveCoronersLetterUseCase(
-      saveCoronersLetterPort,
+  constructor(uploadCoronersLetterPort: UploadCoronersLetterPort) {
+    this.uploadCoronersLetterUseCase = new UploadCoronersLetterUseCase(
+      uploadCoronersLetterPort,
     );
   }
 
@@ -27,7 +27,7 @@ export class CoronersLetterAdaptor {
     if (file === undefined) {
       throw new Error("No file uploaded");
     } else {
-      const result = await this.saveCoronersLetterUseCase.execute({
+      const result = await this.uploadCoronersLetterUseCase.execute({
         buffer: file.buffer,
         mimetype: file.mimetype,
         originalname: file.originalname,

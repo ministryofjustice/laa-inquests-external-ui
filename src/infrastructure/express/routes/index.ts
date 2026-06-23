@@ -23,7 +23,7 @@ import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js
 import { MockAuthAdaptor } from "#src/adaptors/source/auth/MockAuth.adaptor.js";
 import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
-import { SaveCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/SaveCoronersLetter/SaveCoronersLetter.adaptor.js";
+import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
@@ -151,12 +151,12 @@ const confirmationAdaptor = new ConfirmationAdaptor(
   sessionHelper,
 );
 
-const saveCoronersLetterSource = new SaveCoronersLetterAdaptor(
+const uploadCoronersLetterSource = new UploadCoronersLetterAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
 );
 const coronersLetterAdaptor = new CoronersLetterAdaptor(
-  saveCoronersLetterSource,
+  uploadCoronersLetterSource,
 );
 
 indexRouter.use(
