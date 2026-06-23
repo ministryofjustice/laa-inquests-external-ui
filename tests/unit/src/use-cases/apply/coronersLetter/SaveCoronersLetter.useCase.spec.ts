@@ -2,7 +2,6 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/SaveCoronersLetter.port.js";
 import { SaveCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/SaveCoronersLetter.useCase.js";
-import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
 
 describe("SaveCoronersLetterUseCase", () => {
   let saveCoronersLetterPort: StubbedInstance<SaveCoronersLetterPort>;
@@ -18,7 +17,7 @@ describe("SaveCoronersLetterUseCase", () => {
     useCase = new SaveCoronersLetterUseCase(saveCoronersLetterPort);
   });
 
-  it("returns success with laa reference when the API returns HTTP_CREATED", async () => {
+  it("returns success with laa reference when the API returns SUCCESS", async () => {
     saveCoronersLetterPort.saveCoronersLetter.resolves({
       status: "SUCCESS",
       fileId: "test-file-id.pdf",
@@ -32,7 +31,7 @@ describe("SaveCoronersLetterUseCase", () => {
     });
   });
 
-  it("returns upstream rejected when API status code is not HTTP_CREATED", async () => {
+  it("returns upstream rejected when API status is not SUCCESS", async () => {
     saveCoronersLetterPort.saveCoronersLetter.resolves({
       status: "FAILURE",
       fileId: "",

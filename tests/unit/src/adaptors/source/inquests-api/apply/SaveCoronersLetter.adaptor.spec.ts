@@ -29,14 +29,14 @@ describe("SaveCoronersLetterAdaptor", () => {
     originalname: "coroners-letter.pdf",
   };
 
-  it("returns a successful response", async () => {
+  it("returns a successful response on successful upload", async () => {
     const fileSaveResponse =
       await saveCoronersLetterAdaptor.saveCoronersLetter(submitBodyRaw);
 
     assert.deepEqual(expectedApiResponse, fileSaveResponse);
   });
 
-  it("calls api correctly", async () => {
+  it("calls correct api endpoint with parameters", async () => {
     await saveCoronersLetterAdaptor.saveCoronersLetter(submitBodyRaw);
 
     assert(axiosStub.post.calledOnce);
