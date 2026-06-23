@@ -15,7 +15,7 @@ test.describe("Apply - check your answers", () => {
     await expect(checkYourAnswersHeading).toBeVisible();
 
     await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", "/apply/fee-earner");
+    await expect(backButton).toHaveAttribute("href", "/apply/public-authority/confirmation");
 
     const pageInsetText = page.getByText(
       "You cannot change the answers on this page once you  continue",
