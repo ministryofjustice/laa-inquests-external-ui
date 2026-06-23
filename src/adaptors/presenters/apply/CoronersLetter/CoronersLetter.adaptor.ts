@@ -23,7 +23,6 @@ export class CoronersLetterAdaptor {
   ): Promise<void> {
     const { file } = req;
 
-    // TODO: Remove this block when validation is included. Only here currently to not break E2E tests and allow continueing
     if (file === undefined) {
       throw new Error("No file uploaded");
     } else {
