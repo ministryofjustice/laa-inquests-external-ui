@@ -27,6 +27,7 @@ export interface BuildCheckYourAnswersOutput {
     deceasedCoronerReference?: string;
   };
   publicAuthorities: PublicAuthority[];
+  coronersLetterId: string | undefined;
 }
 
 export class BuildCheckYourAnswersUseCase {
@@ -55,6 +56,7 @@ export class BuildCheckYourAnswersUseCase {
         deceasedCoronerReference: state.deceasedCoronerReference,
       },
       publicAuthorities: state.selectedPublicAuthorities ?? [],
+      coronersLetterId: state.coronersLetterId,
     };
   }
 }

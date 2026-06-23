@@ -35,6 +35,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
           publicAuthorityDescription: "Cabinet Office",
         },
       ],
+      coronersLetterId: "TemporaryId",
     });
 
     assert.deepEqual(result, {
@@ -72,6 +73,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
           publicAuthorityDescription: "Cabinet Office",
         },
       ],
+      coronersLetterId: "TemporaryId",
     });
   });
 

@@ -188,6 +188,7 @@ export class ConfirmationAdaptor {
       deceasedCoronerReference: string;
     };
     publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
+    coronersLetterId: string;
   } {
     const clientAddress = this.#getClientAddressSummary(data);
     const clientPostcode = this.#getClientPostcodeSummary(data);
@@ -224,6 +225,7 @@ export class ConfirmationAdaptor {
       publicAuthorities: this.formatter.formatIntoTableRows(
         data.publicAuthorities,
       ),
+      coronersLetterId: data.coronersLetterId ?? "",
     };
   }
 

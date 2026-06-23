@@ -64,6 +64,7 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathYear = "2001";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
+    requestStub.session.coronersLetterId = "test-file-id.pdf";
 
     const publicAuthorities = [
       {
@@ -111,6 +112,7 @@ describe("Confirmation adaptor", () => {
         deceasedCoronerReference: "12345678910",
       },
       publicAuthorities: expectedFormattedPublicAuthorities,
+      coronersLetterId: "test-file-id.pdf",
     });
   });
 
