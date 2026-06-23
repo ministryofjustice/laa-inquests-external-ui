@@ -8,9 +8,12 @@ export interface BuildCheckYourAnswersOutput {
   client: {
     clientFirstName?: string;
     clientLastName?: string;
+    clientLastNameAtBirth?: string | null;
     clientDobDay?: string;
     clientDobMonth?: string;
     clientDobYear?: string;
+    clientNino?: string | null;
+    prevLaaReferenceInput?: string | null;
     clientHasNoFixedAbode?: boolean;
     clientHomeAddress?: Address | null;
     clientCorrespondenceAddressSource?: SubmitApplicationRequest["client"]["correspondenceAddressSource"];
@@ -35,9 +38,12 @@ export class BuildCheckYourAnswersUseCase {
       client: {
         clientFirstName: state.clientFirstName,
         clientLastName: state.clientLastName,
+        clientLastNameAtBirth: state.clientLastNameAtBirth,
         clientDobDay: state.clientDobDay,
         clientDobMonth: state.clientDobMonth,
         clientDobYear: state.clientDobYear,
+        clientNino: state.clientNino,
+        prevLaaReferenceInput: state.prevLaaReferenceInput,
         clientHasNoFixedAbode: state.clientHasNoFixedAbode,
         clientHomeAddress: state.clientHomeAddress,
         clientCorrespondenceAddressSource:

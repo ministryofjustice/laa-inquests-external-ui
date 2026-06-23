@@ -46,6 +46,9 @@ export class ConfirmationSessionStateMapper {
         session.clientCorrespondenceRecipient,
       ),
       clientHasNoFixedAbode: session.clientHasNoFixedAbode === true,
+      prevLaaReferenceInput: getNullableStringValue(
+        session.prevLaaReferenceInput,
+      ),
     };
   }
 

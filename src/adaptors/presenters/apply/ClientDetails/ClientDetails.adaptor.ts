@@ -144,7 +144,13 @@ export class ClientDetailsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    res.render("apply/client-details/nino", { csrfToken });
+    res.render("apply/client-details/nino", {
+      csrfToken,
+      client: {
+        hasNino: req.session.clientHasNino,
+        clientNino: req.session.clientNino,
+      },
+    });
   }
 
   processNinoForm(
@@ -503,7 +509,13 @@ export class ClientDetailsAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    res.render("apply/client-details/has-prev-application", { csrfToken });
+    res.render("apply/client-details/has-prev-application", {
+      csrfToken,
+      client: {
+        hasPrevApplication: req.session.clientHasPrevApplication,
+        prevLaaReference: req.session.prevLaaReferenceInput,
+      },
+    });
   }
 
   processHasPrevApplicationForm(

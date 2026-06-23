@@ -51,6 +51,14 @@
                     html: client.clientLastName
                   }
                 },
+                ({
+                  key: {
+                    text: "Last name at birth"
+                  },
+                  value: {
+                    html: client.clientLastNameAtBirth
+                  }
+                } if client.clientLastNameAtBirth),
                 {
                   key: {
                     text: "Date of birth"
@@ -59,6 +67,22 @@
                     html: client.clientDob
                   }
                 },
+                ({
+                  key: {
+                    text: "National Insurance number"
+                  },
+                  value: {
+                    html: client.clientNino
+                  }
+                } if client.clientNino),
+                ({
+                  key: {
+                    text: "Previous LAA reference"
+                  },
+                  value: {
+                    html: client.prevLaaReferenceInput
+                  }
+                } if client.prevLaaReferenceInput),
                 {
                   key: {
                     text: "Home address"

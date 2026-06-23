@@ -42,6 +42,9 @@ describe("Confirmation adaptor", () => {
   it("render check your answers page", () => {
     requestStub.session.clientFirstName = "test name";
     requestStub.session.clientLastName = "last name";
+    requestStub.session.clientLastNameAtBirth = "birth name";
+    requestStub.session.clientNino = "AB123456C";
+    requestStub.session.prevLaaReferenceInput = "L-123-456";
     requestStub.session.clientDobDay = "1";
     requestStub.session.clientDobMonth = "12";
     requestStub.session.clientDobYear = "1990";
@@ -96,6 +99,9 @@ describe("Confirmation adaptor", () => {
       client: {
         clientFirstName: "test name",
         clientLastName: "last name",
+        clientLastNameAtBirth: "birth name",
+        clientNino: "AB123456C",
+        prevLaaReferenceInput: "L-123-456",
         clientDob: "1/12/1990",
         clientAddress:
           "4 Privet DriveLittle Whinging Little Whinging Surrey B1 123b",
