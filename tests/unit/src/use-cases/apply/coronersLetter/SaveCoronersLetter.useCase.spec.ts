@@ -20,7 +20,7 @@ describe("SaveCoronersLetterUseCase", () => {
 
   it("returns success with laa reference when the API returns HTTP_CREATED", async () => {
     saveCoronersLetterPort.saveCoronersLetter.resolves({
-      statusCode: HTTP_CREATED,
+      status: "SUCCESS",
       fileId: "test-file-id.pdf",
     });
 
@@ -34,7 +34,7 @@ describe("SaveCoronersLetterUseCase", () => {
 
   it("returns upstream rejected when API status code is not HTTP_CREATED", async () => {
     saveCoronersLetterPort.saveCoronersLetter.resolves({
-      statusCode: 500,
+      status: "FAILURE",
       fileId: "",
     });
 

@@ -29,7 +29,7 @@ export class SaveCoronersLetterAdaptor implements SaveCoronersLetterPort {
     );
 
     return {
-      statusCode: response.status,
+      status: "SUCCESS",
       fileId: response.data.fileId,
     };
   }

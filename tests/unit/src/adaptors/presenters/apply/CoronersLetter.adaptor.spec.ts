@@ -36,7 +36,7 @@ describe("Coroners Letter adaptor", () => {
     });
   });
 
-  it("saves the file and redirects on 201", async () => {
+  it("saves the file and redirects on success", async () => {
     const testBuffer = Buffer.from("test-file-content");
     requestStub.file = {
       buffer: testBuffer,
@@ -45,7 +45,7 @@ describe("Coroners Letter adaptor", () => {
     } as Express.Multer.File;
 
     saveCoronersLetterPort.saveCoronersLetter.resolves({
-      statusCode: 201,
+      status: "SUCCESS",
       fileId: "test-file-id.pdf",
     });
 

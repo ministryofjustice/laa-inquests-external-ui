@@ -1,6 +1,5 @@
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import type { SaveCoronersLetterPort } from "#src/ports/source/inquests-api/SaveCoronersLetter.port.js";
-import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
 
 interface SaveCoronersLetterInput {
   buffer: Buffer;
@@ -31,9 +30,9 @@ export class SaveCoronersLetterUseCase {
         originalname,
       });
 
-      const { statusCode } = responseRaw;
+      const { status } = responseRaw;
 
-      if (statusCode === HTTP_CREATED) {
+      if (status === "SUCCESS") {
         return {
           status: "SUCCESS",
           data: { fileId: responseRaw.fileId },

@@ -19,7 +19,7 @@ describe("SaveCoronersLetterAdaptor", () => {
     );
   });
   const expectedApiResponse = {
-    statusCode: 201,
+    status: "SUCCESS",
     fileId: "test-file-id.pdf",
   };
 

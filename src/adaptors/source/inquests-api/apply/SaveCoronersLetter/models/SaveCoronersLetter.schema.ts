@@ -7,6 +7,6 @@ export const SaveCoronersLetterRequestSchema = z.object({
 });
 
 export const SaveCoronersLetterResponseSchema = z.object({
-  statusCode: z.number(),
+  status: z.string(),
   fileId: z.string(),
 });
