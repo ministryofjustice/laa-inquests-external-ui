@@ -30,6 +30,7 @@ export class EntraAuthAdaptor implements AuthPort {
       userName: result.account?.name ?? undefined,
       firmCode: this.#extractFirmCode(result.account?.idTokenClaims),
       officeId: this.#extractOfficeId(result.account?.idTokenClaims),
+      providerEmail: result.account?.username ?? undefined,
     };
   }
 

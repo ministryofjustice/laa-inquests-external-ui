@@ -99,6 +99,7 @@ export class SubmitApplicationUseCase {
         provider: {
           firmCode: state.firmCode!,
           officeId: state.officeId!,
+          emailAddress: state.providerEmail!,
         },
         coronersLetterId: state.coronersLetterId!,
       };

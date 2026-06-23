@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*", "esbuild.ts"],
+  "exclude": [
+    "node_modules",
+    "public",
+    "**/*.js",
+    "tests/**/*",
+    "src/infrastructure/express/middleware/auth/devAuthBypass.ts"
+  ]
+}

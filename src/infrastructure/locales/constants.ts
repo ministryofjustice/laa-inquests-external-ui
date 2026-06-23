@@ -41,6 +41,7 @@ export const DATE_MONTH_INDEX_OFFSET = 1;
 export const EMPTY_ARR_LENGTH = 0;
 
 export const CLIENT_DETAILS_ERROR = {
+  INVALID_DATE: "Please enter a valid date",
   NON_NUMERIC_DATE: "Please enter date of birth in the format expected",
   MISSING_DOB_INPUT: "Please enter date of birth",
   FUTURE_DATE: "Date of birth must not be in the future",

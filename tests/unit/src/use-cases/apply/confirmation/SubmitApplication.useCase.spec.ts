@@ -107,6 +107,7 @@ describe("SubmitApplicationUseCase", () => {
       provider: {
         firmCode: state.firmCode,
         officeId: state.officeId,
+        emailAddress: state.providerEmail,
       },
       coronersLetterId: state.coronersLetterId,
     });
@@ -228,6 +229,7 @@ function createValidState(
     firmCode: "0A123B",
     officeId: "001",
     coronersLetterId: "test-coroners-letter-id.pdf",
+    providerEmail: "test@example.com",
     ...overrides,
   };
 }

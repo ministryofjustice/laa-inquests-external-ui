@@ -1051,6 +1051,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@playwright/cli@npm:^0.1.14":
+  version: 0.1.14
+  resolution: "@playwright/cli@npm:0.1.14"
+  dependencies:
+    playwright: "npm:1.61.0-alpha-1781023400000"
+    playwright-core: "npm:1.61.0-alpha-1781023400000"
+  bin:
+    playwright-cli: playwright-cli.js
+  checksum: 10c0/3361c2cd0ca4ec2e204c4c11d4147aafb7f4c6e7ca9536a02f6ca914d52d4698c7e258710e768f3afa1f1576a7d69d981482f476214e09b7f60f8f364de826c2
+  languageName: node
+  linkType: hard
+
 "@playwright/test@npm:^1.60.0":
   version: 1.60.0
   resolution: "@playwright/test@npm:1.60.0"
@@ -4766,6 +4778,7 @@ __metadata:
     "@azure/msal-node": "npm:^5.2.3"
     "@eslint/js": "npm:^10.0.1"
     "@ministryofjustice/frontend": "npm:^9.0.0"
+    "@playwright/cli": "npm:^0.1.14"
     "@playwright/test": "npm:^1.60.0"
     "@types/chai": "npm:^5.2.3"
     "@types/compression": "npm:^1.7.5"
@@ -5735,6 +5748,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"playwright-core@npm:1.61.0-alpha-1781023400000":
+  version: 1.61.0-alpha-1781023400000
+  resolution: "playwright-core@npm:1.61.0-alpha-1781023400000"
+  bin:
+    playwright-core: cli.js
+  checksum: 10c0/3f5599b4bef0cd0a9b6d2db602d1d84b0d176b6db86a70483283a5192b4640f792a94b3713a218c2bb1ba7f88ef4afc021076a3a20e45a615eee7ff025444a21
+  languageName: node
+  linkType: hard
+
 "playwright@npm:1.60.0":
   version: 1.60.0
   resolution: "playwright@npm:1.60.0"
@@ -5747,6 +5769,21 @@ __metadata:
   bin:
     playwright: cli.js
   checksum: 10c0/714ad76d85b4865d7e43c0012f9039800c1485373388973ed39d79339cee5ad467052d1e2f1eaeca107a1cb6e65342186a8578a4c3504853d84c3a691250d5db
+  languageName: node
+  linkType: hard
+
+"playwright@npm:1.61.0-alpha-1781023400000":
+  version: 1.61.0-alpha-1781023400000
+  resolution: "playwright@npm:1.61.0-alpha-1781023400000"
+  dependencies:
+    fsevents: "npm:2.3.2"
+    playwright-core: "npm:1.61.0-alpha-1781023400000"
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  bin:
+    playwright: cli.js
+  checksum: 10c0/0f5f3987e57e449a630d84112183722e241eb5c97e74c819eabc26bc930b2c2cf074aa6679cec2c1e7c2283fdf8d661909f4c24678d29a341b2a3a517f4042ea
   languageName: node
   linkType: hard
 

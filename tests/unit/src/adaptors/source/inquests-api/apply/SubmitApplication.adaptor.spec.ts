@@ -60,6 +60,7 @@ describe("SubmitApplicationAdaptor", () => {
         provider: {
           firmCode: "0A123B",
           officeId: "001",
+          emailAddress: "test@example.com",
         },
         coronersLetterId: "test-coroners-letter-id.pdf",
       };
