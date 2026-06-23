@@ -26,6 +26,7 @@ import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
 import { SessionHelper } from "../session/sessionHelpers.js";
+import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
 import createTestRouter from "./test.router.js";
 
@@ -99,9 +100,11 @@ if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
 
 indexRouter.use(requireAuth);
 
+const homeAdaptor = new HomeAdaptor(new SessionHelper());
+
 /* GET home page. */
 indexRouter.get("/", (req: Request, res: Response): void => {
-  res.render("main/index");
+  homeAdaptor.renderHome(req, res);
 });
 
 indexRouter.get("/apply", (req: Request, res: Response): void => {
