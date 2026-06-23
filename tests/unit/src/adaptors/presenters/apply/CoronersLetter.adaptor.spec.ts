@@ -11,6 +11,10 @@ describe("Coroners Letter adaptor", () => {
   let responseStub: StubbedInstance<Response>;
 
   const saveCoronersLetterPort = stubInterface<SaveCoronersLetterPort>();
+  saveCoronersLetterPort.saveCoronersLetter.resolves({
+    status: "SUCCESS",
+    fileId: "test-file-id.pdf",
+  });
 
   before(() => {
     coronersLetterAdaptor = new CoronersLetterAdaptor(saveCoronersLetterPort);
@@ -20,6 +24,16 @@ describe("Coroners Letter adaptor", () => {
     requestStub = stubInterface<Request>();
     responseStub = stubInterface<Response>();
   });
+
+  const setupRequestFile = (): Buffer<ArrayBuffer> => {
+    const testBuffer = Buffer.from("test-file-content");
+    requestStub.file = {
+      buffer: testBuffer,
+      mimetype: "application/pdf",
+      originalname: "test-file.pdf",
+    } as Express.Multer.File;
+    return testBuffer;
+  };
 
   it("renders the coroners upload letter view with the correct arguments", () => {
     requestStub.session.coronersLetterFile = "test-file";
@@ -37,17 +51,7 @@ describe("Coroners Letter adaptor", () => {
   });
 
   it("saves the file and redirects on success", async () => {
-    const testBuffer = Buffer.from("test-file-content");
-    requestStub.file = {
-      buffer: testBuffer,
-      mimetype: "application/pdf",
-      originalname: "test-file.pdf",
-    } as Express.Multer.File;
-
-    saveCoronersLetterPort.saveCoronersLetter.resolves({
-      status: "SUCCESS",
-      fileId: "test-file-id.pdf",
-    });
+    const buffer = setupRequestFile();
 
     await coronersLetterAdaptor.processCoronersLetterUploadForm(
       requestStub,
@@ -60,15 +64,29 @@ describe("Coroners Letter adaptor", () => {
       .args[0] as SaveCoronersLetterRequest;
 
     assert.deepEqual(uploadBody, {
-      buffer: testBuffer,
+      buffer: buffer,
       mimetype: "application/pdf",
       originalname: "test-file.pdf",
     });
 
-    assert.equal(requestStub.session.coronersLetterId, "test-file-id.pdf");
-
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
     assert.equal(redirectArgs[0], "/apply/check-your-answers");
+  });
+
+  it("saves the letter id to session on successful upload", async () => {
+    setupRequestFile();
+
+    saveCoronersLetterPort.saveCoronersLetter.resolves({
+      status: "SUCCESS",
+      fileId: "test-file-id.pdf",
+    });
+
+    await coronersLetterAdaptor.processCoronersLetterUploadForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(requestStub.session.coronersLetterId, "test-file-id.pdf");
   });
 });
