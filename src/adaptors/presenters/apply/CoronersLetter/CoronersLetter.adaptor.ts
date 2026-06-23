@@ -33,7 +33,9 @@ export class CoronersLetterAdaptor {
       });
 
       if (result.status === "SUCCESS") {
-        req.session.coronersLetterId = result.data?.fileId;
+        Object.assign(req.session, {
+          coronersLetterId: result.data?.fileId,
+        });
       }
     }
 

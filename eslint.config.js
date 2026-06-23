@@ -41,7 +41,6 @@ export default [
       "unused-disable-directive": "off", // stops complaining about single line disable next line
       "prefer-named-capture-group": "off",
       "no-param-reassign": ["error", { props: false }], // Allow modifying properties of function parameters (common in Express middleware and reducers)
-      "require-atomic-updates": ["error", { allowProperties: true }],
       // TypeScript declaration file best practices
       "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
       "@typescript-eslint/consistent-type-imports": "error",
