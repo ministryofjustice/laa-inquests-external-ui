@@ -34,7 +34,6 @@ export class CoronersLetterAdaptor {
       });
 
       if (result.status === "SUCCESS") {
-        // eslint-disable-next-line require-atomic-updates -- TODO: Refactor to resolve potential race condition and remove eslint-disable
         req.session.coronersLetterId = result.data?.fileId;
       }
     }
