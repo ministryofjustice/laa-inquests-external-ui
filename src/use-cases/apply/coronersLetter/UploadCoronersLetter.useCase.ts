@@ -1,4 +1,7 @@
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
+import type {
+  TechnicalFailureReason,
+  UseCaseResult,
+} from "#src/use-cases/common/useCaseResult.types.js";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 
 interface UploadCoronersLetterInput {
@@ -34,15 +37,25 @@ export class UploadCoronersLetterUseCase {
       const { status } = responseRaw;
 
       if (status === "SUCCESS") {
-        return {
-          status: "SUCCESS",
-          data: { fileId: responseRaw.fileId },
-        };
+        if (
+          typeof responseRaw.fileId === "string" &&
+          responseRaw.fileId !== ""
+        ) {
+          return {
+            status: "SUCCESS",
+            data: { fileId: responseRaw.fileId },
+          };
+        } else {
+          return {
+            status: "TECHNICAL_FAILURE",
+            reason: "UNEXPECTED_EXCEPTION",
+          };
+        }
       }
 
       return {
         status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
+        reason: responseRaw.reason as TechnicalFailureReason,
       };
     } catch {
       return {

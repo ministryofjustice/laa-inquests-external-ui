@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { AxiosInstance } from "axios";
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
+import { UploadCoronersLetterResponse } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
 
 describe("UploadCoronersLetterAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
@@ -18,9 +19,20 @@ describe("UploadCoronersLetterAdaptor", () => {
       "http://localhost",
     );
   });
-  const expectedApiResponse = {
+
+  const expectedSuccessResponse: UploadCoronersLetterResponse = {
     status: "SUCCESS",
     fileId: "test-file-id.pdf",
+  };
+
+  const expectedFailureResponse: UploadCoronersLetterResponse = {
+    status: "TECHNICAL_FAILURE",
+    reason: "UPSTREAM_REJECTED",
+  };
+
+  const expectedExceptionResponse: UploadCoronersLetterResponse = {
+    status: "TECHNICAL_FAILURE",
+    reason: "UNEXPECTED_EXCEPTION",
   };
 
   const submitBodyRaw = {
@@ -33,7 +45,28 @@ describe("UploadCoronersLetterAdaptor", () => {
     const fileSaveResponse =
       await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
 
-    assert.deepEqual(expectedApiResponse, fileSaveResponse);
+    assert.deepEqual(expectedSuccessResponse, fileSaveResponse);
+  });
+
+  it("returns a technical failure response on failed upload", async () => {
+    axiosStub.post.resolves({
+      status: 500,
+      data: {},
+    });
+
+    const fileSaveResponse =
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
+
+    assert.deepEqual(expectedFailureResponse, fileSaveResponse);
+  });
+
+  it("returns a technical failure response on unexpected exception", async () => {
+    axiosStub.post.rejects(new Error("Unexpected error"));
+
+    const fileSaveResponse =
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
+
+    assert.deepEqual(expectedExceptionResponse, fileSaveResponse);
   });
 
   it("calls correct api endpoint with parameters", async () => {

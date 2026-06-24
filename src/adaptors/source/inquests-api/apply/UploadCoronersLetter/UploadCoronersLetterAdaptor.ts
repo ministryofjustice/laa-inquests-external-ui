@@ -4,6 +4,7 @@ import type {
   UploadCoronersLetterRequest,
   UploadCoronersLetterResponse,
 } from "./models/UploadCoronersLetter.types.js";
+import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
 
 export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
   constructor(
@@ -23,14 +24,28 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
       body.originalname,
     );
 
-    const response: AxiosResponse<{ fileId: string }> = await this.http.post(
-      `${this.baseUrl}/applications/upload-coroners-letter`,
-      formData,
-    );
+    try {
+      const response: AxiosResponse<{ fileId: string }> = await this.http.post(
+        `${this.baseUrl}/applications/upload-coroners-letter`,
+        formData,
+      );
 
-    return {
-      status: "SUCCESS",
-      fileId: response.data.fileId,
-    };
+      if (response.status !== HTTP_CREATED) {
+        return {
+          status: "TECHNICAL_FAILURE",
+          reason: "UPSTREAM_REJECTED",
+        };
+      }
+
+      return {
+        status: "SUCCESS",
+        fileId: response.data.fileId,
+      };
+    } catch (error) {
+      return {
+        status: "TECHNICAL_FAILURE",
+        reason: "UNEXPECTED_EXCEPTION",
+      };
+    }
   }
 }

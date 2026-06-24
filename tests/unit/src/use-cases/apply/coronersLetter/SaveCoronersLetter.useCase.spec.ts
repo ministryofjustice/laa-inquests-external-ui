@@ -31,10 +31,10 @@ describe("UploadCoronersLetterUseCase", () => {
     });
   });
 
-  it("returns upstream rejected when API status is not SUCCESS", async () => {
+  it("returns upstream TECHNICAL_FAILURE when API status is TECHNICAL_FAILURE", async () => {
     uploadCoronersLetterPort.uploadCoronersLetter.resolves({
-      status: "FAILURE",
-      fileId: "",
+      status: "TECHNICAL_FAILURE",
+      reason: "UPSTREAM_REJECTED",
     });
 
     const result = await useCase.execute(testCoronerLetter);

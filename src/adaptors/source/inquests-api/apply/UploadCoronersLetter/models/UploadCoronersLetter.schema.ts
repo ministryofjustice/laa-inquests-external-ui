@@ -8,5 +8,6 @@ export const UploadCoronersLetterRequestSchema = z.object({
 
 export const UploadCoronersLetterResponseSchema = z.object({
   status: z.string(),
-  fileId: z.string(),
+  fileId: z.string().optional(),
+  reason: z.string().optional(),
 });
