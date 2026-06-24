@@ -150,7 +150,7 @@ test.describe("Apply - check your answers", () => {
 
     await expect(proceedingsChangeLink).toHaveAttribute(
       "href",
-      "/apply/proceedings",
+      "/apply/proceedings/confirmation",
     );
   });
 
@@ -175,7 +175,7 @@ test.describe("Apply - check your answers", () => {
 
     await expect(interestedPartiesChangeLink).toHaveAttribute(
       "href",
-      "/apply/public-authority",
+      "/apply/public-authority/confirmation",
     );
   });
 
