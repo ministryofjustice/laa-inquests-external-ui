@@ -49,6 +49,7 @@ describe("SubmitApplicationUseCase", () => {
 
     const submittedBody = applySubmitPort.submitApplication.getCall(0).args[0];
     assert.deepEqual(submittedBody, {
+      coronersLetterId: "coroners_letter_id",
       client: {
         clientFirstName: state.clientFirstName,
         clientLastName: state.clientLastName,
