@@ -4,7 +4,7 @@ test.describe("Apply - check your answers", () => {
   test("renders check your answers page header and back link", async ({
     page,
   }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
     const checkYourAnswersHeading = await page.getByRole("heading", {
@@ -15,7 +15,10 @@ test.describe("Apply - check your answers", () => {
     await expect(checkYourAnswersHeading).toBeVisible();
 
     await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", "/apply/fee-earner");
+    await expect(backButton).toHaveAttribute(
+      "href",
+      "/apply/public-authority/confirmation",
+    );
 
     const pageInsetText = page.getByText(
       "You cannot change the answers on this page once you  continue",
@@ -33,7 +36,7 @@ test.describe("Apply - check your answers", () => {
   });
 
   test("renders client details summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const caseDetailsHeading = await page.getByRole("heading", {
       level: 2,
@@ -80,7 +83,7 @@ test.describe("Apply - check your answers", () => {
     await expect(correspondenceAddressRowTitle).toBeVisible();
   });
   test("renders deceased details summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const inquestHeading = await page.getByRole("heading", {
       level: 2,
@@ -128,7 +131,7 @@ test.describe("Apply - check your answers", () => {
     await expect(inquestIdTitle).toBeVisible();
   });
   test("renders interested parties summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const interestedPartiesSummaryList = page.getByTestId(
       "interested-parties-summary-list",
@@ -153,7 +156,7 @@ test.describe("Apply - check your answers", () => {
   });
 
   test("renders coroner's letter summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const coronersLetterSummaryList = page.getByTestId(
       "coroners-letter-summary-list",

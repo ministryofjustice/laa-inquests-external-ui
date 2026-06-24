@@ -38,7 +38,7 @@ export default defineConfig({
   webServer: {
     command: "yarn tsx tests/playwright/factories/handlers/testMsw.js",
     url: "http://localhost:3000/status",
-    reuseExistingServer: process.env.CI !== "true",
+    reuseExistingServer: false,
     stdout: "pipe",
     stderr: "pipe",
     timeout: 60000,

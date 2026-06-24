@@ -161,11 +161,13 @@ describe("Confirmation adaptor", () => {
     confirmationAdaptor.renderConfirmSuccess(requestStub, responseStub);
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
     assert.equal(renderArgs[0], "apply/confirm-success");
     assert.deepEqual(renderArgs[1], {
       csrfToken: "abcdefg",
       applicationReferenceNumber: "",
     });
+    assert.equal(renderModel.backButtonUrl, undefined);
   });
 
   it("render confirm success page with application reference number", () => {
