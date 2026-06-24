@@ -116,6 +116,7 @@ describe("Confirmation adaptor", () => {
         deceasedClientRelationship: "brother",
         deceasedCoronerReference: "12345678910",
       },
+      proceedings: [],
       publicAuthorities: expectedFormattedPublicAuthorities,
     });
   });
@@ -159,6 +160,64 @@ describe("Confirmation adaptor", () => {
       renderModel.client.clientCorrespondenceRecipient,
       "Correspondence will be addressed to the client",
     );
+  });
+
+  it("renders check your answers page with proceedings table", () => {
+    requestStub.session.clientFirstName = "test name";
+    requestStub.session.clientLastName = "last name";
+    requestStub.session.clientDobDay = "1";
+    requestStub.session.clientDobMonth = "12";
+    requestStub.session.clientDobYear = "1990";
+    requestStub.session.clientHasNoFixedAbode = false;
+    requestStub.session.clientHomeAddress = {
+      addressLine1: "4 Privet Drive",
+      addressLine2: "Little Whinging",
+      townOrCity: "Little Whinging",
+      county: "Surrey",
+      postcode: "B1 123b",
+    };
+    requestStub.session.clientCorrespondenceAddressSource =
+      "USE_CLIENT_HOME_ADDRESS";
+
+    requestStub.session.deceasedFirstName = "deceased first name";
+    requestStub.session.deceasedLastName = "deceased last name";
+    requestStub.session.deceasedDateOfDeathDay = "6";
+    requestStub.session.deceasedDateOfDeathMonth = "8";
+    requestStub.session.deceasedDateOfDeathYear = "2001";
+    requestStub.session.deceasedClientRelationship = "brother";
+    requestStub.session.deceasedCoronerReference = "12345678910";
+
+    const proceedings = [
+      {
+        proceedingId: "MN035",
+        proceedingDescription: "Clinical Negligence",
+        matterType: "INQUEST",
+      },
+    ];
+
+    const expectedFormattedProceedings = [
+      {
+        key: { text: "Clinical Negligence" },
+        actions: {
+          items: [
+            {
+              href: "/apply/proceedings/remove?proceedingId=MN035",
+              text: "Remove",
+            },
+          ],
+        },
+      },
+    ];
+
+    requestStub.session.selectedProceedings = proceedings;
+    requestStub.session.selectedPublicAuthorities = [];
+
+    confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as Record<string, any>;
+
+    assert.deepEqual(renderModel.proceedings, expectedFormattedProceedings);
   });
 
   it("render confirm success page", () => {

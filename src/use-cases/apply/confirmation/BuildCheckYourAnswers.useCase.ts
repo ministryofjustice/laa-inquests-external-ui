@@ -1,7 +1,10 @@
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
-import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
+import type {
+  PublicAuthority,
+  Proceeding,
+} from "#src/infrastructure/express/session/index.types.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 
 export interface BuildCheckYourAnswersOutput {
@@ -29,6 +32,7 @@ export interface BuildCheckYourAnswersOutput {
     deceasedClientRelationship?: string;
     deceasedCoronerReference?: string;
   };
+  proceedings: Proceeding[];
   publicAuthorities: PublicAuthority[];
 }
 
@@ -60,6 +64,7 @@ export class BuildCheckYourAnswersUseCase {
         deceasedClientRelationship: state.deceasedClientRelationship,
         deceasedCoronerReference: state.deceasedCoronerReference,
       },
+      proceedings: state.selectedProceedings ?? [],
       publicAuthorities: state.selectedPublicAuthorities ?? [],
     };
   }

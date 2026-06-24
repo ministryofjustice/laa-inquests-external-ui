@@ -130,6 +130,30 @@ test.describe("Apply - check your answers", () => {
     await expect(clientRelationshipTitle).toBeVisible();
     await expect(inquestIdTitle).toBeVisible();
   });
+  test("renders proceedings summary list", async ({ page }) => {
+    await page.goto("/apply/check-your-answers");
+
+    const proceedingsSummaryList = page.getByTestId("proceedings-summary-list");
+    await expect(proceedingsSummaryList).toBeVisible();
+
+    const proceedingsTableHeading = await proceedingsSummaryList.getByRole(
+      "heading",
+      {
+        level: 2,
+        name: "Proceedings",
+      },
+    );
+    await expect(proceedingsTableHeading).toBeVisible();
+
+    const proceedingsChangeLink = proceedingsSummaryList.getByRole("link");
+    await expect(proceedingsChangeLink).toBeVisible();
+
+    await expect(proceedingsChangeLink).toHaveAttribute(
+      "href",
+      "/apply/proceedings",
+    );
+  });
+
   test("renders interested parties summary list", async ({ page }) => {
     await page.goto("/apply/check-your-answers");
 

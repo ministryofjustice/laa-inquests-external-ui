@@ -190,6 +190,7 @@ export class ConfirmationAdaptor {
       deceasedClientRelationship: string;
       deceasedCoronerReference: string;
     };
+    proceedings: ReturnType<Formatter["formatSelectedIntoTableRows"]>;
     publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
   } {
     const clientAddress = this.#getClientAddressSummary(data);
@@ -227,6 +228,7 @@ export class ConfirmationAdaptor {
         deceasedCoronerReference:
           data.deceasedDetails.deceasedCoronerReference ?? "",
       },
+      proceedings: this.formatter.formatSelectedIntoTableRows(data.proceedings),
       publicAuthorities: this.formatter.formatIntoTableRows(
         data.publicAuthorities,
       ),

@@ -111,6 +111,24 @@
             }) }}
           </div>
           <h2 class="govuk-heading-m">Inquest</h2>
+          <div data-testid="proceedings-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Proceedings"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/proceedings",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: proceedings
+            }) }}
+          </div>
           <div data-testid="deceased-details-summary-list">
             {{ govukSummaryList({
               card: {
