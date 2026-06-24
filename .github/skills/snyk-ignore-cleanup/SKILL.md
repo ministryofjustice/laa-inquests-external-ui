@@ -45,8 +45,8 @@ If the package is not present in `yarn.lock` at all (e.g. Alpine OS packages, pa
 
 Some vulnerabilities (e.g. `minimatch`, `tar`, `picomatch`, `brace-expansion`, `pacote`) are flagged not against the app's own dependencies but against the copy of that package that npm ships internally. These do not appear in `yarn.lock`. To determine whether such an entry can be removed, trace the npm version that ships with the project's Docker image:
 
-1. **Read the Dockerfile** — find the `FROM` line (e.g. `FROM node:25-alpine`) to determine the Node.js major version.
-2. **Check the Node.js changelog** — fetch `https://github.com/nodejs/node/blob/v<major>.x/doc/changelogs/CHANGELOG_V<major>.md` and search for `upgrade npm to` entries to find the npm version shipped with the latest release of that Node major (e.g. Node 25.9.0 → npm 11.12.1).
+1. **Read the Dockerfile** — find the `FROM` line (e.g. `FROM node:26-alpine`) to determine the Node.js major version.
+2. **Check the Node.js changelog** — fetch `https://github.com/nodejs/node/blob/v<major>.x/doc/changelogs/CHANGELOG_V<major>.md` and search for `upgrade npm to` entries to find the npm version shipped with the latest release of that Node major (e.g. Node 26.1.0 → npm 11.12.1).
 3. **Check npm's bundled deps** — fetch `https://github.com/npm/cli/blob/v<npm-version>/package-lock.json` and search for the vulnerable package name to find its exact bundled version (look for `"inBundle": true` entries).
 4. **Compare against the fix threshold** — if the bundled version is ≥ the fix threshold, the entry can be removed. If it is still in the vulnerable range, keep the entry.
 
