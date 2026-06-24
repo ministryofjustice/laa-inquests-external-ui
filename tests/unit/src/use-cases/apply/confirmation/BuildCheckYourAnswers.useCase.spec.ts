@@ -71,6 +71,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
         dateOfDeathYear: "2024",
         deceasedClientRelationship: "Sibling",
         deceasedCoronerReference: "COR-123",
+        deceasedFurtherInformation: undefined,
       },
       proceedings: [],
       publicAuthorities: [

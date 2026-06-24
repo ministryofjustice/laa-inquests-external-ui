@@ -189,6 +189,7 @@ export class ConfirmationAdaptor {
       dateOfDeath: string;
       deceasedClientRelationship: string;
       deceasedCoronerReference: string;
+      deceasedFurtherInformation?: string | null;
     };
     proceedings: ReturnType<Formatter["formatSelectedIntoTableRows"]>;
     publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
@@ -227,6 +228,8 @@ export class ConfirmationAdaptor {
           data.deceasedDetails.deceasedClientRelationship ?? "",
         deceasedCoronerReference:
           data.deceasedDetails.deceasedCoronerReference ?? "",
+        deceasedFurtherInformation:
+          data.deceasedDetails.deceasedFurtherInformation,
       },
       proceedings: this.formatter.formatSelectedIntoTableRows(data.proceedings),
       publicAuthorities: this.formatter.formatIntoTableRows(

@@ -188,6 +188,35 @@
               ]
             }) }}
           </div>
+          {% if deceasedDetails.deceasedFurtherInformation %}
+            <div data-testid="linked-case-details-summary-list">
+              {{ govukSummaryList({
+                card: {
+                  title: {
+                    text: "Linked case details"
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/further-information",
+                        text: "Change"
+                      }
+                    ]
+                  }
+                },
+                rows: [
+                  {
+                    key: {
+                      text: "Details"
+                    },
+                    value: {
+                      html: deceasedDetails.deceasedFurtherInformation
+                    }
+                  }
+                ]
+              }) }}
+            </div>
+          {% endif %}
           <div data-testid="interested-parties-summary-list">
             {{ govukSummaryList({
               card: {

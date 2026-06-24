@@ -1,6 +1,58 @@
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Apply - check your answers", () => {
+  test("renders linked case details summary list when details are provided", async ({
+    page,
+  }) => {
+    await page.goto("/apply/deceased-details/further-information");
+
+    await page.getByLabel("Yes").click();
+    await page
+      .getByLabel(
+        "Please provide any details available of linked or bridged inquests",
+      )
+      .fill("Linked case details provided");
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await page.goto("/apply/check-your-answers");
+
+    const linkedCaseDetailsSummary = page.getByTestId(
+      "linked-case-details-summary-list",
+    );
+    await expect(linkedCaseDetailsSummary).toBeVisible();
+    await expect(
+      linkedCaseDetailsSummary.getByRole("heading", {
+        level: 2,
+        name: "Linked case details",
+      }),
+    ).toBeVisible();
+    await expect(
+      linkedCaseDetailsSummary.getByText("Details", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      linkedCaseDetailsSummary.getByText("Linked case details provided"),
+    ).toBeVisible();
+    await expect(linkedCaseDetailsSummary.getByRole("link")).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/further-information",
+    );
+  });
+
+  test("does not render linked case details summary list when no is selected", async ({
+    page,
+  }) => {
+    await page.goto("/apply/deceased-details/further-information");
+
+    await page.getByLabel("No").click();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await page.goto("/apply/check-your-answers");
+
+    await expect(
+      page.getByTestId("linked-case-details-summary-list"),
+    ).toHaveCount(0);
+  });
+
   test("renders check your answers page header and back link", async ({
     page,
   }) => {

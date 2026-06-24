@@ -31,6 +31,7 @@ export interface BuildCheckYourAnswersOutput {
     dateOfDeathYear?: string;
     deceasedClientRelationship?: string;
     deceasedCoronerReference?: string;
+    deceasedFurtherInformation?: string | null;
   };
   proceedings: Proceeding[];
   publicAuthorities: PublicAuthority[];
@@ -63,6 +64,7 @@ export class BuildCheckYourAnswersUseCase {
         dateOfDeathYear: state.deceasedDateOfDeathYear,
         deceasedClientRelationship: state.deceasedClientRelationship,
         deceasedCoronerReference: state.deceasedCoronerReference,
+        deceasedFurtherInformation: state.deceasedFurtherInformation,
       },
       proceedings: state.selectedProceedings ?? [],
       publicAuthorities: state.selectedPublicAuthorities ?? [],

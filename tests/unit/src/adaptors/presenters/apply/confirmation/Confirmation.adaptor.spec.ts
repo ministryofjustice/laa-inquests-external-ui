@@ -67,6 +67,7 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathYear = "2001";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
+    requestStub.session.deceasedFurtherInformation = "Case linked details";
 
     const publicAuthorities = [
       {
@@ -115,10 +116,47 @@ describe("Confirmation adaptor", () => {
         dateOfDeath: "6/8/2001",
         deceasedClientRelationship: "brother",
         deceasedCoronerReference: "12345678910",
+        deceasedFurtherInformation: "Case linked details",
       },
       proceedings: [],
       publicAuthorities: expectedFormattedPublicAuthorities,
     });
+  });
+
+  it("includes linked case details when deceased further information is yes", () => {
+    requestStub.session.clientFirstName = "test name";
+    requestStub.session.clientLastName = "last name";
+    requestStub.session.clientDobDay = "1";
+    requestStub.session.clientDobMonth = "12";
+    requestStub.session.clientDobYear = "1990";
+    requestStub.session.clientHasNoFixedAbode = true;
+    requestStub.session.clientCorrespondenceAddressSource =
+      "USE_CLIENT_HOME_ADDRESS";
+
+    requestStub.session.deceasedFirstName = "deceased first name";
+    requestStub.session.deceasedLastName = "deceased last name";
+    requestStub.session.deceasedDateOfDeathDay = "6";
+    requestStub.session.deceasedDateOfDeathMonth = "8";
+    requestStub.session.deceasedDateOfDeathYear = "2001";
+    requestStub.session.deceasedClientRelationship = "brother";
+    requestStub.session.deceasedCoronerReference = "12345678910";
+    requestStub.session.deceasedFurtherInformation = "Linked details text";
+    requestStub.session.selectedPublicAuthorities = [];
+    requestStub.session.selectedProceedings = [];
+
+    confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
+
+    const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as {
+      deceasedDetails: {
+        deceasedFurtherInformation?: string;
+      };
+    };
+
+    assert.equal(
+      renderModel.deceasedDetails.deceasedFurtherInformation,
+      "Linked details text",
+    );
   });
 
   it("renders care of recipient as client when correspondence recipient is null", () => {
