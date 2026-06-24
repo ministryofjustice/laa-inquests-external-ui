@@ -95,6 +95,7 @@ export const SubmitApplicationRequestSchema = z.object({
     officeId: z.string(),
     emailAddress: z.string(),
   }),
+  coronersLetterId: z.string(),
 });
 
 export const SubmitApplicationResponseSchema = z.object({
