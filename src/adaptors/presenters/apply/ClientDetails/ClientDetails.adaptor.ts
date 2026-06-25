@@ -167,7 +167,6 @@ export class ClientDetailsAdaptor {
       body: { "has-nino": hasNino, "nino-input": ninoInput },
     } = req;
 
-    // HERE! If client has not Nino, set clientNino to null
     req.session.clientHasNino = hasNino;
     req.session.clientNino = hasNino === "true" ? ninoInput : null;
 
