@@ -61,7 +61,7 @@ describe("Client details adaptor", () => {
 
     assert.equal(requestStub.session.clientFirstName, "jim");
     assert.equal(requestStub.session.clientLastName, "halpert");
-    assert.equal(requestStub.session.clientLastNameAtBirth, "");
+    assert.equal(requestStub.session.clientLastNameAtBirth, null);
     assert.equal(requestStub.session.hasNameChanged, "false");
   });
 
@@ -71,11 +71,20 @@ describe("Client details adaptor", () => {
 
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
+    requestStub.session.clientHasNino = "true";
+    requestStub.session.clientNino = "AB123456C";
 
     clientDetailsAdaptor.renderNinoForm(requestStub, responseStub);
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/client-details/nino");
+    const renderModel = renderArgs[1] as unknown as {
+      client: { hasNino?: string; clientNino?: string | null };
+    };
+    assert.deepEqual(renderModel.client, {
+      hasNino: "true",
+      clientNino: "AB123456C",
+    });
   });
 
   it("process nino form redirects to has prev application", () => {
@@ -397,6 +406,8 @@ describe("Client details adaptor", () => {
 
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
+    requestStub.session.clientHasPrevApplication = "true";
+    requestStub.session.prevLaaReferenceInput = "L-123-456";
 
     clientDetailsAdaptor.renderHasPrevApplicationForm(
       requestStub,
@@ -405,6 +416,16 @@ describe("Client details adaptor", () => {
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/client-details/has-prev-application");
+    const renderModel = renderArgs[1] as unknown as {
+      client: {
+        hasPrevApplication?: string;
+        prevLaaReference?: string | null;
+      };
+    };
+    assert.deepEqual(renderModel.client, {
+      hasPrevApplication: "true",
+      prevLaaReference: "L-123-456",
+    });
   });
   it("process correspondence recipient form redirects to proceedings if no selectedProceedings exist in session", () => {
     const formValidator = new ClientDetailsValidator();

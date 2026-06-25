@@ -175,7 +175,10 @@ export class ConfirmationAdaptor {
     client: {
       clientFirstName: string;
       clientLastName: string;
+      clientLastNameAtBirth?: string | null;
       clientDob: string;
+      clientNino?: string | null;
+      prevLaaReferenceInput?: string | null;
       clientAddress: string;
       clientCorrespondenceAddress: string;
       clientCorrespondenceRecipient: string;
@@ -186,7 +189,9 @@ export class ConfirmationAdaptor {
       dateOfDeath: string;
       deceasedClientRelationship: string;
       deceasedCoronerReference: string;
+      deceasedFurtherInformation?: string | null;
     };
+    proceedings: ReturnType<Formatter["formatSelectedIntoTableRows"]>;
     publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
   } {
     const clientAddress = this.#getClientAddressSummary(data);
@@ -196,11 +201,14 @@ export class ConfirmationAdaptor {
       client: {
         clientFirstName: data.client.clientFirstName ?? "",
         clientLastName: data.client.clientLastName ?? "",
+        clientLastNameAtBirth: data.client.clientLastNameAtBirth,
         clientDob: this.#createDateString(
           data.client.clientDobDay,
           data.client.clientDobMonth,
           data.client.clientDobYear,
         ),
+        clientNino: data.client.clientNino,
+        prevLaaReferenceInput: data.client.prevLaaReferenceInput,
         clientAddress: `${clientAddress} ${clientPostcode}`,
         clientCorrespondenceAddress:
           this.#getClientCorrespondenceAddressSummary(data),
@@ -220,7 +228,10 @@ export class ConfirmationAdaptor {
           data.deceasedDetails.deceasedClientRelationship ?? "",
         deceasedCoronerReference:
           data.deceasedDetails.deceasedCoronerReference ?? "",
+        deceasedFurtherInformation:
+          data.deceasedDetails.deceasedFurtherInformation,
       },
+      proceedings: this.formatter.formatSelectedIntoTableRows(data.proceedings),
       publicAuthorities: this.formatter.formatIntoTableRows(
         data.publicAuthorities,
       ),
