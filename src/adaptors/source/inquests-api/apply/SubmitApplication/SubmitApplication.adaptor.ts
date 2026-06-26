@@ -9,11 +9,19 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
   constructor(
     private readonly http: AxiosInstance,
     private readonly baseUrl: string,
+    private readonly payloadDebugEnabled = false,
+    private readonly logger: (message: string) => void = () => undefined,
   ) {}
 
   async submitApplication(
     _body: SubmitApplicationRequest,
   ): Promise<SubmitApplicationResponse> {
+    if (this.payloadDebugEnabled) {
+      this.logger(
+        JSON.stringify({ event: "submit.application.payload", payload: _body }),
+      );
+    }
+
     const response: AxiosResponse<SubmitApplicationResponse> =
       await this.http.post(`${this.baseUrl}/applications`, _body);
 

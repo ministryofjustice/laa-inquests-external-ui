@@ -29,6 +29,7 @@ import { SessionHelper } from "../session/sessionHelpers.js";
 import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
 import createTestRouter from "./test.router.js";
+import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -57,7 +58,11 @@ function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
       clientSecret: config.AUTH_CLIENT_SECRET,
     },
   });
-  return new EntraAuthAdaptor(entraClient);
+  return new EntraAuthAdaptor(
+    entraClient,
+    config.AUTH_TOKEN_DEBUG_ENABLED,
+    appInfo,
+  );
 }
 
 const authAdaptor = new AuthAdaptor(
@@ -140,6 +145,8 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
 const submitApplicationSource = new SubmitApplicationAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
+  config.SUBMIT_PAYLOAD_DEBUG_ENABLED,
+  appInfo,
 );
 
 const confirmationFormatter = new Formatter();

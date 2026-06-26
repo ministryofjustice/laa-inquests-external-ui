@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import sinon from "sinon";
 import { AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
@@ -36,6 +37,7 @@ describe("SubmitApplicationAdaptor", () => {
       ];
 
       const submitBodyRaw = {
+        coronersLetterId: "coroners_letter_id",
         client: {
           clientFirstName: "first name",
           clientLastName: "last name",
@@ -75,6 +77,90 @@ describe("SubmitApplicationAdaptor", () => {
         ),
       );
       assert.deepEqual(expectedApiResponse, applicationResponse);
+    });
+
+    it("logs the payload when payloadDebugEnabled is true", async () => {
+      const axiosStub = stubInterface<AxiosInstance>();
+      axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
+      const logger = sinon.spy();
+
+      const adaptor = new SubmitApplicationAdaptor(
+        axiosStub,
+        "http://localhost",
+        true,
+        logger,
+      );
+
+      const minimalBody = {
+        coronersLetterId: "x",
+        client: {
+          clientFirstName: "A",
+          clientLastName: "B",
+          dateOfBirth: "01/01/1990",
+          hasNoFixedAbode: false,
+          correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
+          isClientCorrespondenceRecipient: true,
+        },
+        deceased: {
+          deceasedFirstName: "D",
+          deceasedLastName: "E",
+          deceasedDateOfBirth: "01/01/1960",
+          deceasedDateOfDeath: "01/01/2020",
+          coronersReference: "",
+          furtherInformation: "",
+          clientRelationshipToDeceased: "child",
+        },
+        proceedings: [],
+        publicBodies: [],
+        provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
+      };
+
+      await adaptor.submitApplication(minimalBody);
+
+      assert.ok(logger.calledOnce);
+      const logged = JSON.parse(logger.firstCall.args[0] as string) as {
+        event: string;
+      };
+      assert.equal(logged.event, "submit.application.payload");
+    });
+
+    it("does not log the payload when payloadDebugEnabled is false", async () => {
+      const axiosStub = stubInterface<AxiosInstance>();
+      axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
+      const logger = sinon.spy();
+
+      const adaptor = new SubmitApplicationAdaptor(
+        axiosStub,
+        "http://localhost",
+        false,
+        logger,
+      );
+
+      await adaptor.submitApplication({
+        coronersLetterId: "x",
+        client: {
+          clientFirstName: "A",
+          clientLastName: "B",
+          dateOfBirth: "01/01/1990",
+          hasNoFixedAbode: false,
+          correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
+          isClientCorrespondenceRecipient: true,
+        },
+        deceased: {
+          deceasedFirstName: "D",
+          deceasedLastName: "E",
+          deceasedDateOfBirth: "01/01/1960",
+          deceasedDateOfDeath: "01/01/2020",
+          coronersReference: "",
+          furtherInformation: "",
+          clientRelationshipToDeceased: "child",
+        },
+        proceedings: [],
+        publicBodies: [],
+        provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
+      });
+
+      assert.ok(logger.notCalled);
     });
   });
 });
