@@ -145,6 +145,8 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
 const submitApplicationSource = new SubmitApplicationAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
+  config.SUBMIT_PAYLOAD_DEBUG_ENABLED,
+  appInfo,
 );
 
 const confirmationFormatter = new Formatter();
