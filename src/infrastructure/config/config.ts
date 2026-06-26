@@ -9,6 +9,7 @@ const DEFAULT_PORT = 3000;
 const isSkipAuthInDevelopment =
   process.env.NODE_ENV === "development" &&
   process.env.DEV_SKIP_AUTH === "true";
+const isAuthTokenDebugEnabled = process.env.AUTH_TOKEN_DEBUG_ENABLED === "true";
 
 // Validate required session env vars
 /* eslint-disable eqeqeq -- need looser assertion against null */
@@ -50,6 +51,7 @@ const config: Config = {
   AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET ?? "",
   AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI ?? "",
   AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI ?? "",
+  AUTH_TOKEN_DEBUG_ENABLED: isAuthTokenDebugEnabled,
   MOCK_OAUTH_URL: process.env.MOCK_OAUTH_URL,
   CONTACT_EMAIL: process.env.CONTACT_EMAIL,
   CONTACT_PHONE: process.env.CONTACT_PHONE,

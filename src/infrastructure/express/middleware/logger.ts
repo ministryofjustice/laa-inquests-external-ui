@@ -41,6 +41,10 @@ export function devDebug(message: string): void {
   }
 }
 
+export function appInfo(message: string): void {
+  console.info(message);
+}
+
 export function isDevelopment(): boolean {
   return (
     process.env.NODE_ENV === "development" || process.env.NODE_ENV === undefined
