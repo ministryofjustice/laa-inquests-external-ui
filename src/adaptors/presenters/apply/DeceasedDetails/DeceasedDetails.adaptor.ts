@@ -372,7 +372,10 @@ export class DeceasedDetailsAdaptor {
     } = req;
 
     req.session.deceasedHasFurtherInformation = deceasedHasFurtherInformation;
-    req.session.deceasedFurtherInformation = deceasedFurtherInformation;
+    req.session.deceasedFurtherInformation =
+      deceasedHasFurtherInformation === "true"
+        ? deceasedFurtherInformation
+        : null;
 
     const errorSummaries = this.formValidator.validateFurtherInformation(
       req.body,

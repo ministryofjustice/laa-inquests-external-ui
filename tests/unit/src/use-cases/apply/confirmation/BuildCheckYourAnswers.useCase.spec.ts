@@ -9,6 +9,9 @@ describe("BuildCheckYourAnswersUseCase", () => {
     const result = useCase.execute({
       clientFirstName: "Jane",
       clientLastName: "Bloggs",
+      clientLastNameAtBirth: "Smith",
+      clientNino: "AB123456C",
+      prevLaaReferenceInput: "L-123-456",
       clientDobDay: "1",
       clientDobMonth: "2",
       clientDobYear: "1990",
@@ -42,6 +45,9 @@ describe("BuildCheckYourAnswersUseCase", () => {
       client: {
         clientFirstName: "Jane",
         clientLastName: "Bloggs",
+        clientLastNameAtBirth: "Smith",
+        clientNino: "AB123456C",
+        prevLaaReferenceInput: "L-123-456",
         clientDobDay: "1",
         clientDobMonth: "2",
         clientDobYear: "1990",
@@ -66,7 +72,9 @@ describe("BuildCheckYourAnswersUseCase", () => {
         dateOfDeathYear: "2024",
         deceasedClientRelationship: "Sibling",
         deceasedCoronerReference: "COR-123",
+        deceasedFurtherInformation: undefined,
       },
+      proceedings: [],
       publicAuthorities: [
         {
           publicAuthorityId: "cabinet-office",

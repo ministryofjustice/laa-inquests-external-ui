@@ -30,6 +30,7 @@ export interface ConfirmationSessionState {
   deceasedClientRelationship?: string;
   deceasedCoronerReference?: string;
   deceasedFurtherInformation?: string;
+  prevLaaReferenceInput?: string | null;
   selectedProceedings?: Proceeding[];
   selectedPublicAuthorities?: PublicAuthority[];
   firmCode?: string;

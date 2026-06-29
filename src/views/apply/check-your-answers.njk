@@ -51,6 +51,14 @@
                     html: client.clientLastName
                   }
                 },
+                ({
+                  key: {
+                    text: "Last name at birth"
+                  },
+                  value: {
+                    html: client.clientLastNameAtBirth
+                  }
+                } if client.clientLastNameAtBirth),
                 {
                   key: {
                     text: "Date of birth"
@@ -59,6 +67,22 @@
                     html: client.clientDob
                   }
                 },
+                ({
+                  key: {
+                    text: "National Insurance number"
+                  },
+                  value: {
+                    html: client.clientNino
+                  }
+                } if client.clientNino),
+                ({
+                  key: {
+                    text: "Previous LAA reference"
+                  },
+                  value: {
+                    html: client.prevLaaReferenceInput
+                  }
+                } if client.prevLaaReferenceInput),
                 {
                   key: {
                     text: "Home address"
@@ -87,6 +111,24 @@
             }) }}
           </div>
           <h2 class="govuk-heading-m">Inquest</h2>
+          <div data-testid="proceedings-summary-list">
+            {{ govukSummaryList({
+              card: {
+                title: {
+                  text: "Proceedings"
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/proceedings/confirmation",
+                      text: "Change"
+                    }
+                  ]
+                }
+              },
+              rows: proceedings
+            }) }}
+          </div>
           <div data-testid="deceased-details-summary-list">
             {{ govukSummaryList({
               card: {
@@ -146,6 +188,35 @@
               ]
             }) }}
           </div>
+          {% if deceasedDetails.deceasedFurtherInformation %}
+            <div data-testid="linked-case-details-summary-list">
+              {{ govukSummaryList({
+                card: {
+                  title: {
+                    text: "Linked case details"
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/further-information",
+                        text: "Change"
+                      }
+                    ]
+                  }
+                },
+                rows: [
+                  {
+                    key: {
+                      text: "Details"
+                    },
+                    value: {
+                      html: deceasedDetails.deceasedFurtherInformation
+                    }
+                  }
+                ]
+              }) }}
+            </div>
+          {% endif %}
           <div data-testid="interested-parties-summary-list">
             {{ govukSummaryList({
               card: {
@@ -155,7 +226,7 @@
                 actions: {
                   items: [
                     {
-                      href: "/apply/public-authority",
+                      href: "/apply/public-authority/confirmation",
                       text: "Change"
                     }
                   ]
