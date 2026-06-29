@@ -15,6 +15,7 @@ import {
   CORRESPONDENCE_RECIPIENT_TYPE,
   HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
+import { UpstreamHttpError } from "#src/use-cases/common/upstreamHttpError.js";
 
 interface SubmitApplicationSuccess {
   laaReference: number;
@@ -76,7 +77,11 @@ export class SubmitApplicationUseCase {
         status: "TECHNICAL_FAILURE",
         reason: "UPSTREAM_REJECTED",
       };
-    } catch {
+    } catch (error: unknown) {
+      if (error instanceof UpstreamHttpError) {
+        throw error;
+      }
+
       return {
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",

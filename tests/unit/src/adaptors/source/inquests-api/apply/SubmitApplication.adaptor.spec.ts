@@ -1,9 +1,10 @@
 import { assert } from "chai";
 import sinon from "sinon";
-import { AxiosInstance } from "axios";
+import type { AxiosError, AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
+import { UpstreamHttpError } from "#src/use-cases/common/upstreamHttpError.js";
 
 describe("SubmitApplicationAdaptor", () => {
   describe("submitApplication", () => {
@@ -161,6 +162,93 @@ describe("SubmitApplicationAdaptor", () => {
       });
 
       assert.ok(logger.notCalled);
+    });
+
+    it("throws UpstreamHttpError with upstream status when axios rejects with response", async () => {
+      const axiosStub = stubInterface<AxiosInstance>();
+      const adaptor = new SubmitApplicationAdaptor(
+        axiosStub,
+        "http://localhost",
+      );
+      const axiosError = {
+        isAxiosError: true,
+        message: "Request failed with status code 404",
+        response: { status: 404 },
+      } as unknown as AxiosError;
+      axiosStub.post.rejects(axiosError);
+
+      try {
+        await adaptor.submitApplication({
+          coronersLetterId: "x",
+          client: {
+            clientFirstName: "A",
+            clientLastName: "B",
+            dateOfBirth: "01/01/1990",
+            hasNoFixedAbode: false,
+            correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
+            isClientCorrespondenceRecipient: true,
+          },
+          deceased: {
+            deceasedFirstName: "D",
+            deceasedLastName: "E",
+            deceasedDateOfBirth: "01/01/1960",
+            deceasedDateOfDeath: "01/01/2020",
+            coronersReference: "",
+            furtherInformation: "",
+            clientRelationshipToDeceased: "child",
+          },
+          proceedings: [],
+          publicBodies: [],
+          provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
+        });
+        assert.fail("Expected submitApplication to throw UpstreamHttpError");
+      } catch (error: unknown) {
+        assert.instanceOf(error, UpstreamHttpError);
+        assert.equal((error as UpstreamHttpError).statusCode, 404);
+      }
+    });
+
+    it("defaults to 500 status when axios rejects without response", async () => {
+      const axiosStub = stubInterface<AxiosInstance>();
+      const adaptor = new SubmitApplicationAdaptor(
+        axiosStub,
+        "http://localhost",
+      );
+      const axiosError = {
+        isAxiosError: true,
+        message: "Network Error",
+      } as unknown as AxiosError;
+      axiosStub.post.rejects(axiosError);
+
+      try {
+        await adaptor.submitApplication({
+          coronersLetterId: "x",
+          client: {
+            clientFirstName: "A",
+            clientLastName: "B",
+            dateOfBirth: "01/01/1990",
+            hasNoFixedAbode: false,
+            correspondenceAddressSource: "USE_PROVIDER_ADDRESS",
+            isClientCorrespondenceRecipient: true,
+          },
+          deceased: {
+            deceasedFirstName: "D",
+            deceasedLastName: "E",
+            deceasedDateOfBirth: "01/01/1960",
+            deceasedDateOfDeath: "01/01/2020",
+            coronersReference: "",
+            furtherInformation: "",
+            clientRelationshipToDeceased: "child",
+          },
+          proceedings: [],
+          publicBodies: [],
+          provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
+        });
+        assert.fail("Expected submitApplication to throw UpstreamHttpError");
+      } catch (error: unknown) {
+        assert.instanceOf(error, UpstreamHttpError);
+        assert.equal((error as UpstreamHttpError).statusCode, 500);
+      }
     });
   });
 });

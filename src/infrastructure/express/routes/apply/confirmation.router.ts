@@ -1,4 +1,4 @@
-import type { Request, Response, Router } from "express";
+import type { NextFunction, Request, Response, Router } from "express";
 import type { ConfirmationAdaptor } from "#src/adaptors/presenters/apply/Confirmation/Confirmation.adaptor.js";
 
 export function createConfirmationRouter(
@@ -21,8 +21,12 @@ export function createConfirmationRouter(
 
   confirmationRouter.post(
     "/confirmation/client-declaration",
-    async (req: Request, res: Response): Promise<void> => {
-      await confirmationAdaptor.processClientDeclarationForm(req, res);
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      try {
+        await confirmationAdaptor.processClientDeclarationForm(req, res);
+      } catch (error: unknown) {
+        next(error);
+      }
     },
   );
 

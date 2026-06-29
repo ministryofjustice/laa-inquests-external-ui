@@ -9,6 +9,7 @@ import {
   HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
+import { UpstreamHttpError } from "#src/use-cases/common/upstreamHttpError.js";
 
 describe("SubmitApplicationUseCase", () => {
   let applySubmitPort: StubbedInstance<ApplySubmitPort>;
@@ -167,6 +168,19 @@ describe("SubmitApplicationUseCase", () => {
       status: "TECHNICAL_FAILURE",
       reason: "UNEXPECTED_EXCEPTION",
     });
+  });
+
+  it("rethrows UpstreamHttpError when adapter rejects with typed upstream error", async () => {
+    const state = createValidState();
+    applySubmitPort.submitApplication.rejects(
+      new UpstreamHttpError(500, "upstream failed"),
+    );
+
+    await assert.rejects(
+      () => useCase.execute(state),
+      (error: unknown) =>
+        error instanceof UpstreamHttpError && error.statusCode === 500,
+    );
   });
 });
 
