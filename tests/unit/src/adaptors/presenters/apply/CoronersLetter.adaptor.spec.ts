@@ -4,16 +4,19 @@ import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/Up
 import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
+import {v4 as uuidv4} from 'uuid';
 
 describe("Coroners Letter adaptor", () => {
   let coronersLetterAdaptor: CoronersLetterAdaptor;
   let requestStub: StubbedInstance<Request>;
   let responseStub: StubbedInstance<Response>;
 
+  const testCoronersLetterId = uuidv4();
+
   const uploadCoronersLetterPort = stubInterface<UploadCoronersLetterPort>();
   uploadCoronersLetterPort.uploadCoronersLetter.resolves({
     status: "SUCCESS",
-    fileId: "test-file-id.pdf",
+    coronersLetterId: testCoronersLetterId,
   });
 
   before(() => {
@@ -79,7 +82,7 @@ describe("Coroners Letter adaptor", () => {
 
     uploadCoronersLetterPort.uploadCoronersLetter.resolves({
       status: "SUCCESS",
-      fileId: "test-file-id.pdf",
+      coronersLetterId: testCoronersLetterId,
     });
 
     await coronersLetterAdaptor.processCoronersLetterUploadForm(
@@ -87,6 +90,6 @@ describe("Coroners Letter adaptor", () => {
       responseStub,
     );
 
-    assert.equal(requestStub.session.coronersLetterId, "test-file-id.pdf");
+    assert.equal(requestStub.session.coronersLetterId, testCoronersLetterId);
   });
 });

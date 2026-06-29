@@ -34,7 +34,7 @@ export class CoronersLetterAdaptor {
 
       if (result.status === "SUCCESS") {
         Object.assign(req.session, {
-          coronersLetterId: result.data?.fileId,
+          coronersLetterId: result.data?.coronersLetterId,
         });
       }
     }

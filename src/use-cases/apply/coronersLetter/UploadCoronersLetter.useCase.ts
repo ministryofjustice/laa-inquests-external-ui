@@ -11,7 +11,7 @@ interface UploadCoronersLetterInput {
 }
 
 interface UploadCoronersLetterOutput {
-  fileId: string;
+  coronersLetterId: string;
 }
 
 export class UploadCoronersLetterUseCase {
@@ -38,12 +38,12 @@ export class UploadCoronersLetterUseCase {
 
       if (status === "SUCCESS") {
         if (
-          typeof responseRaw.fileId === "string" &&
-          responseRaw.fileId !== ""
+          typeof responseRaw.coronersLetterId === "string" &&
+          responseRaw.coronersLetterId !== ""
         ) {
           return {
             status: "SUCCESS",
-            data: { fileId: responseRaw.fileId },
+            data: { coronersLetterId: responseRaw.coronersLetterId },
           };
         } else {
           return {

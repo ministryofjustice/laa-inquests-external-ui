@@ -3,15 +3,18 @@ import { AxiosInstance } from "axios";
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 import { UploadCoronersLetterResponse } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
+import {v4 as uuidv4} from 'uuid';
 
 describe("UploadCoronersLetterAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
   let uploadCoronersLetterAdaptor: UploadCoronersLetterAdaptor;
+  const testCoronersLetterId = uuidv4();
+
   beforeEach(() => {
     axiosStub = stubInterface<AxiosInstance>();
     axiosStub.post.resolves({
       status: 201,
-      data: { fileId: "test-file-id.pdf" },
+      data: { coronersLetterId: testCoronersLetterId },
     });
 
     uploadCoronersLetterAdaptor = new UploadCoronersLetterAdaptor(
@@ -22,7 +25,7 @@ describe("UploadCoronersLetterAdaptor", () => {
 
   const expectedSuccessResponse: UploadCoronersLetterResponse = {
     status: "SUCCESS",
-    fileId: "test-file-id.pdf",
+    coronersLetterId: testCoronersLetterId,
   };
 
   const expectedFailureResponse: UploadCoronersLetterResponse = {

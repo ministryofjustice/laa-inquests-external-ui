@@ -6,6 +6,7 @@ import { Formatter } from "#src/utils/Formatter.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
+import { v4 as uuidv4 } from "uuid";
 
 describe("Confirmation adaptor", () => {
   let confirmationFormatter: Formatter;
@@ -15,6 +16,8 @@ describe("Confirmation adaptor", () => {
   let confirmationAdaptor: ConfirmationAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
+
+  const testCoronersLetterId = uuidv4();
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
@@ -64,7 +67,7 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathYear = "2001";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
-    requestStub.session.coronersLetterId = "test-file-id.pdf";
+    requestStub.session.coronersLetterId = testCoronersLetterId;
 
     const publicAuthorities = [
       {
@@ -112,7 +115,7 @@ describe("Confirmation adaptor", () => {
         deceasedCoronerReference: "12345678910",
       },
       publicAuthorities: expectedFormattedPublicAuthorities,
-      coronersLetterId: "test-file-id.pdf",
+      coronersLetterId: testCoronersLetterId,
     });
   });
 

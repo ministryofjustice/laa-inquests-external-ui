@@ -2,10 +2,14 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import {v4 as uuidv4} from 'uuid';
 
 describe("UploadCoronersLetterUseCase", () => {
   let uploadCoronersLetterPort: StubbedInstance<UploadCoronersLetterPort>;
   let useCase: UploadCoronersLetterUseCase;
+
+  const testCoronersLetterId = uuidv4();
+
   const testCoronerLetter = {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
@@ -20,14 +24,14 @@ describe("UploadCoronersLetterUseCase", () => {
   it("returns success with laa reference when the API returns SUCCESS", async () => {
     uploadCoronersLetterPort.uploadCoronersLetter.resolves({
       status: "SUCCESS",
-      fileId: "test-file-id.pdf",
+      coronersLetterId: testCoronersLetterId,
     });
 
     const result = await useCase.execute(testCoronerLetter);
 
     assert.deepEqual(result, {
       status: "SUCCESS",
-      data: { fileId: "test-file-id.pdf" },
+      data: { coronersLetterId: testCoronersLetterId },
     });
   });
 
