@@ -7,8 +7,9 @@
 
 import { http, HttpResponse } from "msw";
 
-//TODO: This UUID will have to be updated to one which exists in the database when we deploy the API
-const coronersLetterId = "fe0f1337-ca80-4a5c-bc58-c2d85d67f86f";
+// This is a UUID that exists in the coroners_letter table in the UAT database
+// It can be recreated by using the /applications/upload-coroners-letter endpoint in the UAT environment
+const coronersLetterId = "1c84c788-23c4-49e7-a07e-6b391f09c116";
 
 export const apiHandlers = [
   http.post(
