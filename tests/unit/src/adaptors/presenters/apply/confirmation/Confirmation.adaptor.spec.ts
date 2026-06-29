@@ -6,6 +6,7 @@ import { Formatter } from "#src/utils/Formatter.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
+import { UpstreamHttpError } from "#src/use-cases/common/upstreamHttpError.js";
 
 describe("Confirmation adaptor", () => {
   let confirmationFormatter: Formatter;
@@ -857,6 +858,63 @@ describe("Confirmation adaptor", () => {
 
       assert.equal(sessionHelper.clearApplyFormData.callCount, 1);
       assert.equal(requestStub.session.applicationReferenceNumber, "123");
+    });
+
+    it("rethrows typed upstream errors from submit", async () => {
+      requestStub.body["client-declaration-confirmation"] = "true";
+      requestStub.session.clientFirstName = "Client";
+      requestStub.session.clientLastName = "One";
+      requestStub.session.clientDobDay = "05";
+      requestStub.session.clientDobMonth = "10";
+      requestStub.session.clientDobYear = "1989";
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
+      requestStub.session.clientHasNoFixedAbode = true;
+      requestStub.session.clientCorrespondenceAddressSource =
+        "USE_PROVIDER_ADDRESS";
+
+      requestStub.session.deceasedFirstName = "Deceased";
+      requestStub.session.deceasedLastName = "Two";
+      requestStub.session.deceasedDateOfBirthDay = "01";
+      requestStub.session.deceasedDateOfBirthMonth = "02";
+      requestStub.session.deceasedDateOfBirthYear = "1975";
+      requestStub.session.deceasedDateOfDeathDay = "10";
+      requestStub.session.deceasedDateOfDeathMonth = "03";
+      requestStub.session.deceasedDateOfDeathYear = "2024";
+      requestStub.session.deceasedClientRelationship = "Spouse";
+      requestStub.session.deceasedCoronerReference = "COR-123";
+      requestStub.session.deceasedFurtherInformation = "Further info";
+
+      requestStub.session.selectedProceedings = [
+        {
+          proceedingId: "MN035",
+          proceedingDescription: "Clinical Negligence",
+          matterType: "INQUEST",
+        },
+      ];
+      requestStub.session.selectedPublicAuthorities = [
+        {
+          publicAuthorityId: "home-office",
+          publicAuthorityDescription: "Home Office",
+        },
+      ];
+
+      applySubmitPortStub.submitApplication.rejects(
+        new UpstreamHttpError(500, "upstream failed"),
+      );
+
+      await assert.rejects(
+        () =>
+          confirmationAdaptor.processClientDeclarationForm(
+            requestStub,
+            responseStub,
+          ),
+        (error: unknown) =>
+          error instanceof UpstreamHttpError && error.statusCode === 500,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 0);
     });
   });
 });
