@@ -3,7 +3,7 @@ import { AxiosInstance } from "axios";
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 import { UploadCoronersLetterResponse } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 describe("UploadCoronersLetterAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;

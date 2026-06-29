@@ -25,10 +25,11 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
     );
 
     try {
-      const response: AxiosResponse<{ coronersLetterId: string }> = await this.http.post(
-        `${this.baseUrl}/applications/upload-coroners-letter`,
-        formData,
-      );
+      const response: AxiosResponse<{ coronersLetterId: string }> =
+        await this.http.post(
+          `${this.baseUrl}/applications/upload-coroners-letter`,
+          formData,
+        );
 
       if (response.status !== HTTP_CREATED) {
         return {

@@ -4,7 +4,7 @@ import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/Up
 import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 describe("Coroners Letter adaptor", () => {
   let coronersLetterAdaptor: CoronersLetterAdaptor;
