@@ -87,7 +87,7 @@ jobs:
         run: |
           echo "Waiting for the API to become ready..."
           for attempt in $(seq 1 60); do
-            if curl --fail --silent http://127.0.0.1:8027/docs > /dev/null; then
+            if curl --fail --silent http://127.0.0.1:8027/ > /dev/null; then
               echo "API is ready!"
               exit 0
             fi
