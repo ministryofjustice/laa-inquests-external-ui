@@ -44,6 +44,10 @@ export class CaseSearchAdaptor {
       return;
     }
 
-    res.redirect("/");
+    res.redirect("/claim/results");
+  }
+
+  renderResults(req: Request, res: Response): void {
+    res.render("claim/case-search-results");
   }
 }

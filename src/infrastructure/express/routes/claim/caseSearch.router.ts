@@ -13,5 +13,9 @@ export function createCaseSearchRouter(
     caseSearchAdaptor.processForm(req, res);
   });
 
+  caseSearchRouter.get("/results", (req: Request, res: Response): void => {
+    caseSearchAdaptor.renderResults(req, res);
+  });
+
   return caseSearchRouter;
 }

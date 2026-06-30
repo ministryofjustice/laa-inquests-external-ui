@@ -55,7 +55,7 @@ describe("CaseSearch adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 0);
     });
 
-    it("redirects when case reference is provided", () => {
+    it("redirects to /claim/results when case reference is provided", () => {
       const validator = new CaseSearchValidator();
       const adaptor = new CaseSearchAdaptor(validator);
 
@@ -68,7 +68,25 @@ describe("CaseSearch adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/results");
       assert.equal(responseStub.render.callCount, 0);
+    });
+  });
+
+  describe("renderResults", () => {
+    it("renders the case search results page", () => {
+      const validator = new CaseSearchValidator();
+      const adaptor = new CaseSearchAdaptor(validator);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      adaptor.renderResults(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "claim/case-search-results");
     });
   });
 });

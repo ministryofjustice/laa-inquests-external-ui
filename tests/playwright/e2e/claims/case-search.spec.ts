@@ -50,12 +50,14 @@ test.describe("Claim - case search", () => {
     await expect(page.getByText("Case reference is required")).toBeVisible();
   });
 
-  test("submits form when case reference is provided", async ({ page }) => {
+  test("submits form when case reference is provided and redirects to results", async ({
+    page,
+  }) => {
     const form = page.getByTestId("case-search-form");
 
     await form.getByLabel("Enter the case reference number").fill("ABC-12345");
     await form.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page).not.toHaveURL("/claim");
+    await expect(page).toHaveURL("/claim/results");
   });
 });
