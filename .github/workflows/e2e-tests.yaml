@@ -72,18 +72,51 @@ jobs:
             ghcr.io/ministryofjustice/laa-inquests-api:latest \
             alembic upgrade head
 
-      - name: Seed coroners_letter row for E2E submit test
+      # Without these seeds POST /applications fails with a FK violation and
+      # the submit E2E test hangs on the client-declaration page.
+      - name: Seed reference data for E2E submit test
         env:
-          PGPASSWORD: postgres
           MSW_CORONERS_LETTER_ID: 1c84c788-23c4-49e7-a07e-6b391f09c116
         run: |
-          docker run --rm --network host \
+          docker run --rm -i --network host \
             -e PGPASSWORD=postgres \
             postgres:18 \
-            psql -h 127.0.0.1 -U postgres -d api -v ON_ERROR_STOP=1 -c \
-            "INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
-             VALUES ('${MSW_CORONERS_LETTER_ID}', 'e2e-seed.pdf', 'e2e-seed.pdf')
-             ON CONFLICT (coroners_letter_id) DO NOTHING;"
+            psql -h 127.0.0.1 -U postgres -d api -v ON_ERROR_STOP=1 \
+              -v msw_id="${MSW_CORONERS_LETTER_ID}" <<'SQL'
+            INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
+            VALUES (:'msw_id', 'e2e-seed.pdf', 'e2e-seed.pdf')
+            ON CONFLICT (coroners_letter_id) DO NOTHING;
+
+            INSERT INTO proceeding (proceeding_id, proceeding_description, category_of_law, certificate_type, level_of_service, matter_type, scope_limitation_heading, scope_description, substantive_cost_limitation)
+            VALUES
+              ('PC049', 'CAPA',                                       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('MN035', 'Clinical Negligence',                        'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('MN036', 'Death in Custody - Clinical Negligence',     'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('MH028', 'Mental Health',                              'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('MH030', 'Death in Detention - Mental Health',         'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('IQ001', 'Death in Custody',                           'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('IQ002', 'Inquest',                                    'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('IQ003', 'Schedule 6 Town & Country Planning Act 1990','INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('IQ004', 'Public Inquiry s1 Inquiries Act 2005',       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+              ('IQ010', 'S13 Coroner''s Act 1988 - Public Law',       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000)
+            ON CONFLICT (proceeding_id) DO NOTHING;
+
+            INSERT INTO public_body (public_body_id, public_body_description)
+            VALUES
+              ('PRIME_MINISTER_OFFICE',                              'Prime Minister''s Office 10 Downing Street'),
+              ('CABINET_OFFICE',                                     'Cabinet Office'),
+              ('ATTORNEY_GENERAL',                                   'Attorney General''s Office'),
+              ('DEPARTMENT_FOR_BUSINESS_AND_TRADE',                  'Department for Business & Trade'),
+              ('DEPARTMENT_FOR_CULTURE_MEDIA_AND_SPORT',             'Department for Culture, Media & Sport'),
+              ('DEPARTMENT_FOR_EDUCATION',                           'Department for Education'),
+              ('DEPARTMENT_FOR_ENERGY_SECURITY_AND_NET_ZERO',        'Department for Energy Security & Net Zero'),
+              ('DEPARTMENT_FOR_ENVIRONMENT_FOOD_AND_RURAL_AFFAIRS',  'Department for Environment, Food & Rural Affairs'),
+              ('DEPARTMENT_FOR_SCIENCE_INNOVATION_AND_TECHNOLOGY',   'Department for Science, Innovation & Technology'),
+              ('DEPARTMENT_FOR_TRANSPORT',                           'Department for Transport'),
+              ('DEPARTMENT_FOR_WORK_AND_PENSIONS',                   'Department for Work & Pensions'),
+              ('DEPARTMENT_OF_HEALTH_AND_SOCIAL_CARE',               'Department of Health & Social Care')
+            ON CONFLICT (public_body_id) DO NOTHING;
+          SQL
 
       - name: Start API container
         run: |
