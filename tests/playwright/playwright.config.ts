@@ -13,6 +13,9 @@ export const MSW_CONFIG = {
  */
 export const TEST_CONFIG = {
   BASE_URL: process.env.BASE_URL || "http://localhost:3000",
+  INQUESTS_API_URL:
+    process.env.INQUESTS_API_URL ||
+    "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
 };
 
 /**
@@ -55,8 +58,7 @@ export default defineConfig({
       AUTH_REDIRECT_URI: "http://localhost:3000/auth/callback",
       AUTH_POST_LOGOUT_URI: "http://localhost:3000",
       MOCK_OAUTH_URL: "http://localhost:4001",
-      INQUESTS_API_URL:
-        "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
+      INQUESTS_API_URL: TEST_CONFIG.INQUESTS_API_URL,
     },
   },
 });
