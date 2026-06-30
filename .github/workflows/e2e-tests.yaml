@@ -72,6 +72,19 @@ jobs:
             ghcr.io/ministryofjustice/laa-inquests-api:latest \
             alembic upgrade head
 
+      - name: Seed coroners_letter row for E2E submit test
+        env:
+          PGPASSWORD: postgres
+          MSW_CORONERS_LETTER_ID: 1c84c788-23c4-49e7-a07e-6b391f09c116
+        run: |
+          docker run --rm --network host \
+            -e PGPASSWORD=postgres \
+            postgres:18 \
+            psql -h 127.0.0.1 -U postgres -d api -v ON_ERROR_STOP=1 -c \
+            "INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
+             VALUES ('${MSW_CORONERS_LETTER_ID}', 'e2e-seed.pdf', 'e2e-seed.pdf')
+             ON CONFLICT (coroners_letter_id) DO NOTHING;"
+
       - name: Start API container
         run: |
           docker run -d --name inquests-api --network host \
