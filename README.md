@@ -14,7 +14,7 @@ View the [full technical documentation here](https://ministryofjustice.github.io
 
 ### Prerequisites
 
-- node stable version [25.8.2](https://nodejs.org/en/blog/release/v25.8.1/)
+- node stable version [26.3.0](https://nodejs.org/en/blog/release/v26.0.0/)
 - [Yarn 4.10.3](https://yarnpkg.com/) package manager (see installation instructions below)
 - TypeScript 5.9.3
 
