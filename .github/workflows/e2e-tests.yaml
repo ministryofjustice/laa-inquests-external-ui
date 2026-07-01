@@ -187,9 +187,9 @@ jobs:
           RATE_LIMIT_MAX: "10000"
           RATE_WINDOW_MS: "900000"
 
-      - name: Show API logs
-        if: always()
-        run: docker logs inquests-api || true
+      - name: Show API logs on failure
+        if: failure()
+        run: docker logs inquests-api
 
       - name: Stop API container
         if: always()
