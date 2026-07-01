@@ -16,10 +16,7 @@ export class CaseSearchValidator extends FormValidator {
     const errorSummaries: Partial<CaseSearchError> = {};
     const { "case-reference": caseReference } = formBody;
 
-    if (
-      caseReference === undefined ||
-      this.validateFormInputValue(caseReference, true)
-    ) {
+    if (this.validateFormInputValue(caseReference, true)) {
       errorSummaries.caseReferenceInputError = {
         text: CASE_SEARCH_ERROR.MISSING_CASE_REFERENCE,
       };

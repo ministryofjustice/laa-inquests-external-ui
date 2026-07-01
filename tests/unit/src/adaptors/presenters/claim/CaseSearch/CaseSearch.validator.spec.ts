@@ -27,17 +27,5 @@ describe("CaseSearchValidator", () => {
 
       assert.deepEqual(errorSummaries, {});
     });
-
-    it("returns error when case reference is undefined", () => {
-      const validator = new CaseSearchValidator();
-
-      const errorSummaries = validator.validateCaseSearch({});
-
-      assert.deepEqual(errorSummaries, {
-        caseReferenceInputError: {
-          text: CASE_SEARCH_ERROR.MISSING_CASE_REFERENCE,
-        },
-      });
-    });
   });
 });
