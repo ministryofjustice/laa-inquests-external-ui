@@ -21,6 +21,7 @@ declare module "express-session" {
     officeId?: string;
     providerEmail?: string;
     claimCaseReference?: string;
+    claimSelectedReference?: string;
     claimSearchResults?: { text: string }[][];
   }
 }

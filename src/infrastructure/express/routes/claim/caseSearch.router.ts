@@ -20,5 +20,12 @@ export function createCaseSearchRouter(
     },
   );
 
+  caseSearchRouter.get(
+    "/results/select/:reference",
+    (req: Request, res: Response): void => {
+      caseSearchAdaptor.selectCase(req, res);
+    },
+  );
+
   return caseSearchRouter;
 }
