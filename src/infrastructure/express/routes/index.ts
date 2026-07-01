@@ -167,7 +167,10 @@ const searchCasesSource = new SearchCasesAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
 );
-const caseSearchAdaptor = new CaseSearchAdaptor(caseSearchValidator, searchCasesSource);
+const caseSearchAdaptor = new CaseSearchAdaptor(
+  caseSearchValidator,
+  searchCasesSource,
+);
 
 indexRouter.use(
   "/claim",

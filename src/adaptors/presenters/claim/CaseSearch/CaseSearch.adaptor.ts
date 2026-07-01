@@ -44,6 +44,9 @@ export class CaseSearchAdaptor {
     const {
       locals: { csrfToken },
     } = res;
+    const {
+      body: { "case-reference": caseReference },
+    } = req;
 
     const errorSummaries: Partial<CaseSearchError> =
       this.formValidator.validateCaseSearch(req.body);
@@ -51,18 +54,21 @@ export class CaseSearchAdaptor {
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       res.render("claim/case-search", {
         csrfToken,
-        caseReference: req.body["case-reference"],
+        caseReference,
         errorSummaries,
       });
       return;
     }
 
-    req.session.claimCaseReference = req.body["case-reference"];
+    req.session.claimCaseReference = caseReference;
     res.redirect("/claim/results");
   }
 
   async renderResults(req: Request, res: Response): Promise<void> {
-    const laaReference = req.session.claimCaseReference ?? "";
+    const {
+      session: { claimCaseReference },
+    } = req;
+    const laaReference = claimCaseReference ?? "";
     const {
       locals: { csrfToken },
     } = res;
@@ -80,8 +86,10 @@ export class CaseSearchAdaptor {
   }
 
   selectCase(req: Request, res: Response): void {
-    req.session.claimSelectedReference = String(req.params["reference"]);
+    const {
+      params: { reference },
+    } = req;
+    req.session.claimSelectedReference = String(reference);
     res.redirect("/claim/type");
   }
 }
-

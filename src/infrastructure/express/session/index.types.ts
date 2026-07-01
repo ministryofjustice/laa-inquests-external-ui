@@ -22,7 +22,7 @@ declare module "express-session" {
     providerEmail?: string;
     claimCaseReference?: string;
     claimSelectedReference?: string;
-    claimSearchResults?: { text: string }[][];
+    claimSearchResults?: Array<Array<{ text: string }>>;
   }
 }
 
