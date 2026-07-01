@@ -22,6 +22,8 @@ declare module "express-session" {
     coronersLetterId?: string;
     coronersLetterFileName?: string;
     providerEmail?: string;
+    claimCaseReference?: string;
+    claimSearchResults?: { text: string }[][];
   }
 }
 

@@ -2,6 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - case search results", () => {
   test.beforeEach(async ({ page }) => {
+    await page.request.get("/test/claim-search-session?laa_reference=1");
     await page.goto("/claim/results");
   });
 
@@ -28,25 +29,29 @@ test.describe("Claim - case search results", () => {
 
     await expect(table).toBeVisible();
     await expect(
-      table.getByRole("columnheader", { name: "Case Reference" }),
+      table.getByRole("columnheader", { name: "Reference" }),
     ).toBeVisible();
     await expect(
-      table.getByRole("columnheader", { name: "Client Name" }),
+      table.getByRole("columnheader", { name: "Client's name" }),
     ).toBeVisible();
     await expect(
-      table.getByRole("columnheader", { name: "Client Date of Birth" }),
+      table.getByRole("columnheader", { name: "Date of birth" }),
     ).toBeVisible();
     await expect(
-      table.getByRole("columnheader", { name: "Date Submitted" }),
+      table.getByRole("columnheader", { name: "Date submitted" }),
     ).toBeVisible();
     await expect(
-      table.getByRole("columnheader", { name: "Firm Name" }),
+      table.getByRole("columnheader", { name: "Firm name and number" }),
     ).toBeVisible();
     await expect(
-      table.getByRole("columnheader", { name: "Firm Number" }),
+      table.getByRole("columnheader", { name: "Status" }),
     ).toBeVisible();
-    await expect(
-      table.getByRole("columnheader", { name: "Case Status" }),
-    ).toBeVisible();
+  });
+
+  test("renders at least one result row", async ({ page }) => {
+    const table = page.getByRole("table");
+    const rows = table.getByRole("row");
+
+    await expect(rows).toHaveCount(2);
   });
 });

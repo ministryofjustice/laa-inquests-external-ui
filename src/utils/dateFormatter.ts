@@ -15,3 +15,11 @@ export function formatDateDDMMYYYY(
 
   return `${dayPadded}-${monthPadded}-${formattedYear}`;
 }
+
+export function formatISODateDDMMYYYY(isoDate: string): string {
+  const date = new Date(isoDate);
+  const day = String(date.getUTCDate()).padStart(DATE_PADDING, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(DATE_PADDING, "0");
+  const year = date.getUTCFullYear();
+  return `${day}/${month}/${year}`;
+}

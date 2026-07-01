@@ -20,6 +20,7 @@ import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/appl
 import { createCaseSearchRouter } from "./claim/caseSearch.router.js";
 import { CaseSearchAdaptor } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.adaptor.js";
 import { CaseSearchValidator } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.validator.js";
+import { SearchCasesAdaptor } from "#src/adaptors/source/inquests-api/claim/SearchCases/SearchCases.adaptor.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -173,7 +174,11 @@ const coronersLetterAdaptor = new CoronersLetterAdaptor(
   uploadCoronersLetterSource,
 );
 const caseSearchValidator = new CaseSearchValidator();
-const caseSearchAdaptor = new CaseSearchAdaptor(caseSearchValidator);
+const searchCasesSource = new SearchCasesAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const caseSearchAdaptor = new CaseSearchAdaptor(caseSearchValidator, searchCasesSource);
 
 indexRouter.use(
   "/claim",
