@@ -6,6 +6,8 @@ describe("BuildCheckYourAnswersUseCase", () => {
   it("returns the expected check-your-answers shape from session state", () => {
     const useCase = new BuildCheckYourAnswersUseCase();
 
+    const testCoronersLetterFileName = "test-coroners-letter.pdf";
+
     const result = useCase.execute({
       clientFirstName: "Jane",
       clientLastName: "Bloggs",
@@ -38,7 +40,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
           publicAuthorityDescription: "Cabinet Office",
         },
       ],
-      coronersLetterId: "TemporaryId",
+      coronersLetterFileName: testCoronersLetterFileName,
     });
 
     assert.deepEqual(result, {
@@ -81,7 +83,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
           publicAuthorityDescription: "Cabinet Office",
         },
       ],
-      coronersLetterId: "TemporaryId",
+      coronersLetterFileName: testCoronersLetterFileName,
     });
   });
 

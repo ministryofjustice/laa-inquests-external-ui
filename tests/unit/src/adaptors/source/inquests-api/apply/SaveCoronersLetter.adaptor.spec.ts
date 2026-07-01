@@ -9,12 +9,16 @@ describe("UploadCoronersLetterAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
   let uploadCoronersLetterAdaptor: UploadCoronersLetterAdaptor;
   const testCoronersLetterId = uuidv4();
+  const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
   beforeEach(() => {
     axiosStub = stubInterface<AxiosInstance>();
     axiosStub.post.resolves({
       status: 201,
-      data: { coronersLetterId: testCoronersLetterId },
+      data: {
+        coronersLetterId: testCoronersLetterId,
+        coronersLetterFileName: testCoronersLetterFileName,
+      },
     });
 
     uploadCoronersLetterAdaptor = new UploadCoronersLetterAdaptor(
@@ -26,6 +30,7 @@ describe("UploadCoronersLetterAdaptor", () => {
   const expectedSuccessResponse: UploadCoronersLetterResponse = {
     status: "SUCCESS",
     coronersLetterId: testCoronersLetterId,
+    coronersLetterFileName: testCoronersLetterFileName,
   };
 
   const expectedFailureResponse: UploadCoronersLetterResponse = {
@@ -41,7 +46,7 @@ describe("UploadCoronersLetterAdaptor", () => {
   const submitBodyRaw = {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
-    originalname: "coroners-letter.pdf",
+    originalname: testCoronersLetterFileName,
   };
 
   it("returns a successful response on successful upload", async () => {

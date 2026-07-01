@@ -193,7 +193,7 @@ export class ConfirmationAdaptor {
     };
     proceedings: ReturnType<Formatter["formatSelectedIntoTableRows"]>;
     publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
-    coronersLetterId: string;
+    coronersLetterFileName: string;
   } {
     const clientAddress = this.#getClientAddressSummary(data);
     const clientPostcode = this.#getClientPostcodeSummary(data);
@@ -236,7 +236,7 @@ export class ConfirmationAdaptor {
       publicAuthorities: this.formatter.formatIntoTableRows(
         data.publicAuthorities,
       ),
-      coronersLetterId: data.coronersLetterId ?? "",
+      coronersLetterFileName: data.coronersLetterFileName ?? "",
     };
   }
 

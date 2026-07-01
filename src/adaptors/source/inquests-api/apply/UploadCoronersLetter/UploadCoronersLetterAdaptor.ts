@@ -25,7 +25,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
     );
 
     try {
-      const response: AxiosResponse<{ coronersLetterId: string }> =
+      const response: AxiosResponse<UploadCoronersLetterResponse> =
         await this.http.post(
           `${this.baseUrl}/applications/upload-coroners-letter`,
           formData,
@@ -41,6 +41,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
       return {
         status: "SUCCESS",
         coronersLetterId: response.data.coronersLetterId,
+        coronersLetterFileName: response.data.coronersLetterFileName,
       };
     } catch (error) {
       return {

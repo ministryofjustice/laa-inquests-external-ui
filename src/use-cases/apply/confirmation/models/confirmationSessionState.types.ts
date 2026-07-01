@@ -36,5 +36,6 @@ export interface ConfirmationSessionState {
   firmCode?: string;
   officeId?: string;
   coronersLetterId?: string;
+  coronersLetterFileName?: string;
   providerEmail?: string;
 }

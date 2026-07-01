@@ -12,11 +12,13 @@ describe("Coroners Letter adaptor", () => {
   let responseStub: StubbedInstance<Response>;
 
   const testCoronersLetterId = uuidv4();
+  const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
   const uploadCoronersLetterPort = stubInterface<UploadCoronersLetterPort>();
   uploadCoronersLetterPort.uploadCoronersLetter.resolves({
     status: "SUCCESS",
     coronersLetterId: testCoronersLetterId,
+    coronersLetterFileName: testCoronersLetterFileName,
   });
 
   before(() => {
@@ -33,7 +35,7 @@ describe("Coroners Letter adaptor", () => {
     requestStub.file = {
       buffer: testBuffer,
       mimetype: "application/pdf",
-      originalname: "test-file.pdf",
+      originalname: testCoronersLetterFileName,
     } as Express.Multer.File;
     return testBuffer;
   };
@@ -69,7 +71,7 @@ describe("Coroners Letter adaptor", () => {
     assert.deepEqual(uploadBody, {
       buffer: buffer,
       mimetype: "application/pdf",
-      originalname: "test-file.pdf",
+      originalname: testCoronersLetterFileName,
     });
 
     assert.equal(responseStub.redirect.callCount, 1);
@@ -77,12 +79,13 @@ describe("Coroners Letter adaptor", () => {
     assert.equal(redirectArgs[0], "/apply/check-your-answers");
   });
 
-  it("saves the letter id to session on successful upload", async () => {
+  it("saves the letter id and a file name to session on successful upload", async () => {
     setupRequestFile();
 
     uploadCoronersLetterPort.uploadCoronersLetter.resolves({
       status: "SUCCESS",
       coronersLetterId: testCoronersLetterId,
+      coronersLetterFileName: testCoronersLetterFileName,
     });
 
     await coronersLetterAdaptor.processCoronersLetterUploadForm(
@@ -91,5 +94,9 @@ describe("Coroners Letter adaptor", () => {
     );
 
     assert.equal(requestStub.session.coronersLetterId, testCoronersLetterId);
+    assert.equal(
+      requestStub.session.coronersLetterFileName,
+      testCoronersLetterFileName,
+    );
   });
 });

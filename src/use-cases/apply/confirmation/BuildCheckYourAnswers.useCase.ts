@@ -35,7 +35,7 @@ export interface BuildCheckYourAnswersOutput {
   };
   proceedings: Proceeding[];
   publicAuthorities: PublicAuthority[];
-  coronersLetterId: string | undefined;
+  coronersLetterFileName: string | undefined;
 }
 
 export class BuildCheckYourAnswersUseCase {
@@ -69,7 +69,7 @@ export class BuildCheckYourAnswersUseCase {
       },
       proceedings: state.selectedProceedings ?? [],
       publicAuthorities: state.selectedPublicAuthorities ?? [],
-      coronersLetterId: state.coronersLetterId,
+      coronersLetterFileName: state.coronersLetterFileName,
     };
   }
 }

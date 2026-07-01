@@ -9,11 +9,12 @@ describe("UploadCoronersLetterUseCase", () => {
   let useCase: UploadCoronersLetterUseCase;
 
   const testCoronersLetterId = uuidv4();
+  const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
   const testCoronerLetter = {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
-    originalname: "coroners-letter.pdf",
+    originalname: testCoronersLetterFileName,
   };
 
   beforeEach(() => {
@@ -25,13 +26,17 @@ describe("UploadCoronersLetterUseCase", () => {
     uploadCoronersLetterPort.uploadCoronersLetter.resolves({
       status: "SUCCESS",
       coronersLetterId: testCoronersLetterId,
+      coronersLetterFileName: testCoronersLetterFileName,
     });
 
     const result = await useCase.execute(testCoronerLetter);
 
     assert.deepEqual(result, {
       status: "SUCCESS",
-      data: { coronersLetterId: testCoronersLetterId },
+      data: {
+        coronersLetterId: testCoronersLetterId,
+        coronersLetterFileName: testCoronersLetterFileName,
+      },
     });
   });
 

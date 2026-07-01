@@ -18,6 +18,7 @@ describe("Confirmation adaptor", () => {
   let requestStub: StubbedInstance<Request>;
 
   const testCoronersLetterId = uuidv4();
+  const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
@@ -70,7 +71,7 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathYear = "2001";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
-    requestStub.session.coronersLetterId = testCoronersLetterId;
+    requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
     requestStub.session.deceasedFurtherInformation = "Case linked details";
 
     const publicAuthorities = [
@@ -124,7 +125,7 @@ describe("Confirmation adaptor", () => {
       },
       proceedings: [],
       publicAuthorities: expectedFormattedPublicAuthorities,
-      coronersLetterId: testCoronersLetterId,
+      coronersLetterFileName: testCoronersLetterFileName,
     });
   });
 
@@ -337,7 +338,8 @@ describe("Confirmation adaptor", () => {
 
   describe("processClientDeclarationForm", () => {
     beforeEach(() => {
-      requestStub.session.coronersLetterId = "test-coroners-letter-id.pdf";
+      requestStub.session.coronersLetterId = testCoronersLetterId;
+      requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
     });
 
     it("re-renders declaration form with error when declaration checkbox is not selected", async () => {

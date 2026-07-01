@@ -12,6 +12,7 @@ interface UploadCoronersLetterInput {
 
 interface UploadCoronersLetterOutput {
   coronersLetterId: string;
+  coronersLetterFileName: string;
 }
 
 export class UploadCoronersLetterUseCase {
@@ -39,11 +40,16 @@ export class UploadCoronersLetterUseCase {
       if (status === "SUCCESS") {
         if (
           typeof responseRaw.coronersLetterId === "string" &&
-          responseRaw.coronersLetterId !== ""
+          responseRaw.coronersLetterId !== "" &&
+          typeof responseRaw.coronersLetterFileName === "string" &&
+          responseRaw.coronersLetterFileName !== ""
         ) {
           return {
             status: "SUCCESS",
-            data: { coronersLetterId: responseRaw.coronersLetterId },
+            data: {
+              coronersLetterId: responseRaw.coronersLetterId,
+              coronersLetterFileName: responseRaw.coronersLetterFileName,
+            },
           };
         } else {
           return {
