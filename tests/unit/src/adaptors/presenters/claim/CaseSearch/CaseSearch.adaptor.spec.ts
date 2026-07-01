@@ -216,4 +216,21 @@ describe("CaseSearch adaptor", () => {
       assert.deepEqual(cases, []);
     });
   });
+
+  describe("selectCase", () => {
+    it("saves the reference to session and redirects to /claim/type", () => {
+      const adaptor = buildAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.params = { reference: "12345" };
+
+      adaptor.selectCase(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claimSelectedReference, "12345");
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/type");
+    });
+  });
 });

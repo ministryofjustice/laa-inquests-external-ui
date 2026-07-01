@@ -54,4 +54,15 @@ test.describe("Claim - case search results", () => {
 
     await expect(rows).toHaveCount(2);
   });
+
+  test("renders reference as a link to select the case", async ({ page }) => {
+    const firstDataRow = page.getByRole("table").getByRole("row").nth(1);
+    const referenceLink = firstDataRow.getByRole("link");
+
+    await expect(referenceLink).toBeVisible();
+    await expect(referenceLink).toHaveAttribute(
+      "href",
+      /\/claim\/results\/select\/.+/,
+    );
+  });
 });

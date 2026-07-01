@@ -63,6 +63,9 @@ export class CaseSearchAdaptor {
 
   async renderResults(req: Request, res: Response): Promise<void> {
     const laaReference = req.session.claimCaseReference ?? "";
+    const {
+      locals: { csrfToken },
+    } = res;
 
     const result = await this.searchCasesUseCase.execute(laaReference);
 
@@ -71,8 +74,14 @@ export class CaseSearchAdaptor {
     }
 
     res.render("claim/case-search-results", {
+      csrfToken,
       cases: this.formatter.formatCases(result.data ?? []),
     });
+  }
+
+  selectCase(req: Request, res: Response): void {
+    req.session.claimSelectedReference = String(req.params["reference"]);
+    res.redirect("/claim/type");
   }
 }
 

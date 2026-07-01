@@ -29,7 +29,7 @@
           <tbody class="govuk-table__body">
             {% for case in cases %}
             <tr class="govuk-table__row">
-              <td class="govuk-table__cell">{{ case.reference }}</td>
+              <td class="govuk-table__cell"><a class="govuk-link" href="/claim/results/select/{{ case.reference }}">{{ case.reference }}</a></td>
               <td class="govuk-table__cell">{{ case.clientName }}</td>
               <td class="govuk-table__cell">{{ case.dateOfBirth }}</td>
               <td class="govuk-table__cell">{{ case.dateSubmitted }}</td>
