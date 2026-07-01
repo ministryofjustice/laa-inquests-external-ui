@@ -17,6 +17,9 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
+import { createCaseSearchRouter } from "./claim/caseSearch.router.js";
+import { CaseSearchAdaptor } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.adaptor.js";
+import { CaseSearchValidator } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.validator.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -40,6 +43,7 @@ const DEV_AUTH_BYPASS_MODULE_PATH =
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
+const caseSearchRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
 const confirmationRouter = express.Router();
@@ -167,6 +171,12 @@ const uploadCoronersLetterSource = new UploadCoronersLetterAdaptor(
 );
 const coronersLetterAdaptor = new CoronersLetterAdaptor(
   uploadCoronersLetterSource,
+const caseSearchValidator = new CaseSearchValidator();
+const caseSearchAdaptor = new CaseSearchAdaptor(caseSearchValidator);
+
+indexRouter.use(
+  "/claim",
+  createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
 );
 
 indexRouter.use(

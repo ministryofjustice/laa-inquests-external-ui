@@ -67,6 +67,12 @@
         "title": "Are you sure you want to remove this public authority?"
       }
     },
+    "claim": {
+      "caseSearch": {
+        "title": "Which case do you want to make a claim for?",
+        "caseReferenceLabel": "Enter the case reference number"
+      }
+    },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
     }
