@@ -1,5 +1,8 @@
 import { expect } from "chai";
-import { formatDateDDMMYYYY, formatISODateDDMMYYYY } from "#src/utils/dateFormatter.js";
+import {
+  formatDateDDMMYYYY,
+  formatISODateDDMMYYYY,
+} from "#src/utils/dateFormatter.js";
 
 describe("formatDateDDMMYYYY()", () => {
   it("formats valid year, month, and day into dd-MM-YYYY format", () => {
@@ -25,7 +28,11 @@ describe("formatISODateDDMMYYYY()", () => {
   });
 
   it("formats an ISO datetime string by using only the date part", () => {
-    expect(formatISODateDDMMYYYY("2026-06-30T15:59:32.622897")).to.equal("30/06/2026");
-    expect(formatISODateDDMMYYYY("2026-01-01T00:00:00.000000")).to.equal("01/01/2026");
+    expect(formatISODateDDMMYYYY("2026-06-30T15:59:32.622897")).to.equal(
+      "30/06/2026",
+    );
+    expect(formatISODateDDMMYYYY("2026-01-01T00:00:00.000000")).to.equal(
+      "01/01/2026",
+    );
   });
 });

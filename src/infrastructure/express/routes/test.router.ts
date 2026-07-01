@@ -39,8 +39,7 @@ export default function createTestRouter(router: Router): Router {
       },
       res: Response,
     ): void => {
-      req.session.claimCaseReference =
-        (req.query["laa_reference"] as string) ?? "1";
+      req.session.claimCaseReference = req.query.laa_reference as string;
       req.session.save(() => {
         res.status(SUCCESSFUL_REQUEST).send("Session was seeded successfully.");
       });

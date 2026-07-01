@@ -114,10 +114,7 @@ describe("CaseSearch adaptor", () => {
 
       await adaptor.renderResults(requestStub, responseStub);
 
-      assert.equal(
-        searchCasesUseCase.execute.calledOnceWith("1"),
-        true,
-      );
+      assert.equal(searchCasesUseCase.execute.calledOnceWith("1"), true);
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "claim/case-search-results");
