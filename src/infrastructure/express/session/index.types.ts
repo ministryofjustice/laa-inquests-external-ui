@@ -20,6 +20,8 @@ declare module "express-session" {
     firmCode?: string;
     officeId?: string;
     providerEmail?: string;
+    claimCaseReference?: string;
+    claimSearchResults?: { text: string }[][];
   }
 }
 
