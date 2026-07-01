@@ -6,6 +6,11 @@ import type {
 } from "./models/UploadCoronersLetter.types.js";
 import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
 
+interface UploadCoronersLetterApiResponse {
+  coronersLetterId: string;
+  coronersLetterFileName: string;
+}
+
 export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
   constructor(
     private readonly http: AxiosInstance,
@@ -25,7 +30,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
     );
 
     try {
-      const response: AxiosResponse<UploadCoronersLetterResponse> =
+      const response: AxiosResponse<UploadCoronersLetterApiResponse> =
         await this.http.post(
           `${this.baseUrl}/applications/upload-coroners-letter`,
           formData,
