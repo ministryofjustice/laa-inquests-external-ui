@@ -4,6 +4,7 @@ import { AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
+import { v4 as uuidv4 } from "uuid";
 
 describe("SubmitApplicationAdaptor", () => {
   describe("submitApplication", () => {
@@ -24,6 +25,8 @@ describe("SubmitApplicationAdaptor", () => {
         "http://localhost",
       );
 
+      const testCoronersLetterId = uuidv4();
+
       const selectedProceedings = [
         {
           proceedingId: "MN035",
@@ -37,7 +40,6 @@ describe("SubmitApplicationAdaptor", () => {
       ];
 
       const submitBodyRaw = {
-        coronersLetterId: "coroners_letter_id",
         client: {
           clientFirstName: "first name",
           clientLastName: "last name",
@@ -64,6 +66,7 @@ describe("SubmitApplicationAdaptor", () => {
           officeId: "001",
           emailAddress: "test@example.com",
         },
+        coronersLetterId: testCoronersLetterId,
       };
 
       const applicationResponse =

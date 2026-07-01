@@ -6,6 +6,7 @@ import { Formatter } from "#src/utils/Formatter.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
+import { v4 as uuidv4 } from "uuid";
 
 describe("Confirmation adaptor", () => {
   let confirmationFormatter: Formatter;
@@ -15,6 +16,9 @@ describe("Confirmation adaptor", () => {
   let confirmationAdaptor: ConfirmationAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
+
+  const testCoronersLetterId = uuidv4();
+  const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
@@ -67,6 +71,7 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathYear = "2001";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
+    requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
     requestStub.session.deceasedFurtherInformation = "Case linked details";
 
     const publicAuthorities = [
@@ -120,6 +125,7 @@ describe("Confirmation adaptor", () => {
       },
       proceedings: [],
       publicAuthorities: expectedFormattedPublicAuthorities,
+      coronersLetterFileName: testCoronersLetterFileName,
     });
   });
 
@@ -331,6 +337,11 @@ describe("Confirmation adaptor", () => {
   });
 
   describe("processClientDeclarationForm", () => {
+    beforeEach(() => {
+      requestStub.session.coronersLetterId = testCoronersLetterId;
+      requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
+    });
+
     it("re-renders declaration form with error when declaration checkbox is not selected", async () => {
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";

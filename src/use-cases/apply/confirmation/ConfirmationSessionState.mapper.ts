@@ -13,6 +13,8 @@ export class ConfirmationSessionStateMapper {
       ...this.#mapDeceasedState(session),
       firmCode: getStringValue(session.firmCode),
       officeId: getStringValue(session.officeId),
+      coronersLetterId: getStringValue(session.coronersLetterId),
+      coronersLetterFileName: getStringValue(session.coronersLetterFileName),
       providerEmail: getStringValue(session.providerEmail),
       selectedProceedings: Array.isArray(session.selectedProceedings)
         ? session.selectedProceedings

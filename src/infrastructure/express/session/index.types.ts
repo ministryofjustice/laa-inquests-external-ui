@@ -19,6 +19,8 @@ declare module "express-session" {
     user?: { name?: string };
     firmCode?: string;
     officeId?: string;
+    coronersLetterId?: string;
+    coronersLetterFileName?: string;
     providerEmail?: string;
   }
 }

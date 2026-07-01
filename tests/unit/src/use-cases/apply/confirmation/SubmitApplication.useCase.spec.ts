@@ -1,5 +1,6 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
+import { v4 as uuidv4 } from "uuid";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
@@ -49,7 +50,6 @@ describe("SubmitApplicationUseCase", () => {
 
     const submittedBody = applySubmitPort.submitApplication.getCall(0).args[0];
     assert.deepEqual(submittedBody, {
-      coronersLetterId: "coroners_letter_id",
       client: {
         clientFirstName: state.clientFirstName,
         clientLastName: state.clientLastName,
@@ -110,6 +110,7 @@ describe("SubmitApplicationUseCase", () => {
         officeId: state.officeId,
         emailAddress: state.providerEmail,
       },
+      coronersLetterId: state.coronersLetterId,
     });
   });
 
@@ -228,6 +229,7 @@ function createValidState(
     ],
     firmCode: "0A123B",
     officeId: "001",
+    coronersLetterId: uuidv4(),
     providerEmail: "test@example.com",
     ...overrides,
   };

@@ -101,7 +101,7 @@ export class SubmitApplicationUseCase {
           officeId: state.officeId!,
           emailAddress: state.providerEmail!,
         },
-        coronersLetterId: "coroners_letter_id",
+        coronersLetterId: state.coronersLetterId!,
       };
 
       const parseRequestResult = SubmitApplicationRequestSchema.safeParse(

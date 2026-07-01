@@ -35,5 +35,7 @@ export interface ConfirmationSessionState {
   selectedPublicAuthorities?: PublicAuthority[];
   firmCode?: string;
   officeId?: string;
+  coronersLetterId?: string;
+  coronersLetterFileName?: string;
   providerEmail?: string;
 }

@@ -195,7 +195,7 @@ export class PublicAuthorityAdaptor {
         return;
       }
 
-      res.redirect("/apply/check-your-answers");
+      res.redirect("/apply/upload-coroners-letter");
     }
   }
 
