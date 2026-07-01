@@ -2,6 +2,7 @@ export const MAX_CHARACTER_LENGTH = 100;
 
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
+  NO_RESULTS: "There are no results that match the search criteria",
 };
 
 export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;

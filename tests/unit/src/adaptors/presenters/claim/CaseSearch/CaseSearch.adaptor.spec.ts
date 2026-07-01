@@ -186,5 +186,34 @@ describe("CaseSearch adaptor", () => {
       ).cases;
       assert.equal(rows[0].firmNameAndNumber, "0B456C");
     });
+
+    it("renders results with empty cases array when API returns no results", async () => {
+      const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
+      searchCasesUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: [],
+      });
+
+      const validator = new CaseSearchValidator();
+      const port = stubInterface<SearchCasesPort>();
+      const adaptor = new CaseSearchAdaptor(
+        validator,
+        port,
+        new CaseSearchFormatter(),
+        searchCasesUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claimCaseReference = "UNKNOWN-123";
+
+      await adaptor.renderResults(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "claim/case-search-results");
+      const cases = (renderArgs[1] as unknown as { cases: unknown[] }).cases;
+      assert.deepEqual(cases, []);
+    });
   });
 });
