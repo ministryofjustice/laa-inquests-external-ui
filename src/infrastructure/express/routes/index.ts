@@ -171,6 +171,7 @@ const uploadCoronersLetterSource = new UploadCoronersLetterAdaptor(
 );
 const coronersLetterAdaptor = new CoronersLetterAdaptor(
   uploadCoronersLetterSource,
+);
 const caseSearchValidator = new CaseSearchValidator();
 const caseSearchAdaptor = new CaseSearchAdaptor(caseSearchValidator);
 
