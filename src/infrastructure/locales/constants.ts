@@ -1,5 +1,9 @@
 export const MAX_CHARACTER_LENGTH = 100;
 
+export const CASE_SEARCH_ERROR = {
+  MISSING_CASE_REFERENCE: "Case reference is required",
+};
+
 export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;
 
 export const DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH = 50;
