@@ -66,14 +66,17 @@ export class CaseSearchAdaptor {
 
   async renderResults(req: Request, res: Response): Promise<void> {
     const {
-      session: { claimCaseReference },
+      session: { claimCaseReference, accessToken },
     } = req;
     const laaReference = claimCaseReference ?? "";
     const {
       locals: { csrfToken },
     } = res;
 
-    const result = await this.searchCasesUseCase.execute(laaReference);
+    const result = await this.searchCasesUseCase.execute(
+      laaReference,
+      accessToken,
+    );
 
     if (result.status !== "SUCCESS") {
       return;

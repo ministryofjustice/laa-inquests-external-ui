@@ -4,6 +4,7 @@ import type {
   SearchCasesRequest,
   SearchCasesResponse,
 } from "./models/SearchCases.types.js";
+import { getFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 
 export class SearchCasesAdaptor implements SearchCasesPort {
   constructor(
@@ -11,11 +12,17 @@ export class SearchCasesAdaptor implements SearchCasesPort {
     private readonly baseUrl: string,
   ) {}
 
-  async searchCases(params: SearchCasesRequest): Promise<SearchCasesResponse> {
-    const response = await this.http.get<SearchCasesResponse>(
-      `${this.baseUrl}/applications/search`,
-      { params: { laa_reference: params.laaReference } },
-    );
+  async searchCases(
+    params: SearchCasesRequest,
+    accessToken: string | undefined,
+  ): Promise<SearchCasesResponse> {
+    const response = await getFromInquestsApi<SearchCasesResponse>({
+      http: this.http,
+      baseUrl: this.baseUrl,
+      path: "/applications/search",
+      params: { laa_reference: params.laaReference },
+      accessToken,
+    });
     return response.data;
   }
 }

@@ -7,9 +7,13 @@ export class SearchCasesUseCase {
 
   async execute(
     laaReference: string,
+    accessToken: string | undefined,
   ): Promise<UseCaseResult<SearchCasesResponse>> {
     try {
-      const cases = await this.searchCasesPort.searchCases({ laaReference });
+      const cases = await this.searchCasesPort.searchCases(
+        { laaReference },
+        accessToken,
+      );
       return { status: "SUCCESS", data: cases };
     } catch {
       return { status: "TECHNICAL_FAILURE", reason: "UNEXPECTED_EXCEPTION" };

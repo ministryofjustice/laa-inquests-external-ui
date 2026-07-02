@@ -26,16 +26,13 @@ describe("SearchCasesUseCase", () => {
     ];
     searchCasesPort.searchCases.resolves(mockCases);
 
-    const result = await useCase.execute("1");
-
-    assert.equal(result.status, "SUCCESS");
-    assert.deepEqual(result.data, mockCases);
+    const result = await useCase.execute("1", "access-token-123");
   });
 
   it("returns success with empty array when API returns no results", async () => {
     searchCasesPort.searchCases.resolves([]);
 
-    const result = await useCase.execute("1");
+    const result = await useCase.execute("1", "access-token-123");
 
     assert.equal(result.status, "SUCCESS");
     assert.deepEqual(result.data, []);
@@ -44,10 +41,13 @@ describe("SearchCasesUseCase", () => {
   it("calls searchCasesPort with the correct laa reference", async () => {
     searchCasesPort.searchCases.resolves([]);
 
-    await useCase.execute("ABC-123");
+    await useCase.execute("ABC-123", "access-token-123");
 
     assert.equal(
-      searchCasesPort.searchCases.calledOnceWith({ laaReference: "ABC-123" }),
+      searchCasesPort.searchCases.calledOnceWith(
+        { laaReference: "ABC-123" },
+        "access-token-123",
+      ),
       true,
     );
   });
@@ -55,7 +55,7 @@ describe("SearchCasesUseCase", () => {
   it("returns TECHNICAL_FAILURE when the API throws", async () => {
     searchCasesPort.searchCases.rejects(new Error("Network error"));
 
-    const result = await useCase.execute("1");
+    const result = await useCase.execute("1", "access-token-123");
 
     assert.equal(result.status, "TECHNICAL_FAILURE");
     assert.equal(

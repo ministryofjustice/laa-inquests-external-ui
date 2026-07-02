@@ -111,10 +111,14 @@ describe("CaseSearch adaptor", () => {
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.session.claimCaseReference = "1";
+      requestStub.session.accessToken = "access-token-123";
 
       await adaptor.renderResults(requestStub, responseStub);
 
-      assert.equal(searchCasesUseCase.execute.calledOnceWith("1"), true);
+      assert.equal(
+        searchCasesUseCase.execute.calledOnceWith("1", "access-token-123"),
+        true,
+      );
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "claim/case-search-results");
@@ -139,6 +143,7 @@ describe("CaseSearch adaptor", () => {
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.session.claimCaseReference = "1";
+      requestStub.session.accessToken = "access-token-123";
 
       await adaptor.renderResults(requestStub, responseStub);
 
@@ -174,6 +179,7 @@ describe("CaseSearch adaptor", () => {
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.session.claimCaseReference = "2";
+      requestStub.session.accessToken = "access-token-123";
 
       await adaptor.renderResults(requestStub, responseStub);
 
@@ -203,6 +209,7 @@ describe("CaseSearch adaptor", () => {
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.session.claimCaseReference = "UNKNOWN-123";
+      requestStub.session.accessToken = "access-token-123";
 
       await adaptor.renderResults(requestStub, responseStub);
 
