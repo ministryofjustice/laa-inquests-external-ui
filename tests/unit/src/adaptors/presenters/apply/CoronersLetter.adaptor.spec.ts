@@ -57,6 +57,7 @@ describe("Coroners Letter adaptor", () => {
 
   it("saves the file and redirects on success", async () => {
     const buffer = setupRequestFile();
+    requestStub.session.accessToken = "access-token-123";
 
     await coronersLetterAdaptor.processCoronersLetterUploadForm(
       requestStub,
@@ -67,12 +68,15 @@ describe("Coroners Letter adaptor", () => {
 
     const uploadBody = uploadCoronersLetterPort.uploadCoronersLetter.getCall(0)
       .args[0] as UploadCoronersLetterRequest;
+    const uploadAccessToken =
+      uploadCoronersLetterPort.uploadCoronersLetter.getCall(0).args[1];
 
     assert.deepEqual(uploadBody, {
       buffer: buffer,
       mimetype: "application/pdf",
       originalname: testCoronersLetterFileName,
     });
+    assert.equal(uploadAccessToken, "access-token-123");
 
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;

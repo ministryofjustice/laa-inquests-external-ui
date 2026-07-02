@@ -23,6 +23,7 @@ export class MockAuthAdaptor implements AuthPort {
       firmCode: "0A123B",
       officeId: "001",
       providerEmail: "test@example.com",
+      accessToken: "mock-access-token",
     });
   }
 }

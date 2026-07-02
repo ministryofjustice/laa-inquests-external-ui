@@ -32,14 +32,23 @@ export class EntraAuthAdaptor implements AuthPort {
     }
 
     this.#logTokenDetails(result);
-
     return {
       userId: result.account?.homeAccountId ?? result.uniqueId,
       userName: result.account?.name ?? undefined,
       firmCode: this.#extractFirmCode(result.account?.idTokenClaims),
       officeId: this.#extractOfficeId(result.account?.idTokenClaims),
       providerEmail: result.account?.username ?? undefined,
+      ...this.#getAccessTokenField(result),
     };
+  }
+
+  #getAccessTokenField(
+    result: AuthenticationResult,
+  ): Pick<AuthTokenResult, "accessToken"> | Record<string, never> {
+    if (typeof result.accessToken === "string" && result.accessToken !== "") {
+      return { accessToken: result.accessToken };
+    }
+    return {};
   }
 
   #extractFirmCode(
