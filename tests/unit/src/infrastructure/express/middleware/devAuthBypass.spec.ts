@@ -29,6 +29,7 @@ describe("seedDevAuthSession", () => {
     assert.equal(req.session.firmCode, "0A123B");
     assert.equal(req.session.officeId, "001");
     assert.equal(req.session.providerEmail, "developer@example.com");
+    assert.equal(req.session.accessToken, "dev-access-token");
     assert.equal(res.locals.userName, "Developer User");
     assert.equal(next.callCount, 1);
   });

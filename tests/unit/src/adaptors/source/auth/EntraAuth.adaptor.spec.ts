@@ -60,6 +60,7 @@ describe("EntraAuthAdaptor", () => {
           username: "test@example.com",
           idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
         },
+        accessToken: "access-token-123",
       } as any);
 
       const result = await adaptor.acquireTokenByCode(
@@ -74,6 +75,7 @@ describe("EntraAuthAdaptor", () => {
         firmCode: "0A123B",
         officeId: "001",
         providerEmail: "test@example.com",
+        accessToken: "access-token-123",
       });
       assert.ok(
         msalClient.acquireTokenByCode.calledOnceWith({

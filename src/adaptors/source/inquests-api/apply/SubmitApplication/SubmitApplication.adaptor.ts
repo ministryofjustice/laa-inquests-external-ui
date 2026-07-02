@@ -4,6 +4,7 @@ import type {
   SubmitApplicationRequest,
   SubmitApplicationResponse,
 } from "./models/SubmitApplication.types.js";
+import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 
 export class SubmitApplicationAdaptor implements ApplySubmitPort {
   constructor(
@@ -15,6 +16,7 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
 
   async submitApplication(
     _body: SubmitApplicationRequest,
+    accessToken: string | undefined,
   ): Promise<SubmitApplicationResponse> {
     if (this.payloadDebugEnabled) {
       this.logger(
@@ -23,7 +25,16 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
     }
 
     const response: AxiosResponse<SubmitApplicationResponse> =
-      await this.http.post(`${this.baseUrl}/applications`, _body);
+      await postToInquestsApi<
+        SubmitApplicationResponse,
+        SubmitApplicationRequest
+      >({
+        http: this.http,
+        baseUrl: this.baseUrl,
+        path: "/applications/",
+        body: _body,
+        accessToken,
+      });
 
     const submitApplicationResponse: SubmitApplicationResponse = {
       statusCode: response.status,

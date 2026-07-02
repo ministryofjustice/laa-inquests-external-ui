@@ -51,7 +51,10 @@ describe("UploadCoronersLetterAdaptor", () => {
 
   it("returns a successful response on successful upload", async () => {
     const fileSaveResponse =
-      await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(
+        submitBodyRaw,
+        "access-token-123",
+      );
 
     assert.deepEqual(expectedSuccessResponse, fileSaveResponse);
   });
@@ -63,7 +66,10 @@ describe("UploadCoronersLetterAdaptor", () => {
     });
 
     const fileSaveResponse =
-      await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(
+        submitBodyRaw,
+        "access-token-123",
+      );
 
     assert.deepEqual(expectedFailureResponse, fileSaveResponse);
   });
@@ -72,13 +78,19 @@ describe("UploadCoronersLetterAdaptor", () => {
     axiosStub.post.rejects(new Error("Unexpected error"));
 
     const fileSaveResponse =
-      await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(
+        submitBodyRaw,
+        "access-token-123",
+      );
 
     assert.deepEqual(expectedExceptionResponse, fileSaveResponse);
   });
 
   it("calls correct api endpoint with parameters", async () => {
-    await uploadCoronersLetterAdaptor.uploadCoronersLetter(submitBodyRaw);
+    await uploadCoronersLetterAdaptor.uploadCoronersLetter(
+      submitBodyRaw,
+      "access-token-123",
+    );
 
     assert(axiosStub.post.calledOnce);
 
@@ -91,5 +103,10 @@ describe("UploadCoronersLetterAdaptor", () => {
       "http://localhost/applications/upload-coroners-letter",
     );
     assert.instanceOf(actualBody, FormData);
+    assert.deepEqual(postCall.args[2], {
+      headers: {
+        Authorization: "Bearer access-token-123",
+      },
+    });
   });
 });

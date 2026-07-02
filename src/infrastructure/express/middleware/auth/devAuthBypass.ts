@@ -6,6 +6,7 @@ const DEV_SESSION_DATA = {
   firmCode: "0A123B",
   officeId: "001",
   providerEmail: "developer@example.com",
+  accessToken: "dev-access-token",
 } as const;
 
 export const seedDevAuthSession = (

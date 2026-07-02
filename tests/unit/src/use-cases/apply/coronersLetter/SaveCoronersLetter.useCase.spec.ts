@@ -15,6 +15,7 @@ describe("UploadCoronersLetterUseCase", () => {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
     originalname: testCoronersLetterFileName,
+    accessToken: "access-token-123",
   };
 
   beforeEach(() => {
@@ -30,6 +31,15 @@ describe("UploadCoronersLetterUseCase", () => {
     });
 
     const result = await useCase.execute(testCoronerLetter);
+
+    assert.equal(
+      uploadCoronersLetterPort.uploadCoronersLetter.calledOnce,
+      true,
+    );
+    assert.equal(
+      uploadCoronersLetterPort.uploadCoronersLetter.getCall(0).args[1],
+      testCoronerLetter.accessToken,
+    );
 
     assert.deepEqual(result, {
       status: "SUCCESS",

@@ -1,18 +1,17 @@
 import type { Request, Response, NextFunction } from "express";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 
-const AUTH_SCOPES = ["openid", "profile", "offline_access"];
-
 export class AuthAdaptor {
   constructor(
     private readonly authPort: AuthPort,
     private readonly redirectUri: string,
     private readonly postLogoutUri: string,
+    private readonly authScopes: string[],
   ) {}
 
   async login(_req: Request, res: Response): Promise<void> {
     const url = await this.authPort.getAuthCodeUrl(
-      AUTH_SCOPES,
+      this.authScopes,
       this.redirectUri,
     );
     res.redirect(url);
@@ -23,7 +22,7 @@ export class AuthAdaptor {
 
     const user = await this.authPort.acquireTokenByCode(
       code,
-      AUTH_SCOPES,
+      this.authScopes,
       this.redirectUri,
     );
     Object.assign(req.session, {
@@ -31,6 +30,7 @@ export class AuthAdaptor {
       firmCode: user.firmCode,
       officeId: user.officeId,
       providerEmail: user.providerEmail,
+      accessToken: user.accessToken,
     });
     req.session.user = { name: user.userName };
     res.redirect("/");

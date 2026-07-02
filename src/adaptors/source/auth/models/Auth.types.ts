@@ -4,4 +4,5 @@ export interface AuthTokenResult {
   firmCode?: string;
   officeId?: string;
   providerEmail?: string;
+  accessToken?: string;
 }

@@ -5,6 +5,7 @@ import type {
   UploadCoronersLetterResponse,
 } from "./models/UploadCoronersLetter.types.js";
 import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
+import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 
 interface UploadCoronersLetterApiResponse {
   coronersLetterId: string;
@@ -19,6 +20,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
 
   async uploadCoronersLetter(
     body: UploadCoronersLetterRequest,
+    accessToken: string | undefined,
   ): Promise<UploadCoronersLetterResponse> {
     const formData = new FormData();
     formData.append(
@@ -31,10 +33,13 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
 
     try {
       const response: AxiosResponse<UploadCoronersLetterApiResponse> =
-        await this.http.post(
-          `${this.baseUrl}/applications/upload-coroners-letter`,
-          formData,
-        );
+        await postToInquestsApi<UploadCoronersLetterApiResponse, FormData>({
+          http: this.http,
+          baseUrl: this.baseUrl,
+          path: "/applications/upload-coroners-letter",
+          body: formData,
+          accessToken,
+        });
 
       if (response.status !== HTTP_CREATED) {
         return {
