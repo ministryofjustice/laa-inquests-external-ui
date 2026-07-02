@@ -1,4 +1,5 @@
 const DATE_PADDING = 2;
+const MONTH_INDEX_OFFSET = 1;
 
 export function formatDateDDMMYYYY(
   year: unknown,
@@ -14,4 +15,15 @@ export function formatDateDDMMYYYY(
   const monthPadded = formattedMonth.padStart(DATE_PADDING, "0");
 
   return `${dayPadded}-${monthPadded}-${formattedYear}`;
+}
+
+export function formatISODateDDMMYYYY(isoDate: string): string {
+  const date = new Date(isoDate);
+  const day = String(date.getUTCDate()).padStart(DATE_PADDING, "0");
+  const month = String(date.getUTCMonth() + MONTH_INDEX_OFFSET).padStart(
+    DATE_PADDING,
+    "0",
+  );
+  const year = date.getUTCFullYear();
+  return `${day}/${month}/${year}`;
 }

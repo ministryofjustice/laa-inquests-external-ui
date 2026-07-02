@@ -25,3 +25,28 @@ export async function postToInquestsApi<TResponse, TBody>(
     },
   });
 }
+
+interface GetFromInquestsApiParams {
+  http: AxiosInstance;
+  baseUrl: string;
+  path: string;
+  params?: Record<string, string>;
+  accessToken: string | undefined;
+}
+
+export async function getFromInquestsApi<TResponse>(
+  options: GetFromInquestsApiParams,
+): Promise<AxiosResponse<TResponse>> {
+  const { http, baseUrl, path, params, accessToken } = options;
+
+  if (typeof accessToken !== "string" || accessToken === "") {
+    throw new Error("Missing access token for Inquests API request");
+  }
+
+  return await http.get<TResponse>(`${baseUrl}${path}`, {
+    params,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
