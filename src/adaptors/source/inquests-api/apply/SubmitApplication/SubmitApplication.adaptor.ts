@@ -31,7 +31,7 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
       >({
         http: this.http,
         baseUrl: this.baseUrl,
-        path: "/applications",
+        path: "/applications/",
         body: _body,
         accessToken,
       });
