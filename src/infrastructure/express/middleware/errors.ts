@@ -19,7 +19,7 @@ const HTTP_REQUEST_TIMEOUT = 408;
 const HTTP_TOO_MANY_REQUESTS = 429;
 const HTTP_INTERNAL_SERVER_ERROR = 500;
 const HTTP_BAD_GATEWAY = 502;
-const HTTP_SERVICE_UNAVAILABLE = 503;
+export const HTTP_SERVICE_UNAVAILABLE = 503;
 const HTTP_GATEWAY_TIMEOUT = 504;
 
 function isAxiosError(error: unknown): error is {

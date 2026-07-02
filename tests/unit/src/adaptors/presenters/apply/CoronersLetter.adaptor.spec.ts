@@ -162,4 +162,30 @@ describe("Coroners Letter adaptor", () => {
       },
     });
   });
+
+  describe("when the upload fails", () => {
+    it("renders the 503 error page when the response status is not SUCCESS", async () => {
+      setupRequestFile();
+      responseStub.status.returns(responseStub);
+      uploadCoronersLetterPort.uploadCoronersLetter.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: "UPSTREAM_REJECTED",
+      });
+
+      await coronersLetterAdaptor.processCoronersLetterUploadForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.status.calledWith(503), true);
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "main/error");
+      assert.deepEqual(renderArgs[1], {
+        status: "503",
+        error: "Service unavailable. Please try again later.",
+      });
+      assert.equal(responseStub.redirect.callCount, 0);
+    });
+  });
 });

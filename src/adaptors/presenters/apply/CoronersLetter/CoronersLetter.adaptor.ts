@@ -3,6 +3,7 @@ import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 import type { UploadCoronersLetterValidator } from "./CoronersLetter.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import { HTTP_SERVICE_UNAVAILABLE } from "#src/infrastructure/express/middleware/errors.js";
 
 export class CoronersLetterAdaptor {
   formValidator: UploadCoronersLetterValidator;
@@ -57,6 +58,12 @@ export class CoronersLetterAdaptor {
         coronersLetterId: result.data?.coronersLetterId,
         coronersLetterFileName: result.data?.coronersLetterFileName,
       });
+    } else {
+      res.status(HTTP_SERVICE_UNAVAILABLE).render("main/error", {
+        status: "503",
+        error: "Service unavailable. Please try again later.",
+      });
+      return;
     }
 
     res.redirect("/apply/check-your-answers");
