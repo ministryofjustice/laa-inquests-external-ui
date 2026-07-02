@@ -34,7 +34,7 @@ export class CoronersLetterAdaptor {
     res: Response,
   ): Promise<void> {
     const { file } = req;
-      
+
     const errors = this.formValidator.validateCoronersLetterUploadFile(file);
 
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
@@ -46,11 +46,11 @@ export class CoronersLetterAdaptor {
     }
 
     const result = await this.uploadCoronersLetterUseCase.execute({
-        buffer: file!.buffer,
-        mimetype: file!.mimetype,
-        originalname: file!.originalname,
-        accessToken: req.session.accessToken,
-      });
+      buffer: file!.buffer,
+      mimetype: file!.mimetype,
+      originalname: file!.originalname,
+      accessToken: req.session.accessToken,
+    });
 
     if (result.status === "SUCCESS") {
       Object.assign(req.session, {

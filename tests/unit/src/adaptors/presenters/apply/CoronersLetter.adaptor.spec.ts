@@ -1,11 +1,12 @@
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
-import type { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
+import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
 import { v4 as uuidv4 } from "uuid";
+import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("Coroners Letter adaptor", () => {
   let coronersLetterAdaptor: CoronersLetterAdaptor;
@@ -18,6 +19,7 @@ describe("Coroners Letter adaptor", () => {
   const uploadCoronersLetterPort = stubInterface<UploadCoronersLetterPort>();
   const uploadCoronersLetterValidator =
     stubInterface<UploadCoronersLetterValidator>();
+  uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({});
   uploadCoronersLetterPort.uploadCoronersLetter.resolves({
     status: "SUCCESS",
     coronersLetterId: testCoronersLetterId,
@@ -57,6 +59,7 @@ describe("Coroners Letter adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/upload-coroners-letter");
     assert.deepEqual(renderArgs[1], {
+      csrfToken: responseStub.locals.csrfToken,
       uploadedFile: "test-file",
     });
   });
@@ -108,5 +111,55 @@ describe("Coroners Letter adaptor", () => {
       requestStub.session.coronersLetterFileName,
       testCoronersLetterFileName,
     );
+  });
+
+  describe("when the file validation fails", () => {
+    afterEach(() => {
+      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns(
+        {},
+      );
+    });
+
+    it("re-renders the form with error summaries when no file is chosen", async () => {
+      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+      });
+
+      await coronersLetterAdaptor.processCoronersLetterUploadForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: responseStub.locals.csrfToken,
+        errorSummaries: {
+          coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+        },
+      });
+    });
+  });
+
+  it("re-renders the form with error summaries when file chosen exceeds 10 MB", async () => {
+    uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
+      coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE },
+    });
+
+    await coronersLetterAdaptor.processCoronersLetterUploadForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "apply/upload-coroners-letter");
+    assert.deepEqual(renderArgs[1], {
+      csrfToken: responseStub.locals.csrfToken,
+      errorSummaries: {
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE },
+      },
+    });
   });
 });
