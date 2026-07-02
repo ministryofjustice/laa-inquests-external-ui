@@ -151,3 +151,7 @@ export interface DeceasedFurtherInformationError {
   hasFurtherInformationInputError?: FormErrorMessage;
   furtherInformationInputError?: FormErrorMessage;
 }
+
+export interface UploadCoronersLetterError {
+  coronersLetterError?: FormErrorMessage;
+}

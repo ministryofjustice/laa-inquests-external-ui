@@ -1,6 +1,7 @@
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
+import type { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
@@ -15,6 +16,8 @@ describe("Coroners Letter adaptor", () => {
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
   const uploadCoronersLetterPort = stubInterface<UploadCoronersLetterPort>();
+  const uploadCoronersLetterValidator =
+    stubInterface<UploadCoronersLetterValidator>();
   uploadCoronersLetterPort.uploadCoronersLetter.resolves({
     status: "SUCCESS",
     coronersLetterId: testCoronersLetterId,
@@ -22,7 +25,10 @@ describe("Coroners Letter adaptor", () => {
   });
 
   before(() => {
-    coronersLetterAdaptor = new CoronersLetterAdaptor(uploadCoronersLetterPort);
+    coronersLetterAdaptor = new CoronersLetterAdaptor(
+      uploadCoronersLetterValidator,
+      uploadCoronersLetterPort,
+    );
   });
 
   beforeEach(() => {

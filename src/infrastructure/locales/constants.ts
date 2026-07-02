@@ -311,6 +311,14 @@ export const PUBLIC_AUTHORITY_SUCCESS = {
   REMOVED: "Public authority has been removed",
 };
 
+export const CORONERS_LETTER_ERROR = {
+  NO_FILE_CHOSEN: "Please choose a file",
+  FILE_TOO_LARGE: "File size must not exceed 10MB",
+  INVALID_FILE_TYPE: "File type must be JPG, PNG, BMP or PDF",
+};
+
+export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
+
 export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:
     "You need to confirm the declaration to submit this application",
