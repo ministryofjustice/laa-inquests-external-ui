@@ -29,22 +29,5 @@ export default function createTestRouter(router: Router): Router {
     },
   );
 
-  router.get(
-    "/test/claim-search-session",
-    (
-      req: Request & {
-        session: Session & {
-          claimCaseReference?: string;
-        };
-      },
-      res: Response,
-    ): void => {
-      req.session.claimCaseReference = req.query.laa_reference as string;
-      req.session.save(() => {
-        res.status(SUCCESSFUL_REQUEST).send("Session was seeded successfully.");
-      });
-    },
-  );
-
   return router;
 }

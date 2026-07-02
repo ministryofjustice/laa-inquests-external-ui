@@ -2,8 +2,16 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - case search results", () => {
   test.beforeEach(async ({ page }) => {
-    await page.request.get("/test/claim-search-session?laa_reference=1");
-    await page.goto("/claim/results");
+    await page.goto("/claim");
+    await page
+      .getByTestId("case-search-form")
+      .getByLabel("Enter the case reference number")
+      .fill("1");
+    await page
+      .getByTestId("case-search-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+    await page.waitForURL("**/claim/results");
   });
 
   test("renders back link to case search", async ({ page }) => {
