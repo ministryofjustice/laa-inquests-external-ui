@@ -49,6 +49,8 @@ describe("SubmitApplicationUseCase", () => {
     assert.equal(applySubmitPort.submitApplication.calledOnce, true);
 
     const submittedBody = applySubmitPort.submitApplication.getCall(0).args[0];
+    const submittedAccessToken =
+      applySubmitPort.submitApplication.getCall(0).args[1];
     assert.deepEqual(submittedBody, {
       client: {
         clientFirstName: state.clientFirstName,
@@ -112,6 +114,7 @@ describe("SubmitApplicationUseCase", () => {
       },
       coronersLetterId: state.coronersLetterId,
     });
+    assert.equal(submittedAccessToken, state.accessToken);
   });
 
   it("returns invalid input state and does not call adapter when required state is missing", async () => {
@@ -229,6 +232,7 @@ function createValidState(
     ],
     firmCode: "0A123B",
     officeId: "001",
+    accessToken: "access-token-123",
     coronersLetterId: uuidv4(),
     providerEmail: "test@example.com",
     ...overrides,

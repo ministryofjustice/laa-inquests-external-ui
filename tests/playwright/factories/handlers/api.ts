@@ -38,6 +38,12 @@ export const apiHandlers = [
         },
       ],
       { status: 200 },
+  http.post("*/applications", async () =>
+    HttpResponse.json(
+      {
+        laaReference: 123,
+      },
+      { status: 201 },
     ),
   ),
 ];

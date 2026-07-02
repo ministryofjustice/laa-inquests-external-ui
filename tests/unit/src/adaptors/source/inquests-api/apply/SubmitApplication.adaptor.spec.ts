@@ -70,13 +70,21 @@ describe("SubmitApplicationAdaptor", () => {
       };
 
       const applicationResponse =
-        await submitApplicationAdaptor.submitApplication(submitBodyRaw);
+        await submitApplicationAdaptor.submitApplication(
+          submitBodyRaw,
+          "access-token-123",
+        );
 
       assert(axiosStub.post.calledOnce);
       assert(
         axiosStub.post.calledWith(
-          "http://localhost/applications",
+          "http://localhost/applications/",
           submitBodyRaw,
+          {
+            headers: {
+              Authorization: "Bearer access-token-123",
+            },
+          },
         ),
       );
       assert.deepEqual(expectedApiResponse, applicationResponse);
@@ -118,7 +126,7 @@ describe("SubmitApplicationAdaptor", () => {
         provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
       };
 
-      await adaptor.submitApplication(minimalBody);
+      await adaptor.submitApplication(minimalBody, "access-token-123");
 
       assert.ok(logger.calledOnce);
       const logged = JSON.parse(logger.firstCall.args[0] as string) as {
@@ -139,29 +147,32 @@ describe("SubmitApplicationAdaptor", () => {
         logger,
       );
 
-      await adaptor.submitApplication({
-        coronersLetterId: "x",
-        client: {
-          clientFirstName: "A",
-          clientLastName: "B",
-          dateOfBirth: "01/01/1990",
-          hasNoFixedAbode: false,
-          correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-          isClientCorrespondenceRecipient: true,
+      await adaptor.submitApplication(
+        {
+          coronersLetterId: "x",
+          client: {
+            clientFirstName: "A",
+            clientLastName: "B",
+            dateOfBirth: "01/01/1990",
+            hasNoFixedAbode: false,
+            correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
+            isClientCorrespondenceRecipient: true,
+          },
+          deceased: {
+            deceasedFirstName: "D",
+            deceasedLastName: "E",
+            deceasedDateOfBirth: "01/01/1960",
+            deceasedDateOfDeath: "01/01/2020",
+            coronersReference: "",
+            furtherInformation: "",
+            clientRelationshipToDeceased: "child",
+          },
+          proceedings: [],
+          publicBodies: [],
+          provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
         },
-        deceased: {
-          deceasedFirstName: "D",
-          deceasedLastName: "E",
-          deceasedDateOfBirth: "01/01/1960",
-          deceasedDateOfDeath: "01/01/2020",
-          coronersReference: "",
-          furtherInformation: "",
-          clientRelationshipToDeceased: "child",
-        },
-        proceedings: [],
-        publicBodies: [],
-        provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
-      });
+        "access-token-123",
+      );
 
       assert.ok(logger.notCalled);
     });

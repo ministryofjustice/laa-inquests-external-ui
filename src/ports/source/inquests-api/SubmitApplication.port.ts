@@ -6,5 +6,6 @@ import type {
 export interface ApplySubmitPort {
   submitApplication: (
     body: SubmitApplicationRequest,
+    accessToken: string | undefined,
   ) => Promise<SubmitApplicationResponse>;
 }

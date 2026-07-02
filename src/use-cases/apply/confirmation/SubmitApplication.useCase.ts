@@ -49,6 +49,7 @@ export class SubmitApplicationUseCase {
     try {
       const responseRaw = await this.applySubmitPort.submitApplication(
         submitBodyResult.data,
+        state.accessToken,
       );
       const parseResponseResult =
         SubmitApplicationResponseSchema.safeParse(responseRaw);

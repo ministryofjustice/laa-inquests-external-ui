@@ -7,6 +7,12 @@ import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 const POST_LOGOUT_URI = "http://localhost:3000";
+const AUTH_SCOPES = [
+  "openid",
+  "profile",
+  "offline_access",
+  "api://test-api-client-id/User.Provider",
+];
 
 describe("AuthAdaptor", () => {
   let authPort: StubbedInstance<AuthPort>;
@@ -21,7 +27,12 @@ describe("AuthAdaptor", () => {
     res = stubInterface<Response>();
     next = sinon.stub();
     req.session = {} as any;
-    adaptor = new AuthAdaptor(authPort, REDIRECT_URI, POST_LOGOUT_URI);
+    adaptor = new AuthAdaptor(
+      authPort,
+      REDIRECT_URI,
+      POST_LOGOUT_URI,
+      AUTH_SCOPES,
+    );
   });
 
   afterEach(() => {
@@ -36,6 +47,8 @@ describe("AuthAdaptor", () => {
 
       await adaptor.login(req, res);
 
+      assert.deepEqual(authPort.getAuthCodeUrl.firstCall.args[0], AUTH_SCOPES);
+      assert.equal(authPort.getAuthCodeUrl.firstCall.args[1], REDIRECT_URI);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], authUrl);
     });
@@ -56,15 +69,25 @@ describe("AuthAdaptor", () => {
         firmCode: "0A123B",
         officeId: "001",
         providerEmail: "test@example.com",
+        accessToken: "access-token-123",
       });
 
       await adaptor.callback(req, res);
 
+      assert.equal(
+        authPort.acquireTokenByCode.firstCall.args[0],
+        "auth-code-123",
+      );
+      assert.deepEqual(
+        authPort.acquireTokenByCode.firstCall.args[1],
+        AUTH_SCOPES,
+      );
       assert.equal(req.session["userId"], "user-oid-abc");
       assert.deepEqual(req.session["user"], { name: "Test User" });
       assert.equal(req.session["firmCode"], "0A123B");
       assert.equal(req.session["officeId"], "001");
       assert.equal(req.session["providerEmail"], "test@example.com");
+      assert.equal(req.session["accessToken"], "access-token-123");
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
     });

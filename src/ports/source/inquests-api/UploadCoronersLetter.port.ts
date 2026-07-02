@@ -6,5 +6,6 @@ import type {
 export interface UploadCoronersLetterPort {
   uploadCoronersLetter: (
     body: UploadCoronersLetterRequest,
+    accessToken: string | undefined,
   ) => Promise<UploadCoronersLetterResponse>;
 }

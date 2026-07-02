@@ -30,6 +30,7 @@ export class CoronersLetterAdaptor {
         buffer: file.buffer,
         mimetype: file.mimetype,
         originalname: file.originalname,
+        accessToken: req.session.accessToken,
       });
 
       if (result.status === "SUCCESS") {

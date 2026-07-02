@@ -36,6 +36,7 @@ export class SessionHelper {
             "firmCode",
             "officeId",
             "providerEmail",
+            "accessToken",
           ].includes(k),
       )
       .forEach((key) => {
