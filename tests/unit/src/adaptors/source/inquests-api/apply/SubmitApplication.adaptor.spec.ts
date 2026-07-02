@@ -78,7 +78,7 @@ describe("SubmitApplicationAdaptor", () => {
       assert(axiosStub.post.calledOnce);
       assert(
         axiosStub.post.calledWith(
-          "http://localhost/applications",
+          "http://localhost/applications/",
           submitBodyRaw,
           {
             headers: {
