@@ -38,6 +38,8 @@ export const apiHandlers = [
         },
       ],
       { status: 200 },
+    ),
+  ),
   http.post("*/applications", async () =>
     HttpResponse.json(
       {
