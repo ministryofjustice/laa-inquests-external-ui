@@ -25,6 +25,7 @@ declare module "express-session" {
     providerEmail?: string;
     claimCaseReference?: string;
     claimSelectedReference?: string;
+    claimType?: string;
     claimSearchResults?: Array<Array<{ text: string }>>;
   }
 }

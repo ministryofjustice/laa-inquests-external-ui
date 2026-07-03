@@ -5,6 +5,10 @@ export const CASE_SEARCH_ERROR = {
   NO_RESULTS: "There are no results that match the search criteria",
 };
 
+export const CLAIM_TYPE_ERROR = {
+  MISSING_CLAIM_TYPE: "Please select a claim type",
+};
+
 export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;
 
 export const DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH = 50;
