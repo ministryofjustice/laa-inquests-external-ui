@@ -164,7 +164,7 @@ describe("Coroners Letter adaptor", () => {
 
     it("re-renders the form with error summaries when file chosen is 0 bytes", async () => {
       uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
-        coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_SMALL },
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_IS_EMPTY },
       });
 
       await coronersLetterAdaptor.processCoronersLetterUploadForm(
@@ -178,7 +178,7 @@ describe("Coroners Letter adaptor", () => {
       assert.deepEqual(renderArgs[1], {
         csrfToken: responseStub.locals.csrfToken,
         errorSummaries: {
-          coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_SMALL },
+          coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_IS_EMPTY },
         },
       });
     });

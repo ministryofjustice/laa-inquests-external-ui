@@ -14,7 +14,7 @@ describe("UploadCoronersLetterValidator", () => {
 
       assert.deepEqual(errorSummaries, {
         coronersLetterError: {
-          text: "Please choose a file",
+          text: "Select a file",
         },
       });
     });
@@ -32,7 +32,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "File must not be empty",
+            text: "The selected file is empty",
           },
         });
       });
@@ -49,7 +49,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "File size must not exceed 10MB",
+            text: "The selected file must be smaller than 10MB",
           },
         });
       });
@@ -81,7 +81,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "File type must be JPG, PNG, BMP or PDF",
+            text: "The selected file must be a JPG, PNG, BMP or PDF",
           },
         });
       });

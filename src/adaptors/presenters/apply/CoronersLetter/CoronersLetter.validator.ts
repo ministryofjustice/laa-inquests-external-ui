@@ -31,7 +31,7 @@ export class UploadCoronersLetterValidator extends FormValidator {
       return CORONERS_LETTER_ERROR.FILE_TOO_LARGE;
     }
     if (fileInput.size === CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES) {
-      return CORONERS_LETTER_ERROR.FILE_TOO_SMALL;
+      return CORONERS_LETTER_ERROR.FILE_IS_EMPTY;
     }
   }
 }
