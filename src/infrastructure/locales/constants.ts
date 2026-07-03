@@ -321,6 +321,13 @@ export const CORONERS_LETTER_ERROR = {
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
 export const CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES = 0;
 
+export const CORONERS_LETTER_ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/bmp",
+  "application/pdf",
+];
+
 export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:
     "You need to confirm the declaration to submit this application",

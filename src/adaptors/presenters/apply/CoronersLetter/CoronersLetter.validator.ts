@@ -1,5 +1,6 @@
 import type { UploadCoronersLetterError } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
+  CORONERS_LETTER_ALLOWED_FILE_TYPES,
   CORONERS_LETTER_ERROR,
   CORONERS_LETTER_MAX_FILE_SIZE_BYTES,
   CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES,
@@ -15,6 +16,10 @@ export class UploadCoronersLetterValidator extends FormValidator {
     if (fileInput === undefined) {
       errorSummaries.coronersLetterError = {
         text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN,
+      };
+    } else if (!this.#isFileTypeValid(fileInput)) {
+      errorSummaries.coronersLetterError = {
+        text: CORONERS_LETTER_ERROR.INVALID_FILE_TYPE,
       };
     } else if (this.#isFileTooLarge(fileInput)) {
       errorSummaries.coronersLetterError = {
@@ -35,5 +40,9 @@ export class UploadCoronersLetterValidator extends FormValidator {
 
   #isFileTooSmall(fileInput: Express.Multer.File): boolean {
     return fileInput.size === CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES;
+  }
+
+  #isFileTypeValid(fileInput: Express.Multer.File): boolean {
+    return CORONERS_LETTER_ALLOWED_FILE_TYPES.includes(fileInput.mimetype);
   }
 }
