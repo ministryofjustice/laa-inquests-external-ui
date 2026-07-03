@@ -71,4 +71,70 @@ describe("ClaimType adaptor", () => {
       assert.equal(responseStub.render.callCount, 0);
     });
   });
+
+  describe("renderSubtypeForm", () => {
+    it("renders the claim subtype form with the session selection", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claimSubtype = "EXPERT_COST";
+
+      adaptor.renderSubtypeForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "claim/claim-subtype");
+      const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.csrfToken, "test-token");
+      assert.equal(viewModel.claimSubtype, "EXPERT_COST");
+    });
+  });
+
+  describe("processSubtypeForm", () => {
+    it("re-renders the form with an error when no claim subtype is selected", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = {};
+
+      adaptor.processSubtypeForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "claim/claim-subtype");
+      assert.deepEqual(
+        (renderArgs[1] as unknown as Record<string, unknown>).errorSummaries,
+        {
+          claimSubtypeInputError: {
+            text: CLAIM_TYPE_ERROR.MISSING_CLAIM_SUBTYPE,
+          },
+        },
+      );
+      assert.equal(responseStub.redirect.callCount, 0);
+    });
+
+    it("saves the claim subtype to session and redirects to /claim/total-cost when valid", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-subtype": "PROFIT_COST" };
+
+      adaptor.processSubtypeForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claimSubtype, "PROFIT_COST");
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/total-cost");
+      assert.equal(responseStub.render.callCount, 0);
+    });
+  });
 });

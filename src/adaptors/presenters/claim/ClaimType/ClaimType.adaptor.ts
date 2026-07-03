@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
+  ClaimSubtypeError,
+  ClaimSubtypeFormData,
   ClaimTypeError,
   ClaimTypeFormData,
   ClaimTypeValidator,
@@ -48,6 +50,43 @@ export class ClaimTypeAdaptor {
     } else {
       req.session.claimType = claimType;
       res.redirect("/claim/subtype");
+    }
+  }
+
+  renderSubtypeForm(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    res.render("claim/claim-subtype", {
+      csrfToken,
+      claimSubtype: req.session.claimSubtype,
+    });
+  }
+
+  processSubtypeForm(
+    req: TypedRequestBody<Partial<ClaimSubtypeFormData>>,
+    res: Response,
+  ): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+    const {
+      body: { "claim-subtype": claimSubtype },
+    } = req;
+
+    const errorSummaries: Partial<ClaimSubtypeError> =
+      this.formValidator.validateClaimSubtype(req.body);
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("claim/claim-subtype", {
+        csrfToken,
+        claimSubtype,
+        errorSummaries,
+      });
+    } else {
+      req.session.claimSubtype = claimSubtype;
+      res.redirect("/claim/total-cost");
     }
   }
 }

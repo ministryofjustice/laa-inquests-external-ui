@@ -13,5 +13,13 @@ export function createClaimTypeRouter(
     claimTypeAdaptor.processForm(req, res);
   });
 
+  claimTypeRouter.get("/subtype", (req: Request, res: Response): void => {
+    claimTypeAdaptor.renderSubtypeForm(req, res);
+  });
+
+  claimTypeRouter.post("/subtype", (req: Request, res: Response): void => {
+    claimTypeAdaptor.processSubtypeForm(req, res);
+  });
+
   return claimTypeRouter;
 }

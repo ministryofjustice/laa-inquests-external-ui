@@ -7,6 +7,7 @@ export const CASE_SEARCH_ERROR = {
 
 export const CLAIM_TYPE_ERROR = {
   MISSING_CLAIM_TYPE: "Please select a claim type",
+  MISSING_CLAIM_SUBTYPE: "Please select a Payment on Account claim type",
 };
 
 export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;

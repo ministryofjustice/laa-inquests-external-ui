@@ -26,4 +26,28 @@ describe("ClaimTypeValidator", () => {
       assert.deepEqual(errorSummaries, {});
     });
   });
+
+  describe("validateClaimSubtype", () => {
+    it("returns error when no claim subtype is selected", () => {
+      const validator = new ClaimTypeValidator();
+
+      const errorSummaries = validator.validateClaimSubtype({});
+
+      assert.deepEqual(errorSummaries, {
+        claimSubtypeInputError: {
+          text: CLAIM_TYPE_ERROR.MISSING_CLAIM_SUBTYPE,
+        },
+      });
+    });
+
+    it("returns empty error object when a claim subtype is selected", () => {
+      const validator = new ClaimTypeValidator();
+
+      const errorSummaries = validator.validateClaimSubtype({
+        "claim-subtype": "PROFIT_COST",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
+  });
 });
