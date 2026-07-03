@@ -56,7 +56,7 @@ test.describe("Claim - claim type", () => {
     ).toBeVisible();
   });
 
-  test("redirects to subtype page when an option is selected", async ({
+  test("redirects to subtype page when Payment on account is selected", async ({
     page,
   }) => {
     const form = page.getByTestId("claim-type-form");
@@ -67,6 +67,17 @@ test.describe("Claim - claim type", () => {
     await expect(page).toHaveURL("/claim/subtype");
   });
 
+  test("skips to total cost page when a non-POA option is selected", async ({
+    page,
+  }) => {
+    const form = page.getByTestId("claim-type-form");
+
+    await form.getByLabel("Final bill").check();
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/total-cost");
+  });
+
   test("keeps the previously selected option marked when returning", async ({
     page,
   }) => {
@@ -74,7 +85,7 @@ test.describe("Claim - claim type", () => {
 
     await form.getByLabel("Nil bill").check();
     await form.getByRole("button", { name: "Continue" }).click();
-    await expect(page).toHaveURL("/claim/subtype");
+    await expect(page).toHaveURL("/claim/total-cost");
 
     await page.goto("/claim/type");
 

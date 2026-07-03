@@ -7,7 +7,10 @@ import type {
   ClaimTypeFormData,
   ClaimTypeValidator,
 } from "./ClaimType.validator.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  CLAIM_TYPE_VALUE,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 
 export class ClaimTypeAdaptor {
   formValidator: ClaimTypeValidator;
@@ -49,7 +52,11 @@ export class ClaimTypeAdaptor {
       });
     } else {
       req.session.claimType = claimType;
-      res.redirect("/claim/subtype");
+      res.redirect(
+        claimType === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT
+          ? "/claim/subtype"
+          : "/claim/total-cost",
+      );
     }
   }
 

@@ -53,7 +53,25 @@ describe("ClaimType adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 0);
     });
 
-    it("saves the claim type to session and redirects to /claim/subtype when valid", () => {
+    it("saves the claim type to session and redirects to /claim/subtype when Payment on account is selected", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "PAYMENT_ON_ACCOUNT" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claimType, "PAYMENT_ON_ACCOUNT");
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/subtype");
+      assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("saves the claim type to session and skips to /claim/total-cost when a non-POA type is selected", () => {
       const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
 
       const responseStub = stubInterface<Response>();
@@ -67,7 +85,7 @@ describe("ClaimType adaptor", () => {
       assert.equal(requestStub.session.claimType, "FINAL_BILL");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/subtype");
+      assert.equal(redirectUrl, "/claim/total-cost");
       assert.equal(responseStub.render.callCount, 0);
     });
   });
