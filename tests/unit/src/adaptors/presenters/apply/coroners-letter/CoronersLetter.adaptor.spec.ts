@@ -136,7 +136,30 @@ describe("Coroners Letter adaptor", () => {
       assert.deepEqual(renderArgs[1], {
         csrfToken: responseStub.locals.csrfToken,
         errorSummaries: {
-          coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+          coronersLetterError: { text: "Select a file" },
+        },
+      });
+    });
+
+    it("re-renders the form with error summaries when the file type is invalid", async () => {
+      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.INVALID_FILE_TYPE },
+      });
+
+      await coronersLetterAdaptor.processCoronersLetterUploadForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: responseStub.locals.csrfToken,
+        errorSummaries: {
+          coronersLetterError: {
+            text: "The selected file must be a JPG, PNG, BMP or PDF",
+          },
         },
       });
     });
@@ -157,7 +180,9 @@ describe("Coroners Letter adaptor", () => {
       assert.deepEqual(renderArgs[1], {
         csrfToken: responseStub.locals.csrfToken,
         errorSummaries: {
-          coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE },
+          coronersLetterError: {
+            text: "The selected file must be smaller than 10MB",
+          },
         },
       });
     });
@@ -178,7 +203,7 @@ describe("Coroners Letter adaptor", () => {
       assert.deepEqual(renderArgs[1], {
         csrfToken: responseStub.locals.csrfToken,
         errorSummaries: {
-          coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_IS_EMPTY },
+          coronersLetterError: { text: "The selected file is empty" },
         },
       });
     });
