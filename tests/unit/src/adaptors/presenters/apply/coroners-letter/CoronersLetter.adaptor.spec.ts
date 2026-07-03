@@ -140,47 +140,47 @@ describe("Coroners Letter adaptor", () => {
         },
       });
     });
-  });
 
-  it("re-renders the form with error summaries when file chosen exceeds 10 MB", async () => {
-    uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
-      coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE },
-    });
-
-    await coronersLetterAdaptor.processCoronersLetterUploadForm(
-      requestStub,
-      responseStub,
-    );
-
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-    assert.deepEqual(renderArgs[1], {
-      csrfToken: responseStub.locals.csrfToken,
-      errorSummaries: {
+    it("re-renders the form with error summaries when file chosen exceeds 10 MB", async () => {
+      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
         coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE },
-      },
+      });
+
+      await coronersLetterAdaptor.processCoronersLetterUploadForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: responseStub.locals.csrfToken,
+        errorSummaries: {
+          coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE },
+        },
+      });
     });
-  });
 
-  it("re-renders the form with error summaries when file chosen is 0 bytes", async () => {
-    uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
-      coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_SMALL },
-    });
-
-    await coronersLetterAdaptor.processCoronersLetterUploadForm(
-      requestStub,
-      responseStub,
-    );
-
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-    assert.deepEqual(renderArgs[1], {
-      csrfToken: responseStub.locals.csrfToken,
-      errorSummaries: {
+    it("re-renders the form with error summaries when file chosen is 0 bytes", async () => {
+      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
         coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_SMALL },
-      },
+      });
+
+      await coronersLetterAdaptor.processCoronersLetterUploadForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: responseStub.locals.csrfToken,
+        errorSummaries: {
+          coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_SMALL },
+        },
+      });
     });
   });
 

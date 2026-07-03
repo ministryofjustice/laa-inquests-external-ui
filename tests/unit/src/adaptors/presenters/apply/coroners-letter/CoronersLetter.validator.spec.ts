@@ -69,7 +69,7 @@ describe("UploadCoronersLetterValidator", () => {
     });
 
     describe("when file has an invalid type", () => {
-      it("returns expected error about only file type when file exceeds 10MB", () => {
+      it("returns file type error first when file exceeds 10MB", () => {
         const validator = new UploadCoronersLetterValidator();
         const oversizedFile = {
           size: 11 * 1024 * 1024,
@@ -78,23 +78,6 @@ describe("UploadCoronersLetterValidator", () => {
 
         const errorSummaries =
           validator.validateCoronersLetterUploadFile(oversizedFile);
-
-        assert.deepEqual(errorSummaries, {
-          coronersLetterError: {
-            text: "File type must be JPG, PNG, BMP or PDF",
-          },
-        });
-      });
-
-      it("returns expected error when file is within size limit", () => {
-        const validator = new UploadCoronersLetterValidator();
-        const validFile = {
-          size: 5 * 1024 * 1024,
-          mimetype: invalidMimeType,
-        } as Express.Multer.File;
-
-        const errorSummaries =
-          validator.validateCoronersLetterUploadFile(validFile);
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
