@@ -37,6 +37,7 @@ import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
 import createTestRouter from "./test.router.js";
 import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
+import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -171,7 +172,9 @@ const uploadCoronersLetterSource = new UploadCoronersLetterAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
 );
+const uploadCoronersLetterValidator = new UploadCoronersLetterValidator();
 const coronersLetterAdaptor = new CoronersLetterAdaptor(
+  uploadCoronersLetterValidator,
   uploadCoronersLetterSource,
 );
 const caseSearchValidator = new CaseSearchValidator();
