@@ -314,10 +314,12 @@ export const PUBLIC_AUTHORITY_SUCCESS = {
 export const CORONERS_LETTER_ERROR = {
   NO_FILE_CHOSEN: "Please choose a file",
   FILE_TOO_LARGE: "File size must not exceed 10MB",
+  FILE_TOO_SMALL: "File must not be empty",
   INVALID_FILE_TYPE: "File type must be JPG, PNG, BMP or PDF",
 };
 
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
+export const CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES = 0;
 
 export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:

@@ -12,7 +12,21 @@ describe("UploadCoronersLetterValidator", () => {
 
       assert.deepEqual(errorSummaries, {
         coronersLetterError: {
-          text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN,
+          text: "Please choose a file",
+        },
+      });
+    });
+
+    it("returns expected error when file size is 0", () => {
+      const validator = new UploadCoronersLetterValidator();
+      const undersizedFile = { size: 0 } as Express.Multer.File;
+
+      const errorSummaries =
+        validator.validateCoronersLetterUploadFile(undersizedFile);
+
+      assert.deepEqual(errorSummaries, {
+        coronersLetterError: {
+          text: "File must not be empty",
         },
       });
     });
@@ -26,7 +40,7 @@ describe("UploadCoronersLetterValidator", () => {
 
       assert.deepEqual(errorSummaries, {
         coronersLetterError: {
-          text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE,
+          text: "File size must not exceed 10MB",
         },
       });
     });

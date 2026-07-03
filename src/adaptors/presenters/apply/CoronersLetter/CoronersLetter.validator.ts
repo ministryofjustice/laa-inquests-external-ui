@@ -2,6 +2,7 @@ import type { UploadCoronersLetterError } from "#src/adaptors/presenters/apply/m
 import {
   CORONERS_LETTER_ERROR,
   CORONERS_LETTER_MAX_FILE_SIZE_BYTES,
+  CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 
@@ -15,16 +16,24 @@ export class UploadCoronersLetterValidator extends FormValidator {
       errorSummaries.coronersLetterError = {
         text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN,
       };
-    } else if (!this.#isFileSizeValid(fileInput)) {
+    } else if (this.#isFileTooLarge(fileInput)) {
       errorSummaries.coronersLetterError = {
         text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE,
+      };
+    } else if (this.#isFileTooSmall(fileInput)) {
+      errorSummaries.coronersLetterError = {
+        text: CORONERS_LETTER_ERROR.FILE_TOO_SMALL,
       };
     }
 
     return errorSummaries;
   }
 
-  #isFileSizeValid(fileInput: Express.Multer.File): boolean {
-    return fileInput.size <= CORONERS_LETTER_MAX_FILE_SIZE_BYTES;
+  #isFileTooLarge(fileInput: Express.Multer.File): boolean {
+    return fileInput.size > CORONERS_LETTER_MAX_FILE_SIZE_BYTES;
+  }
+
+  #isFileTooSmall(fileInput: Express.Multer.File): boolean {
+    return fileInput.size === CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES;
   }
 }
