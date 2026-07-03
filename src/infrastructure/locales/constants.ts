@@ -5,6 +5,17 @@ export const CASE_SEARCH_ERROR = {
   NO_RESULTS: "There are no results that match the search criteria",
 };
 
+export const CLAIM_TYPE_ERROR = {
+  MISSING_CLAIM_TYPE: "Please select a claim type",
+  MISSING_CLAIM_SUBTYPE: "Please select a Payment on Account claim type",
+};
+
+export const CLAIM_TYPE_VALUE = {
+  PAYMENT_ON_ACCOUNT: "PAYMENT_ON_ACCOUNT",
+  NIL_BILL: "NIL_BILL",
+  FINAL_BILL: "FINAL_BILL",
+};
+
 export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;
 
 export const DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH = 50;

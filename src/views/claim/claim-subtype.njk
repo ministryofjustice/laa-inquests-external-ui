@@ -1,0 +1,67 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/claim/type"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.claimSubtypeInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.claimSubtypeInputError.text,
+              href: "#claim-subtype"
+            }
+          ]
+        }) }}
+        {% endif %}
+        <form data-testid="claim-subtype-form" action="/claim/subtype" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "claim-subtype",
+            id: "claim-subtype",
+            value: claimSubtype,
+            errorMessage: errorSummaries.claimSubtypeInputError,
+            fieldset: {
+              legend: {
+                text: "What type of POA are you claiming?",
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            items: [
+              {
+                value: "PROFIT_COST",
+                text: "Profit cost"
+              },
+              {
+                value: "EXPERT_COST",
+                text: "Expert cost"
+              },
+              {
+                value: "NON_EXPERT_DISBURSEMENT",
+                text: "Non-expert disbursement"
+              }
+            ]
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}
