@@ -30,9 +30,18 @@ describe("ConfirmAndSubmit adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claimSelectedReference = "ABC-12345";
-      requestStub.session.claimType = "PAYMENT_ON_ACCOUNT";
-      requestStub.session.claimSubtype = "EXPERT_COST";
+      requestStub.session.claim = {
+        caseReference: "ABC-12345",
+        client: {
+          reference: "ABC-12345",
+          clientName: "Jane Smith",
+          clientFirstName: "Jane",
+          clientLastName: "Smith",
+          dateOfBirth: "01/01/2000",
+        },
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+      };
 
       adaptor.renderForm(requestStub, responseStub);
 
@@ -40,6 +49,9 @@ describe("ConfirmAndSubmit adaptor", () => {
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
       assert.equal(viewModel.caseDetails.caseReference, "ABC-12345");
+      assert.equal(viewModel.caseDetails.clientFirstName, "Jane");
+      assert.equal(viewModel.caseDetails.clientLastName, "Smith");
+      assert.equal(viewModel.caseDetails.clientDateOfBirth, "01/01/2000");
       assert.equal(
         viewModel.claimDetails.claimType,
         "Payment on account (POA)",
@@ -61,11 +73,14 @@ describe("ConfirmAndSubmit adaptor", () => {
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
       assert.equal(viewModel.caseDetails.caseReference, "");
+      assert.equal(viewModel.caseDetails.clientFirstName, "");
+      assert.equal(viewModel.caseDetails.clientLastName, "");
+      assert.equal(viewModel.caseDetails.clientDateOfBirth, "");
       assert.equal(viewModel.claimDetails.claimType, "");
       assert.equal(viewModel.claimDetails.claimSubtype, "");
     });
 
-    it("provides placeholder client, cost and evidence details", () => {
+    it("provides placeholder cost and evidence details", () => {
       const adaptor = new ConfirmAndSubmitAdaptor();
 
       const responseStub = stubInterface<Response>();
@@ -78,18 +93,6 @@ describe("ConfirmAndSubmit adaptor", () => {
       const viewModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
-      assert.equal(
-        viewModel.caseDetails.clientFirstName,
-        CONFIRM_CLAIM_PLACEHOLDER.CLIENT_FIRST_NAME,
-      );
-      assert.equal(
-        viewModel.caseDetails.clientLastName,
-        CONFIRM_CLAIM_PLACEHOLDER.CLIENT_LAST_NAME,
-      );
-      assert.equal(
-        viewModel.caseDetails.clientDateOfBirth,
-        CONFIRM_CLAIM_PLACEHOLDER.CLIENT_DATE_OF_BIRTH,
-      );
       assert.equal(
         viewModel.cost.netTotal,
         CONFIRM_CLAIM_PLACEHOLDER.NET_TOTAL,

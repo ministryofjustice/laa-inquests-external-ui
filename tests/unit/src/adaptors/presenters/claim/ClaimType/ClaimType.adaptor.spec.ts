@@ -14,7 +14,7 @@ describe("ClaimType adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claimType = "NIL_BILL";
+      requestStub.session.claim = { type: "NIL_BILL" };
 
       adaptor.renderForm(requestStub, responseStub);
 
@@ -64,7 +64,7 @@ describe("ClaimType adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claimType, "PAYMENT_ON_ACCOUNT");
+      assert.equal(requestStub.session.claim?.type, "PAYMENT_ON_ACCOUNT");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
@@ -82,7 +82,7 @@ describe("ClaimType adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claimType, "FINAL_BILL");
+      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
@@ -98,7 +98,7 @@ describe("ClaimType adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claimSubtype = "EXPERT_COST";
+      requestStub.session.claim = { subtype: "EXPERT_COST" };
 
       adaptor.renderSubtypeForm(requestStub, responseStub);
 
@@ -148,7 +148,7 @@ describe("ClaimType adaptor", () => {
 
       adaptor.processSubtypeForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claimSubtype, "PROFIT_COST");
+      assert.equal(requestStub.session.claim?.subtype, "PROFIT_COST");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");

@@ -29,7 +29,8 @@ export const apiHandlers = [
       [
         {
           laaReference: 1,
-          clientName: "Jane Smith",
+          clientFirstName: "Jane",
+          clientLastName: "Smith",
           clientDateOfBirth: "2000-01-01",
           dateSubmitted: "2026-06-30T15:59:32.622897",
           firmName: "Test Firm",

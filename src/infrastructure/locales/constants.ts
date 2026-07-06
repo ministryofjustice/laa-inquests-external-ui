@@ -29,9 +29,6 @@ export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
 };
 
 export const CONFIRM_CLAIM_PLACEHOLDER = {
-  CLIENT_FIRST_NAME: "Jane",
-  CLIENT_LAST_NAME: "Doe",
-  CLIENT_DATE_OF_BIRTH: "01/01/1990",
   NET_TOTAL: "£1,000.00",
   GROSS_TOTAL: "£1,200.00",
   UPLOADED_FILES: [

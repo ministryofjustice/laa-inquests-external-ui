@@ -9,7 +9,8 @@ describe("CaseSearchFormatter", () => {
       const rows = formatter.formatCases([
         {
           laaReference: 1,
-          clientName: "Jane Smith",
+          clientFirstName: "Jane",
+          clientLastName: "Smith",
           clientDateOfBirth: "2000-01-01",
           dateSubmitted: "2026-06-30T15:59:32.622897",
           firmName: "test firm",
@@ -21,6 +22,8 @@ describe("CaseSearchFormatter", () => {
       assert.deepEqual(rows[0], {
         reference: "1",
         clientName: "Jane Smith",
+        clientFirstName: "Jane",
+        clientLastName: "Smith",
         dateOfBirth: "01/01/2000",
         dateSubmitted: "30/06/2026",
         firmNameAndNumber: "test firm 0A123B",
@@ -34,7 +37,8 @@ describe("CaseSearchFormatter", () => {
       const rows = formatter.formatCases([
         {
           laaReference: 2,
-          clientName: "John Doe",
+          clientFirstName: "John",
+          clientLastName: "Doe",
           clientDateOfBirth: "1990-05-15",
           dateSubmitted: "2026-06-30T10:00:00.000000",
           firmName: null,

@@ -117,6 +117,36 @@ test.describe("Claim - confirm and submit", () => {
     await expect(claimDetails).toContainText("Expert cost");
   });
 
+  test("displays the selected client details that were saved in the session", async ({
+    page,
+  }) => {
+    await page.goto("/claim");
+    await page
+      .getByTestId("case-search-form")
+      .getByLabel("Enter the case reference number")
+      .fill("1");
+    await page
+      .getByTestId("case-search-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+    await page.waitForURL("**/claim/results");
+
+    await page
+      .getByRole("table")
+      .getByRole("row")
+      .nth(1)
+      .getByRole("link")
+      .click();
+    await page.waitForURL("**/claim/type");
+
+    await page.goto("/claim/check-your-answers");
+
+    const caseDetails = page.getByTestId("case-details-summary-list");
+    await expect(caseDetails).toContainText("Jane");
+    await expect(caseDetails).toContainText("Smith");
+    await expect(caseDetails).toContainText("01/01/2000");
+  });
+
   test("redirects to the home page when the claim is submitted", async ({
     page,
   }) => {
