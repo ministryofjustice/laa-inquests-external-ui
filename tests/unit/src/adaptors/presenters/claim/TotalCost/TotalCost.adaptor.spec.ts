@@ -21,6 +21,53 @@ describe("TotalCost adaptor", () => {
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.csrfToken, "test-token");
     });
+
+    it("passes backHref of /claim/subtype when POA was selected", () => {
+      const adaptor = new TotalCostAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "PAYMENT_ON_ACCOUNT" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/subtype");
+    });
+
+    it("passes backHref of /claim/type when a non-POA type was selected", () => {
+      const adaptor = new TotalCostAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "FINAL_BILL" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/type");
+    });
+
+    it("passes backHref of /claim/type when no claim type is in the session", () => {
+      const adaptor = new TotalCostAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/type");
+    });
   });
 
   describe("processForm", () => {
