@@ -11,3 +11,8 @@ ignore:
   "SNYK-JS-UNDICI-17372758":
     - "*":
         reason: "Temp ignore not using vulnerable feature."
+  "SNYK-JS-BRACEEXPANSION-17706650":
+    - "*":
+        reason:
+          "Temp ignore - bundled with latest npm version compatible with
+          project."
