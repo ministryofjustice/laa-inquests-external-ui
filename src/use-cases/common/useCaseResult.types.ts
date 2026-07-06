@@ -2,7 +2,8 @@ export type TechnicalFailureReason =
   | "INVALID_INPUT_STATE"
   | "INVALID_RESPONSE"
   | "UNEXPECTED_EXCEPTION"
-  | "UPSTREAM_REJECTED";
+  | "UPSTREAM_REJECTED"
+  | "FILE_SCAN_FOUND_VIRUS";
 
 export type UseCaseResult<Data = undefined, ValidationErrors = undefined> =
   | {
