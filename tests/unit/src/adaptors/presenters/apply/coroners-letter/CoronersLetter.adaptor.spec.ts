@@ -212,29 +212,54 @@ describe("Coroners Letter adaptor", () => {
     });
   });
 
-  describe("when the upload fails", () => {
-    it("renders the 503 error page when the response status is not SUCCESS", async () => {
-      setupRequestFile();
-      responseStub.status.returns(responseStub);
-      uploadCoronersLetterUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
-      });
+  it("renders the 503 error page when the response status is not SUCCESS", async () => {
+    setupRequestFile();
+    responseStub.status.returns(responseStub);
+    uploadCoronersLetterUseCase.execute.resolves({
+      status: "TECHNICAL_FAILURE",
+      reason: "UPSTREAM_REJECTED",
+    });
 
-      await coronersLetterAdaptor.processCoronersLetterUploadForm(
-        requestStub,
-        responseStub,
-      );
+    await coronersLetterAdaptor.processCoronersLetterUploadForm(
+      requestStub,
+      responseStub,
+    );
 
-      assert.equal(responseStub.status.calledWith(503), true);
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "main/error");
-      assert.deepEqual(renderArgs[1], {
-        status: "503",
-        error: "Service unavailable. Please try again later.",
-      });
-      assert.equal(responseStub.redirect.callCount, 0);
+    assert.equal(responseStub.status.calledWith(503), true);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "main/error");
+    assert.deepEqual(renderArgs[1], {
+      status: "503",
+      error: "Service unavailable. Please try again later.",
+    });
+    assert.equal(responseStub.redirect.callCount, 0);
+  });
+
+  it("displays an error when the virus scan fails", async () => {
+    setupRequestFile();
+    responseStub.status.returns(responseStub);
+
+    uploadCoronersLetterUseCase.execute.resolves({
+      status: "TECHNICAL_FAILURE",
+      reason: "FILE_SCAN_FOUND_VIRUS",
+    });
+
+    await coronersLetterAdaptor.processCoronersLetterUploadForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "apply/upload-coroners-letter");
+    assert.deepEqual(renderArgs[1], {
+      csrfToken: responseStub.locals.csrfToken,
+      errorSummaries: {
+        coronersLetterError: {
+          text: CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
+        },
+      },
     });
   });
 });
