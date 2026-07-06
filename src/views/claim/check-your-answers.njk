@@ -1,0 +1,154 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/claim/evidence"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Check your answers</h1>
+
+        <h2 class="govuk-heading-m">Case details</h2>
+        <div data-testid="case-details-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Case details"
+              },
+              actions: {
+                items: [
+                  {
+                    href: "#",
+                    text: "Change",
+                    visuallyHiddenText: "case details"
+                  }
+                ]
+              }
+            },
+            rows: [
+              {
+                key: { text: "Case reference number" },
+                value: { text: caseDetails.caseReference }
+              },
+              {
+                key: { text: "Client first name" },
+                value: { text: caseDetails.clientFirstName }
+              },
+              {
+                key: { text: "Client last name" },
+                value: { text: caseDetails.clientLastName }
+              },
+              {
+                key: { text: "Client date of birth" },
+                value: { text: caseDetails.clientDateOfBirth }
+              }
+            ]
+          }) }}
+        </div>
+
+        <h2 class="govuk-heading-m">Claim details</h2>
+        <div data-testid="claim-details-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Overview"
+              },
+              actions: {
+                items: [
+                  {
+                    href: "#",
+                    text: "Change",
+                    visuallyHiddenText: "claim details"
+                  }
+                ]
+              }
+            },
+            rows: [
+              {
+                key: { text: "Type of claim" },
+                value: { text: claimDetails.claimType }
+              },
+              {
+                key: { text: "Type of POA" },
+                value: { text: claimDetails.claimSubtype }
+              }
+            ]
+          }) }}
+        </div>
+
+        <h2 class="govuk-heading-m">Cost</h2>
+        <div data-testid="cost-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Total claim cost"
+              },
+              actions: {
+                items: [
+                  {
+                    href: "#",
+                    text: "Change",
+                    visuallyHiddenText: "cost"
+                  }
+                ]
+              }
+            },
+            rows: [
+              {
+                key: { text: "Net total at 20%" },
+                value: { text: cost.netTotal }
+              },
+              {
+                key: { text: "Gross total at 20%" },
+                value: { text: cost.grossTotal }
+              }
+            ]
+          }) }}
+        </div>
+
+        <h2 class="govuk-heading-m">Evidence</h2>
+        <div class="govuk-summary-card" data-testid="evidence-summary-list">
+          <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">Files</h2>
+            <ul class="govuk-summary-card__actions">
+              <li class="govuk-summary-card__action">
+                <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden"> evidence</span></a>
+              </li>
+            </ul>
+          </div>
+          <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+              {% for file in evidence.uploadedFiles %}
+              <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">{{ file.name }}</dt>
+                <dd class="govuk-summary-list__value">
+                  <a class="govuk-link govuk-!-font-weight-bold" href="#">View</a>
+                  |
+                  <a class="govuk-link" href="#">Download ({{ file.type }} {{ file.size }})</a>
+                </dd>
+              </div>
+              {% endfor %}
+            </dl>
+          </div>
+        </div>
+
+        <form data-testid="confirm-and-submit-form" action="/claim/check-your-answers" method="post">
+          <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+          {{ govukButton({
+            text: "Finish and submit claim",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

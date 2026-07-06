@@ -16,6 +16,30 @@ export const CLAIM_TYPE_VALUE = {
   FINAL_BILL: "FINAL_BILL",
 };
 
+export const CLAIM_TYPE_LABEL: Record<string, string> = {
+  PAYMENT_ON_ACCOUNT: "Payment on account (POA)",
+  NIL_BILL: "Nil bill",
+  FINAL_BILL: "Final bill",
+};
+
+export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
+  PROFIT_COST: "Profit cost",
+  EXPERT_COST: "Expert cost",
+  NON_EXPERT_DISBURSEMENT: "Non-expert disbursement",
+};
+
+export const CONFIRM_CLAIM_PLACEHOLDER = {
+  CLIENT_FIRST_NAME: "Jane",
+  CLIENT_LAST_NAME: "Doe",
+  CLIENT_DATE_OF_BIRTH: "01/01/1990",
+  NET_TOTAL: "£1,000.00",
+  GROSS_TOTAL: "£1,200.00",
+  UPLOADED_FILES: [
+    { name: "evidence-document-1.png", type: "png", size: "57KB" },
+    { name: "evidence-document-2.pdf", type: "pdf", size: "112KB" },
+  ],
+};
+
 export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;
 
 export const DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH = 50;

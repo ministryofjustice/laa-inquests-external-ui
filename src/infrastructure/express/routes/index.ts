@@ -24,6 +24,8 @@ import { SearchCasesAdaptor } from "#src/adaptors/source/inquests-api/claim/Sear
 import { createClaimTypeRouter } from "./claim/claimType.router.js";
 import { ClaimTypeAdaptor } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.adaptor.js";
 import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.validator.js";
+import { createConfirmAndSubmitClaimRouter } from "./claim/confirmAndSubmitClaim.router.js";
+import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -55,6 +57,7 @@ const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
 const coronersLetterRouter = express.Router();
 const claimTypeRouter = express.Router();
+const confirmAndSubmitClaimRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -194,10 +197,16 @@ const caseSearchAdaptor = new CaseSearchAdaptor(
 const claimTypeValidator = new ClaimTypeValidator();
 const claimTypeAdaptor = new ClaimTypeAdaptor(claimTypeValidator);
 
+const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor();
+
 indexRouter.use(
   "/claim",
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
+  createConfirmAndSubmitClaimRouter(
+    confirmAndSubmitClaimRouter,
+    confirmAndSubmitAdaptor,
+  ),
 );
 
 indexRouter.use(
