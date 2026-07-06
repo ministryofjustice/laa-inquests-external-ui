@@ -76,17 +76,34 @@ test.describe("Claim - confirm and submit", () => {
     ).toBeVisible();
   });
 
-  test("renders a Change link for each section that does not link anywhere", async ({
+  test("renders Change links pointing to the correct pages", async ({
     page,
   }) => {
-    const changeLinks = page.getByRole("link", { name: /^Change/ });
+    const caseDetails = page.getByTestId("case-details-summary-list");
+    await expect(
+      caseDetails.getByRole("link", { name: "Change case reference number" }),
+    ).toHaveAttribute("href", "/claim");
 
-    await expect(changeLinks).toHaveCount(6);
+    const claimDetails = page.getByTestId("claim-details-summary-list");
+    await expect(
+      claimDetails.getByRole("link", { name: "Change type of claim" }),
+    ).toHaveAttribute("href", "/claim/type");
+    await expect(
+      claimDetails.getByRole("link", { name: "Change type of POA" }),
+    ).toHaveAttribute("href", "/claim/subtype");
 
-    const count = await changeLinks.count();
-    for (let index = 0; index < count; index++) {
-      await expect(changeLinks.nth(index)).toHaveAttribute("href", "#");
-    }
+    const cost = page.getByTestId("cost-summary-list");
+    await expect(
+      cost.getByRole("link", { name: "Change net total at 20%" }),
+    ).toHaveAttribute("href", "/claim/total-cost");
+    await expect(
+      cost.getByRole("link", { name: "Change gross total at 20%" }),
+    ).toHaveAttribute("href", "/claim/total-cost");
+
+    const evidence = page.getByTestId("evidence-summary-list");
+    await expect(
+      evidence.getByRole("link", { name: "Change evidence" }),
+    ).toHaveAttribute("href", "/claim/evidence");
   });
 
   test("renders the finish and submit button", async ({ page }) => {
