@@ -1,0 +1,54 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/claim"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">Which case do you want to make a claim for?</h1>
+        {% if cases | length %}
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Reference</th>
+              <th scope="col" class="govuk-table__header">Client's name</th>
+              <th scope="col" class="govuk-table__header">Date of birth</th>
+              <th scope="col" class="govuk-table__header">Date submitted</th>
+              <th scope="col" class="govuk-table__header">Firm name<br>and number</th>
+              <th scope="col" class="govuk-table__header">Status</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for case in cases %}
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell"><a class="govuk-link" href="/claim/results/select/{{ case.reference }}">{{ case.reference }}</a></td>
+              <td class="govuk-table__cell">{{ case.clientName }}</td>
+              <td class="govuk-table__cell">{{ case.dateOfBirth }}</td>
+              <td class="govuk-table__cell">{{ case.dateSubmitted }}</td>
+              <td class="govuk-table__cell">{{ case.firmNameAndNumber }}</td>
+              <td class="govuk-table__cell">{{ meritsDecisionTag(case.overallDecision) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p class="govuk-body" data-testid="no-results-message">There are no results that match the search criteria</p>
+        {{ govukButton({
+          text: "Refine your search",
+          href: "/claim"
+        }) }}
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

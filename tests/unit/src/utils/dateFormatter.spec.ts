@@ -1,21 +1,8 @@
 import { expect } from "chai";
-import { formatDate, formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
-
-describe("formatDate()", () => {
-  it("formats a valid ISO date string correctly", () => {
-    expect(formatDate("1986-01-06T00:00:00Z")).to.equal("6 Jan 1986");
-    expect(formatDate("2023-07-28")).to.equal("28 Jul 2023");
-  });
-
-  it("formats dates with single-digit days without leading zero", () => {
-    expect(formatDate("2023-02-05")).to.equal("5 Feb 2023");
-  });
-
-  it("handles invalid date strings by returning the original input", () => {
-    expect(formatDate("invalid-date")).to.equal("invalid-date");
-    expect(formatDate("")).to.equal("");
-  });
-});
+import {
+  formatDateDDMMYYYY,
+  formatISODateDDMMYYYY,
+} from "#src/utils/dateFormatter.js";
 
 describe("formatDateDDMMYYYY()", () => {
   it("formats valid year, month, and day into dd-MM-YYYY format", () => {
@@ -29,6 +16,23 @@ describe("formatDateDDMMYYYY()", () => {
     expect(formatDateDDMMYYYY(null, null, null)).to.equal("null-null-null");
     expect(formatDateDDMMYYYY(undefined, undefined, undefined)).to.equal(
       "undefined-undefined-undefined",
+    );
+  });
+});
+
+describe("formatISODateDDMMYYYY()", () => {
+  it("formats a YYYY-MM-DD ISO date string into dd/mm/yyyy", () => {
+    expect(formatISODateDDMMYYYY("2000-01-01")).to.equal("01/01/2000");
+    expect(formatISODateDDMMYYYY("2026-03-21")).to.equal("21/03/2026");
+    expect(formatISODateDDMMYYYY("1990-12-05")).to.equal("05/12/1990");
+  });
+
+  it("formats an ISO datetime string by using only the date part", () => {
+    expect(formatISODateDDMMYYYY("2026-06-30T15:59:32.622897")).to.equal(
+      "30/06/2026",
+    );
+    expect(formatISODateDDMMYYYY("2026-01-01T00:00:00.000000")).to.equal(
+      "01/01/2026",
     );
   });
 });

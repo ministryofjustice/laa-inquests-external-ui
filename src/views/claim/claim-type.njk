@@ -1,0 +1,67 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/claim/results"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.claimTypeInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.claimTypeInputError.text,
+              href: "#claim-type"
+            }
+          ]
+        }) }}
+        {% endif %}
+        <form data-testid="claim-type-form" action="/claim/type" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "claim-type",
+            id: "claim-type",
+            value: claimType,
+            errorMessage: errorSummaries.claimTypeInputError,
+            fieldset: {
+              legend: {
+                text: "What type of claim are you making?",
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            items: [
+              {
+                value: "PAYMENT_ON_ACCOUNT",
+                text: "Payment on account (POA)"
+              },
+              {
+                value: "NIL_BILL",
+                text: "Nil bill"
+              },
+              {
+                value: "FINAL_BILL",
+                text: "Final bill"
+              }
+            ]
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

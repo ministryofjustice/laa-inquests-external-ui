@@ -17,12 +17,14 @@ node_modules/
 # LAA Express TypeScript Template
 public/
 .env
+.env.external
 
 # Playwright
 /test-results/
 /playwright-report/
 /blob-report/
 /tests/playwright/.cache/
+.playwright-cli/
 
 # Code coverage
 coverage/

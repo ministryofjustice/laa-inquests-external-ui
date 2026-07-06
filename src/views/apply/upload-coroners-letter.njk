@@ -1,0 +1,32 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+<div class="govuk-width-container">
+  {{ govukBackLink({
+      text: "Back",
+      href: "/apply/public-authority"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <h1 class="govuk-heading-l">Upload coroner's letter</h1>
+    <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+      {{ govukFileUpload({
+        id: "coroners-letter-upload",
+        name: "coroners-letter-file-upload",
+        label: {
+          text: "Choose files"
+        },
+        attributes: {
+          accept: ".pdf,.jpg,.jpeg,.png,.bmp"
+        },
+        javascript: true,
+        errorMessage: errorSummaries.coronersLetterError
+      }) }}
+      {{ govukButton({ text: "Continue" }) }}
+    </form>
+  </main>
+</div>
+{% endblock %}

@@ -1,18 +1,5 @@
-export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-
-  if (isNaN(date.getTime())) {
-    return dateString;
-  }
-
-  const day = date.getDate();
-  const month = date.toLocaleString("en-GB", { month: "short" });
-  const year = date.getFullYear();
-
-  return `${day} ${month} ${year}`;
-}
-
 const DATE_PADDING = 2;
+const MONTH_INDEX_OFFSET = 1;
 
 export function formatDateDDMMYYYY(
   year: unknown,
@@ -28,4 +15,15 @@ export function formatDateDDMMYYYY(
   const monthPadded = formattedMonth.padStart(DATE_PADDING, "0");
 
   return `${dayPadded}-${monthPadded}-${formattedYear}`;
+}
+
+export function formatISODateDDMMYYYY(isoDate: string): string {
+  const date = new Date(isoDate);
+  const day = String(date.getUTCDate()).padStart(DATE_PADDING, "0");
+  const month = String(date.getUTCMonth() + MONTH_INDEX_OFFSET).padStart(
+    DATE_PADDING,
+    "0",
+  );
+  const year = date.getUTCFullYear();
+  return `${day}/${month}/${year}`;
 }

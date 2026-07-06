@@ -3,6 +3,7 @@ import session from "express-session";
 import type { Application, Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import multer from "multer";
 import compression from "compression";
 import config from "#src/infrastructure/config/config.js";
 import helmet from "helmet";
@@ -65,5 +66,10 @@ export function setupMiddleware(app: Application): void {
   app.use(nonceMiddleware);
   app.use(helmet(helmetConfig));
   setupNunjucks(app);
+  const upload = multer({ storage: multer.memoryStorage() });
+  app.post(
+    "/apply/upload-coroners-letter",
+    upload.single("coroners-letter-file-upload"),
+  );
   setupCsrf(app);
 }

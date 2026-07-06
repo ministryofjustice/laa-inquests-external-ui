@@ -1,0 +1,45 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">Which case do you want to make a claim for?</h1>
+        <form data-testid="case-search-form" action="/claim" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+              {{ govukInput({
+                label: {
+                  text: "Enter the case reference number",
+                  classes: "govuk-label--s"
+                },
+                id: "case-reference",
+                name: "case-reference",
+                value: caseReference,
+                errorMessage: errorSummaries.caseReferenceInputError
+              }) }}
+            </div>
+            <div class="govuk-grid-column-one-third govuk-!-padding-top-6">
+              {{ govukButton({
+                text: "Continue",
+                type: "submit"
+              }) }}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

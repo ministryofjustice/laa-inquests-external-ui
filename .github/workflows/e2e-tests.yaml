@@ -8,9 +8,28 @@ jobs:
     name: Playwright Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     # Mark this job as required for PR checks
     outputs:
       status: ${{ job.status }}
+
+    services:
+      api-db:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: api
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d api"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -32,13 +51,128 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')}}
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull API image from GHCR
+        run: docker pull ghcr.io/ministryofjustice/laa-inquests-api:latest
+
+      - name: Run API database migrations
+        run: |
+          docker run --rm --network host \
+            -e DB_USER=postgres \
+            -e DB_PASSWORD=postgres \
+            -e DB_NAME=api \
+            -e DB_HOST=127.0.0.1 \
+            -e DB_PORT=5432 \
+            ghcr.io/ministryofjustice/laa-inquests-api:latest \
+            alembic upgrade head
+
+      # Without these seeds POST /applications fails with a FK violation and
+      # the submit E2E test hangs on the client-declaration page.
+      - name: Install Postgres client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-client
+
+      - name: Seed reference data for E2E submit test
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: api
+          MSW_CORONERS_LETTER_ID: 1c84c788-23c4-49e7-a07e-6b391f09c116
+        run: |
+          set -euo pipefail
+
+          psql -v ON_ERROR_STOP=1 \
+               -v msw_id="${MSW_CORONERS_LETTER_ID}" <<'SQL'
+          INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
+          VALUES (:'msw_id', 'e2e-seed.pdf', 'e2e-seed.pdf')
+          ON CONFLICT (coroners_letter_id) DO NOTHING;
+
+          INSERT INTO proceeding (proceeding_id, proceeding_description, category_of_law, certificate_type, level_of_service, matter_type, scope_limitation_heading, scope_description, substantive_cost_limitation)
+          VALUES
+            ('PC049', 'CAPA',                                       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('MN035', 'Clinical Negligence',                        'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('MN036', 'Death in Custody - Clinical Negligence',     'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('MH028', 'Mental Health',                              'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('MH030', 'Death in Detention - Mental Health',         'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('IQ001', 'Death in Custody',                           'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('IQ002', 'Inquest',                                    'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('IQ003', 'Schedule 6 Town & Country Planning Act 1990','INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('IQ004', 'Public Inquiry s1 Inquiries Act 2005',       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000),
+            ('IQ010', 'S13 Coroner''s Act 1988 - Public Law',       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 25000)
+          ON CONFLICT (proceeding_id) DO NOTHING;
+
+          INSERT INTO public_body (public_body_id, public_body_description)
+          VALUES
+            ('PRIME_MINISTER_OFFICE',                              'Prime Minister''s Office 10 Downing Street'),
+            ('CABINET_OFFICE',                                     'Cabinet Office'),
+            ('ATTORNEY_GENERAL',                                   'Attorney General''s Office'),
+            ('DEPARTMENT_FOR_BUSINESS_AND_TRADE',                  'Department for Business & Trade'),
+            ('DEPARTMENT_FOR_CULTURE_MEDIA_AND_SPORT',             'Department for Culture, Media & Sport'),
+            ('DEPARTMENT_FOR_EDUCATION',                           'Department for Education'),
+            ('DEPARTMENT_FOR_ENERGY_SECURITY_AND_NET_ZERO',        'Department for Energy Security & Net Zero'),
+            ('DEPARTMENT_FOR_ENVIRONMENT_FOOD_AND_RURAL_AFFAIRS',  'Department for Environment, Food & Rural Affairs'),
+            ('DEPARTMENT_FOR_SCIENCE_INNOVATION_AND_TECHNOLOGY',   'Department for Science, Innovation & Technology'),
+            ('DEPARTMENT_FOR_TRANSPORT',                           'Department for Transport'),
+            ('DEPARTMENT_FOR_WORK_AND_PENSIONS',                   'Department for Work & Pensions'),
+            ('DEPARTMENT_OF_HEALTH_AND_SOCIAL_CARE',               'Department of Health & Social Care')
+          ON CONFLICT (public_body_id) DO NOTHING;
+          SQL
+
+          echo '--- Seed verification ---'
+          psql -v ON_ERROR_STOP=1 -c "
+            SELECT 'coroners_letter' AS table, COUNT(*) FROM coroners_letter
+            UNION ALL SELECT 'proceeding', COUNT(*) FROM proceeding
+            UNION ALL SELECT 'public_body', COUNT(*) FROM public_body;
+          "
+
+      - name: Start API container
+        env:
+          GOV_NOTIFY_API_KEY: ${{ secrets.TEST_GOV_NOTIFY_API_KEY }}
+          GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID }}
+          GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID }}
+        run: |
+          docker run -d --name inquests-api --network host \
+            -e SECRET_KEY=TEST_KEY \
+            -e DB_USER=postgres \
+            -e DB_PASSWORD=postgres \
+            -e DB_NAME=api \
+            -e DB_HOST=127.0.0.1 \
+            -e DB_PORT=5432 \
+            -e GOV_NOTIFY_API_KEY \
+            -e GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID \
+            -e GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID \
+            ghcr.io/ministryofjustice/laa-inquests-api:latest
+
+      - name: Wait for API to be ready
+        run: |
+          echo "Waiting for the API to become ready..."
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8027/ > /dev/null; then
+              echo "API is ready!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::API did not become ready within 120 seconds"
+          docker logs inquests-api
+          exit 1
+
       - name: Run Playwright tests
         run: yarn test:e2e
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
           # Add session-related environment variables
-          SESSION_SECRET: "playwright-test-secret" # Use a simple test secret for Playwright
+          SESSION_SECRET: "playwright-test-secret"
           SESSION_NAME: "sessionId"
           NODE_ENV: "test"
           # Add other required environment variables
@@ -47,11 +181,20 @@ jobs:
           DEPARTMENT_NAME: "LAA Digital"
           DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
           CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
-          INQUESTS_API_URL: "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk"
+          INQUESTS_API_URL: "http://127.0.0.1:8027"
           SERVICE_URL: "https://www.gov.uk/legal-aid"
           RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "10000"
           RATE_WINDOW_MS: "900000"
+
+      - name: Show API logs on failure
+        if: failure()
+        run: docker logs inquests-api
+
+      - name: Stop API container
+        if: always()
+        run: docker rm -f inquests-api || true
+
       - name: Upload trace artifacts
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a

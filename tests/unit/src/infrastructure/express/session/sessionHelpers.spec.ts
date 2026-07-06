@@ -83,6 +83,24 @@ describe("Session Helpers", () => {
       expect(req.session.clientLastName).to.be.undefined;
       expect(req.session.cookie).to.equal("cookieData");
     });
+
+    it("preserves firmCode, officeId, providerEmail and accessToken after clearing apply form data", () => {
+      const req = createMockRequest({
+        clientFirstName: "value1",
+        firmCode: "0A123B",
+        officeId: "001",
+        providerEmail: "test@example.com",
+        accessToken: "access-token-123",
+        cookie: "cookieData",
+      });
+
+      sessionHelper.clearApplyFormData(req);
+      expect(req.session.clientFirstName).to.be.undefined;
+      expect(req.session.firmCode).to.equal("0A123B");
+      expect(req.session.officeId).to.equal("001");
+      expect(req.session.providerEmail).to.equal("test@example.com");
+      expect(req.session.accessToken).to.equal("access-token-123");
+    });
   });
 
   describe("storeOriginalFormData()", () => {

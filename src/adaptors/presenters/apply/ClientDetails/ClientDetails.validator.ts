@@ -81,39 +81,24 @@ export class ClientDetailsValidator extends FormValidator {
       "dob-year": dateOfBirthYear,
     } = formBody;
 
-    const isDateEmpty = this.checkDateFieldsAreEmpty(
+    const errorMessage = this.validateDateInput(
       dateOfBirthDay,
       dateOfBirthMonth,
       dateOfBirthYear,
-    );
-    const isDateNaN = this.checkDateIsNotANumber(
-      dateOfBirthDay,
-      dateOfBirthMonth,
-      dateOfBirthYear,
+      {
+        missing: CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT,
+        nonNumeric: CLIENT_DETAILS_ERROR.NON_NUMERIC_DATE,
+        invalidDate: CLIENT_DETAILS_ERROR.INVALID_DATE,
+        futureDate: CLIENT_DETAILS_ERROR.FUTURE_DATE,
+      },
     );
 
-    if (isDateNaN) {
+    if (typeof errorMessage === "string") {
       errorSummaries.dobInputError = {
-        text: CLIENT_DETAILS_ERROR.NON_NUMERIC_DATE,
+        text: errorMessage,
       };
     }
 
-    if (isDateEmpty) {
-      errorSummaries.dobInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT,
-      };
-    }
-
-    if (!isDateEmpty || !isDateNaN) {
-      const dateOfBirth = new Date(
-        `${dateOfBirthYear}/${dateOfBirthMonth}/${dateOfBirthDay}`,
-      );
-      if (dateOfBirth > new Date()) {
-        errorSummaries.dobInputError = {
-          text: CLIENT_DETAILS_ERROR.FUTURE_DATE,
-        };
-      }
-    }
     return errorSummaries;
   }
 

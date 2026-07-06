@@ -52,9 +52,15 @@ describe("EntraAuthAdaptor", () => {
   });
 
   describe("acquireTokenByCode", () => {
-    it("returns AuthTokenResult with userId from homeAccountId", async () => {
+    it("returns AuthTokenResult with userId, userName, firmCode, officeId and providerEmail from token claims", async () => {
       msalClient.acquireTokenByCode.resolves({
-        account: { homeAccountId: "user-oid-123", name: "Test User" },
+        account: {
+          homeAccountId: "user-oid-123",
+          name: "Test User",
+          username: "test@example.com",
+          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+        },
+        accessToken: "access-token-123",
       } as any);
 
       const result = await adaptor.acquireTokenByCode(
@@ -66,6 +72,10 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result, {
         userId: "user-oid-123",
         userName: "Test User",
+        firmCode: "0A123B",
+        officeId: "001",
+        providerEmail: "test@example.com",
+        accessToken: "access-token-123",
       });
       assert.ok(
         msalClient.acquireTokenByCode.calledOnceWith({
@@ -78,7 +88,11 @@ describe("EntraAuthAdaptor", () => {
 
     it("returns AuthTokenResult with undefined userName when account name is absent", async () => {
       msalClient.acquireTokenByCode.resolves({
-        account: { homeAccountId: "user-oid-123" },
+        account: {
+          homeAccountId: "user-oid-123",
+          username: "test@example.com",
+          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+        },
         uniqueId: "user-oid-123",
       } as any);
 
@@ -88,7 +102,82 @@ describe("EntraAuthAdaptor", () => {
         REDIRECT_URI,
       );
 
-      assert.deepEqual(result, { userId: "user-oid-123", userName: undefined });
+      assert.deepEqual(result, {
+        userId: "user-oid-123",
+        userName: undefined,
+        firmCode: "0A123B",
+        officeId: "001",
+        providerEmail: "test@example.com",
+      });
+    });
+
+    it("returns undefined providerEmail when account username is absent", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.providerEmail, undefined);
+    });
+
+    it("uses first element of ACCOUNTS array as officeId", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          name: "Test User",
+          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: ["001", "002"] },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.officeId, "001");
+    });
+
+    it("returns undefined firmCode when FIRM_CODE claim is missing", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: { ACCOUNTS: "001" },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.firmCode, undefined);
+    });
+
+    it("returns undefined officeId when ACCOUNTS claim is missing", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: { FIRM_CODE: "0A123B" },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.officeId, undefined);
     });
 
     it("throws when MSAL returns null", async () => {

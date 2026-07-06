@@ -1,10 +1,62 @@
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Apply - check your answers", () => {
+  test("renders linked case details summary list when details are provided", async ({
+    page,
+  }) => {
+    await page.goto("/apply/deceased-details/further-information");
+
+    await page.getByLabel("Yes").click();
+    await page
+      .getByLabel(
+        "Please provide any details available of linked or bridged inquests",
+      )
+      .fill("Linked case details provided");
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await page.goto("/apply/check-your-answers");
+
+    const linkedCaseDetailsSummary = page.getByTestId(
+      "linked-case-details-summary-list",
+    );
+    await expect(linkedCaseDetailsSummary).toBeVisible();
+    await expect(
+      linkedCaseDetailsSummary.getByRole("heading", {
+        level: 2,
+        name: "Linked case details",
+      }),
+    ).toBeVisible();
+    await expect(
+      linkedCaseDetailsSummary.getByText("Details", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      linkedCaseDetailsSummary.getByText("Linked case details provided"),
+    ).toBeVisible();
+    await expect(linkedCaseDetailsSummary.getByRole("link")).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/further-information",
+    );
+  });
+
+  test("does not render linked case details summary list when no is selected", async ({
+    page,
+  }) => {
+    await page.goto("/apply/deceased-details/further-information");
+
+    await page.getByLabel("No").click();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await page.goto("/apply/check-your-answers");
+
+    await expect(
+      page.getByTestId("linked-case-details-summary-list"),
+    ).toHaveCount(0);
+  });
+
   test("renders check your answers page header and back link", async ({
     page,
   }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
     const checkYourAnswersHeading = await page.getByRole("heading", {
@@ -15,7 +67,10 @@ test.describe("Apply - check your answers", () => {
     await expect(checkYourAnswersHeading).toBeVisible();
 
     await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", "/apply/fee-earner");
+    await expect(backButton).toHaveAttribute(
+      "href",
+      "/apply/public-authority/confirmation",
+    );
 
     const pageInsetText = page.getByText(
       "You cannot change the answers on this page once you  continue",
@@ -33,7 +88,7 @@ test.describe("Apply - check your answers", () => {
   });
 
   test("renders client details summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const caseDetailsHeading = await page.getByRole("heading", {
       level: 2,
@@ -80,7 +135,7 @@ test.describe("Apply - check your answers", () => {
     await expect(correspondenceAddressRowTitle).toBeVisible();
   });
   test("renders deceased details summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const inquestHeading = await page.getByRole("heading", {
       level: 2,
@@ -127,8 +182,32 @@ test.describe("Apply - check your answers", () => {
     await expect(clientRelationshipTitle).toBeVisible();
     await expect(inquestIdTitle).toBeVisible();
   });
+  test("renders proceedings summary list", async ({ page }) => {
+    await page.goto("/apply/check-your-answers");
+
+    const proceedingsSummaryList = page.getByTestId("proceedings-summary-list");
+    await expect(proceedingsSummaryList).toBeVisible();
+
+    const proceedingsTableHeading = await proceedingsSummaryList.getByRole(
+      "heading",
+      {
+        level: 2,
+        name: "Proceedings",
+      },
+    );
+    await expect(proceedingsTableHeading).toBeVisible();
+
+    const proceedingsChangeLink = proceedingsSummaryList.getByRole("link");
+    await expect(proceedingsChangeLink).toBeVisible();
+
+    await expect(proceedingsChangeLink).toHaveAttribute(
+      "href",
+      "/apply/proceedings/confirmation",
+    );
+  });
+
   test("renders interested parties summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const interestedPartiesSummaryList = page.getByTestId(
       "interested-parties-summary-list",
@@ -148,12 +227,12 @@ test.describe("Apply - check your answers", () => {
 
     await expect(interestedPartiesChangeLink).toHaveAttribute(
       "href",
-      "/apply/public-authority",
+      "/apply/public-authority/confirmation",
     );
   });
 
   test("renders coroner's letter summary list", async ({ page }) => {
-    page.goto("/apply/check-your-answers");
+    await page.goto("/apply/check-your-answers");
 
     const coronersLetterSummaryList = page.getByTestId(
       "coroners-letter-summary-list",
@@ -173,7 +252,7 @@ test.describe("Apply - check your answers", () => {
 
     await expect(coronersLetterChangeLink).toHaveAttribute(
       "href",
-      "/apply/upload",
+      "/apply/upload-coroners-letter",
     );
 
     const fileNameRowTitle = coronersLetterSummaryList.getByText("File name");

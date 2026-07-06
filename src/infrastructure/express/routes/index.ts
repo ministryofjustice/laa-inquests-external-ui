@@ -1,5 +1,5 @@
 import express from "express";
-import type { Request, Response } from "express";
+import type { Request, Response, RequestHandler } from "express";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
@@ -17,40 +17,73 @@ import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAut
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { createPublicAuthorityRouter } from "./apply/publicAuthority.router.js";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
+import { createCaseSearchRouter } from "./claim/caseSearch.router.js";
+import { CaseSearchAdaptor } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.adaptor.js";
+import { CaseSearchValidator } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.validator.js";
+import { SearchCasesAdaptor } from "#src/adaptors/source/inquests-api/claim/SearchCases/SearchCases.adaptor.js";
+import { createClaimTypeRouter } from "./claim/claimType.router.js";
+import { ClaimTypeAdaptor } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.adaptor.js";
+import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.validator.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
+import { MockAuthAdaptor } from "#src/adaptors/source/auth/MockAuth.adaptor.js";
+import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
+import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
+import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
 import { SessionHelper } from "../session/sessionHelpers.js";
+import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
 import createTestRouter from "./test.router.js";
+import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
+import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
+
+const DEV_AUTH_BYPASS_MODULE_PATH =
+  "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
 
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
+const caseSearchRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
 const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
+const coronersLetterRouter = express.Router();
+const claimTypeRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
 
-const entraClient = new ConfidentialClientApplication({
-  auth: {
-    clientId: config.AUTH_CLIENT_ID,
-    authority: config.AUTH_DIRECTORY_URL,
-    clientSecret: config.AUTH_CLIENT_SECRET,
-  },
-});
-const entraAuthAdaptor = new EntraAuthAdaptor(entraClient);
+function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
+  if (process.env.NODE_ENV === "test") {
+    return new MockAuthAdaptor(
+      config.MOCK_OAUTH_URL ?? "http://localhost:4001",
+    );
+  }
+  const entraClient = new ConfidentialClientApplication({
+    auth: {
+      clientId: config.AUTH_CLIENT_ID,
+      authority: config.AUTH_DIRECTORY_URL,
+      clientSecret: config.AUTH_CLIENT_SECRET,
+    },
+  });
+  return new EntraAuthAdaptor(
+    entraClient,
+    config.AUTH_TOKEN_DEBUG_ENABLED,
+    appInfo,
+  );
+}
+
 const authAdaptor = new AuthAdaptor(
-  entraAuthAdaptor,
+  createAuthSource(),
   config.AUTH_REDIRECT_URI,
   config.AUTH_POST_LOGOUT_URI,
+  config.AUTH_SCOPES,
 );
 
 indexRouter.use("/auth", createAuthRouter(express.Router(), authAdaptor));
@@ -76,11 +109,22 @@ if (process.env.NODE_ENV === "test") {
   indexRouter.use("/", createTestRouter(express.Router()));
 }
 
+if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
+  const { seedDevAuthSession } = (await import(
+    DEV_AUTH_BYPASS_MODULE_PATH
+  )) as {
+    seedDevAuthSession: RequestHandler;
+  };
+  indexRouter.use(seedDevAuthSession);
+}
+
 indexRouter.use(requireAuth);
+
+const homeAdaptor = new HomeAdaptor(new SessionHelper());
 
 /* GET home page. */
 indexRouter.get("/", (req: Request, res: Response): void => {
-  res.render("main/index");
+  homeAdaptor.renderHome(req, res);
 });
 
 indexRouter.get("/apply", (req: Request, res: Response): void => {
@@ -116,6 +160,8 @@ const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
 const submitApplicationSource = new SubmitApplicationAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
+  config.SUBMIT_PAYLOAD_DEBUG_ENABLED,
+  appInfo,
 );
 
 const confirmationFormatter = new Formatter();
@@ -126,6 +172,34 @@ const confirmationAdaptor = new ConfirmationAdaptor(
   sessionHelper,
 );
 
+const uploadCoronersLetterSource = new UploadCoronersLetterAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const uploadCoronersLetterValidator = new UploadCoronersLetterValidator();
+const coronersLetterAdaptor = new CoronersLetterAdaptor(
+  uploadCoronersLetterValidator,
+  uploadCoronersLetterSource,
+);
+const caseSearchValidator = new CaseSearchValidator();
+const searchCasesSource = new SearchCasesAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const caseSearchAdaptor = new CaseSearchAdaptor(
+  caseSearchValidator,
+  searchCasesSource,
+);
+
+const claimTypeValidator = new ClaimTypeValidator();
+const claimTypeAdaptor = new ClaimTypeAdaptor(claimTypeValidator);
+
+indexRouter.use(
+  "/claim",
+  createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
+  createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
+);
+
 indexRouter.use(
   "/apply",
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
@@ -133,6 +207,7 @@ indexRouter.use(
   createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
   createConfirmationRouter(confirmationRouter, confirmationAdaptor),
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
+  createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
 
 export default indexRouter;

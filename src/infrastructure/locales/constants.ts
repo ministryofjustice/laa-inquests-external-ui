@@ -1,5 +1,21 @@
 export const MAX_CHARACTER_LENGTH = 100;
 
+export const CASE_SEARCH_ERROR = {
+  MISSING_CASE_REFERENCE: "Case reference is required",
+  NO_RESULTS: "There are no results that match the search criteria",
+};
+
+export const CLAIM_TYPE_ERROR = {
+  MISSING_CLAIM_TYPE: "Please select a claim type",
+  MISSING_CLAIM_SUBTYPE: "Please select a Payment on Account claim type",
+};
+
+export const CLAIM_TYPE_VALUE = {
+  PAYMENT_ON_ACCOUNT: "PAYMENT_ON_ACCOUNT",
+  NIL_BILL: "NIL_BILL",
+  FINAL_BILL: "FINAL_BILL",
+};
+
 export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;
 
 export const DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH = 50;
@@ -41,6 +57,7 @@ export const DATE_MONTH_INDEX_OFFSET = 1;
 export const EMPTY_ARR_LENGTH = 0;
 
 export const CLIENT_DETAILS_ERROR = {
+  INVALID_DATE: "Please enter a valid date",
   NON_NUMERIC_DATE: "Please enter date of birth in the format expected",
   MISSING_DOB_INPUT: "Please enter date of birth",
   FUTURE_DATE: "Date of birth must not be in the future",
@@ -300,6 +317,27 @@ export const PUBLIC_AUTHORITY_OPTIONS = [
 export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
 };
+
+export const PUBLIC_AUTHORITY_SUCCESS = {
+  REMOVED: "Public authority has been removed",
+};
+
+export const CORONERS_LETTER_ERROR = {
+  NO_FILE_CHOSEN: "Select a file",
+  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
+  FILE_IS_EMPTY: "The selected file is empty",
+  INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
+};
+
+export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
+export const CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES = 0;
+
+export const CORONERS_LETTER_ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/bmp",
+  "application/pdf",
+];
 
 export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:

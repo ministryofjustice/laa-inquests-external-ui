@@ -9,7 +9,7 @@ import { getBuildNumber } from "./src/infrastructure/build/getBuildInfo.js";
 import type { SassPluginOptions } from "./src/infrastructure/build/sass.types.js";
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: "../.env.external" });
 const buildNumber = getBuildNumber();
 const NO_MORE_ASYNC_OPERATIONS = 0;
 const UNCAUGHT_FATAL_EXCEPTION = 1;
@@ -59,6 +59,7 @@ const externalModules: string[] = [
   "csrf-sync",
   "http-errors",
   "@azure/msal-node",
+  "multer",
   "*.node",
 ];
 

@@ -17,6 +17,17 @@ declare module "express-session" {
     clientHasNoFixedAbode?: boolean;
     userId?: string;
     user?: { name?: string };
+    firmCode?: string;
+    officeId?: string;
+    accessToken?: string;
+    coronersLetterId?: string;
+    coronersLetterFileName?: string;
+    providerEmail?: string;
+    claimCaseReference?: string;
+    claimSelectedReference?: string;
+    claimType?: string;
+    claimSubtype?: string;
+    claimSearchResults?: Array<Array<{ text: string }>>;
   }
 }
 

@@ -6,6 +6,7 @@ import { Formatter } from "#src/utils/Formatter.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
+import { v4 as uuidv4 } from "uuid";
 
 describe("Confirmation adaptor", () => {
   let confirmationFormatter: Formatter;
@@ -15,6 +16,9 @@ describe("Confirmation adaptor", () => {
   let confirmationAdaptor: ConfirmationAdaptor;
   let responseStub: StubbedInstance<Response>;
   let requestStub: StubbedInstance<Request>;
+
+  const testCoronersLetterId = uuidv4();
+  const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
   beforeEach(() => {
     responseStub = stubInterface<Response>();
@@ -42,6 +46,9 @@ describe("Confirmation adaptor", () => {
   it("render check your answers page", () => {
     requestStub.session.clientFirstName = "test name";
     requestStub.session.clientLastName = "last name";
+    requestStub.session.clientLastNameAtBirth = "birth name";
+    requestStub.session.clientNino = "AB123456C";
+    requestStub.session.prevLaaReferenceInput = "L-123-456";
     requestStub.session.clientDobDay = "1";
     requestStub.session.clientDobMonth = "12";
     requestStub.session.clientDobYear = "1990";
@@ -64,6 +71,8 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathYear = "2001";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
+    requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
+    requestStub.session.deceasedFurtherInformation = "Case linked details";
 
     const publicAuthorities = [
       {
@@ -96,6 +105,9 @@ describe("Confirmation adaptor", () => {
       client: {
         clientFirstName: "test name",
         clientLastName: "last name",
+        clientLastNameAtBirth: "birth name",
+        clientNino: "AB123456C",
+        prevLaaReferenceInput: "L-123-456",
         clientDob: "1/12/1990",
         clientAddress:
           "4 Privet DriveLittle Whinging Little Whinging Surrey B1 123b",
@@ -109,9 +121,48 @@ describe("Confirmation adaptor", () => {
         dateOfDeath: "6/8/2001",
         deceasedClientRelationship: "brother",
         deceasedCoronerReference: "12345678910",
+        deceasedFurtherInformation: "Case linked details",
       },
+      proceedings: [],
       publicAuthorities: expectedFormattedPublicAuthorities,
+      coronersLetterFileName: testCoronersLetterFileName,
     });
+  });
+
+  it("includes linked case details when deceased further information is yes", () => {
+    requestStub.session.clientFirstName = "test name";
+    requestStub.session.clientLastName = "last name";
+    requestStub.session.clientDobDay = "1";
+    requestStub.session.clientDobMonth = "12";
+    requestStub.session.clientDobYear = "1990";
+    requestStub.session.clientHasNoFixedAbode = true;
+    requestStub.session.clientCorrespondenceAddressSource =
+      "USE_CLIENT_HOME_ADDRESS";
+
+    requestStub.session.deceasedFirstName = "deceased first name";
+    requestStub.session.deceasedLastName = "deceased last name";
+    requestStub.session.deceasedDateOfDeathDay = "6";
+    requestStub.session.deceasedDateOfDeathMonth = "8";
+    requestStub.session.deceasedDateOfDeathYear = "2001";
+    requestStub.session.deceasedClientRelationship = "brother";
+    requestStub.session.deceasedCoronerReference = "12345678910";
+    requestStub.session.deceasedFurtherInformation = "Linked details text";
+    requestStub.session.selectedPublicAuthorities = [];
+    requestStub.session.selectedProceedings = [];
+
+    confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
+
+    const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as {
+      deceasedDetails: {
+        deceasedFurtherInformation?: string;
+      };
+    };
+
+    assert.equal(
+      renderModel.deceasedDetails.deceasedFurtherInformation,
+      "Linked details text",
+    );
   });
 
   it("renders care of recipient as client when correspondence recipient is null", () => {
@@ -155,15 +206,75 @@ describe("Confirmation adaptor", () => {
     );
   });
 
+  it("renders check your answers page with proceedings table", () => {
+    requestStub.session.clientFirstName = "test name";
+    requestStub.session.clientLastName = "last name";
+    requestStub.session.clientDobDay = "1";
+    requestStub.session.clientDobMonth = "12";
+    requestStub.session.clientDobYear = "1990";
+    requestStub.session.clientHasNoFixedAbode = false;
+    requestStub.session.clientHomeAddress = {
+      addressLine1: "4 Privet Drive",
+      addressLine2: "Little Whinging",
+      townOrCity: "Little Whinging",
+      county: "Surrey",
+      postcode: "B1 123b",
+    };
+    requestStub.session.clientCorrespondenceAddressSource =
+      "USE_CLIENT_HOME_ADDRESS";
+
+    requestStub.session.deceasedFirstName = "deceased first name";
+    requestStub.session.deceasedLastName = "deceased last name";
+    requestStub.session.deceasedDateOfDeathDay = "6";
+    requestStub.session.deceasedDateOfDeathMonth = "8";
+    requestStub.session.deceasedDateOfDeathYear = "2001";
+    requestStub.session.deceasedClientRelationship = "brother";
+    requestStub.session.deceasedCoronerReference = "12345678910";
+
+    const proceedings = [
+      {
+        proceedingId: "MN035",
+        proceedingDescription: "Clinical Negligence",
+        matterType: "INQUEST",
+      },
+    ];
+
+    const expectedFormattedProceedings = [
+      {
+        key: { text: "Clinical Negligence" },
+        actions: {
+          items: [
+            {
+              href: "/apply/proceedings/remove?proceedingId=MN035",
+              text: "Remove",
+            },
+          ],
+        },
+      },
+    ];
+
+    requestStub.session.selectedProceedings = proceedings;
+    requestStub.session.selectedPublicAuthorities = [];
+
+    confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as Record<string, any>;
+
+    assert.deepEqual(renderModel.proceedings, expectedFormattedProceedings);
+  });
+
   it("render confirm success page", () => {
     confirmationAdaptor.renderConfirmSuccess(requestStub, responseStub);
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
     assert.equal(renderArgs[0], "apply/confirm-success");
     assert.deepEqual(renderArgs[1], {
       csrfToken: "abcdefg",
       applicationReferenceNumber: "",
     });
+    assert.equal(renderModel.backButtonUrl, undefined);
   });
 
   it("render confirm success page with application reference number", () => {
@@ -226,6 +337,11 @@ describe("Confirmation adaptor", () => {
   });
 
   describe("processClientDeclarationForm", () => {
+    beforeEach(() => {
+      requestStub.session.coronersLetterId = testCoronersLetterId;
+      requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
+    });
+
     it("re-renders declaration form with error when declaration checkbox is not selected", async () => {
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
@@ -265,6 +381,9 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = "AB123456C";
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";
@@ -346,6 +465,12 @@ describe("Confirmation adaptor", () => {
         },
       ]);
 
+      assert.deepEqual(submitBody.provider, {
+        firmCode: "0A123B",
+        officeId: "001",
+        emailAddress: "test@example.com",
+      });
+
       assert.equal(requestStub.session.applicationReferenceNumber, "123");
 
       assert.equal(responseStub.redirect.callCount, 1);
@@ -360,6 +485,9 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";
@@ -429,6 +557,9 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceAddressSource =
         "USE_SPECIFIED_ADDRESS";
       requestStub.session.clientCorrespondenceAddress = {
@@ -499,6 +630,9 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = {
         recipientType: "PERSON",
         recipientName: "Jane Doe",
@@ -558,6 +692,9 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = null;
       requestStub.session.deceasedClientRelationship = "Spouse";
 
@@ -619,6 +756,9 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = null as unknown as string;
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";
@@ -685,6 +825,9 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = "AB123456C";
+      requestStub.session.firmCode = "0A123B";
+      requestStub.session.officeId = "001";
+      requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
       requestStub.session.deceasedFirstName = "Deceased";

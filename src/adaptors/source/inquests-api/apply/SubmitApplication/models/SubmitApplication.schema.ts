@@ -90,6 +90,12 @@ export const SubmitApplicationRequestSchema = z.object({
       publicBodyId: z.string(),
     }),
   ),
+  provider: z.object({
+    firmCode: z.string(),
+    officeId: z.string(),
+    emailAddress: z.string(),
+  }),
+  coronersLetterId: z.string(),
 });
 
 export const SubmitApplicationResponseSchema = z.object({

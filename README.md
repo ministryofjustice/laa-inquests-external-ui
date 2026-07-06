@@ -58,7 +58,7 @@ Run `npx husky init`
 Create your local config file `.env` from the template file:
 
 ```shell
-cp .env.example .env
+cp .env.example ../.env.external
 ```
 
 #### Align to the Node Version specified for this project
@@ -88,7 +88,17 @@ yarn build
 yarn dev
 ```
 
+Or to run in development with auth bypass enabled:
+
+```shell
+yarn dev:skip-auth
+```
+
+`yarn dev:skip-auth` only applies in the development environment and seeds a local authenticated user session.
+
 Then, load http://localhost:3000/ in your browser to access the app.
+
+You must ensure you still test the app with auth enabled. The best way is by [running the app in docker](#running-locally-with-docker).
 
 #### Install dependencies and run application for production
 
@@ -110,33 +120,15 @@ nvm install node
 
 Prerequisites, Docker Desktop
 
-- To build the docker image
-
-  ```shell
-  docker build -t laa-inquests-external-ui:latest .
-  ```
-
 - To run the docker image
 
   ```shell
-  docker run -d -p 8888:3000 laa-inquests-external-ui:latest
+  yarn docker
   ```
 
-  (The application should be running at http://localhost:8888)
+  (The application should be running at http://localhost:3000)
 
-- To stop the container
-
-  obtain the container id
-
-  ```shell
-  docker ps
-  ```
-
-  stop the container
-
-  ```shell
-  docker stop {container_id}
-  ```
+- To stop the container just ctrl-c out of the process.
 
   ### Test router
 

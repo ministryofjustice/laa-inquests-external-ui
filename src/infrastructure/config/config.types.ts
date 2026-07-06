@@ -5,6 +5,7 @@ export interface AppConfig {
   environment: string;
   appName: string;
   useHttps: boolean;
+  skipAuthInDev: boolean;
   // Add any other app configuration properties
 }
 
@@ -39,10 +40,15 @@ export interface Config {
   AUTH_CLIENT_SECRET: string;
   AUTH_REDIRECT_URI: string;
   AUTH_POST_LOGOUT_URI: string;
+  AUTH_SCOPES: string[];
+  AUTH_TOKEN_DEBUG_ENABLED: boolean;
+  SUBMIT_PAYLOAD_DEBUG_ENABLED: boolean;
+  MOCK_OAUTH_URL?: string;
   CONTACT_EMAIL: string | undefined;
   CONTACT_PHONE: string | undefined;
   DEPARTMENT_NAME: string | undefined;
   DEPARTMENT_URL: string | undefined;
+  INQUESTS_API_CLIENT_ID?: string;
   INQUESTS_API_URL: string;
   RATELIMIT_HEADERS_ENABLED: string | undefined;
   RATELIMIT_STORAGE_URI: string | undefined;

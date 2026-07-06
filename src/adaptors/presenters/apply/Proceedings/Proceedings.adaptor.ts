@@ -10,34 +10,50 @@ import type {
 } from "../models/form.types.js";
 import type { ProceedingsValidator } from "./Proceedings.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
+import { AddProceedingUseCase } from "#src/use-cases/apply/proceedings/AddProceeding.useCase.js";
+import { RemoveProceedingUseCase } from "#src/use-cases/apply/proceedings/RemoveProceeding.useCase.js";
+import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
+
+interface ProceedingsUseCases {
+  addProceeding: AddProceedingUseCase;
+  removeProceeding: RemoveProceedingUseCase;
+}
 
 export class ProceedingsAdaptor {
   formValidator: ProceedingsValidator;
   formatter: Formatter;
-  constructor(formValidator: ProceedingsValidator, formatter: Formatter) {
+  addProceedingUseCase: AddProceedingUseCase;
+  removeProceedingUseCase: RemoveProceedingUseCase;
+
+  constructor(
+    formValidator: ProceedingsValidator,
+    formatter: Formatter,
+    useCases?: Partial<ProceedingsUseCases>,
+  ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
+    this.addProceedingUseCase =
+      useCases?.addProceeding ?? new AddProceedingUseCase();
+    this.removeProceedingUseCase =
+      useCases?.removeProceeding ?? new RemoveProceedingUseCase();
   }
   renderProceedingSelectForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
     } = res;
-    const selectedProceedings = req.session.selectedProceedings ?? [];
-    const filteredProceedingOptions = this.formatter.filterAvailableOptions(
-      selectedProceedings,
-      PROCEEDING_OPTIONS,
-    );
-    const formattedProceedingOptions = this.formatter.formatOptionsIntoList(
-      filteredProceedingOptions,
-    );
-    const formattedSelectedProceedings =
-      this.formatter.formatSelectedIntoTableRows(selectedProceedings);
+    const selectionView = this.#buildProceedingsSelectionView({
+      selectedProceedings: req.session.selectedProceedings,
+    });
 
     res.render("apply/proceedings/add-proceedings", {
       csrfToken,
-      proceedingOptions: formattedProceedingOptions,
+      proceedingOptions: this.formatter.formatOptionsIntoList(
+        selectionView.availableProceedings,
+      ),
       proceedingInput: req.session.proceedingInput,
-      selectedProceedings: formattedSelectedProceedings,
+      selectedProceedings: this.formatter.formatSelectedIntoTableRows(
+        selectionView.selectedProceedings,
+      ),
     });
   }
 
@@ -54,41 +70,42 @@ export class ProceedingsAdaptor {
     const proceedingErrors = this.formValidator.validateProceedingInput(
       req.body,
     );
-    const selectedProceedings = req.session.selectedProceedings ?? [];
-    const selectedProceeding = PROCEEDING_OPTIONS.find(
-      (option) => option.proceedingId === proceedingOption,
+    const addProceedingResult = this.addProceedingUseCase.execute(
+      proceedingOption,
+      {
+        selectedProceedings: req.session.selectedProceedings,
+      },
     );
 
     if (
       (proceedingOption === undefined &&
         Object.keys(proceedingErrors).length > EMPTY_ARR_LENGTH) ||
-      selectedProceeding === undefined
+      addProceedingResult.status !== "SUCCESS" ||
+      addProceedingResult.data === undefined
     ) {
-      const filteredProceedingOptions = this.formatter.filterAvailableOptions(
-        selectedProceedings,
-        PROCEEDING_OPTIONS,
-      );
-      const formattedProceedingOptions = this.formatter.formatOptionsIntoList(
-        filteredProceedingOptions,
-      );
-      const formattedSelectedProceedings =
-        this.formatter.formatSelectedIntoTableRows(selectedProceedings);
+      const selectionView = this.#buildProceedingsSelectionView({
+        selectedProceedings: req.session.selectedProceedings,
+      });
 
       const renderOptions = {
         csrfToken,
-        proceedingOptions: formattedProceedingOptions,
+        proceedingOptions: this.formatter.formatOptionsIntoList(
+          selectionView.availableProceedings,
+        ),
         proceedingOption: req.session.proceedingOption,
-        selectedProceedings: formattedSelectedProceedings,
+        selectedProceedings: this.formatter.formatSelectedIntoTableRows(
+          selectionView.selectedProceedings,
+        ),
         errorSummaries: proceedingErrors,
       };
 
       res.render("apply/proceedings/add-proceedings", renderOptions);
     } else {
-      req.session.proceedingOption = selectedProceeding;
-      req.session.selectedProceedings = [
-        selectedProceeding,
-        ...selectedProceedings,
-      ];
+      const { data } = addProceedingResult;
+      const { selectedProceeding, selectedProceedings } = data;
+
+      req.session.proceedingOption = { ...selectedProceeding };
+      req.session.selectedProceedings = selectedProceedings;
       res.redirect("/apply/proceedings/confirmation");
     }
   }
@@ -107,14 +124,17 @@ export class ProceedingsAdaptor {
     if (selectedProceedings === undefined) {
       res.redirect("/apply/proceedings");
     } else {
-      const formattedSelectedProceedings =
-        this.formatter.formatSelectedIntoTableRows(selectedProceedings);
+      const selectionView = this.#buildProceedingsSelectionView({
+        selectedProceedings,
+      });
 
       req.session.successMessage = undefined;
 
       const renderOptions = {
         csrfToken,
-        selectedProceedings: formattedSelectedProceedings,
+        selectedProceedings: this.formatter.formatSelectedIntoTableRows(
+          selectionView.selectedProceedings,
+        ),
         successMessage,
       };
       res.render("apply/proceedings/confirmation", renderOptions);
@@ -211,15 +231,45 @@ export class ProceedingsAdaptor {
       session: { selectedProceedings },
     } = req;
 
-    if (removeProceeding === "true") {
-      const updatedSelectedProceedings = selectedProceedings?.filter(
-        (proceeding) => proceeding.proceedingId !== proceedingId,
-      );
+    const removeProceedingResult = this.removeProceedingUseCase.execute(
+      proceedingId,
+      removeProceeding,
+      {
+        selectedProceedings,
+      },
+    );
 
-      req.session.selectedProceedings = updatedSelectedProceedings;
-      req.session.successMessage = "Proceeding has been removed";
+    if (
+      removeProceedingResult.status === "SUCCESS" &&
+      removeProceedingResult.data?.successMessage !== undefined
+    ) {
+      const { data } = removeProceedingResult;
+      const { selectedProceedings: updatedProceedings, successMessage } = data;
+      req.session.selectedProceedings = updatedProceedings;
+      req.session.successMessage = successMessage;
     }
 
     res.redirect("/apply/proceedings/confirmation");
+  }
+
+  #buildProceedingsSelectionView(state: {
+    selectedProceedings?: Proceeding[];
+  }): {
+    availableProceedings: Proceeding[];
+    selectedProceedings: Proceeding[];
+  } {
+    const selectedProceedings = state.selectedProceedings ?? [];
+    const availableProceedings = PROCEEDING_OPTIONS.filter(
+      (option) =>
+        !selectedProceedings.some(
+          (selectedOption) =>
+            selectedOption.proceedingId === option.proceedingId,
+        ),
+    );
+
+    return {
+      availableProceedings,
+      selectedProceedings,
+    };
   }
 }
