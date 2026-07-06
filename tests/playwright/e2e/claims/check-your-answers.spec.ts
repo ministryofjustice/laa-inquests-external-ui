@@ -2,6 +2,13 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - confirm and submit", () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/subtype");
+    await page.getByLabel("Expert cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
     await page.goto("/claim/check-your-answers");
   });
 
