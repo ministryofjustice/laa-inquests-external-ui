@@ -174,4 +174,36 @@ test.describe("Claim - confirm and submit", () => {
 
     await expect(page).toHaveURL("/");
   });
+
+  test("shows the Type of POA row when POA is the claim type", async ({
+    page,
+  }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/subtype");
+    await page.getByLabel("Expert cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+
+    await page.goto("/claim/check-your-answers");
+
+    const claimDetails = page.getByTestId("claim-details-summary-list");
+    await expect(claimDetails).toContainText("Type of POA");
+    await expect(claimDetails).toContainText("Expert cost");
+  });
+
+  test("hides the Type of POA row when the claim type is not POA", async ({
+    page,
+  }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Final bill").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+
+    await page.goto("/claim/check-your-answers");
+
+    const claimDetails = page.getByTestId("claim-details-summary-list");
+    await expect(claimDetails).not.toContainText("Type of POA");
+  });
 });

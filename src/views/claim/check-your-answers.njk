@@ -55,40 +55,43 @@
 
         <h2 class="govuk-heading-m">Claim details</h2>
         <div data-testid="claim-details-summary-list">
+          {% set claimRows = [
+            {
+              key: { text: "Type of claim" },
+              value: { text: claimDetails.claimType },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/type",
+                    text: "Change",
+                    visuallyHiddenText: "type of claim"
+                  }
+                ]
+              }
+            }
+          ] %}
+          {% if claimDetails.claimSubtype %}
+            {% set claimRows = (claimRows.push({
+              key: { text: "Type of POA" },
+              value: { text: claimDetails.claimSubtype },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/subtype",
+                    text: "Change",
+                    visuallyHiddenText: "type of POA"
+                  }
+                ]
+              }
+            }), claimRows) %}
+          {% endif %}
           {{ govukSummaryList({
             card: {
               title: {
                 text: "Overview"
               }
             },
-            rows: [
-              {
-                key: { text: "Type of claim" },
-                value: { text: claimDetails.claimType },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/type",
-                      text: "Change",
-                      visuallyHiddenText: "type of claim"
-                    }
-                  ]
-                }
-              },
-              {
-                key: { text: "Type of POA" },
-                value: { text: claimDetails.claimSubtype },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/subtype",
-                      text: "Change",
-                      visuallyHiddenText: "type of POA"
-                    }
-                  ]
-                }
-              }
-            ]
+            rows: claimRows
           }) }}
         </div>
 

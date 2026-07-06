@@ -88,6 +88,42 @@ describe("ClaimType adaptor", () => {
       assert.equal(redirectUrl, "/claim/total-cost");
       assert.equal(responseStub.render.callCount, 0);
     });
+
+    it("clears the subtype from the session when a non-POA type is selected", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "FINAL_BILL" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.subtype, undefined);
+    });
+
+    it("does not clear the subtype from the session when POA is selected", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "PAYMENT_ON_ACCOUNT" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
+    });
   });
 
   describe("renderSubtypeForm", () => {
