@@ -1,0 +1,29 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/claim/total-cost"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">Upload evidence</h1>
+
+        <form data-testid="evidence-form" action="/claim/evidence" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

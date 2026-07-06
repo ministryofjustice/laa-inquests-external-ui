@@ -14,7 +14,8 @@ describe("SearchCasesAdaptor", () => {
       data: [
         {
           laaReference: 1,
-          clientName: "Jane Smith",
+          clientFirstName: "Jane",
+          clientLastName: "Smith",
           clientDateOfBirth: "2000-01-01",
           dateSubmitted: "2026-06-30T15:59:32.622897",
           firmName: "Test Firm",
@@ -35,7 +36,8 @@ describe("SearchCasesAdaptor", () => {
 
     assert.equal(result.length, 1);
     assert.equal(result[0].laaReference, 1);
-    assert.equal(result[0].clientName, "Jane Smith");
+    assert.equal(result[0].clientFirstName, "Jane");
+    assert.equal(result[0].clientLastName, "Smith");
   });
 
   it("calls the correct API endpoint with laa_reference query param and auth header", async () => {
