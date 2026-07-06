@@ -34,6 +34,24 @@ describe("CaseSearch adaptor", () => {
         "test-token",
       );
     });
+
+    it("clears the claim session data", () => {
+      const adaptor = buildAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        caseReference: "ABC-123",
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim, undefined);
+    });
   });
 
   describe("processForm", () => {

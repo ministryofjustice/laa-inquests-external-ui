@@ -32,6 +32,8 @@ export class CaseSearchAdaptor {
       locals: { csrfToken },
     } = res;
 
+    req.session.claim = undefined;
+
     res.render("claim/case-search", {
       csrfToken,
     });
