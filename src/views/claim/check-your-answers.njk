@@ -21,21 +21,21 @@
             card: {
               title: {
                 text: "Case details"
-              },
-              actions: {
-                items: [
-                  {
-                    href: "#",
-                    text: "Change",
-                    visuallyHiddenText: "case details"
-                  }
-                ]
               }
             },
             rows: [
               {
                 key: { text: "Case reference number" },
-                value: { text: caseDetails.caseReference }
+                value: { text: caseDetails.caseReference },
+                actions: {
+                  items: [
+                    {
+                      href: "#",
+                      text: "Change",
+                      visuallyHiddenText: "case reference number"
+                    }
+                  ]
+                }
               },
               {
                 key: { text: "Client first name" },
@@ -59,25 +59,34 @@
             card: {
               title: {
                 text: "Overview"
-              },
-              actions: {
-                items: [
-                  {
-                    href: "#",
-                    text: "Change",
-                    visuallyHiddenText: "claim details"
-                  }
-                ]
               }
             },
             rows: [
               {
                 key: { text: "Type of claim" },
-                value: { text: claimDetails.claimType }
+                value: { text: claimDetails.claimType },
+                actions: {
+                  items: [
+                    {
+                      href: "#",
+                      text: "Change",
+                      visuallyHiddenText: "type of claim"
+                    }
+                  ]
+                }
               },
               {
                 key: { text: "Type of POA" },
-                value: { text: claimDetails.claimSubtype }
+                value: { text: claimDetails.claimSubtype },
+                actions: {
+                  items: [
+                    {
+                      href: "#",
+                      text: "Change",
+                      visuallyHiddenText: "type of POA"
+                    }
+                  ]
+                }
               }
             ]
           }) }}
@@ -89,25 +98,34 @@
             card: {
               title: {
                 text: "Total claim cost"
-              },
-              actions: {
-                items: [
-                  {
-                    href: "#",
-                    text: "Change",
-                    visuallyHiddenText: "cost"
-                  }
-                ]
               }
             },
             rows: [
               {
                 key: { text: "Net total at 20%" },
-                value: { text: cost.netTotal }
+                value: { text: cost.netTotal },
+                actions: {
+                  items: [
+                    {
+                      href: "#",
+                      text: "Change",
+                      visuallyHiddenText: "net total at 20%"
+                    }
+                  ]
+                }
               },
               {
                 key: { text: "Gross total at 20%" },
-                value: { text: cost.grossTotal }
+                value: { text: cost.grossTotal },
+                actions: {
+                  items: [
+                    {
+                      href: "#",
+                      text: "Change",
+                      visuallyHiddenText: "gross total at 20%"
+                    }
+                  ]
+                }
               }
             ]
           }) }}
@@ -119,7 +137,7 @@
             <h2 class="govuk-summary-card__title">Files</h2>
             <ul class="govuk-summary-card__actions">
               <li class="govuk-summary-card__action">
-                <a class="govuk-link" href="#">Change<span class="govuk-visually-hidden"> evidence</span></a>
+                <a class="govuk-link govuk-!-font-weight-regular" href="#">Change<span class="govuk-visually-hidden"> evidence</span></a>
               </li>
             </ul>
           </div>

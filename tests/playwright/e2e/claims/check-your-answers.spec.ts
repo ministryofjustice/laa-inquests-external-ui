@@ -81,7 +81,7 @@ test.describe("Claim - confirm and submit", () => {
   }) => {
     const changeLinks = page.getByRole("link", { name: /^Change/ });
 
-    await expect(changeLinks).toHaveCount(4);
+    await expect(changeLinks).toHaveCount(6);
 
     const count = await changeLinks.count();
     for (let index = 0; index < count; index++) {
