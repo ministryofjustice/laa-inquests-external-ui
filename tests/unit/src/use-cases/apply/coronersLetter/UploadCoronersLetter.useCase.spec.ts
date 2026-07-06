@@ -64,6 +64,20 @@ describe("UploadCoronersLetterUseCase", () => {
     });
   });
 
+  it("returns file scan TECHNICAL_FAILURE when API status is TECHNICAL_FAILURE with FILE_SCAN_FOUND_VIRUS reason", async () => {
+    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
+      status: "TECHNICAL_FAILURE",
+      reason: "FILE_SCAN_FOUND_VIRUS",
+    });
+
+    const result = await useCase.execute(testCoronerLetter);
+
+    assert.deepEqual(result, {
+      status: "TECHNICAL_FAILURE",
+      reason: "FILE_SCAN_FOUND_VIRUS",
+    });
+  });
+
   it("returns unexpected exception when adapter throws", async () => {
     uploadCoronersLetterPort.uploadCoronersLetter.rejects(
       new Error("network failure"),
