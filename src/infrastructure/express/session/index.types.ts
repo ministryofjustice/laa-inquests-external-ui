@@ -23,16 +23,28 @@ declare module "express-session" {
     coronersLetterId?: string;
     coronersLetterFileName?: string;
     providerEmail?: string;
-    claimCaseReference?: string;
-    claimSelectedReference?: string;
-    claimType?: string;
-    claimSubtype?: string;
-    claimSearchResults?: Array<Array<{ text: string }>>;
+    claim?: ClaimSession;
   }
 }
 
 interface FormError {
   message?: string;
+}
+
+export interface ClaimSession {
+  caseReference?: string;
+  client?: ClaimClientDetails;
+  searchResults?: ClaimClientDetails[];
+  type?: string;
+  subtype?: string;
+}
+
+export interface ClaimClientDetails {
+  reference: string;
+  clientName: string;
+  clientFirstName: string;
+  clientLastName: string;
+  dateOfBirth: string;
 }
 
 export interface Proceeding {

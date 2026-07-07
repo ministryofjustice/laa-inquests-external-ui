@@ -26,7 +26,7 @@ export class ClaimTypeAdaptor {
 
     res.render("claim/claim-type", {
       csrfToken,
-      claimType: req.session.claimType,
+      claimType: req.session.claim?.type,
     });
   }
 
@@ -51,12 +51,13 @@ export class ClaimTypeAdaptor {
         errorSummaries,
       });
     } else {
-      req.session.claimType = claimType;
-      res.redirect(
-        claimType === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT
-          ? "/claim/subtype"
-          : "/claim/total-cost",
-      );
+      const isPoa = claimType === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT;
+      req.session.claim = {
+        ...req.session.claim,
+        type: claimType,
+        subtype: isPoa ? req.session.claim?.subtype : undefined,
+      };
+      res.redirect(isPoa ? "/claim/subtype" : "/claim/total-cost");
     }
   }
 
@@ -67,7 +68,7 @@ export class ClaimTypeAdaptor {
 
     res.render("claim/claim-subtype", {
       csrfToken,
-      claimSubtype: req.session.claimSubtype,
+      claimSubtype: req.session.claim?.subtype,
     });
   }
 
@@ -92,7 +93,7 @@ export class ClaimTypeAdaptor {
         errorSummaries,
       });
     } else {
-      req.session.claimSubtype = claimSubtype;
+      req.session.claim = { ...req.session.claim, subtype: claimSubtype };
       res.redirect("/claim/total-cost");
     }
   }

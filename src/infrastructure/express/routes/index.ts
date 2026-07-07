@@ -24,6 +24,12 @@ import { SearchCasesAdaptor } from "#src/adaptors/source/inquests-api/claim/Sear
 import { createClaimTypeRouter } from "./claim/claimType.router.js";
 import { ClaimTypeAdaptor } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.adaptor.js";
 import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.validator.js";
+import { createConfirmAndSubmitClaimRouter } from "./claim/confirmAndSubmitClaim.router.js";
+import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
+import { createTotalCostRouter } from "./claim/totalCost.router.js";
+import { TotalCostAdaptor } from "#src/adaptors/presenters/claim/TotalCost/TotalCost.adaptor.js";
+import { createEvidenceRouter } from "./claim/evidence.router.js";
+import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -56,6 +62,9 @@ const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
 const coronersLetterRouter = express.Router();
 const claimTypeRouter = express.Router();
+const confirmAndSubmitClaimRouter = express.Router();
+const totalCostRouter = express.Router();
+const evidenceRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 const UNSUCCESSFUL_REQUEST = 500;
@@ -198,10 +207,22 @@ const caseSearchAdaptor = new CaseSearchAdaptor(
 const claimTypeValidator = new ClaimTypeValidator();
 const claimTypeAdaptor = new ClaimTypeAdaptor(claimTypeValidator);
 
+const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor();
+
+const totalCostAdaptor = new TotalCostAdaptor();
+
+const evidenceAdaptor = new EvidenceAdaptor();
+
 indexRouter.use(
   "/claim",
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
+  createTotalCostRouter(totalCostRouter, totalCostAdaptor),
+  createEvidenceRouter(evidenceRouter, evidenceAdaptor),
+  createConfirmAndSubmitClaimRouter(
+    confirmAndSubmitClaimRouter,
+    confirmAndSubmitAdaptor,
+  ),
 );
 
 indexRouter.use(

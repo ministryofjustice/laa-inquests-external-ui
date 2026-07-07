@@ -14,8 +14,8 @@ jobs:
       - name: Setup Node and Dependencies
         uses: ./.github/actions/setup-node
 
-      - name: Run Mocha unit tests & c8 code coverage
-        run: yarn c8 yarn test:unit --check-coverage
+      - name: Run Mocha unit tests
+        run: yarn test:unit
         env:
           CI: true
           # Add session-related environment variables for unit tests

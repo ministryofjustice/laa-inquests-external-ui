@@ -32,6 +32,8 @@ export class CaseSearchAdaptor {
       locals: { csrfToken },
     } = res;
 
+    req.session.claim = undefined;
+
     res.render("claim/case-search", {
       csrfToken,
     });
@@ -60,15 +62,14 @@ export class CaseSearchAdaptor {
       return;
     }
 
-    req.session.claimCaseReference = caseReference;
+    req.session.claim = { ...req.session.claim, caseReference };
     res.redirect("/claim/results");
   }
 
   async renderResults(req: Request, res: Response): Promise<void> {
-    const {
-      session: { claimCaseReference, accessToken },
-    } = req;
-    const laaReference = claimCaseReference ?? "";
+    const { session } = req;
+    const { claim, accessToken } = session;
+    const laaReference = claim?.caseReference ?? "";
     const {
       locals: { csrfToken },
     } = res;
@@ -82,17 +83,35 @@ export class CaseSearchAdaptor {
       return;
     }
 
+    const cases = result.data ?? [];
+    session.claim = {
+      ...session.claim,
+      searchResults: this.formatter.formatClientDetails(cases),
+    };
+
     res.render("claim/case-search-results", {
       csrfToken,
-      cases: this.formatter.formatCases(result.data ?? []),
+      cases: this.formatter.formatCases(cases),
     });
   }
 
   selectCase(req: Request, res: Response): void {
     const {
       params: { reference },
+      session: { claim },
     } = req;
-    req.session.claimSelectedReference = String(reference);
+    const selectedReference = String(reference);
+
+    const selectedClient = (claim?.searchResults ?? []).find(
+      (c) => c.reference === selectedReference,
+    );
+
+    req.session.claim = {
+      ...claim,
+      caseReference: selectedReference,
+      client: selectedClient,
+    };
+
     res.redirect("/claim/type");
   }
 }
