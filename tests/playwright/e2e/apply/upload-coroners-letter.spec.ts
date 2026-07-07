@@ -22,7 +22,7 @@ test.describe("Provider can", () => {
     await validateCSRFToken(form);
     await validateContinueButton(form);
 
-    const uploadFormButton = form.getByLabel("Choose files");
+    const uploadFormButton = form.getByLabel("Attach a file");
     await expect(uploadFormButton).toBeVisible();
   });
 });

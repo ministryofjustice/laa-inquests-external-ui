@@ -69,7 +69,7 @@ test.describe("Apply - check your answers", () => {
     await expect(backButton).toBeVisible();
     await expect(backButton).toHaveAttribute(
       "href",
-      "/apply/public-authority/confirmation",
+      "/apply/upload-coroners-letter",
     );
 
     const pageInsetText = page.getByText(
