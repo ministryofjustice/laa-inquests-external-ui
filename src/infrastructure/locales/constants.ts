@@ -28,9 +28,14 @@ export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
   NON_EXPERT_DISBURSEMENT: "Non-expert disbursement",
 };
 
+export const CLAIM_NET_TOTAL_VALUE = 1000;
+export const CLAIM_GROSS_TOTAL_VALUE = 1200;
+
 export const CONFIRM_CLAIM_PLACEHOLDER = {
   NET_TOTAL: "£1,000.00",
   GROSS_TOTAL: "£1,200.00",
+  NET_TOTAL_VALUE: CLAIM_NET_TOTAL_VALUE,
+  GROSS_TOTAL_VALUE: CLAIM_GROSS_TOTAL_VALUE,
   UPLOADED_FILES: [
     { name: "evidence-document-1.png", type: "png", size: "57KB" },
     { name: "evidence-document-2.pdf", type: "pdf", size: "112KB" },

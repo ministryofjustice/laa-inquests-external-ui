@@ -49,4 +49,20 @@ export const apiHandlers = [
       { status: 201 },
     ),
   ),
+  http.post("*/applications/*/claim", async () =>
+    HttpResponse.json(
+      {
+        claimId: 42,
+        laaReference: 1,
+        claimTypeId: "PAYMENT_ON_ACCOUNT",
+        statusId: "PENDING",
+        submissionDate: "2026-07-07T12:25:08.407881",
+        totalProfitCostNet: 1000,
+        totalProfitCostGross: 1200,
+        claimantId: "test@example.com",
+        poaTypeId: "PROFIT_COST",
+      },
+      { status: 201 },
+    ),
+  ),
 ];

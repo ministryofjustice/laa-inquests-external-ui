@@ -5,8 +5,27 @@ import {
   CLAIM_TYPE_LABEL,
   CONFIRM_CLAIM_PLACEHOLDER,
 } from "#src/infrastructure/locales/constants.js";
+import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
+import {
+  SubmitClaimUseCase,
+  type SubmitClaimInput,
+} from "#src/use-cases/claim/SubmitClaim.useCase.js";
+
+interface ConfirmAndSubmitUseCases {
+  submitClaim: SubmitClaimUseCase;
+}
 
 export class ConfirmAndSubmitAdaptor {
+  submitClaimUseCase: SubmitClaimUseCase;
+
+  constructor(
+    claimSubmitPort: ClaimSubmitPort,
+    useCases?: Partial<ConfirmAndSubmitUseCases>,
+  ) {
+    this.submitClaimUseCase =
+      useCases?.submitClaim ?? new SubmitClaimUseCase(claimSubmitPort);
+  }
+
   renderForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
@@ -32,8 +51,44 @@ export class ConfirmAndSubmitAdaptor {
     });
   }
 
-  processForm(req: Request, res: Response): void {
-    res.redirect("/");
+  async processForm(req: Request, res: Response): Promise<void> {
+    const result = await this.submitClaimUseCase.execute(
+      this.#buildSubmitClaimInput(req),
+    );
+
+    if (result.status !== "SUCCESS") {
+      return;
+    }
+
+    const { session } = req;
+    session.claimReferenceNumber = result.data?.claimId.toString() ?? "";
+    res.redirect("/claim/confirmation/success");
+  }
+
+  #buildSubmitClaimInput(req: Request): SubmitClaimInput {
+    const { session } = req;
+    const { claim, providerEmail, accessToken } = session;
+    return {
+      laaReference: claim?.caseReference ?? "",
+      claimType: claim?.type ?? "",
+      poaTypeId: claim?.subtype ?? "",
+      claimantId: providerEmail ?? "",
+      accessToken,
+    };
+  }
+
+  renderConfirmSuccess(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+    const {
+      session: { claimReferenceNumber },
+    } = req;
+
+    res.render("claim/confirm-success", {
+      csrfToken,
+      claimReferenceNumber,
+    });
   }
 
   #buildCaseDetails(claim?: ClaimSession): {

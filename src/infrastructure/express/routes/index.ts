@@ -26,6 +26,7 @@ import { ClaimTypeAdaptor } from "#src/adaptors/presenters/claim/ClaimType/Claim
 import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.validator.js";
 import { createConfirmAndSubmitClaimRouter } from "./claim/confirmAndSubmitClaim.router.js";
 import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
+import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
 import { createTotalCostRouter } from "./claim/totalCost.router.js";
 import { TotalCostAdaptor } from "#src/adaptors/presenters/claim/TotalCost/TotalCost.adaptor.js";
 import { createEvidenceRouter } from "./claim/evidence.router.js";
@@ -207,7 +208,11 @@ const caseSearchAdaptor = new CaseSearchAdaptor(
 const claimTypeValidator = new ClaimTypeValidator();
 const claimTypeAdaptor = new ClaimTypeAdaptor(claimTypeValidator);
 
-const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor();
+const submitClaimSource = new SubmitClaimAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor(submitClaimSource);
 
 const totalCostAdaptor = new TotalCostAdaptor();
 
