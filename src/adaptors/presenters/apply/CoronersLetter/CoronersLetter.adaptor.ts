@@ -1,8 +1,10 @@
 import type { Request, Response } from "express";
-import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
-import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
+import type { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
 import type { UploadCoronersLetterValidator } from "./CoronersLetter.validator.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  CORONERS_LETTER_ERROR,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import { HTTP_SERVICE_UNAVAILABLE } from "#src/infrastructure/express/middleware/errors.js";
 
 export class CoronersLetterAdaptor {
@@ -11,12 +13,10 @@ export class CoronersLetterAdaptor {
 
   constructor(
     formValidator: UploadCoronersLetterValidator,
-    uploadCoronersLetterPort: UploadCoronersLetterPort,
+    uploadCoronersLetterUseCase: UploadCoronersLetterUseCase,
   ) {
     this.formValidator = formValidator;
-    this.uploadCoronersLetterUseCase = new UploadCoronersLetterUseCase(
-      uploadCoronersLetterPort,
-    );
+    this.uploadCoronersLetterUseCase = uploadCoronersLetterUseCase;
   }
 
   renderUploadCoronersLetterForm(req: Request, res: Response): void {
@@ -59,6 +59,21 @@ export class CoronersLetterAdaptor {
         coronersLetterFileName: result.data?.coronersLetterFileName,
       });
     } else {
+      if (
+        result.status === "TECHNICAL_FAILURE" &&
+        result.reason === "FILE_SCAN_FOUND_VIRUS"
+      ) {
+        res.render("apply/upload-coroners-letter", {
+          csrfToken: res.locals.csrfToken,
+          errorSummaries: {
+            coronersLetterError: {
+              text: CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
+            },
+          },
+        });
+        return;
+      }
+
       res.status(HTTP_SERVICE_UNAVAILABLE).render("main/error", {
         status: "503",
         error: "Service unavailable. Please try again later.",

@@ -38,6 +38,11 @@ describe("UploadCoronersLetterAdaptor", () => {
     reason: "UPSTREAM_REJECTED",
   };
 
+  const expectedVirusFoundResponse: UploadCoronersLetterResponse = {
+    status: "TECHNICAL_FAILURE",
+    reason: "FILE_SCAN_FOUND_VIRUS",
+  };
+
   const expectedExceptionResponse: UploadCoronersLetterResponse = {
     status: "TECHNICAL_FAILURE",
     reason: "UNEXPECTED_EXCEPTION",
@@ -72,6 +77,21 @@ describe("UploadCoronersLetterAdaptor", () => {
       );
 
     assert.deepEqual(expectedFailureResponse, fileSaveResponse);
+  });
+
+  it("returns a technical failure response on failed upload", async () => {
+    axiosStub.post.resolves({
+      status: 422,
+      data: {},
+    });
+
+    const fileSaveResponse =
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(
+        submitBodyRaw,
+        "access-token-123",
+      );
+
+    assert.deepEqual(expectedVirusFoundResponse, fileSaveResponse);
   });
 
   it("returns a technical failure response on unexpected exception", async () => {

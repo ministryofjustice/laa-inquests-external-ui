@@ -7,6 +7,7 @@ import type { Request, Response } from "express";
 import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
 import { v4 as uuidv4 } from "uuid";
 import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
+import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
 
 describe("Coroners Letter adaptor", () => {
   let coronersLetterAdaptor: CoronersLetterAdaptor;
@@ -16,20 +17,23 @@ describe("Coroners Letter adaptor", () => {
   const testCoronersLetterId = uuidv4();
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
-  const uploadCoronersLetterPort = stubInterface<UploadCoronersLetterPort>();
+  const uploadCoronersLetterUseCase =
+    stubInterface<UploadCoronersLetterUseCase>();
   const uploadCoronersLetterValidator =
     stubInterface<UploadCoronersLetterValidator>();
   uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({});
-  uploadCoronersLetterPort.uploadCoronersLetter.resolves({
+  uploadCoronersLetterUseCase.execute.resolves({
     status: "SUCCESS",
-    coronersLetterId: testCoronersLetterId,
-    coronersLetterFileName: testCoronersLetterFileName,
+    data: {
+      coronersLetterId: testCoronersLetterId,
+      coronersLetterFileName: testCoronersLetterFileName,
+    },
   });
 
   before(() => {
     coronersLetterAdaptor = new CoronersLetterAdaptor(
       uploadCoronersLetterValidator,
-      uploadCoronersLetterPort,
+      uploadCoronersLetterUseCase,
     );
   });
 
@@ -73,19 +77,16 @@ describe("Coroners Letter adaptor", () => {
       responseStub,
     );
 
-    assert.equal(uploadCoronersLetterPort.uploadCoronersLetter.callCount, 1);
+    assert.equal(uploadCoronersLetterUseCase.execute.callCount, 1);
 
-    const uploadBody = uploadCoronersLetterPort.uploadCoronersLetter.getCall(0)
-      .args[0] as UploadCoronersLetterRequest;
-    const uploadAccessToken =
-      uploadCoronersLetterPort.uploadCoronersLetter.getCall(0).args[1];
+    const uploadBody = uploadCoronersLetterUseCase.execute.getCall(0).args[0];
 
     assert.deepEqual(uploadBody, {
       buffer: buffer,
       mimetype: "application/pdf",
       originalname: testCoronersLetterFileName,
+      accessToken: "access-token-123",
     });
-    assert.equal(uploadAccessToken, "access-token-123");
 
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
@@ -95,10 +96,12 @@ describe("Coroners Letter adaptor", () => {
   it("saves the letter id and a file name to session on successful upload", async () => {
     setupRequestFile();
 
-    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
+    uploadCoronersLetterUseCase.execute.resolves({
       status: "SUCCESS",
-      coronersLetterId: testCoronersLetterId,
-      coronersLetterFileName: testCoronersLetterFileName,
+      data: {
+        coronersLetterId: testCoronersLetterId,
+        coronersLetterFileName: testCoronersLetterFileName,
+      },
     });
 
     await coronersLetterAdaptor.processCoronersLetterUploadForm(
@@ -209,29 +212,54 @@ describe("Coroners Letter adaptor", () => {
     });
   });
 
-  describe("when the upload fails", () => {
-    it("renders the 503 error page when the response status is not SUCCESS", async () => {
-      setupRequestFile();
-      responseStub.status.returns(responseStub);
-      uploadCoronersLetterPort.uploadCoronersLetter.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
-      });
+  it("renders the 503 error page when the response status is not SUCCESS", async () => {
+    setupRequestFile();
+    responseStub.status.returns(responseStub);
+    uploadCoronersLetterUseCase.execute.resolves({
+      status: "TECHNICAL_FAILURE",
+      reason: "UPSTREAM_REJECTED",
+    });
 
-      await coronersLetterAdaptor.processCoronersLetterUploadForm(
-        requestStub,
-        responseStub,
-      );
+    await coronersLetterAdaptor.processCoronersLetterUploadForm(
+      requestStub,
+      responseStub,
+    );
 
-      assert.equal(responseStub.status.calledWith(503), true);
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "main/error");
-      assert.deepEqual(renderArgs[1], {
-        status: "503",
-        error: "Service unavailable. Please try again later.",
-      });
-      assert.equal(responseStub.redirect.callCount, 0);
+    assert.equal(responseStub.status.calledWith(503), true);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "main/error");
+    assert.deepEqual(renderArgs[1], {
+      status: "503",
+      error: "Service unavailable. Please try again later.",
+    });
+    assert.equal(responseStub.redirect.callCount, 0);
+  });
+
+  it("displays an error when the virus scan fails", async () => {
+    setupRequestFile();
+    responseStub.status.returns(responseStub);
+
+    uploadCoronersLetterUseCase.execute.resolves({
+      status: "TECHNICAL_FAILURE",
+      reason: "FILE_SCAN_FOUND_VIRUS",
+    });
+
+    await coronersLetterAdaptor.processCoronersLetterUploadForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "apply/upload-coroners-letter");
+    assert.deepEqual(renderArgs[1], {
+      csrfToken: responseStub.locals.csrfToken,
+      errorSummaries: {
+        coronersLetterError: {
+          text: CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
+        },
+      },
     });
   });
 });

@@ -4,7 +4,10 @@ import type {
   UploadCoronersLetterRequest,
   UploadCoronersLetterResponse,
 } from "./models/UploadCoronersLetter.types.js";
-import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
+import {
+  HTTP_CREATED,
+  HTTP_UNPROCESSABLE_CONTENT,
+} from "#src/infrastructure/locales/constants.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 
 interface UploadCoronersLetterApiResponse {
@@ -42,10 +45,17 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
         });
 
       if (response.status !== HTTP_CREATED) {
-        return {
-          status: "TECHNICAL_FAILURE",
-          reason: "UPSTREAM_REJECTED",
-        };
+        if (response.status === HTTP_UNPROCESSABLE_CONTENT) {
+          return {
+            status: "TECHNICAL_FAILURE",
+            reason: "FILE_SCAN_FOUND_VIRUS",
+          };
+        } else {
+          return {
+            status: "TECHNICAL_FAILURE",
+            reason: "UPSTREAM_REJECTED",
+          };
+        }
       }
 
       return {
