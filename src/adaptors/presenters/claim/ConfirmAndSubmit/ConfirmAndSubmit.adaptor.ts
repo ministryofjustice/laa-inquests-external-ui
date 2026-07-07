@@ -10,6 +10,8 @@ import {
   SubmitClaimUseCase,
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
+import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
+import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/middleware/errors.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
@@ -17,13 +19,16 @@ interface ConfirmAndSubmitUseCases {
 
 export class ConfirmAndSubmitAdaptor {
   submitClaimUseCase: SubmitClaimUseCase;
+  logger: (message: string) => void;
 
   constructor(
     claimSubmitPort: ClaimSubmitPort,
     useCases?: Partial<ConfirmAndSubmitUseCases>,
+    logger: (message: string) => void = appInfo,
   ) {
     this.submitClaimUseCase =
       useCases?.submitClaim ?? new SubmitClaimUseCase(claimSubmitPort);
+    this.logger = logger;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -57,12 +62,27 @@ export class ConfirmAndSubmitAdaptor {
     );
 
     if (result.status !== "SUCCESS") {
+      const reason = "reason" in result ? result.reason : "INVALID_INPUT_STATE";
+      this.logger(
+        JSON.stringify({
+          event: "submit.claim.error",
+          reason,
+        }),
+      );
+      this.#renderInternalServerError(res);
       return;
     }
 
     const { session } = req;
     session.claimReferenceNumber = result.data?.claimId.toString() ?? "";
     res.redirect("/claim/confirmation/success");
+  }
+
+  #renderInternalServerError(res: Response): void {
+    res.status(HTTP_INTERNAL_SERVER_ERROR).render("main/error", {
+      status: "500",
+      error: "Internal server error. Please try again later.",
+    });
   }
 
   #buildSubmitClaimInput(req: Request): SubmitClaimInput {

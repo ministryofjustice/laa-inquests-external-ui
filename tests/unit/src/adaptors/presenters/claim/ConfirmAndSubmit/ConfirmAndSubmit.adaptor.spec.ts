@@ -9,10 +9,12 @@ import { SubmitClaimUseCase } from "#src/use-cases/claim/SubmitClaim.useCase.js"
 describe("ConfirmAndSubmit adaptor", () => {
   let claimSubmitPort: StubbedInstance<ClaimSubmitPort>;
   let submitClaimUseCase: StubbedInstance<SubmitClaimUseCase>;
+  let loggerMessages: string[];
 
   beforeEach(() => {
     claimSubmitPort = stubInterface<ClaimSubmitPort>();
     submitClaimUseCase = stubInterface<SubmitClaimUseCase>();
+    loggerMessages = [];
   });
   describe("renderForm", () => {
     it("renders the confirm and submit view", () => {
@@ -128,6 +130,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       });
 
       const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
       const requestStub = stubInterface<Request>();
       requestStub.session.claim = {
         caseReference: "1",
@@ -158,6 +161,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       });
 
       const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
       const requestStub = stubInterface<Request>();
       requestStub.session.claim = {
         caseReference: "1",
@@ -181,11 +185,18 @@ describe("ConfirmAndSubmit adaptor", () => {
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",
       });
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort, {
-        submitClaim: submitClaimUseCase,
-      });
+      const adaptor = new ConfirmAndSubmitAdaptor(
+        claimSubmitPort,
+        {
+          submitClaim: submitClaimUseCase,
+        },
+        (message) => {
+          loggerMessages.push(message);
+        },
+      );
 
       const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
       const requestStub = stubInterface<Request>();
       requestStub.session.claim = {
         caseReference: "1",
@@ -196,6 +207,23 @@ describe("ConfirmAndSubmit adaptor", () => {
       await adaptor.processForm(requestStub, responseStub);
 
       assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.status.callCount, 1);
+      assert.equal(responseStub.status.getCall(0).args[0], 500);
+      assert.equal(responseStub.render.callCount, 1);
+      const [viewName, viewModel] = responseStub.render.getCall(0).args;
+      assert.equal(viewName, "main/error");
+      assert.deepEqual(viewModel, {
+        status: "500",
+        error: "Internal server error. Please try again later.",
+      });
+      assert.equal(loggerMessages.length, 1);
+      assert.equal(
+        loggerMessages[0],
+        JSON.stringify({
+          event: "submit.claim.error",
+          reason: "UNEXPECTED_EXCEPTION",
+        }),
+      );
     });
   });
 
