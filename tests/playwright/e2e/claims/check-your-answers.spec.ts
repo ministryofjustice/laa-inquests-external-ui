@@ -121,7 +121,10 @@ test.describe("Claim - confirm and submit", () => {
 
     await expect(submitButton).toBeVisible();
     await expect(submitButton).toHaveAttribute("type", "submit");
-    await expect(submitButton).toHaveAttribute("data-prevent-double-click", "true");
+    await expect(submitButton).toHaveAttribute(
+      "data-prevent-double-click",
+      "true",
+    );
   });
 
   test("displays the claim answers that were saved in the session", async ({
