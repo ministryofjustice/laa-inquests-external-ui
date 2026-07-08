@@ -25,6 +25,26 @@ describe("ClaimType adaptor", () => {
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.claimType, "NIL_BILL");
     });
+
+    it("resets completed journey flags when entering the claim type page", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+        totalCostCompleted: true,
+        evidenceCompleted: true,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
+      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
+    });
   });
 
   describe("processForm", () => {
@@ -124,6 +144,27 @@ describe("ClaimType adaptor", () => {
 
       assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
     });
+
+    it("resets completed journey flags when the claim type changes", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "FINAL_BILL" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+        totalCostCompleted: true,
+        evidenceCompleted: true,
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
+      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
+    });
   });
 
   describe("renderSubtypeForm", () => {
@@ -144,6 +185,26 @@ describe("ClaimType adaptor", () => {
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.claimSubtype, "EXPERT_COST");
+    });
+
+    it("resets completed journey flags when entering the claim subtype page", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+        totalCostCompleted: true,
+        evidenceCompleted: true,
+      };
+
+      adaptor.renderSubtypeForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
+      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
     });
   });
 
@@ -189,6 +250,27 @@ describe("ClaimType adaptor", () => {
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
       assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("resets completed journey flags when the claim subtype changes", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-subtype": "PROFIT_COST" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+        totalCostCompleted: true,
+        evidenceCompleted: true,
+      };
+
+      adaptor.processSubtypeForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
+      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
     });
   });
 });

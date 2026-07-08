@@ -1,15 +1,46 @@
 import { test, expect } from "../../fixtures/index.js";
+import type { Page } from "@playwright/test";
+
+const completeJourneyToCheckYourAnswers = async (page: Page): Promise<void> => {
+  await page.goto("/claim");
+  await page
+    .getByTestId("case-search-form")
+    .getByLabel("Enter the case reference number")
+    .fill("1");
+  await page
+    .getByTestId("case-search-form")
+    .getByRole("button", { name: "Continue" })
+    .click();
+  await page.waitForURL("**/claim/results");
+  await page
+    .getByRole("table")
+    .getByRole("row")
+    .nth(1)
+    .getByRole("link")
+    .click();
+  await page.waitForURL("**/claim/type");
+
+  await page.getByLabel("Payment on account (POA)").check();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.waitForURL("**/claim/subtype");
+  await page.getByLabel("Profit cost").check();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.waitForURL("**/claim/total-cost");
+  await page
+    .getByTestId("total-cost-form")
+    .getByRole("button", { name: "Continue" })
+    .click();
+  await page.waitForURL("**/claim/evidence");
+  await page
+    .getByTestId("evidence-form")
+    .getByRole("button", { name: "Continue" })
+    .click();
+  await page.waitForURL("**/claim/check-your-answers");
+};
 
 test.describe("Claim - confirm success", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/type");
-    await page.getByLabel("Payment on account (POA)").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/subtype");
-    await page.getByLabel("Profit cost").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/total-cost");
-    await page.goto("/claim/check-your-answers");
+    await completeJourneyToCheckYourAnswers(page);
     await page
       .getByTestId("confirm-and-submit-form")
       .getByRole("button", { name: "Finish and submit claim" })
