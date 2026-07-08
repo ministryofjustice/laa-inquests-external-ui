@@ -55,4 +55,37 @@ test.describe("Claim - confirm success", () => {
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute("href", "/claim");
   });
+
+  test("renders a Copy reference number button that copies the claim reference", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      (window as typeof window & { copiedClaimReference?: string }).copiedClaimReference = "";
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async (text: string) => {
+            (
+              window as typeof window & { copiedClaimReference?: string }
+            ).copiedClaimReference = text;
+          },
+        },
+      });
+    });
+
+    const button = page.getByRole("button", { name: "Copy reference number" });
+
+    await expect(button).toBeVisible();
+    await button.click();
+
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          () =>
+            (window as typeof window & { copiedClaimReference?: string })
+              .copiedClaimReference,
+        ),
+      )
+      .toBe("42");
+  });
 });

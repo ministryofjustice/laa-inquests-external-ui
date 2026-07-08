@@ -49,6 +49,7 @@ import createTestRouter from "./test.router.js";
 import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -66,9 +67,9 @@ const claimTypeRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
 const totalCostRouter = express.Router();
 const evidenceRouter = express.Router();
+const errorRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
-const UNSUCCESSFUL_REQUEST = 500;
 
 function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
   if (process.env.NODE_ENV === "test") {
@@ -108,13 +109,7 @@ indexRouter.get("/health", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).send("Healthy");
 });
 
-indexRouter.get("/error", (req: Request, res: Response): void => {
-  // Simulate an error
-  res
-    .set("X-Error-Tag", "TEST_500_ALERT")
-    .status(UNSUCCESSFUL_REQUEST)
-    .send("Internal Server Error");
-});
+indexRouter.use("/", createErrorRouter(errorRouter));
 
 if (process.env.NODE_ENV === "test") {
   indexRouter.use("/", createTestRouter(express.Router()));

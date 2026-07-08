@@ -11,7 +11,6 @@ import {
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
-import { HTTP_INTERNAL_SERVER_ERROR } from "#src/infrastructure/express/middleware/errors.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
@@ -69,20 +68,13 @@ export class ConfirmAndSubmitAdaptor {
           reason,
         }),
       );
-      this.#renderInternalServerError(res);
+      res.redirect("/error");
       return;
     }
 
     const { session } = req;
     session.claimReferenceNumber = result.data?.claimId.toString() ?? "";
     res.redirect("/claim/confirmation/success");
-  }
-
-  #renderInternalServerError(res: Response): void {
-    res.status(HTTP_INTERNAL_SERVER_ERROR).render("main/error", {
-      status: "500",
-      error: "Internal server error. Please try again later.",
-    });
   }
 
   #buildSubmitClaimInput(req: Request): SubmitClaimInput {

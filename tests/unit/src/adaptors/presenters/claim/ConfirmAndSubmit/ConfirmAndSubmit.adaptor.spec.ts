@@ -180,7 +180,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(responseStub.render.callCount, 0);
     });
 
-    it("does not redirect when the use case returns TECHNICAL_FAILURE", async () => {
+    it("redirects to the global error route when the use case returns TECHNICAL_FAILURE", async () => {
       submitClaimUseCase.execute.resolves({
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",
@@ -206,16 +206,11 @@ describe("ConfirmAndSubmit adaptor", () => {
 
       await adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(responseStub.redirect.callCount, 0);
-      assert.equal(responseStub.status.callCount, 1);
-      assert.equal(responseStub.status.getCall(0).args[0], 500);
-      assert.equal(responseStub.render.callCount, 1);
-      const [viewName, viewModel] = responseStub.render.getCall(0).args;
-      assert.equal(viewName, "main/error");
-      assert.deepEqual(viewModel, {
-        status: "500",
-        error: "Internal server error. Please try again later.",
-      });
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/error");
+      assert.equal(responseStub.status.callCount, 0);
+      assert.equal(responseStub.render.callCount, 0);
       assert.equal(loggerMessages.length, 1);
       assert.equal(
         loggerMessages[0],
