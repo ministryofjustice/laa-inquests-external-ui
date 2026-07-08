@@ -38,6 +38,8 @@ export interface ClaimSession {
   searchResults?: ClaimClientDetails[];
   type?: string;
   subtype?: string;
+  totalCostCompleted?: boolean;
+  evidenceCompleted?: boolean;
 }
 
 export interface ClaimClientDetails {

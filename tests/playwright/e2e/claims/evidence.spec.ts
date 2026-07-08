@@ -2,7 +2,31 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - evidence", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/evidence");
+    await page.goto("/claim");
+    await page
+      .getByTestId("case-search-form")
+      .getByLabel("Enter the case reference number")
+      .fill("1");
+    await page
+      .getByTestId("case-search-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+    await page.waitForURL("**/claim/results");
+    await page
+      .getByRole("table")
+      .getByRole("row")
+      .nth(1)
+      .getByRole("link")
+      .click();
+    await page.waitForURL("**/claim/type");
+    await page.getByLabel("Final bill").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+    await page
+      .getByTestId("total-cost-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+    await page.waitForURL("**/claim/evidence");
   });
 
   test("renders back link to total cost", async ({ page }) => {

@@ -38,6 +38,14 @@ export class ConfirmAndSubmitAdaptor {
       session: { claim },
     } = req;
 
+    const incompleteJourneyRedirectPath =
+      this.#getIncompleteJourneyRedirectPath(claim);
+
+    if (incompleteJourneyRedirectPath !== null) {
+      res.redirect(incompleteJourneyRedirectPath);
+      return;
+    }
+
     res.render("claim/check-your-answers", {
       csrfToken,
       caseDetails: this.#buildCaseDetails(claim),
@@ -123,5 +131,48 @@ export class ConfirmAndSubmitAdaptor {
       return "";
     }
     return labels[value] ?? value;
+  }
+
+  #isCaseSelectionIncomplete(claim?: ClaimSession): boolean {
+    return claim?.caseReference === undefined || claim.client === undefined;
+  }
+
+  #isClaimTypeIncomplete(claim?: ClaimSession): boolean {
+    return claim?.type === undefined || claim.type === "";
+  }
+
+  #isClaimSubtypeIncomplete(claim?: ClaimSession): boolean {
+    return (
+      claim?.type === "PAYMENT_ON_ACCOUNT" &&
+      (claim.subtype === undefined || claim.subtype === "")
+    );
+  }
+
+  #getIncompleteJourneyRedirectPath(claim?: ClaimSession): string | null {
+    if (this.#isCaseSelectionIncomplete(claim)) {
+      return "/claim";
+    }
+
+    if (claim === undefined) {
+      return "/claim";
+    }
+
+    if (this.#isClaimTypeIncomplete(claim)) {
+      return "/claim/type";
+    }
+
+    if (this.#isClaimSubtypeIncomplete(claim)) {
+      return "/claim/subtype";
+    }
+
+    if (claim.totalCostCompleted !== true) {
+      return "/claim/total-cost";
+    }
+
+    if (claim.evidenceCompleted !== true) {
+      return "/claim/evidence";
+    }
+
+    return null;
   }
 }

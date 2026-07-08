@@ -6,7 +6,18 @@ export class TotalCostAdaptor {
     const {
       locals: { csrfToken },
     } = res;
-    const claimType = req.session.claim?.type;
+
+    req.session.claim = {
+      ...req.session.claim,
+      totalCostCompleted: false,
+      evidenceCompleted: false,
+    };
+
+    const {
+      session: {
+        claim: { type: claimType },
+      },
+    } = req;
     const backHref =
       claimType === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT
         ? "/claim/subtype"
@@ -16,6 +27,11 @@ export class TotalCostAdaptor {
   }
 
   processForm(req: Request, res: Response): void {
+    req.session.claim = {
+      ...req.session.claim,
+      totalCostCompleted: true,
+      evidenceCompleted: false,
+    };
     res.redirect("/claim/evidence");
   }
 }

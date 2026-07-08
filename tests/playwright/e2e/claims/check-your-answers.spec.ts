@@ -1,15 +1,64 @@
 import { test, expect } from "../../fixtures/index.js";
+import type { Page } from "@playwright/test";
 
-test.describe("Claim - confirm and submit", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/type");
+const completeJourneyToCheckYourAnswers = async (
+  page: Page,
+  claimType: "PAYMENT_ON_ACCOUNT" | "FINAL_BILL" = "PAYMENT_ON_ACCOUNT",
+): Promise<void> => {
+  await page.goto("/claim");
+  await page
+    .getByTestId("case-search-form")
+    .getByLabel("Enter the case reference number")
+    .fill("1");
+  await page
+    .getByTestId("case-search-form")
+    .getByRole("button", { name: "Continue" })
+    .click();
+  await page.waitForURL("**/claim/results");
+  await page
+    .getByRole("table")
+    .getByRole("row")
+    .nth(1)
+    .getByRole("link")
+    .click();
+  await page.waitForURL("**/claim/type");
+
+  if (claimType === "PAYMENT_ON_ACCOUNT") {
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
     await page.getByLabel("Expert cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/total-cost");
+  } else {
+    await page.getByLabel("Final bill").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+  }
+
+  await page.waitForURL("**/claim/total-cost");
+  await page
+    .getByTestId("total-cost-form")
+    .getByRole("button", { name: "Continue" })
+    .click();
+  await page.waitForURL("**/claim/evidence");
+  await page
+    .getByTestId("evidence-form")
+    .getByRole("button", { name: "Continue" })
+    .click();
+  await page.waitForURL("**/claim/check-your-answers");
+};
+
+test.describe("Claim - confirm and submit", () => {
+  test.beforeEach(async ({ page }) => {
+    await completeJourneyToCheckYourAnswers(page);
+  });
+
+  test("redirects to /claim when check-your-answers is accessed directly without selecting a case", async ({
+    page,
+  }) => {
+    await page.goto("/claim");
     await page.goto("/claim/check-your-answers");
+
+    await expect(page).toHaveURL("/claim");
   });
 
   test("renders back link to the evidence page", async ({ page }) => {
@@ -130,15 +179,7 @@ test.describe("Claim - confirm and submit", () => {
   test("displays the claim answers that were saved in the session", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
-    await page.getByLabel("Payment on account (POA)").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-
-    await expect(page).toHaveURL("/claim/subtype");
-    await page.getByLabel("Expert cost").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-
-    await page.goto("/claim/check-your-answers");
+    await completeJourneyToCheckYourAnswers(page);
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(claimDetails).toContainText("Payment on account (POA)");
@@ -166,8 +207,7 @@ test.describe("Claim - confirm and submit", () => {
       .getByRole("link")
       .click();
     await page.waitForURL("**/claim/type");
-
-    await page.goto("/claim/check-your-answers");
+    await completeJourneyToCheckYourAnswers(page);
 
     const caseDetails = page.getByTestId("case-details-summary-list");
     await expect(caseDetails).toContainText("Jane");
@@ -189,15 +229,7 @@ test.describe("Claim - confirm and submit", () => {
   test("shows the Type of POA row when POA is the claim type", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
-    await page.getByLabel("Payment on account (POA)").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/subtype");
-    await page.getByLabel("Expert cost").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/total-cost");
-
-    await page.goto("/claim/check-your-answers");
+    await completeJourneyToCheckYourAnswers(page);
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(claimDetails).toContainText("Type of POA");
@@ -207,12 +239,7 @@ test.describe("Claim - confirm and submit", () => {
   test("hides the Type of POA row when the claim type is not POA", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
-    await page.getByLabel("Final bill").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/total-cost");
-
-    await page.goto("/claim/check-your-answers");
+    await completeJourneyToCheckYourAnswers(page, "FINAL_BILL");
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(claimDetails).not.toContainText("Type of POA");

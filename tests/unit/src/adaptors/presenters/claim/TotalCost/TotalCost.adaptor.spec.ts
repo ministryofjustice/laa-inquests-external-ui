@@ -22,6 +22,26 @@ describe("TotalCost adaptor", () => {
       assert.equal(viewModel.csrfToken, "test-token");
     });
 
+    it("resets completed journey flags when entering the total cost page", () => {
+      const adaptor = new TotalCostAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "PROFIT_COST",
+        totalCostCompleted: true,
+        evidenceCompleted: true,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
+      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
+    });
+
     it("passes backHref of /claim/subtype when POA was selected", () => {
       const adaptor = new TotalCostAdaptor();
 
@@ -82,6 +102,7 @@ describe("TotalCost adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/evidence");
+      assert.equal(requestStub.session.claim?.totalCostCompleted, true);
       assert.equal(responseStub.render.callCount, 0);
     });
   });
