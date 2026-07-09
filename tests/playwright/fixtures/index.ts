@@ -5,7 +5,6 @@ import { PageFactory } from "#tests/playwright/fixtures/pages/PageFactory.js";
 interface TestFixtures {
   checkAccessibility: () => Promise<void>;
   pages: PageFactory;
-  seedAuthSession: void;
 }
 
 export const test = base.extend<TestFixtures>({
@@ -26,14 +25,6 @@ export const test = base.extend<TestFixtures>({
     const pageFactory = new PageFactory(page);
     await use(pageFactory);
   },
-
-  seedAuthSession: [
-    async ({ page }, use): Promise<void> => {
-      await page.request.get("/test/auth-session");
-      await use();
-    },
-    { auto: true },
-  ],
 });
 
 export { expect } from "@playwright/test";

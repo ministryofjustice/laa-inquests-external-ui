@@ -1,8 +1,6 @@
 import { test, expect } from "../../fixtures/index.js";
 
-const MOCK_OAUTH_URL = process.env.MOCK_OAUTH_URL ?? "http://localhost:4001";
-
-test("completes full login flow via mock OAuth provider", async ({ page }) => {
+test("completes full login flow via Entra provider", async ({ page }) => {
   await page.context().clearCookies();
 
   await page.goto("/auth/login");
@@ -33,5 +31,5 @@ test("redirects unauthenticated user to Entra on GET /auth/login", async ({
   const response = await page.request.get("/auth/login", { maxRedirects: 0 });
 
   expect(response.status()).toBe(302);
-  expect(response.headers()["location"]).toContain(MOCK_OAUTH_URL);
+  expect(response.headers()["location"]).toContain("login.microsoftonline.com");
 });
