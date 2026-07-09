@@ -23,6 +23,7 @@ declare module "express-session" {
     coronersLetterId?: string;
     coronersLetterFileName?: string;
     providerEmail?: string;
+    claimReferenceNumber?: string;
     claim?: ClaimSession;
   }
 }

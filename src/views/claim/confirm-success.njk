@@ -1,0 +1,30 @@
+{% extends "base.njk" %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+
+<span id="copy-alert" class="govuk-visually-hidden" aria-live="polite"></span>
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      {{ govukPanel({
+        titleText: "Payment on account claim has been submitted",
+        html: "Claim reference number <br><strong><span id='claim-reference-number'>" ~ (claimReferenceNumber | escape) ~ "</span></strong><br><button class='govuk-button govuk-button--secondary copy-button govuk-!-margin-top-4 govuk-!-margin-bottom-0' id='copy-claim-reference-number'>Copy reference number</button>"
+      }) }}
+      <div class="govuk-grid-column-two-thirds">
+        <h2 class="govuk-heading-l govuk-!-padding-top-5">What happens next</h2>
+        <p class="govuk-body">
+          Your claim has been successfully submitted, we will get back to you shortly with our decision and next steps.
+        </p>
+        {{ govukButton({
+          text: "Make a new claim",
+          href: "/claim",
+          classes: "govuk-!-margin-top-4"
+        }) }}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

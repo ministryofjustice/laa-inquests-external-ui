@@ -121,6 +121,10 @@ test.describe("Claim - confirm and submit", () => {
 
     await expect(submitButton).toBeVisible();
     await expect(submitButton).toHaveAttribute("type", "submit");
+    await expect(submitButton).toHaveAttribute(
+      "data-prevent-double-click",
+      "true",
+    );
   });
 
   test("displays the claim answers that were saved in the session", async ({
@@ -171,7 +175,7 @@ test.describe("Claim - confirm and submit", () => {
     await expect(caseDetails).toContainText("01/01/2000");
   });
 
-  test("redirects to the home page when the claim is submitted", async ({
+  test("redirects to the claim confirmation success page when the claim is submitted", async ({
     page,
   }) => {
     await page
@@ -179,7 +183,7 @@ test.describe("Claim - confirm and submit", () => {
       .getByRole("button", { name: "Finish and submit claim" })
       .click();
 
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/claim/confirmation/success");
   });
 
   test("shows the Type of POA row when POA is the claim type", async ({

@@ -14,8 +14,15 @@ export function createConfirmAndSubmitClaimRouter(
 
   confirmAndSubmitClaimRouter.post(
     "/check-your-answers",
+    async (req: Request, res: Response): Promise<void> => {
+      await confirmAndSubmitAdaptor.processForm(req, res);
+    },
+  );
+
+  confirmAndSubmitClaimRouter.get(
+    "/confirmation/success",
     (req: Request, res: Response): void => {
-      confirmAndSubmitAdaptor.processForm(req, res);
+      confirmAndSubmitAdaptor.renderConfirmSuccess(req, res);
     },
   );
 

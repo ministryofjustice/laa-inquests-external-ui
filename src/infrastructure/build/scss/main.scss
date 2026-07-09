@@ -1,2 +1,25 @@
 @use "@ministryofjustice/frontend/moj/all";
 @use "govuk-frontend/dist/govuk/index";
+
+// Hide copy buttons if Javascript is disabled
+.copy-button {
+  display: none;
+}
+
+body.js-enabled {
+  .copy-button {
+    display: inline;
+  }
+
+  @media print {
+    .copy-button {
+      display: none;
+    }
+  }
+}
+
+.disable-click {
+  pointer-events: none;
+  background-color: transparent;
+  box-shadow: none;
+}
