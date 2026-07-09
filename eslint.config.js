@@ -74,6 +74,8 @@ export default [
     ignores: [
       "node_modules/*",
       "public/*",
+      "playwright-report/*", // Generated Playwright HTML report and trace bundles
+      "test-results/*", // Generated Playwright test run artifacts
       "tests/**/*.spec.ts", // Unit test specs (if any remain in tests/)
       "tests/playwright/**/*.spec.ts", // E2E test specs in new Playwright structure
       "tests/playwright/fixtures/*", // Test fixtures

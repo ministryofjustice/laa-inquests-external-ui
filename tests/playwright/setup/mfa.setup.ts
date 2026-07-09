@@ -56,7 +56,14 @@ setup("authenticate provider with MFA", async ({ page }) => {
   await page.locator(MICROSOFT_OTP_SELECTOR).fill(totp.generate());
   await page.locator(MICROSOFT_SUBMIT_SELECTOR).click();
 
-  await page.locator(MICROSOFT_STAY_SIGNED_IN_SELECTOR).click();
+  const staySignedIn = page.locator(MICROSOFT_STAY_SIGNED_IN_SELECTOR);
+  try {
+    const timeout = 5000;
+    await staySignedIn.waitFor({ timeout });
+    await staySignedIn.click();
+  } catch {
+    // Prompt did not appear
+  }
 
   await page.waitForURL("/");
   await page.context().storageState({ path: AUTH_FILE });

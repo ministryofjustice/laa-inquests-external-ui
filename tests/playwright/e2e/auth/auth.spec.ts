@@ -1,7 +1,7 @@
 import { test, expect } from "../../fixtures/index.js";
 
 test("completes full login flow via Entra provider", async ({ page }) => {
-  await page.context().clearCookies();
+  await page.context().clearCookies({ domain: "localhost" });
 
   await page.goto("/auth/login");
   await page.waitForURL("/");
