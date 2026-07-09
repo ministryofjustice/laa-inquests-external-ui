@@ -60,7 +60,9 @@ test.describe("Claim - confirm success", () => {
     page,
   }) => {
     await page.evaluate(() => {
-      (window as typeof window & { copiedClaimReference?: string }).copiedClaimReference = "";
+      (
+        window as typeof window & { copiedClaimReference?: string }
+      ).copiedClaimReference = "";
       Object.defineProperty(navigator, "clipboard", {
         configurable: true,
         value: {
