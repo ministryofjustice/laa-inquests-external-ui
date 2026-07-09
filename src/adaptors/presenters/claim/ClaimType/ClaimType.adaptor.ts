@@ -11,15 +11,39 @@ import {
   CLAIM_TYPE_VALUE,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
+import { ClaimJourneyStateUseCase } from "#src/use-cases/claim/ClaimJourneyState.useCase.js";
+import { ClaimJourneyState } from "#src/use-cases/claim/models/ClaimJourneyState.js";
+import { getClaimJourneyRedirectPath } from "#src/adaptors/presenters/claim/ClaimJourneyRedirectPath.js";
 
 export class ClaimTypeAdaptor {
   formValidator: ClaimTypeValidator;
+  claimJourneyStateUseCase: ClaimJourneyStateUseCase;
 
-  constructor(formValidator: ClaimTypeValidator) {
+  constructor(
+    formValidator: ClaimTypeValidator,
+    claimJourneyStateUseCase: ClaimJourneyStateUseCase = new ClaimJourneyStateUseCase(),
+  ) {
     this.formValidator = formValidator;
+    this.claimJourneyStateUseCase = claimJourneyStateUseCase;
   }
 
   renderForm(req: Request, res: Response): void {
+    const journeyState = this.claimJourneyStateUseCase.execute(
+      req.session.claim,
+    );
+    const redirectPath = getClaimJourneyRedirectPath(journeyState, [
+      ClaimJourneyState.CLAIM_TYPE_INCOMPLETE,
+      ClaimJourneyState.CLAIM_SUBTYPE_INCOMPLETE,
+      ClaimJourneyState.TOTAL_COST_INCOMPLETE,
+      ClaimJourneyState.EVIDENCE_INCOMPLETE,
+      ClaimJourneyState.COMPLETE,
+    ]);
+
+    if (redirectPath !== null) {
+      res.redirect(redirectPath);
+      return;
+    }
+
     const {
       locals: { csrfToken },
     } = res;
@@ -74,6 +98,21 @@ export class ClaimTypeAdaptor {
   }
 
   renderSubtypeForm(req: Request, res: Response): void {
+    const journeyState = this.claimJourneyStateUseCase.execute(
+      req.session.claim,
+    );
+    const redirectPath = getClaimJourneyRedirectPath(journeyState, [
+      ClaimJourneyState.CLAIM_SUBTYPE_INCOMPLETE,
+      ClaimJourneyState.TOTAL_COST_INCOMPLETE,
+      ClaimJourneyState.EVIDENCE_INCOMPLETE,
+      ClaimJourneyState.COMPLETE,
+    ]);
+
+    if (redirectPath !== null) {
+      res.redirect(redirectPath);
+      return;
+    }
+
     const {
       locals: { csrfToken },
     } = res;

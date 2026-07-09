@@ -4,7 +4,74 @@ import type { Request, Response } from "express";
 import { TotalCostAdaptor } from "#src/adaptors/presenters/claim/TotalCost/TotalCost.adaptor.js";
 
 describe("TotalCost adaptor", () => {
+  const selectedClient = {
+    reference: "ABC-12345",
+    clientName: "Jane Smith",
+    clientFirstName: "Jane",
+    clientLastName: "Smith",
+    dateOfBirth: "01/01/2000",
+  };
+
   describe("renderForm", () => {
+    it("redirects to /claim when no case has been selected", () => {
+      const adaptor = new TotalCostAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim");
+      assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("redirects to /claim/type when type is incomplete", () => {
+      const adaptor = new TotalCostAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        caseReference: "ABC-12345",
+        client: selectedClient,
+        type: "",
+        typeCompleted: false,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/type");
+      assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("redirects to /claim/subtype when POA subtype is incomplete", () => {
+      const adaptor = new TotalCostAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        caseReference: "ABC-12345",
+        client: selectedClient,
+        type: "PAYMENT_ON_ACCOUNT",
+        typeCompleted: true,
+        subtype: "EXPERT_COST",
+        subtypeCompleted: false,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/subtype");
+      assert.equal(responseStub.render.callCount, 0);
+    });
+
     it("renders the total cost view", () => {
       const adaptor = new TotalCostAdaptor();
 
@@ -12,6 +79,12 @@ describe("TotalCost adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        caseReference: "ABC-12345",
+        client: selectedClient,
+        type: "FINAL_BILL",
+        typeCompleted: true,
+      };
 
       adaptor.renderForm(requestStub, responseStub);
 
@@ -30,8 +103,12 @@ describe("TotalCost adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.session.claim = {
+        caseReference: "ABC-12345",
+        client: selectedClient,
         type: "PAYMENT_ON_ACCOUNT",
+        typeCompleted: true,
         subtype: "PROFIT_COST",
+        subtypeCompleted: true,
         totalCostCompleted: true,
         evidenceCompleted: true,
       };
@@ -49,7 +126,14 @@ describe("TotalCost adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = { type: "PAYMENT_ON_ACCOUNT" };
+      requestStub.session.claim = {
+        caseReference: "ABC-12345",
+        client: selectedClient,
+        type: "PAYMENT_ON_ACCOUNT",
+        typeCompleted: true,
+        subtype: "PROFIT_COST",
+        subtypeCompleted: true,
+      };
 
       adaptor.renderForm(requestStub, responseStub);
 
@@ -65,22 +149,12 @@ describe("TotalCost adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = { type: "FINAL_BILL" };
-
-      adaptor.renderForm(requestStub, responseStub);
-
-      const viewModel = responseStub.render.getCall(0)
-        .args[1] as unknown as Record<string, unknown>;
-      assert.equal(viewModel.backHref, "/claim/type");
-    });
-
-    it("passes backHref of /claim/type when no claim type is in the session", () => {
-      const adaptor = new TotalCostAdaptor();
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        caseReference: "ABC-12345",
+        client: selectedClient,
+        type: "FINAL_BILL",
+        typeCompleted: true,
+      };
 
       adaptor.renderForm(requestStub, responseStub);
 
