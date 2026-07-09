@@ -11,17 +11,13 @@ import {
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
-import { ClaimJourneyStateUseCase } from "#src/use-cases/claim/ClaimJourneyState.useCase.js";
-import { getClaimJourneyRedirectPath } from "#src/adaptors/presenters/claim/ClaimJourneyRedirectPath.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
-  claimJourneyState: ClaimJourneyStateUseCase;
 }
 
 export class ConfirmAndSubmitAdaptor {
   submitClaimUseCase: SubmitClaimUseCase;
-  claimJourneyStateUseCase: ClaimJourneyStateUseCase;
   logger: (message: string) => void;
 
   constructor(
@@ -31,8 +27,6 @@ export class ConfirmAndSubmitAdaptor {
   ) {
     this.submitClaimUseCase =
       useCases?.submitClaim ?? new SubmitClaimUseCase(claimSubmitPort);
-    this.claimJourneyStateUseCase =
-      useCases?.claimJourneyState ?? new ClaimJourneyStateUseCase();
     this.logger = logger;
   }
 
@@ -43,15 +37,6 @@ export class ConfirmAndSubmitAdaptor {
     const {
       session: { claim },
     } = req;
-
-    const journeyState = this.claimJourneyStateUseCase.execute(claim);
-    const incompleteJourneyRedirectPath =
-      getClaimJourneyRedirectPath(journeyState);
-
-    if (incompleteJourneyRedirectPath !== null) {
-      res.redirect(incompleteJourneyRedirectPath);
-      return;
-    }
 
     res.render("claim/check-your-answers", {
       csrfToken,

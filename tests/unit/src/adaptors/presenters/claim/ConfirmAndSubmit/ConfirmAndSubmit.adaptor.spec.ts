@@ -17,54 +17,6 @@ describe("ConfirmAndSubmit adaptor", () => {
     loggerMessages = [];
   });
   describe("renderForm", () => {
-    it("redirects to /claim when no case has been selected", () => {
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = undefined;
-
-      adaptor.renderForm(requestStub, responseStub);
-
-      assert.equal(responseStub.redirect.callCount, 1);
-      const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim");
-      assert.equal(responseStub.render.callCount, 0);
-    });
-
-    it("redirects to /claim/total-cost when total cost has not been completed", () => {
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: {
-          reference: "ABC-12345",
-          clientName: "Jane Smith",
-          clientFirstName: "Jane",
-          clientLastName: "Smith",
-          dateOfBirth: "01/01/2000",
-        },
-        type: "PAYMENT_ON_ACCOUNT",
-        typeCompleted: true,
-        subtype: "EXPERT_COST",
-        subtypeCompleted: true,
-        evidenceCompleted: false,
-      };
-
-      adaptor.renderForm(requestStub, responseStub);
-
-      assert.equal(responseStub.redirect.callCount, 1);
-      const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/total-cost");
-      assert.equal(responseStub.render.callCount, 0);
-    });
-
     it("renders the confirm and submit view", () => {
       const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
 
@@ -72,22 +24,6 @@ describe("ConfirmAndSubmit adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: {
-          reference: "ABC-12345",
-          clientName: "Jane Smith",
-          clientFirstName: "Jane",
-          clientLastName: "Smith",
-          dateOfBirth: "01/01/2000",
-        },
-        type: "PAYMENT_ON_ACCOUNT",
-        typeCompleted: true,
-        subtype: "EXPERT_COST",
-        subtypeCompleted: true,
-        totalCostCompleted: true,
-        evidenceCompleted: true,
-      };
 
       adaptor.renderForm(requestStub, responseStub);
 
@@ -115,11 +51,7 @@ describe("ConfirmAndSubmit adaptor", () => {
           dateOfBirth: "01/01/2000",
         },
         type: "PAYMENT_ON_ACCOUNT",
-        typeCompleted: true,
         subtype: "EXPERT_COST",
-        subtypeCompleted: true,
-        totalCostCompleted: true,
-        evidenceCompleted: true,
       };
 
       adaptor.renderForm(requestStub, responseStub);
@@ -138,33 +70,25 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.claimDetails.claimSubtype, "Expert cost");
     });
 
-    it("redirects to /claim/type when claim type is an empty string", () => {
+    it("falls back to empty strings when the claim answers are not in the session", () => {
       const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: {
-          reference: "ABC-12345",
-          clientName: "Jane Smith",
-          clientFirstName: "Jane",
-          clientLastName: "Smith",
-          dateOfBirth: "01/01/2000",
-        },
-        type: "",
-        totalCostCompleted: true,
-        evidenceCompleted: true,
-      };
 
       adaptor.renderForm(requestStub, responseStub);
 
-      assert.equal(responseStub.redirect.callCount, 1);
-      const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/type");
-      assert.equal(responseStub.render.callCount, 0);
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.caseDetails.caseReference, "");
+      assert.equal(viewModel.caseDetails.clientFirstName, "");
+      assert.equal(viewModel.caseDetails.clientLastName, "");
+      assert.equal(viewModel.caseDetails.clientDateOfBirth, "");
+      assert.equal(viewModel.claimDetails.claimType, "");
+      assert.equal(viewModel.claimDetails.claimSubtype, "");
     });
 
     it("provides placeholder cost and evidence details", () => {
@@ -174,20 +98,6 @@ describe("ConfirmAndSubmit adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: {
-          reference: "ABC-12345",
-          clientName: "Jane Smith",
-          clientFirstName: "Jane",
-          clientLastName: "Smith",
-          dateOfBirth: "01/01/2000",
-        },
-        type: "FINAL_BILL",
-        typeCompleted: true,
-        totalCostCompleted: true,
-        evidenceCompleted: true,
-      };
 
       adaptor.renderForm(requestStub, responseStub);
 

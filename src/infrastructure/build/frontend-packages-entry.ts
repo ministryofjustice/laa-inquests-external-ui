@@ -28,8 +28,9 @@ const initialiseClipboardCopyButtons = (): void => {
     return;
   }
 
-  const copyButtons =
-    document.querySelectorAll<HTMLButtonElement>("[data-copy-button]");
+  const copyButtons = document.querySelectorAll<HTMLButtonElement>(
+    "[data-copy-button]",
+  );
 
   copyButtons.forEach((copyButton) => {
     copyButton.addEventListener("click", () => {

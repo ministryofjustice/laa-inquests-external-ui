@@ -6,30 +6,7 @@ import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/Cla
 import { CLAIM_TYPE_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("ClaimType adaptor", () => {
-  const selectedClient = {
-    reference: "ABC-12345",
-    clientName: "Jane Smith",
-    clientFirstName: "Jane",
-    clientLastName: "Smith",
-    dateOfBirth: "01/01/2000",
-  };
-
   describe("renderForm", () => {
-    it("redirects to /claim when no case has been selected", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-      responseStub.locals = { csrfToken: "test-token" };
-
-      adaptor.renderForm(requestStub, responseStub);
-
-      assert.equal(responseStub.redirect.callCount, 1);
-      const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim");
-      assert.equal(responseStub.render.callCount, 0);
-    });
-
     it("renders the claim type form with the session selection", () => {
       const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
 
@@ -37,11 +14,7 @@ describe("ClaimType adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: selectedClient,
-        type: "NIL_BILL",
-      };
+      requestStub.session.claim = { type: "NIL_BILL" };
 
       adaptor.renderForm(requestStub, responseStub);
 
@@ -51,49 +24,6 @@ describe("ClaimType adaptor", () => {
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.claimType, "NIL_BILL");
-    });
-
-    it("resets completed journey flags when entering the claim type page", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: selectedClient,
-        type: "PAYMENT_ON_ACCOUNT",
-        subtype: "EXPERT_COST",
-        totalCostCompleted: true,
-        evidenceCompleted: true,
-      };
-
-      adaptor.renderForm(requestStub, responseStub);
-
-      assert.equal(requestStub.session.claim?.typeCompleted, false);
-      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
-      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
-    });
-
-    it("keeps claim subtype value when entering the claim type page", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: selectedClient,
-        type: "PAYMENT_ON_ACCOUNT",
-        subtype: "EXPERT_COST",
-      };
-
-      adaptor.renderForm(requestStub, responseStub);
-
-      assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
-      assert.equal(requestStub.session.claim?.subtypeCompleted, false);
     });
   });
 
@@ -135,7 +65,6 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.type, "PAYMENT_ON_ACCOUNT");
-      assert.equal(requestStub.session.claim?.typeCompleted, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
@@ -154,7 +83,6 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.typeCompleted, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
@@ -195,68 +123,10 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
-      assert.equal(requestStub.session.claim?.subtypeCompleted, false);
-    });
-
-    it("resets completed journey flags when the claim type changes", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.body = { "claim-type": "FINAL_BILL" };
-      requestStub.session.claim = {
-        type: "PAYMENT_ON_ACCOUNT",
-        subtype: "EXPERT_COST",
-        totalCostCompleted: true,
-        evidenceCompleted: true,
-      };
-
-      adaptor.processForm(requestStub, responseStub);
-
-      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
-      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
     });
   });
 
   describe("renderSubtypeForm", () => {
-    it("redirects to /claim when no case has been selected", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-      responseStub.locals = { csrfToken: "test-token" };
-
-      adaptor.renderSubtypeForm(requestStub, responseStub);
-
-      assert.equal(responseStub.redirect.callCount, 1);
-      const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim");
-      assert.equal(responseStub.render.callCount, 0);
-    });
-
-    it("redirects to /claim/type when type is incomplete", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: selectedClient,
-        type: "",
-        typeCompleted: false,
-      };
-
-      adaptor.renderSubtypeForm(requestStub, responseStub);
-
-      assert.equal(responseStub.redirect.callCount, 1);
-      const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/type");
-      assert.equal(responseStub.render.callCount, 0);
-    });
-
     it("renders the claim subtype form with the session selection", () => {
       const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
 
@@ -264,13 +134,7 @@ describe("ClaimType adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: selectedClient,
-        type: "PAYMENT_ON_ACCOUNT",
-        typeCompleted: true,
-        subtype: "EXPERT_COST",
-      };
+      requestStub.session.claim = { subtype: "EXPERT_COST" };
 
       adaptor.renderSubtypeForm(requestStub, responseStub);
 
@@ -280,29 +144,6 @@ describe("ClaimType adaptor", () => {
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.claimSubtype, "EXPERT_COST");
-    });
-
-    it("resets completed journey flags when entering the claim subtype page", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = {
-        caseReference: "ABC-12345",
-        client: selectedClient,
-        type: "PAYMENT_ON_ACCOUNT",
-        typeCompleted: true,
-        subtype: "EXPERT_COST",
-        totalCostCompleted: true,
-        evidenceCompleted: true,
-      };
-
-      adaptor.renderSubtypeForm(requestStub, responseStub);
-
-      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
-      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
     });
   });
 
@@ -344,32 +185,10 @@ describe("ClaimType adaptor", () => {
       adaptor.processSubtypeForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.subtype, "PROFIT_COST");
-      assert.equal(requestStub.session.claim?.subtypeCompleted, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
       assert.equal(responseStub.render.callCount, 0);
-    });
-
-    it("resets completed journey flags when the claim subtype changes", () => {
-      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
-
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.body = { "claim-subtype": "PROFIT_COST" };
-      requestStub.session.claim = {
-        type: "PAYMENT_ON_ACCOUNT",
-        subtype: "EXPERT_COST",
-        totalCostCompleted: true,
-        evidenceCompleted: true,
-      };
-
-      adaptor.processSubtypeForm(requestStub, responseStub);
-
-      assert.equal(requestStub.session.claim?.totalCostCompleted, false);
-      assert.equal(requestStub.session.claim?.evidenceCompleted, false);
     });
   });
 });
