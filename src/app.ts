@@ -4,6 +4,7 @@ import indexRouter from "#src/infrastructure/express/routes/index.js";
 import livereload from "connect-livereload";
 import config from "#src/infrastructure/config/config.js";
 import { setupMiddleware } from "./infrastructure/express/middleware/index.js";
+import { errorHandler } from "./infrastructure/express/middleware/errorHandler.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.use("/", indexRouter);
+app.use(errorHandler);
 
 if (process.env.NODE_ENV === "development") {
   app.use(livereload());
