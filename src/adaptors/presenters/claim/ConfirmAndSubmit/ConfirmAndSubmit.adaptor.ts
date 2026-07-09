@@ -12,7 +12,7 @@ import {
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
 import { ClaimJourneyStateUseCase } from "#src/use-cases/claim/ClaimJourneyState.useCase.js";
-import { ClaimJourneyState } from "#src/use-cases/claim/models/ClaimJourneyState.js";
+import { getClaimJourneyRedirectPath } from "#src/adaptors/presenters/claim/ClaimJourneyRedirectPath.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
@@ -23,16 +23,6 @@ export class ConfirmAndSubmitAdaptor {
   submitClaimUseCase: SubmitClaimUseCase;
   claimJourneyStateUseCase: ClaimJourneyStateUseCase;
   logger: (message: string) => void;
-
-  static readonly JOURNEY_STATE_TO_REDIRECT_PATH: Partial<
-    Record<ClaimJourneyState, string>
-  > = {
-    [ClaimJourneyState.CASE_SELECTION_INCOMPLETE]: "/claim",
-    [ClaimJourneyState.CLAIM_TYPE_INCOMPLETE]: "/claim/type",
-    [ClaimJourneyState.CLAIM_SUBTYPE_INCOMPLETE]: "/claim/subtype",
-    [ClaimJourneyState.TOTAL_COST_INCOMPLETE]: "/claim/total-cost",
-    [ClaimJourneyState.EVIDENCE_INCOMPLETE]: "/claim/evidence",
-  };
 
   constructor(
     claimSubmitPort: ClaimSubmitPort,
@@ -56,8 +46,7 @@ export class ConfirmAndSubmitAdaptor {
 
     const journeyState = this.claimJourneyStateUseCase.execute(claim);
     const incompleteJourneyRedirectPath =
-      ConfirmAndSubmitAdaptor.JOURNEY_STATE_TO_REDIRECT_PATH[journeyState] ??
-      null;
+      getClaimJourneyRedirectPath(journeyState);
 
     if (incompleteJourneyRedirectPath !== null) {
       res.redirect(incompleteJourneyRedirectPath);
