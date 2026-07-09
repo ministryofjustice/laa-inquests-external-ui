@@ -37,7 +37,9 @@ export interface ClaimSession {
   client?: ClaimClientDetails;
   searchResults?: ClaimClientDetails[];
   type?: string;
+  typeCompleted?: boolean;
   subtype?: string;
+  subtypeCompleted?: boolean;
   totalCostCompleted?: boolean;
   evidenceCompleted?: boolean;
 }

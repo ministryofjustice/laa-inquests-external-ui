@@ -26,6 +26,8 @@ export class ClaimTypeAdaptor {
 
     req.session.claim = {
       ...req.session.claim,
+      typeCompleted: false,
+      subtypeCompleted: false,
       totalCostCompleted: false,
       evidenceCompleted: false,
     };
@@ -61,7 +63,9 @@ export class ClaimTypeAdaptor {
       req.session.claim = {
         ...req.session.claim,
         type: claimType,
+        typeCompleted: true,
         subtype: isPoa ? req.session.claim?.subtype : undefined,
+        subtypeCompleted: !isPoa,
         totalCostCompleted: false,
         evidenceCompleted: false,
       };
@@ -76,6 +80,7 @@ export class ClaimTypeAdaptor {
 
     req.session.claim = {
       ...req.session.claim,
+      subtypeCompleted: false,
       totalCostCompleted: false,
       evidenceCompleted: false,
     };
@@ -110,6 +115,7 @@ export class ClaimTypeAdaptor {
       req.session.claim = {
         ...req.session.claim,
         subtype: claimSubtype,
+        subtypeCompleted: true,
         totalCostCompleted: false,
         evidenceCompleted: false,
       };

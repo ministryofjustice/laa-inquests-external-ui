@@ -11,14 +11,28 @@ import {
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
+import { ClaimJourneyStateUseCase } from "#src/use-cases/claim/ClaimJourneyState.useCase.js";
+import { ClaimJourneyState } from "#src/use-cases/claim/models/ClaimJourneyState.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
+  claimJourneyState: ClaimJourneyStateUseCase;
 }
 
 export class ConfirmAndSubmitAdaptor {
   submitClaimUseCase: SubmitClaimUseCase;
+  claimJourneyStateUseCase: ClaimJourneyStateUseCase;
   logger: (message: string) => void;
+
+  static readonly JOURNEY_STATE_TO_REDIRECT_PATH: Partial<
+    Record<ClaimJourneyState, string>
+  > = {
+    [ClaimJourneyState.CASE_SELECTION_INCOMPLETE]: "/claim",
+    [ClaimJourneyState.CLAIM_TYPE_INCOMPLETE]: "/claim/type",
+    [ClaimJourneyState.CLAIM_SUBTYPE_INCOMPLETE]: "/claim/subtype",
+    [ClaimJourneyState.TOTAL_COST_INCOMPLETE]: "/claim/total-cost",
+    [ClaimJourneyState.EVIDENCE_INCOMPLETE]: "/claim/evidence",
+  };
 
   constructor(
     claimSubmitPort: ClaimSubmitPort,
@@ -27,6 +41,8 @@ export class ConfirmAndSubmitAdaptor {
   ) {
     this.submitClaimUseCase =
       useCases?.submitClaim ?? new SubmitClaimUseCase(claimSubmitPort);
+    this.claimJourneyStateUseCase =
+      useCases?.claimJourneyState ?? new ClaimJourneyStateUseCase();
     this.logger = logger;
   }
 
@@ -38,8 +54,10 @@ export class ConfirmAndSubmitAdaptor {
       session: { claim },
     } = req;
 
+    const journeyState = this.claimJourneyStateUseCase.execute(claim);
     const incompleteJourneyRedirectPath =
-      this.#getIncompleteJourneyRedirectPath(claim);
+      ConfirmAndSubmitAdaptor.JOURNEY_STATE_TO_REDIRECT_PATH[journeyState] ??
+      null;
 
     if (incompleteJourneyRedirectPath !== null) {
       res.redirect(incompleteJourneyRedirectPath);
@@ -131,48 +149,5 @@ export class ConfirmAndSubmitAdaptor {
       return "";
     }
     return labels[value] ?? value;
-  }
-
-  #isCaseSelectionIncomplete(claim?: ClaimSession): boolean {
-    return claim?.caseReference === undefined || claim.client === undefined;
-  }
-
-  #isClaimTypeIncomplete(claim?: ClaimSession): boolean {
-    return claim?.type === undefined || claim.type === "";
-  }
-
-  #isClaimSubtypeIncomplete(claim?: ClaimSession): boolean {
-    return (
-      claim?.type === "PAYMENT_ON_ACCOUNT" &&
-      (claim.subtype === undefined || claim.subtype === "")
-    );
-  }
-
-  #getIncompleteJourneyRedirectPath(claim?: ClaimSession): string | null {
-    if (this.#isCaseSelectionIncomplete(claim)) {
-      return "/claim";
-    }
-
-    if (claim === undefined) {
-      return "/claim";
-    }
-
-    if (this.#isClaimTypeIncomplete(claim)) {
-      return "/claim/type";
-    }
-
-    if (this.#isClaimSubtypeIncomplete(claim)) {
-      return "/claim/subtype";
-    }
-
-    if (claim.totalCostCompleted !== true) {
-      return "/claim/total-cost";
-    }
-
-    if (claim.evidenceCompleted !== true) {
-      return "/claim/evidence";
-    }
-
-    return null;
   }
 }

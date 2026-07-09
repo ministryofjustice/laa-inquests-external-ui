@@ -51,7 +51,9 @@ describe("ConfirmAndSubmit adaptor", () => {
           dateOfBirth: "01/01/2000",
         },
         type: "PAYMENT_ON_ACCOUNT",
+        typeCompleted: true,
         subtype: "EXPERT_COST",
+        subtypeCompleted: true,
         evidenceCompleted: false,
       };
 
@@ -80,7 +82,9 @@ describe("ConfirmAndSubmit adaptor", () => {
           dateOfBirth: "01/01/2000",
         },
         type: "PAYMENT_ON_ACCOUNT",
+        typeCompleted: true,
         subtype: "EXPERT_COST",
+        subtypeCompleted: true,
         totalCostCompleted: true,
         evidenceCompleted: true,
       };
@@ -111,7 +115,9 @@ describe("ConfirmAndSubmit adaptor", () => {
           dateOfBirth: "01/01/2000",
         },
         type: "PAYMENT_ON_ACCOUNT",
+        typeCompleted: true,
         subtype: "EXPERT_COST",
+        subtypeCompleted: true,
         totalCostCompleted: true,
         evidenceCompleted: true,
       };
@@ -178,6 +184,7 @@ describe("ConfirmAndSubmit adaptor", () => {
           dateOfBirth: "01/01/2000",
         },
         type: "FINAL_BILL",
+        typeCompleted: true,
         totalCostCompleted: true,
         evidenceCompleted: true,
       };
