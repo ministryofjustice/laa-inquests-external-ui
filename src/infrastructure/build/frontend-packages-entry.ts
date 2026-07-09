@@ -1,23 +1,23 @@
 import { initAll as initGOVUK } from "govuk-frontend";
 import { initAll as initMOJ } from "@ministryofjustice/frontend";
 
-const getCopyTextForButton = (copyButton: HTMLButtonElement): string | null => {
+const getCopyTextForButton = (copyButton: HTMLButtonElement): string => {
   const sourceSelector = copyButton.getAttribute("data-copy-source-selector");
 
   if (sourceSelector === null || sourceSelector.trim() === "") {
-    return null;
+    return "";
   }
 
   const sourceElement = document.querySelector<HTMLElement>(sourceSelector);
 
   if (sourceElement === null) {
-    return null;
+    return "";
   }
 
   const { textContent: textToCopy } = sourceElement;
 
   if (textToCopy.trim() === "") {
-    return null;
+    return "";
   }
 
   return textToCopy.trim();
@@ -36,11 +36,9 @@ const initialiseClipboardCopyButtons = (): void => {
     copyButton.addEventListener("click", () => {
       const textToCopy = getCopyTextForButton(copyButton);
 
-      if (textToCopy === null) {
-        return;
+      if (textToCopy !== "") {
+        void navigator.clipboard.writeText(textToCopy);
       }
-
-      void navigator.clipboard.writeText(textToCopy);
     });
   });
 };
