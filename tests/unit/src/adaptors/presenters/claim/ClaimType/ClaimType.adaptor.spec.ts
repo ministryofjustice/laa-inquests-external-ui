@@ -42,8 +42,27 @@ describe("ClaimType adaptor", () => {
 
       adaptor.renderForm(requestStub, responseStub);
 
+      assert.equal(requestStub.session.claim?.typeCompleted, false);
       assert.equal(requestStub.session.claim?.totalCostCompleted, false);
       assert.equal(requestStub.session.claim?.evidenceCompleted, false);
+    });
+
+    it("keeps claim subtype value when entering the claim type page", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
+      assert.equal(requestStub.session.claim?.subtypeCompleted, false);
     });
   });
 
@@ -85,6 +104,7 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.type, "PAYMENT_ON_ACCOUNT");
+      assert.equal(requestStub.session.claim?.typeCompleted, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
@@ -103,6 +123,7 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim?.typeCompleted, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
@@ -143,6 +164,7 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
+      assert.equal(requestStub.session.claim?.subtypeCompleted, false);
     });
 
     it("resets completed journey flags when the claim type changes", () => {
@@ -246,6 +268,7 @@ describe("ClaimType adaptor", () => {
       adaptor.processSubtypeForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.subtype, "PROFIT_COST");
+      assert.equal(requestStub.session.claim?.subtypeCompleted, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
