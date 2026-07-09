@@ -4,12 +4,13 @@
 
 {% block content %}
 
+<span id="copy-alert" class="govuk-visually-hidden" aria-live="polite"></span>
 <div class="govuk-width-container">
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       {{ govukPanel({
         titleText: "Payment on account claim has been submitted",
-        html: "Claim reference number <br><strong data-claim-reference-number>" ~ (claimReferenceNumber | escape) ~ "</strong><br><button type=\"button\" class=\"govuk-button govuk-button--secondary govuk-!-margin-top-4 govuk-!-margin-bottom-0\" data-module=\"govuk-button\" data-copy-button data-copy-source-selector=\"[data-claim-reference-number]\">Copy reference number</button>"
+        html: "Claim reference number <br><strong><span id='claim-reference-number'>" ~ (claimReferenceNumber | escape) ~ "</span></strong><br><button class='govuk-button govuk-button--secondary copy-button govuk-!-margin-top-4 govuk-!-margin-bottom-0' id='copy-claim-reference-number'>Copy reference number</button>"
       }) }}
       <div class="govuk-grid-column-two-thirds">
         <h2 class="govuk-heading-l govuk-!-padding-top-5">What happens next</h2>

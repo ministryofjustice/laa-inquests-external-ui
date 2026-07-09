@@ -1,53 +1,54 @@
 import { initAll as initGOVUK } from "govuk-frontend";
 import { initAll as initMOJ } from "@ministryofjustice/frontend";
 
-const getCopyTextForButton = (copyButton: HTMLButtonElement): string => {
-  const sourceSelector = copyButton.getAttribute("data-copy-source-selector");
+const COPY_RESET_DELAY_MS = 4000;
 
-  if (sourceSelector === null || sourceSelector.trim() === "") {
-    return "";
-  }
+function copyText(
+  textElementId: string,
+  copyElementId: string,
+  screenReaderAlertText: string,
+  originalCopyText = "Copy",
+): void {
+  const textElement = document.querySelector(textElementId);
+  const copyElement = document.querySelector<HTMLButtonElement>(copyElementId);
+  const screenReaderAlert = document.getElementById("copy-alert");
 
-  const sourceElement = document.querySelector<HTMLElement>(sourceSelector);
+  if (
+    textElement !== null &&
+    copyElement !== null &&
+    screenReaderAlert !== null
+  ) {
+    copyElement.addEventListener("click", (e) => {
+      e.preventDefault();
 
-  if (sourceElement === null) {
-    return "";
-  }
+      const text = textElement.textContent.trim();
+      void window.navigator.clipboard.writeText(text);
+      screenReaderAlert.textContent = screenReaderAlertText;
+      copyElement.classList.add("disable-click");
+      copyElement.textContent = "Copied";
 
-  const { textContent: textToCopy } = sourceElement;
+      setTimeout(() => {
+        screenReaderAlert.textContent = "";
+        copyElement.classList.remove("disable-click");
+        copyElement.textContent = originalCopyText;
+      }, COPY_RESET_DELAY_MS);
 
-  if (textToCopy.trim() === "") {
-    return "";
-  }
-
-  return textToCopy.trim();
-};
-
-const initialiseClipboardCopyButtons = (): void => {
-  if (typeof navigator === "undefined" || !("clipboard" in navigator)) {
-    return;
-  }
-
-  const copyButtons =
-    document.querySelectorAll<HTMLButtonElement>("[data-copy-button]");
-
-  copyButtons.forEach((copyButton) => {
-    copyButton.addEventListener("click", () => {
-      const textToCopy = getCopyTextForButton(copyButton);
-
-      if (textToCopy !== "") {
-        void navigator.clipboard.writeText(textToCopy);
-      }
+      copyElement.blur();
     });
-  });
-};
+  }
+}
 
 const initialiseFrontendPackages = (): void => {
   if (typeof window !== "undefined") {
     try {
       initGOVUK();
       initMOJ();
-      initialiseClipboardCopyButtons();
+      copyText(
+        "#claim-reference-number",
+        "#copy-claim-reference-number",
+        "Reference copied",
+        "Copy reference number",
+      );
 
       if (process.env.NODE_ENV !== "production") {
         console.log("Frontend packages loaded and initialised");
