@@ -52,7 +52,7 @@ export default defineConfig({
       dependencies: ["setup"],
     },
     {
-      name: "auth",
+      name: "auth", // The auth tests break the user setup we do earlier, so must go last
       testDir: "./e2e/auth",
       use: {
         ...devices["Desktop Chrome"],
