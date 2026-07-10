@@ -24,7 +24,7 @@
     "build:ts:prod": "tsc -p tsconfig.build.prod.json",
     "test": "yarn build && yarn test:unit && yarn test:e2e",
     "test:unit": "mocha",
-    "test:e2e": "yarn build && yarn playwright test --config=tests/playwright/playwright.config.ts",
+    "test:e2e": "yarn clean && yarn build:ts && node public/esbuild.js && yarn playwright test --config=tests/playwright/playwright.config.ts",
     "coverage": "c8 yarn test:unit --check-coverage",
     "seed-app": "yarn clean && yarn build:ts && node public/esbuild.js && PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS=true yarn playwright test --config=tests/playwright/playwright.config.ts --project=setup --project='seed application'"
   },

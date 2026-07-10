@@ -59,7 +59,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
       },
-      dependencies: ["setup", "seed application"],
+      dependencies: ["setup"],
     },
     {
       name: "auth", // The auth tests break the user setup we do earlier, so must go last
