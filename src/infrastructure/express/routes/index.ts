@@ -242,6 +242,7 @@ if (process.env.NODE_ENV === "test") {
   )) as {
     SeedApplicationAdaptor: new (
       submitApplicationSource: SubmitApplicationAdaptor,
+      uploadCoronersLetterSource: UploadCoronersLetterAdaptor,
     ) => {
       seedApplication: (req: Request, res: Response) => Promise<void>;
     };
@@ -251,6 +252,7 @@ if (process.env.NODE_ENV === "test") {
 
   const seedApplicationAdaptor = new SeedApplicationAdaptor(
     submitApplicationSource,
+    uploadCoronersLetterSource,
   );
 
   indexRouter.use(

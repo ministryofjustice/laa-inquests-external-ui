@@ -175,7 +175,9 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS=true yarn test:e2e --project "seed application"  
+          yarn clean
+          yarn build:ts
+          PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS=true yarn playwright test --config=tests/playwright/playwright.config.ts --project=setup --project="seed application"
           yarn test:e2e
         env:
           CI: true

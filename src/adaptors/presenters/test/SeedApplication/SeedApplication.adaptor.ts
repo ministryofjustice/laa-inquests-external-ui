@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type { Request, Response } from "express";
 import {
   CORRESPONDENCE_ADDRESS_SOURCE,
@@ -6,12 +5,14 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
+import type { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 
 const HTTP_INTERNAL_SERVER_ERROR = 500;
 
 export class SeedApplicationAdaptor {
   constructor(
     private readonly submitApplicationAdaptor: SubmitApplicationAdaptor,
+    private readonly uploadCoronersLetterAdaptor: UploadCoronersLetterAdaptor,
   ) {}
 
   async seedApplication(req: Request, res: Response): Promise<void> {
@@ -29,7 +30,30 @@ export class SeedApplicationAdaptor {
       return;
     }
 
-    const requestBody = this.#buildSeedRequestBody(req);
+    const uploadResponse =
+      await this.uploadCoronersLetterAdaptor.uploadCoronersLetter(
+        {
+          buffer: Buffer.from("seeded coroners letter content"),
+          mimetype: "application/pdf",
+          originalname: "seeded-coroners-letter.pdf",
+        },
+        accessToken,
+      );
+
+    if (
+      uploadResponse.status !== "SUCCESS" ||
+      uploadResponse.coronersLetterId === undefined
+    ) {
+      res.status(HTTP_INTERNAL_SERVER_ERROR).json({
+        message: "Failed to upload coroner's letter for seeding",
+      });
+      return;
+    }
+
+    const requestBody = this.#buildSeedRequestBody(
+      req,
+      uploadResponse.coronersLetterId,
+    );
     const response = await this.submitApplicationAdaptor.submitApplication(
       requestBody,
       accessToken,
@@ -49,7 +73,10 @@ export class SeedApplicationAdaptor {
     });
   }
 
-  #buildSeedRequestBody(req: Request): SubmitApplicationRequest {
+  #buildSeedRequestBody(
+    req: Request,
+    coronersLetterId: string,
+  ): SubmitApplicationRequest {
     const { session } = req;
 
     return {
@@ -83,7 +110,7 @@ export class SeedApplicationAdaptor {
       },
       proceedings: [
         {
-          proceedingId: "CAPA",
+          proceedingId: "PC049",
         },
       ],
       publicBodies: [
@@ -96,7 +123,7 @@ export class SeedApplicationAdaptor {
         officeId: session.officeId!,
         emailAddress: session.providerEmail!,
       },
-      coronersLetterId: randomUUID(),
+      coronersLetterId,
     };
   }
 }
