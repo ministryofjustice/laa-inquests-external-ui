@@ -3,7 +3,6 @@ import assert from "assert";
 
 test.describe("Claim - confirm and submit", () => {
   test.beforeEach(async ({ page }) => {
-    console.log("Starting check your answers test");
     await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();

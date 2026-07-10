@@ -2,7 +2,6 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - evidence", () => {
   test.beforeEach(async ({ page }) => {
-    console.log("Starting claim evidence test");
     await page.goto("/claim/evidence");
   });
 

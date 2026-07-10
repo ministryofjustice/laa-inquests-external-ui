@@ -2,7 +2,6 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - claim subtype", () => {
   test.beforeEach(async ({ page }) => {
-    console.log("Starting claim-subtype test");
     await page.goto("/claim/subtype");
   });
 

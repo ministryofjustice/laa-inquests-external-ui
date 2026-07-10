@@ -2,7 +2,6 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - total cost", () => {
   test.beforeEach(async ({ page }) => {
-    console.log("Starting total cost type test");
     await page.goto("/claim/total-cost");
   });
 

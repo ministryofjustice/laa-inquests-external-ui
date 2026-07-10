@@ -10,7 +10,6 @@ const OTP_DIGITS = 6;
 const OTP_PERIOD_SECONDS = 30;
 
 setup("authenticate provider with MFA", async ({ page }) => {
-  console.log("RUNNING SETUP");
   const {
     env: {
       E2E_PROVIDER_USERNAME: username,
