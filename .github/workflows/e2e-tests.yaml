@@ -139,10 +139,11 @@ jobs:
           GOV_NOTIFY_API_KEY: ${{ secrets.TEST_GOV_NOTIFY_API_KEY }}
           GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID }}
           GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID }}
-          AUTH_DIRECTORY_URL: ${{ secrets.AUTH_DIRECTORY_URL }}
-          AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
-          AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
-          INQUESTS_API_CLIENT_ID: ${{ secrets.INQUESTS_API_CLIENT_ID }}
+        #          TODO: Testing if these are actually required. My suspicion is not.
+        #          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+        #          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+        #          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+        #          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
         run: |
           docker run -d --name inquests-api --network host \
             -e SECRET_KEY=TEST_KEY \
@@ -174,10 +175,11 @@ jobs:
           docker logs inquests-api
           exit 1
 
+      - name: Create auth state directory
+        run: mkdir -p tests/playwright/.auth
+
       - name: Run Playwright tests
-        run: |
-          mkdir -p tests/playwright/.auth
-          yarn test:e2e
+        run: yarn test:e2e
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
@@ -196,10 +198,10 @@ jobs:
           RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "10000"
           RATE_WINDOW_MS: "900000"
-          AUTH_DIRECTORY_URL: ${{ secrets.AUTH_DIRECTORY_URL }}
-          AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
-          AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
-          INQUESTS_API_CLIENT_ID: ${{ secrets.INQUESTS_API_CLIENT_ID }}
+          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
           E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
           E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
           E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}

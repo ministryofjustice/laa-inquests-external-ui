@@ -350,17 +350,23 @@ The `setup` project runs automatically first. It opens Chromium, navigates to `/
 
 ## 5. CI/CD Runbook
 
-### 5.1 Required GitHub Actions secrets
+### 5.1 Configure GitHub Actions values
 
-```
-AUTH_DIRECTORY_URL
-AUTH_CLIENT_ID
-AUTH_CLIENT_SECRET
-INQUESTS_API_CLIENT_ID
-E2E_PROVIDER_USERNAME
-E2E_PROVIDER_PASSWORD
-E2E_PROVIDER_MFA_TOTP_SECRET
-```
+Do this exactly:
+
+1. Reuse existing CI values (do not create new values for these):
+   - `AUTH_DIRECTORY_URL`
+   - `AUTH_CLIENT_ID`
+   - `AUTH_CLIENT_SECRET`
+   - `INQUESTS_API_CLIENT_ID`
+2. Add only these new GitHub Actions secrets for Option E:
+   - `E2E_PROVIDER_USERNAME`
+   - `E2E_PROVIDER_PASSWORD`
+   - `E2E_PROVIDER_MFA_TOTP_SECRET`
+3. Keep source type aligned with current repo convention:
+   - `AUTH_DIRECTORY_URL`, `AUTH_CLIENT_ID`, `AUTH_CLIENT_SECRET` from `vars`
+   - `INQUESTS_API_CLIENT_ID` from `secrets`
+   - `E2E_PROVIDER_*` from `secrets`
 
 ### 5.2 Workflow changes — `.github/workflows/e2e-tests.yaml`
 
@@ -376,18 +382,41 @@ E2E_PROVIDER_MFA_TOTP_SECRET
     SESSION_SECRET: "playwright-test-secret"
     SESSION_NAME: "sessionId"
     INQUESTS_API_URL: "http://127.0.0.1:8027"
-    AUTH_DIRECTORY_URL: ${{ secrets.AUTH_DIRECTORY_URL }}
-    AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
-    AUTH_CLIENT_SECRET: ${{ secrets.AUTH_CLIENT_SECRET }}
+    AUTH_DIRECTORY_URL: ${{ vars.AUTH_DIRECTORY_URL }}
+    AUTH_CLIENT_ID: ${{ vars.AUTH_CLIENT_ID }}
+    AUTH_CLIENT_SECRET: ${{ vars.AUTH_CLIENT_SECRET }}
     INQUESTS_API_CLIENT_ID: ${{ secrets.INQUESTS_API_CLIENT_ID }}
     E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
     E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
     E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
 ```
 
-Also update the `Start API container` step to pass `AUTH_*` env vars so it validates real tokens.
+Also update the `Start API container` step to pass:
 
-### 5.3 Retry / backoff
+- `AUTH_DIRECTORY_URL: ${{ vars.AUTH_DIRECTORY_URL }}`
+- `AUTH_CLIENT_ID: ${{ vars.AUTH_CLIENT_ID }}`
+- `AUTH_CLIENT_SECRET: ${{ vars.AUTH_CLIENT_SECRET }}`
+- `INQUESTS_API_CLIENT_ID: ${{ secrets.INQUESTS_API_CLIENT_ID }}`
+
+Set the E2E workflow job to the same GitHub environment that contains these `vars` and `secrets`.
+
+### 5.3 Exact setup steps in GitHub
+
+1. Open repository **Settings** -> **Secrets and variables** -> **Actions**.
+2. Open the environment used by E2E (for example `uat`) if values are environment-scoped.
+3. Confirm these existing values are present and non-empty (do not recreate):
+   - `AUTH_DIRECTORY_URL` (`vars`)
+   - `AUTH_CLIENT_ID` (`vars`)
+   - `AUTH_CLIENT_SECRET` (`vars`)
+   - `INQUESTS_API_CLIENT_ID` (`secrets`)
+4. Create the 3 new secrets:
+   - `E2E_PROVIDER_USERNAME`
+   - `E2E_PROVIDER_PASSWORD`
+   - `E2E_PROVIDER_MFA_TOTP_SECRET`
+5. Update `.github/workflows/e2e-tests.yaml` env mappings to reference those same values.
+6. Run the E2E workflow and confirm the `setup` project creates `tests/playwright/.auth/provider.json`.
+
+### 5.4 Retry / backoff
 
 - Playwright already retries 2× in CI (`retries: 2`)
 - The `setup` project runs once before the suite — if it fails the job fails immediately with a clear message before any test wastes time
