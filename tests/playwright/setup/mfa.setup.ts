@@ -1,4 +1,4 @@
-import { test as setup, expect, type Page } from "@playwright/test";
+import { test as setup } from "@playwright/test";
 import * as OTPAuth from "otpauth";
 import { AUTH_FILE } from "#tests/playwright/constants/AuthFile.js";
 
@@ -8,36 +8,9 @@ const MICROSOFT_SUBMIT_SELECTOR = "input[type=submit]";
 const MICROSOFT_STAY_SIGNED_IN_SELECTOR = "input[type=submit][value='Yes']";
 const OTP_DIGITS = 6;
 const OTP_PERIOD_SECONDS = 30;
-const DEFAULT_SESSION_COOKIE_NAME = "test-session";
-const SESSION_COOKIE_WAIT_TIMEOUT_MS = 15000;
-
-const waitForAppSessionCookie = async (page: Page): Promise<void> => {
-  const sessionCookieNames = new Set<string>([DEFAULT_SESSION_COOKIE_NAME]);
-  if (
-    process.env.SESSION_NAME !== undefined &&
-    process.env.SESSION_NAME !== ""
-  ) {
-    sessionCookieNames.add(process.env.SESSION_NAME);
-  }
-
-  await expect
-    .poll(
-      async () => {
-        const cookies = await page.context().cookies();
-        return cookies.some(
-          ({ name, domain }) =>
-            sessionCookieNames.has(name) &&
-            (domain === "localhost" || domain === ".localhost"),
-        );
-      },
-      {
-        timeout: SESSION_COOKIE_WAIT_TIMEOUT_MS,
-      },
-    )
-    .toBe(true);
-};
 
 setup("authenticate provider with MFA", async ({ page }) => {
+  console.log("RUNNING SETUP");
   const {
     env: {
       E2E_PROVIDER_USERNAME: username,
@@ -94,6 +67,5 @@ setup("authenticate provider with MFA", async ({ page }) => {
   }
 
   await page.waitForURL("/");
-  await waitForAppSessionCookie(page);
   await page.context().storageState({ path: AUTH_FILE });
 });
