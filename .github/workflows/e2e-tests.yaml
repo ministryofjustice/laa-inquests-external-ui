@@ -174,7 +174,9 @@ jobs:
         run: mkdir -p tests/playwright/.auth
 
       - name: Run Playwright tests
-        run: yarn test:e2e
+        run: |
+          PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS=true yarn test:e2e --project "seed application"  
+          yarn test:e2e
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
