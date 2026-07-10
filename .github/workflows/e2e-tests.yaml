@@ -139,11 +139,8 @@ jobs:
           GOV_NOTIFY_API_KEY: ${{ secrets.TEST_GOV_NOTIFY_API_KEY }}
           GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID }}
           GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID }}
-        #          TODO: Testing if these are actually required. My suspicion is not.
-        #          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
-        #          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
-        #          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
-        #          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+          INQUESTS_API_TENANT_ID: ${{ secrets.E2E_INQUESTS_API_TENANT_ID }}
         run: |
           docker run -d --name inquests-api --network host \
             -e SECRET_KEY=TEST_KEY \
@@ -155,10 +152,8 @@ jobs:
             -e GOV_NOTIFY_API_KEY \
             -e GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID \
             -e GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID \
-            -e AUTH_DIRECTORY_URL \
-            -e AUTH_CLIENT_ID \
-            -e AUTH_CLIENT_SECRET \
-            -e INQUESTS_API_CLIENT_ID \
+            -e INQUESTS_API_TENANT_ID \
+            -e INQUESTS_API_CLIENT_ID=api://${INQUESTS_API_CLIENT_ID} \
             ghcr.io/ministryofjustice/laa-inquests-api:latest
 
       - name: Wait for API to be ready
