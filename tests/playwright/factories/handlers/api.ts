@@ -24,23 +24,24 @@ export const apiHandlers = [
         { status: 201 },
       ),
   ),
-  http.get("*/applications/search", () =>
-    HttpResponse.json(
-      [
-        {
-          laaReference: 1,
-          clientFirstName: "Jane",
-          clientLastName: "Smith",
-          clientDateOfBirth: "2000-01-01",
-          dateSubmitted: "2026-06-30T15:59:32.622897",
-          firmName: "Test Firm",
-          firmNumber: "0A123B",
-          overallDecision: "GRANTED",
-        },
-      ],
-      { status: 200 },
-    ),
-  ),
+  //   REMOVED TO TEST HOW THE CI RUNS WITHOUT A MOCKED CALL
+  // http.get("*/applications/search", () =>
+  //   HttpResponse.json(
+  //     [
+  //       {
+  //         laaReference: 1,
+  //         clientFirstName: "Jane",
+  //         clientLastName: "Smith",
+  //         clientDateOfBirth: "2000-01-01",
+  //         dateSubmitted: "2026-06-30T15:59:32.622897",
+  //         firmName: "Test Firm",
+  //         firmNumber: "0A123B",
+  //         overallDecision: "GRANTED",
+  //       },
+  //     ],
+  //     { status: 200 },
+  //   ),
+  // ),
   http.post("*/applications", async () =>
     HttpResponse.json(
       {
