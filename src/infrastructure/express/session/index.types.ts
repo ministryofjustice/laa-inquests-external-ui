@@ -38,6 +38,9 @@ export interface ClaimSession {
   searchResults?: ClaimClientDetails[];
   type?: string;
   subtype?: string;
+  zeroVatTotal?: string;
+  netTotal?: string;
+  grossTotal?: string;
 }
 
 export interface ClaimClientDetails {

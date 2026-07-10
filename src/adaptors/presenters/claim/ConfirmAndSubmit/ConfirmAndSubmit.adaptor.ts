@@ -16,6 +16,15 @@ interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
 }
 
+const TWO_DECIMAL_PLACES = 2;
+
+const GBP_CURRENCY_FORMATTER = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  minimumFractionDigits: TWO_DECIMAL_PLACES,
+  maximumFractionDigits: TWO_DECIMAL_PLACES,
+});
+
 export class ConfirmAndSubmitAdaptor {
   submitClaimUseCase: SubmitClaimUseCase;
   logger: (message: string) => void;
@@ -45,10 +54,7 @@ export class ConfirmAndSubmitAdaptor {
         claimType: this.#labelFor(CLAIM_TYPE_LABEL, claim?.type),
         claimSubtype: this.#labelFor(CLAIM_SUBTYPE_LABEL, claim?.subtype),
       },
-      cost: {
-        netTotal: CONFIRM_CLAIM_PLACEHOLDER.NET_TOTAL,
-        grossTotal: CONFIRM_CLAIM_PLACEHOLDER.GROSS_TOTAL,
-      },
+      cost: this.#buildCostDetails(claim),
       evidence: {
         uploadedFiles: CONFIRM_CLAIM_PLACEHOLDER.UPLOADED_FILES,
       },
@@ -123,5 +129,35 @@ export class ConfirmAndSubmitAdaptor {
       return "";
     }
     return labels[value] ?? value;
+  }
+
+  #buildCostDetails(claim?: ClaimSession): {
+    netTotal: string;
+    grossTotal: string;
+  } {
+    return {
+      netTotal: this.#formatMoney(
+        claim?.netTotal,
+        CONFIRM_CLAIM_PLACEHOLDER.NET_TOTAL,
+      ),
+      grossTotal: this.#formatMoney(
+        claim?.grossTotal,
+        CONFIRM_CLAIM_PLACEHOLDER.GROSS_TOTAL,
+      ),
+    };
+  }
+
+  #formatMoney(inputValue: string | undefined, fallback: string): string {
+    if (typeof inputValue !== "string") {
+      return fallback;
+    }
+
+    const parsedValue = Number(inputValue);
+
+    if (!Number.isFinite(parsedValue)) {
+      return fallback;
+    }
+
+    return GBP_CURRENCY_FORMATTER.format(parsedValue);
   }
 }

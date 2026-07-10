@@ -10,6 +10,23 @@ export const CLAIM_TYPE_ERROR = {
   MISSING_CLAIM_SUBTYPE: "Please select a Payment on Account claim type",
 };
 
+export const TOTAL_CLAIM_ERROR = {
+  MISSING_TOTAL_CLAIM_COST:
+    "Enter at least one amount for 0% VAT, net total, or gross total",
+  INVALID_ZERO_VAT_TOTAL:
+    "Total for costs charged at 0% VAT must be a valid amount with up to 2 decimal places",
+  INVALID_NET_TOTAL:
+    "Net total excluding VAT must be a valid amount with up to 2 decimal places",
+  INVALID_GROSS_TOTAL:
+    "Gross total of claim including VAT must be a valid amount with up to 2 decimal places",
+  MISSING_GROSS_TOTAL_WHEN_NET_ENTERED:
+    "Enter gross total of claim including VAT when net total is entered",
+  GROSS_TOTAL_LESS_THAN_NET_TOTAL:
+    "Gross total of claim including VAT cannot be less than the net total",
+  INVALID_GROSS_TOTAL_CALCULATION:
+    "Gross total of claim including VAT must equal 0% VAT total plus net total plus 20% VAT",
+};
+
 export const CLAIM_TYPE_VALUE = {
   PAYMENT_ON_ACCOUNT: "PAYMENT_ON_ACCOUNT",
   NIL_BILL: "NIL_BILL",

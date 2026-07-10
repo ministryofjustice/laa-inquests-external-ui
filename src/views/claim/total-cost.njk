@@ -2,11 +2,11 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
-{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 
 <div class="govuk-width-container">
+  {% set errors = errorSummaries or {} %}
   {{ govukBackLink({
     text: "Back",
     href: backHref
@@ -14,14 +14,31 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [
-            { text: errorSummaries.zeroVatTotalInputError.text, href: "#zero-vat-total" } if errorSummaries.zeroVatTotalInputError,
-            { text: errorSummaries.netTotalInputError.text, href: "#net-total" } if errorSummaries.netTotalInputError
-          ] | selectattr("text")
-        }) }}
+        {% if errors.zeroVatTotalInputError or errors.netTotalInputError or errors.grossTotalInputError %}
+        <div class="govuk-error-summary" data-module="govuk-error-summary">
+          <div role="alert">
+            <h2 class="govuk-error-summary__title">There is a problem</h2>
+            <div class="govuk-error-summary__body">
+              <ul class="govuk-list govuk-error-summary__list">
+                {% if errors.zeroVatTotalInputError %}
+                <li>
+                  <a href="#zero-vat-total">{{ errors.zeroVatTotalInputError.text }}</a>
+                </li>
+                {% endif %}
+                {% if errors.netTotalInputError %}
+                <li>
+                  <a href="#net-total">{{ errors.netTotalInputError.text }}</a>
+                </li>
+                {% endif %}
+                {% if errors.grossTotalInputError %}
+                <li>
+                  <a href="#gross-total">{{ errors.grossTotalInputError.text }}</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
         {% endif %}
 
         <h1 class="govuk-heading-l">What is your total claim cost?</h1>
@@ -40,7 +57,7 @@
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
             inputmode: "decimal",
-            errorMessage: errorSummaries.zeroVatTotalInputError if errorSummaries
+            errorMessage: errors.zeroVatTotalInputError
           }) }}
 
           {{ govukInput({
@@ -54,7 +71,7 @@
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
             inputmode: "decimal",
-            errorMessage: errorSummaries.netTotalInputError if errorSummaries
+            errorMessage: errors.netTotalInputError
           }) }}
 
           {{ govukInput({
@@ -67,7 +84,12 @@
             value: grossTotal,
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
+<<<<<<< HEAD
             inputmode: "decimal"
+=======
+            inputmode: "decimal",
+            errorMessage: errors.grossTotalInputError
+>>>>>>> 883b567 (add basic validation for total claims page)
           }) }}
 
           {{ govukButton({
@@ -79,4 +101,8 @@
     </div>
   </main>
 </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 883b567 (add basic validation for total claims page)
 {% endblock %}

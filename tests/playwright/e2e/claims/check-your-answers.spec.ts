@@ -65,6 +65,24 @@ test.describe("Claim - confirm and submit", () => {
     await expect(card).toContainText("£1,200.00");
   });
 
+  test("renders the cost card with values entered on the total-cost page", async ({
+    page,
+  }) => {
+    await page.goto("/claim/total-cost");
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("1000");
+    await page.getByLabel("Gross total of claim including VAT").fill("1200");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/evidence");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/check-your-answers");
+
+    const card = page.getByTestId("cost-summary-list");
+    await expect(card).toContainText("£1,000.00");
+    await expect(card).toContainText("£1,200.00");
+  });
+
   test("renders the evidence card with a row per file and view/download links", async ({
     page,
   }) => {

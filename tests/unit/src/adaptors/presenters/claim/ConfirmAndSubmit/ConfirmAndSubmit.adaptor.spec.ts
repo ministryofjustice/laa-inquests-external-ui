@@ -91,7 +91,28 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.claimDetails.claimSubtype, "");
     });
 
-    it("provides placeholder cost and evidence details", () => {
+    it("maps session cost values into formatted cost details", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        netTotal: "1000",
+        grossTotal: "1200",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.cost.netTotal, "£1,000.00");
+      assert.equal(viewModel.cost.grossTotal, "£1,200.00");
+    });
+
+    it("provides placeholder cost and evidence details when session values are missing", () => {
       const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
