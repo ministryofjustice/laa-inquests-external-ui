@@ -1,6 +1,8 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
 
@@ -12,10 +14,65 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            { text: errorSummaries.zeroVatTotalInputError.text, href: "#zero-vat-total" } if errorSummaries.zeroVatTotalInputError,
+            { text: errorSummaries.netTotalInputError.text, href: "#net-total" } if errorSummaries.netTotalInputError
+          ] | selectattr("text")
+        }) }}
+        {% endif %}
+
         <h1 class="govuk-heading-l">What is your total claim cost?</h1>
 
         <form data-testid="total-cost-form" action="/claim/total-cost" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+          {{ govukInput({
+            label: {
+              text: "Total for costs charged at 0% VAT",
+              classes: "govuk-label--s"
+            },
+            id: "zero-vat-total",
+            name: "zero-vat-total",
+            value: zeroVatTotal,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            inputmode: "decimal",
+            errorMessage: errorSummaries.zeroVatTotalInputError if errorSummaries
+          }) }}
+
+          {{ govukInput({
+            label: {
+              text: "Net total excluding VAT, for costs where VAT can be charged",
+              classes: "govuk-label--s"
+            },
+            id: "net-total",
+            name: "net-total",
+            value: netTotal,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            inputmode: "decimal",
+            errorMessage: errorSummaries.netTotalInputError if errorSummaries
+          }) }}
+
+          {{ govukInput({
+            label: {
+              text: "Gross total of claim including VAT",
+              classes: "govuk-label--s"
+            },
+            hint: {
+              text: "Calculated automatically: 0% VAT total + net total + 20% VAT on net total"
+            },
+            id: "gross-total",
+            name: "gross-total",
+            value: grossTotal,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            attributes: { readonly: "", "data-calculated": "true" }
+          }) }}
+
           {{ govukButton({
             text: "Continue",
             type: "submit"
@@ -25,5 +82,23 @@
     </div>
   </main>
 </div>
+
+<script>
+  (function () {
+    var zeroVatInput = document.getElementById("zero-vat-total");
+    var netTotalInput = document.getElementById("net-total");
+    var grossTotalInput = document.getElementById("gross-total");
+
+    function updateGrossTotal() {
+      var zeroVat = parseFloat(zeroVatInput.value) || 0;
+      var netTotal = parseFloat(netTotalInput.value) || 0;
+      var gross = zeroVat + netTotal + netTotal * 0.2;
+      grossTotalInput.value = gross > 0 ? gross.toFixed(2) : "";
+    }
+
+    zeroVatInput.addEventListener("input", updateGrossTotal);
+    netTotalInput.addEventListener("input", updateGrossTotal);
+  })();
+</script>
 
 {% endblock %}
