@@ -43,7 +43,17 @@ export default defineConfig({
       testMatch: /mfa\.setup\.ts/,
     },
     {
-      name: "chromium",
+      name: "e2e - no auth",
+      testIgnore: /e2e\/auth/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: AUTH_FILE,
+      },
+      dependencies: ["setup"],
+    },
+    {
+      name: "auth",
+      testDir: "./e2e/auth",
       use: {
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
