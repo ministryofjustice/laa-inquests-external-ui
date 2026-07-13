@@ -6,6 +6,7 @@ import {
   CONFIRM_CLAIM_PLACEHOLDER,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
+import type { Formatter } from "#src/utils/Formatter.js";
 import {
   SubmitClaimUseCase,
   type SubmitClaimInput,
@@ -16,24 +17,18 @@ interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
 }
 
-const TWO_DECIMAL_PLACES = 2;
-
-const GBP_CURRENCY_FORMATTER = new Intl.NumberFormat("en-GB", {
-  style: "currency",
-  currency: "GBP",
-  minimumFractionDigits: TWO_DECIMAL_PLACES,
-  maximumFractionDigits: TWO_DECIMAL_PLACES,
-});
-
 export class ConfirmAndSubmitAdaptor {
+  formatter: Formatter;
   submitClaimUseCase: SubmitClaimUseCase;
   logger: (message: string) => void;
 
   constructor(
+    formatter: Formatter,
     claimSubmitPort: ClaimSubmitPort,
     useCases?: Partial<ConfirmAndSubmitUseCases>,
     logger: (message: string) => void = appInfo,
   ) {
+    this.formatter = formatter;
     this.submitClaimUseCase =
       useCases?.submitClaim ?? new SubmitClaimUseCase(claimSubmitPort);
     this.logger = logger;
@@ -136,28 +131,12 @@ export class ConfirmAndSubmitAdaptor {
     grossTotal: string;
   } {
     return {
-      netTotal: this.#formatMoney(
-        claim?.netTotal,
-        CONFIRM_CLAIM_PLACEHOLDER.NET_TOTAL,
-      ),
-      grossTotal: this.#formatMoney(
-        claim?.grossTotal,
-        CONFIRM_CLAIM_PLACEHOLDER.GROSS_TOTAL,
-      ),
+      netTotal: this.#formatMoney(claim?.netTotal),
+      grossTotal: this.#formatMoney(claim?.grossTotal),
     };
   }
 
-  #formatMoney(inputValue: string | undefined, fallback: string): string {
-    if (typeof inputValue !== "string") {
-      return fallback;
-    }
-
-    const parsedValue = Number(inputValue);
-
-    if (!Number.isFinite(parsedValue)) {
-      return fallback;
-    }
-
-    return GBP_CURRENCY_FORMATTER.format(parsedValue);
+  #formatMoney(inputValue: string | undefined): string {
+    return this.formatter.formatCurrency(inputValue);
   }
 }

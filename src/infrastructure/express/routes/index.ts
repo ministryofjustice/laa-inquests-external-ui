@@ -207,7 +207,11 @@ const submitClaimSource = new SubmitClaimAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
 );
-const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor(submitClaimSource);
+const confirmAndSubmitFormatter = new Formatter();
+const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor(
+  confirmAndSubmitFormatter,
+  submitClaimSource,
+);
 
 const totalClaimAdaptor = new TotalClaimAdaptor();
 
