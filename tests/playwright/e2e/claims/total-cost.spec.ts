@@ -22,6 +22,20 @@ test.describe("Claim - total cost", () => {
     await expect(continueButton).toHaveAttribute("type", "submit");
   });
 
+  test("renders total cost input fields", async ({ page }) => {
+    await expect(
+      page.getByLabel("Total for costs charged at 0% VAT"),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel(
+        "Net total excluding VAT, for costs where VAT can be charged",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel("Gross total of claim including VAT"),
+    ).toBeVisible();
+  });
+
   test("back link points to /claim/subtype when POA was selected", async ({
     page,
   }) => {
@@ -49,13 +63,99 @@ test.describe("Claim - total cost", () => {
     await expect(backLink).toHaveAttribute("href", "/claim/type");
   });
 
-  test("redirects to /claim/evidence when continue is clicked", async ({
+  test("shows validation error and does not progress when no values are entered", async ({
     page,
   }) => {
     await page
       .getByTestId("total-cost-form")
       .getByRole("button", { name: "Continue" })
       .click();
+
+    await expect(page).toHaveURL("/claim/total-cost");
+    await expect(page.getByText("There is a problem")).toBeVisible();
+    await expect(
+      page.getByRole("link", {
+        name: "Enter at least one amount for 0% VAT, net total, or gross total",
+      }),
+    ).toBeVisible();
+    await expect(page.locator("#zero-vat-total-error")).toContainText(
+      "Enter at least one amount for 0% VAT, net total, or gross total",
+    );
+  });
+
+  test("shows validation error when net total is entered without gross total", async ({
+    page,
+  }) => {
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("100");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/total-cost");
+    await expect(
+      page.getByRole("link", {
+        name: "Enter gross total of claim including VAT when net total is entered",
+      }),
+    ).toBeVisible();
+    await expect(page.locator("#gross-total-error")).toContainText(
+      "Enter gross total of claim including VAT when net total is entered",
+    );
+  });
+
+  test("shows validation error when gross total is less than net total", async ({
+    page,
+  }) => {
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("100");
+    await page.getByLabel("Gross total of claim including VAT").fill("99.99");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/total-cost");
+    await expect(
+      page.getByRole("link", {
+        name: "Gross total of claim including VAT cannot be less than the net total",
+      }),
+    ).toBeVisible();
+    await expect(page.locator("#gross-total-error")).toContainText(
+      "Gross total of claim including VAT cannot be less than the net total",
+    );
+  });
+
+  test("shows validation error when gross total does not match claim calculation", async ({
+    page,
+  }) => {
+    await page.getByLabel("Total for costs charged at 0% VAT").fill("50");
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("100");
+    await page.getByLabel("Gross total of claim including VAT").fill("160");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/total-cost");
+    await expect(
+      page.getByRole("link", {
+        name: "Gross total of claim including VAT must equal 0% VAT total plus net total plus 20% VAT",
+      }),
+    ).toBeVisible();
+    await expect(page.locator("#gross-total-error")).toContainText(
+      "Gross total of claim including VAT must equal 0% VAT total plus net total plus 20% VAT",
+    );
+  });
+
+  test("redirects to /claim/evidence when valid values are submitted", async ({
+    page,
+  }) => {
+    await page.getByLabel("Total for costs charged at 0% VAT").fill("100");
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("250.25");
+    await page.getByLabel("Gross total of claim including VAT").fill("400.30");
+
+    await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page).toHaveURL("/claim/evidence");
   });

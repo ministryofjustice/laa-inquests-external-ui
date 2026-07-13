@@ -5,7 +5,30 @@ import type {
 import type { Option } from "../adaptors/presenters/apply/models/form.types.js";
 import type { SummaryListRow } from "../adaptors/presenters/apply/models/summaryList.types.js";
 
+const TWO_DECIMAL_PLACES = 2;
+
+const GBP_CURRENCY_FORMATTER = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+  minimumFractionDigits: TWO_DECIMAL_PLACES,
+  maximumFractionDigits: TWO_DECIMAL_PLACES,
+});
+
 export class Formatter {
+  formatCurrency(inputValue: string | undefined): string {
+    if (typeof inputValue !== "string") {
+      return "";
+    }
+
+    const parsedValue = Number(inputValue);
+
+    if (!Number.isFinite(parsedValue)) {
+      return "";
+    }
+
+    return GBP_CURRENCY_FORMATTER.format(parsedValue);
+  }
+
   filterAvailableOptions(
     selectedProceedings: Proceeding[] | [],
     allProceedings: Proceeding[],

@@ -4,21 +4,24 @@ import type { Request, Response } from "express";
 import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
 import { CONFIRM_CLAIM_PLACEHOLDER } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
+import { Formatter } from "#src/utils/Formatter.js";
 import { SubmitClaimUseCase } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 
 describe("ConfirmAndSubmit adaptor", () => {
   let claimSubmitPort: StubbedInstance<ClaimSubmitPort>;
   let submitClaimUseCase: StubbedInstance<SubmitClaimUseCase>;
+  let formatter: Formatter;
   let loggerMessages: string[];
 
   beforeEach(() => {
     claimSubmitPort = stubInterface<ClaimSubmitPort>();
     submitClaimUseCase = stubInterface<SubmitClaimUseCase>();
+    formatter = new Formatter();
     loggerMessages = [];
   });
   describe("renderForm", () => {
     it("renders the confirm and submit view", () => {
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -35,7 +38,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     });
 
     it("maps the case reference and claim answers from the session", () => {
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -71,7 +74,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     });
 
     it("falls back to empty strings when the claim answers are not in the session", () => {
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -91,8 +94,29 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.claimDetails.claimSubtype, "");
     });
 
-    it("provides placeholder cost and evidence details", () => {
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
+    it("maps session cost values into formatted cost details", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        netTotal: "1000",
+        grossTotal: "1200",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.cost.netTotal, "£1,000.00");
+      assert.equal(viewModel.cost.grossTotal, "£1,200.00");
+    });
+
+    it("returns empty strings for cost details when session cost values are missing", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -104,14 +128,8 @@ describe("ConfirmAndSubmit adaptor", () => {
       const viewModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
-      assert.equal(
-        viewModel.cost.netTotal,
-        CONFIRM_CLAIM_PLACEHOLDER.NET_TOTAL,
-      );
-      assert.equal(
-        viewModel.cost.grossTotal,
-        CONFIRM_CLAIM_PLACEHOLDER.GROSS_TOTAL,
-      );
+      assert.equal(viewModel.cost.netTotal, "");
+      assert.equal(viewModel.cost.grossTotal, "");
       assert.deepEqual(
         viewModel.evidence.uploadedFiles,
         CONFIRM_CLAIM_PLACEHOLDER.UPLOADED_FILES,
@@ -125,7 +143,7 @@ describe("ConfirmAndSubmit adaptor", () => {
         status: "SUCCESS",
         data: { claimId: 99 },
       });
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort, {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
       });
 
@@ -156,7 +174,7 @@ describe("ConfirmAndSubmit adaptor", () => {
         status: "SUCCESS",
         data: { claimId: 42 },
       });
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort, {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
       });
 
@@ -186,6 +204,7 @@ describe("ConfirmAndSubmit adaptor", () => {
         reason: "UNEXPECTED_EXCEPTION",
       });
       const adaptor = new ConfirmAndSubmitAdaptor(
+        formatter,
         claimSubmitPort,
         {
           submitClaim: submitClaimUseCase,
@@ -224,7 +243,7 @@ describe("ConfirmAndSubmit adaptor", () => {
 
   describe("renderConfirmSuccess", () => {
     it("renders the claim confirmation success view with the claim reference number from the session", () => {
-      const adaptor = new ConfirmAndSubmitAdaptor(claimSubmitPort);
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();

@@ -6,6 +6,7 @@ import {
   CONFIRM_CLAIM_PLACEHOLDER,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
+import type { Formatter } from "#src/utils/Formatter.js";
 import {
   SubmitClaimUseCase,
   type SubmitClaimInput,
@@ -17,14 +18,17 @@ interface ConfirmAndSubmitUseCases {
 }
 
 export class ConfirmAndSubmitAdaptor {
+  formatter: Formatter;
   submitClaimUseCase: SubmitClaimUseCase;
   logger: (message: string) => void;
 
   constructor(
+    formatter: Formatter,
     claimSubmitPort: ClaimSubmitPort,
     useCases?: Partial<ConfirmAndSubmitUseCases>,
     logger: (message: string) => void = appInfo,
   ) {
+    this.formatter = formatter;
     this.submitClaimUseCase =
       useCases?.submitClaim ?? new SubmitClaimUseCase(claimSubmitPort);
     this.logger = logger;
@@ -45,10 +49,7 @@ export class ConfirmAndSubmitAdaptor {
         claimType: this.#labelFor(CLAIM_TYPE_LABEL, claim?.type),
         claimSubtype: this.#labelFor(CLAIM_SUBTYPE_LABEL, claim?.subtype),
       },
-      cost: {
-        netTotal: CONFIRM_CLAIM_PLACEHOLDER.NET_TOTAL,
-        grossTotal: CONFIRM_CLAIM_PLACEHOLDER.GROSS_TOTAL,
-      },
+      cost: this.#buildCostDetails(claim),
       evidence: {
         uploadedFiles: CONFIRM_CLAIM_PLACEHOLDER.UPLOADED_FILES,
       },
@@ -123,5 +124,19 @@ export class ConfirmAndSubmitAdaptor {
       return "";
     }
     return labels[value] ?? value;
+  }
+
+  #buildCostDetails(claim?: ClaimSession): {
+    netTotal: string;
+    grossTotal: string;
+  } {
+    return {
+      netTotal: this.#formatMoney(claim?.netTotal),
+      grossTotal: this.#formatMoney(claim?.grossTotal),
+    };
+  }
+
+  #formatMoney(inputValue: string | undefined): string {
+    return this.formatter.formatCurrency(inputValue);
   }
 }

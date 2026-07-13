@@ -3,6 +3,23 @@ import { Formatter } from "#src/utils/Formatter.js";
 import { expect } from "chai";
 
 describe("Formatter", () => {
+  describe("formatCurrency", () => {
+    it("formats a numeric string as GBP currency", () => {
+      const formatter = new Formatter();
+
+      const formattedValue = formatter.formatCurrency("1200");
+
+      expect(formattedValue).to.equal("£1,200.00");
+    });
+
+    it("returns an empty string when the input is missing or invalid", () => {
+      const formatter = new Formatter();
+
+      expect(formatter.formatCurrency(undefined)).to.equal("");
+      expect(formatter.formatCurrency("not-a-number")).to.equal("");
+    });
+  });
+
   describe("filterAvailableOptions", () => {
     it("returns a full list of proceedings when no proceedings selected", () => {
       const formatter = new Formatter();

@@ -56,14 +56,30 @@ test.describe("Claim - confirm and submit", () => {
     await expect(card).toContainText("Type of POA");
   });
 
-  test("renders the cost card with placeholder totals", async ({ page }) => {
+  test("renders the cost card with expected rows", async ({ page }) => {
     const card = page.getByTestId("cost-summary-list");
 
     await expect(card).toContainText("Total claim cost");
     await expect(card).toContainText("Net total at 20%");
     await expect(card).toContainText("Gross total at 20%");
-    await expect(card).toContainText("£1,000.00");
-    await expect(card).toContainText("£1,200.00");
+  });
+
+  test("renders the cost card with values entered on the total-cost page", async ({
+    page,
+  }) => {
+    await page.goto("/claim/total-cost");
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("111.11");
+    await page.getByLabel("Gross total of claim including VAT").fill("133.33");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/evidence");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/check-your-answers");
+
+    const card = page.getByTestId("cost-summary-list");
+    await expect(card).toContainText("£111.11");
+    await expect(card).toContainText("£133.33");
   });
 
   test("renders the evidence card with a row per file and view/download links", async ({
