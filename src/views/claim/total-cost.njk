@@ -82,23 +82,4 @@
     </div>
   </main>
 </div>
-
-<script>
-  (function () {
-    var zeroVatInput = document.getElementById("zero-vat-total");
-    var netTotalInput = document.getElementById("net-total");
-    var grossTotalInput = document.getElementById("gross-total");
-
-    function updateGrossTotal() {
-      var zeroVat = parseFloat(zeroVatInput.value) || 0;
-      var netTotal = parseFloat(netTotalInput.value) || 0;
-      var gross = zeroVat + netTotal + netTotal * 0.2;
-      grossTotalInput.value = gross > 0 ? gross.toFixed(2) : "";
-    }
-
-    zeroVatInput.addEventListener("input", updateGrossTotal);
-    netTotalInput.addEventListener("input", updateGrossTotal);
-  })();
-</script>
-
 {% endblock %}
