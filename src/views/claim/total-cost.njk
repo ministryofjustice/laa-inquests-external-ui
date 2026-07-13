@@ -62,15 +62,12 @@
               text: "Gross total of claim including VAT",
               classes: "govuk-label--s"
             },
-            hint: {
-              text: "Calculated automatically: 0% VAT total + net total + 20% VAT on net total"
-            },
             id: "gross-total",
             name: "gross-total",
             value: grossTotal,
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
-            attributes: { readonly: "", "data-calculated": "true" }
+            inputmode: "decimal"
           }) }}
 
           {{ govukButton({
