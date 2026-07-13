@@ -1,5 +1,6 @@
 import type { Page, Locator } from "playwright-core";
 import { expect } from "../fixtures/index.js";
+import { PROVIDER_DISPLAY_NAME } from "#tests/playwright/constants/Provider.js";
 
 export async function validateHeader(
   page: Page,
@@ -87,7 +88,9 @@ export async function validateMojHeader(page: Page): Promise<void> {
   await expect(navigation).toBeVisible();
 
   // Validate account name link
-  const accountNameLink = navigation.getByRole("link", { name: "Test User" });
+  const accountNameLink = navigation.getByRole("link", {
+    name: PROVIDER_DISPLAY_NAME,
+  });
   await expect(accountNameLink).toBeVisible();
 
   // Validate sign out link

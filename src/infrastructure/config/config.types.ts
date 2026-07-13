@@ -43,7 +43,6 @@ export interface Config {
   AUTH_SCOPES: string[];
   AUTH_TOKEN_DEBUG_ENABLED: boolean;
   SUBMIT_PAYLOAD_DEBUG_ENABLED: boolean;
-  MOCK_OAUTH_URL?: string;
   CONTACT_EMAIL: string | undefined;
   CONTACT_PHONE: string | undefined;
   DEPARTMENT_NAME: string | undefined;

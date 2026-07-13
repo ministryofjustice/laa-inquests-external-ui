@@ -97,6 +97,7 @@ env:
   DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
   CONTACT_EMAIL: "eligibility@justice.gov.uk"
   CONTACT_PHONE: ""
+  # TODO: Is this value actually being used, I think the real one might be the github variable
   INQUESTS_API_URL: "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk"
   SERVICE_URL: "https://www.gov.uk/legal-aid"
   SESSION_NAME: "sessionId"

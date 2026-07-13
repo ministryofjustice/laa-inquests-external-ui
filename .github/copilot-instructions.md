@@ -2,7 +2,7 @@
 
 ## 1. Before Starting Any Feature
 
-1. **Ask for the Jira ticket ID** (`IDDS-XXX`) if not provided.
+1. **Ask for the Jira ticket ID** (`IDDS-XXX`) if not provided. You will probably find it in the branch name.
 2. **Clarify any ambiguous requirements** before writing code.
 3. **Run the tests** to confirm a clean baseline: `yarn test`.
 4. **Find the nearest analogous existing feature** (e.g. `ClientDetailsAdaptor`) and follow the same pattern exactly.
@@ -13,7 +13,7 @@
 - **Then develop one unit test at a time.** Write the test, make it pass with minimum code, wait for approval before the next.
 - **Run tests after every change.** New tests must fail first, then pass after implementation. Fix code, not tests, if refactoring breaks them.
 - **NEVER install a new dependency.** Stop and recommend a dependency for the user to install.
-- **All code MUST match the architecture** — Ports and Adaptors (Hexagonal). Keep business logic out of routes and views.
+- **All code MUST match the architecture** — Ports and Adaptors (Hexagonal Architecture). Keep business logic out of routes and views.
 - **When finished**, run all checks and update documentation.
 
 ### Checks before completing any task

@@ -34,7 +34,6 @@ import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidenc
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
-import { MockAuthAdaptor } from "#src/adaptors/source/auth/MockAuth.adaptor.js";
 import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
@@ -45,7 +44,6 @@ import config from "#src/infrastructure/config/config.js";
 import { SessionHelper } from "../session/sessionHelpers.js";
 import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
-import createTestRouter from "./test.router.js";
 import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
@@ -53,6 +51,10 @@ import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
+const TEST_SEED_ROUTER_MODULE_PATH =
+  "#public/src/infrastructure/express/routes/test/seedApplication.router.js";
+const TEST_SEED_ADAPTOR_MODULE_PATH =
+  "#public/src/adaptors/presenters/test/SeedApplication/SeedApplication.adaptor.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -71,12 +73,7 @@ const errorRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 
-function createAuthSource(): EntraAuthAdaptor | MockAuthAdaptor {
-  if (process.env.NODE_ENV === "test") {
-    return new MockAuthAdaptor(
-      config.MOCK_OAUTH_URL ?? "http://localhost:4001",
-    );
-  }
+function createAuthSource(): EntraAuthAdaptor {
   const entraClient = new ConfidentialClientApplication({
     auth: {
       clientId: config.AUTH_CLIENT_ID,
@@ -110,10 +107,6 @@ indexRouter.get("/health", (req: Request, res: Response): void => {
 });
 
 indexRouter.use("/", createErrorRouter(errorRouter));
-
-if (process.env.NODE_ENV === "test") {
-  indexRouter.use("/", createTestRouter(express.Router()));
-}
 
 if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
   const { seedDevAuthSession } = (await import(
@@ -234,5 +227,38 @@ indexRouter.use(
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
   createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
+
+if (process.env.NODE_ENV === "test") {
+  const { createSeedApplicationRouter } = (await import(
+    TEST_SEED_ROUTER_MODULE_PATH
+  )) as {
+    createSeedApplicationRouter: (
+      seedApplicationRouter: express.Router,
+      seedApplicationAdaptor: unknown,
+    ) => express.Router;
+  };
+  const { SeedApplicationAdaptor } = (await import(
+    TEST_SEED_ADAPTOR_MODULE_PATH
+  )) as {
+    SeedApplicationAdaptor: new (
+      submitApplicationSource: SubmitApplicationAdaptor,
+      uploadCoronersLetterSource: UploadCoronersLetterAdaptor,
+    ) => {
+      seedApplication: (req: Request, res: Response) => Promise<void>;
+    };
+  };
+
+  const seedApplicationRouter = express.Router();
+
+  const seedApplicationAdaptor = new SeedApplicationAdaptor(
+    submitApplicationSource,
+    uploadCoronersLetterSource,
+  );
+
+  indexRouter.use(
+    "/test/seed",
+    createSeedApplicationRouter(seedApplicationRouter, seedApplicationAdaptor),
+  );
+}
 
 export default indexRouter;

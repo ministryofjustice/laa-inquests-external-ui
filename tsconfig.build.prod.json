@@ -6,6 +6,8 @@
     "public",
     "**/*.js",
     "tests/**/*",
-    "src/infrastructure/express/middleware/auth/devAuthBypass.ts"
+    "src/infrastructure/express/middleware/auth/devAuthBypass.ts",
+    "src/infrastructure/express/routes/test/**/*",
+    "src/adaptors/presenters/test/**/*"
   ]
 }

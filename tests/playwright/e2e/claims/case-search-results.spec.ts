@@ -2,6 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - case search results", () => {
   test.beforeEach(async ({ page }) => {
+    console.log("Starting case-search result");
     await page.goto("/claim");
     await page
       .getByTestId("case-search-form")

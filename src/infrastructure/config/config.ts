@@ -61,7 +61,6 @@ const config: Config = {
   ],
   AUTH_TOKEN_DEBUG_ENABLED: isAuthTokenDebugEnabled,
   SUBMIT_PAYLOAD_DEBUG_ENABLED: isSubmitPayloadDebugEnabled,
-  MOCK_OAUTH_URL: process.env.MOCK_OAUTH_URL,
   CONTACT_EMAIL: process.env.CONTACT_EMAIL,
   CONTACT_PHONE: process.env.CONTACT_PHONE,
   DEPARTMENT_NAME: process.env.DEPARTMENT_NAME,

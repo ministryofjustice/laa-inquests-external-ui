@@ -1,4 +1,5 @@
 import { test, expect } from "../../fixtures/index.js";
+import assert from "assert";
 
 test.describe("Claim - confirm and submit", () => {
   test.beforeEach(async ({ page }) => {
@@ -170,9 +171,9 @@ test.describe("Claim - confirm and submit", () => {
     await page.goto("/claim/check-your-answers");
 
     const caseDetails = page.getByTestId("case-details-summary-list");
-    await expect(caseDetails).toContainText("Jane");
-    await expect(caseDetails).toContainText("Smith");
-    await expect(caseDetails).toContainText("01/01/2000");
+    await expect(caseDetails.getByText("1", { exact: true })).toBeVisible();
+    const texts = await caseDetails.getByRole("definition").allInnerTexts();
+    assert.equal(texts.length, 5);
   });
 
   test("redirects to the claim confirmation success page when the claim is submitted", async ({

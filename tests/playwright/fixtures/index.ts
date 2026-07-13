@@ -5,10 +5,21 @@ import { PageFactory } from "#tests/playwright/fixtures/pages/PageFactory.js";
 interface TestFixtures {
   checkAccessibility: () => Promise<void>;
   pages: PageFactory;
-  seedAuthSession: void;
+  freshSession: void;
 }
 
 export const test = base.extend<TestFixtures>({
+  // Reset per-test journey state while staying authenticated to prevent tests conflicting
+  // Visiting "/" calls clearApplyFormData
+  freshSession: [
+    async ({ page }, use): Promise<void> => {
+      await page.goto("/");
+
+      await use();
+    },
+    { auto: true },
+  ],
+
   checkAccessibility: async ({ page }, use): Promise<void> => {
     // Checks current page
     const checkAccessibility = async (): Promise<void> => {
@@ -26,14 +37,6 @@ export const test = base.extend<TestFixtures>({
     const pageFactory = new PageFactory(page);
     await use(pageFactory);
   },
-
-  seedAuthSession: [
-    async ({ page }, use): Promise<void> => {
-      await page.request.get("/test/auth-session");
-      await use();
-    },
-    { auto: true },
-  ],
 });
 
 export { expect } from "@playwright/test";

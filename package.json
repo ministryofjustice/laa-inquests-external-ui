@@ -24,8 +24,9 @@
     "build:ts:prod": "tsc -p tsconfig.build.prod.json",
     "test": "yarn build && yarn test:unit && yarn test:e2e",
     "test:unit": "mocha",
-    "test:e2e": "yarn build && yarn playwright test --config=tests/playwright/playwright.config.ts",
-    "coverage": "c8 yarn test:unit --check-coverage"
+    "test:e2e": "yarn clean && yarn build:ts && node public/esbuild.js && yarn playwright test --config=tests/playwright/playwright.config.ts",
+    "coverage": "c8 yarn test:unit --check-coverage",
+    "seed-app": "yarn clean && yarn build:ts && node public/esbuild.js && PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS=true yarn playwright test --config=tests/playwright/playwright.config.ts --project=setup --project='seed application'"
   },
   "engines": {
     "node": "26.4.0"
@@ -103,6 +104,7 @@
     "mocha": "^11.7.6",
     "msw": "^2.14.6",
     "nodemon": "^3.1.14",
+    "otpauth": "^9.5.1",
     "playwright-core": "^1.60.0",
     "prettier": "^3.8.3",
     "sass": "^1.100.0",
