@@ -26,6 +26,7 @@ interface NormalisedTotalClaimFormData {
 export class TotalClaimValidator extends FormValidator {
   validateTotalClaim(
     formBody: Partial<TotalClaimFormData>,
+    claimSubtype?: string,
   ): Partial<TotalClaimError> {
     const normalisedForm = this.#normaliseFormData(formBody);
 
@@ -60,6 +61,26 @@ export class TotalClaimValidator extends FormValidator {
 
     if (errorSummaries.netTotalInputError !== undefined) {
       return errorSummaries;
+    }
+
+    const profitCostError = this.#checkProfitCostMixedVat(
+      normalisedForm,
+      claimSubtype,
+    );
+    if (profitCostError !== undefined) {
+      return {
+        ...errorSummaries,
+        zeroVatTotalInputError: { text: profitCostError },
+      };
+    }
+
+    const netHigherThanGrossError =
+      this.#checkNetNotHigherThanGross(normalisedForm);
+    if (netHigherThanGrossError !== undefined) {
+      return {
+        ...errorSummaries,
+        netTotalInputError: { text: netHigherThanGrossError },
+      };
     }
 
     const calculationError =
@@ -137,20 +158,42 @@ export class TotalClaimValidator extends FormValidator {
     return undefined;
   }
 
+  #checkProfitCostMixedVat(
+    formData: NormalisedTotalClaimFormData,
+    claimSubtype: string | undefined,
+  ): string | undefined {
+    if (
+      claimSubtype === "PROFIT_COST" &&
+      this.#hasValidMonetaryValue(formData.zeroVatTotal) &&
+      this.#hasValidMonetaryValue(formData.netTotal)
+    ) {
+      return TOTAL_CLAIM_ERROR.PROFIT_COST_MIXED_VAT;
+    }
+    return undefined;
+  }
+
+  #checkNetNotHigherThanGross(
+    formData: NormalisedTotalClaimFormData,
+  ): string | undefined {
+    const netTotalValue = this.#parseMonetaryValue(formData.netTotal);
+    const grossTotalValue = this.#parseMonetaryValue(formData.grossTotal);
+
+    if (
+      this.#hasValidMonetaryValue(formData.netTotal) &&
+      this.#hasValidMonetaryValue(formData.grossTotal) &&
+      netTotalValue! > grossTotalValue!
+    ) {
+      return TOTAL_CLAIM_ERROR.NET_TOTAL_HIGHER_THAN_GROSS_TOTAL;
+    }
+    return undefined;
+  }
+
   #validateGrossTotalCalculation(
     formData: NormalisedTotalClaimFormData,
   ): string | undefined {
     const zeroVatValue = this.#parseMonetaryValue(formData.zeroVatTotal);
     const netTotalValue = this.#parseMonetaryValue(formData.netTotal);
     const grossTotalValue = this.#parseMonetaryValue(formData.grossTotal);
-
-    if (
-      this.#hasValidMonetaryValue(formData.grossTotal) &&
-      this.#hasValidMonetaryValue(formData.netTotal) &&
-      grossTotalValue! < netTotalValue!
-    ) {
-      return TOTAL_CLAIM_ERROR.GROSS_TOTAL_LESS_THAN_NET_TOTAL;
-    }
 
     if (
       !this.#hasValidMonetaryValue(formData.grossTotal) ||

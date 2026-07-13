@@ -77,7 +77,7 @@ describe("TotalClaimValidator", () => {
       });
     });
 
-    it("returns error when gross total is less than net total", () => {
+    it("returns error on net total field when net total is higher than gross total", () => {
       const validator = new TotalClaimValidator();
 
       const errorSummaries = validator.validateTotalClaim({
@@ -86,8 +86,27 @@ describe("TotalClaimValidator", () => {
       });
 
       assert.deepEqual(errorSummaries, {
-        grossTotalInputError: {
-          text: TOTAL_CLAIM_ERROR.GROSS_TOTAL_LESS_THAN_NET_TOTAL,
+        netTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.NET_TOTAL_HIGHER_THAN_GROSS_TOTAL,
+        },
+      });
+    });
+
+    it("returns error when profit cost claim has both 0% and 20% VAT entered", () => {
+      const validator = new TotalClaimValidator();
+
+      const errorSummaries = validator.validateTotalClaim(
+        {
+          "zero-vat-total": "150",
+          "net-total": "200",
+          "gross-total": "440",
+        },
+        "PROFIT_COST",
+      );
+
+      assert.deepEqual(errorSummaries, {
+        zeroVatTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.PROFIT_COST_MIXED_VAT,
         },
       });
     });

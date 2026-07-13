@@ -43,7 +43,10 @@ export class TotalClaimAdaptor {
     } = res;
 
     const errorSummaries: Partial<TotalClaimError> =
-      this.formValidator.validateTotalClaim(req.body);
+      this.formValidator.validateTotalClaim(
+        req.body,
+        req.session.claim?.subtype,
+      );
 
     const zeroVatTotal = this.#normaliseForSession(req.body["zero-vat-total"]);
     const netTotal = this.#normaliseForSession(req.body["net-total"]);

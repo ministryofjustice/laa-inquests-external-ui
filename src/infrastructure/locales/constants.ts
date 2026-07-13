@@ -20,9 +20,11 @@ export const TOTAL_CLAIM_ERROR = {
   INVALID_GROSS_TOTAL:
     "Gross total of claim including VAT must be a valid amount with up to 2 decimal places",
   MISSING_GROSS_TOTAL_WHEN_NET_ENTERED:
-    "Enter gross total of claim including VAT when net total is entered",
-  GROSS_TOTAL_LESS_THAN_NET_TOTAL:
-    "Gross total of claim including VAT cannot be less than the net total",
+    "Please complete the gross total value of your claim",
+  PROFIT_COST_MIXED_VAT:
+    "You cannot submit a profit cost claim with both 0% and 20% VAT",
+  NET_TOTAL_HIGHER_THAN_GROSS_TOTAL:
+    "Net total cannot be higher than the gross total value",
   INVALID_GROSS_TOTAL_CALCULATION:
     "Gross total of claim including VAT must equal 0% VAT total plus net total plus 20% VAT",
 };

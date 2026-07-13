@@ -95,15 +95,15 @@ test.describe("Claim - total cost", () => {
     await expect(page).toHaveURL("/claim/total-cost");
     await expect(
       page.getByRole("link", {
-        name: "Enter gross total of claim including VAT when net total is entered",
+        name: "Please complete the gross total value of your claim",
       }),
     ).toBeVisible();
     await expect(page.locator("#gross-total-error")).toContainText(
-      "Enter gross total of claim including VAT when net total is entered",
+      "Please complete the gross total value of your claim",
     );
   });
 
-  test("shows validation error when gross total is less than net total", async ({
+  test("shows validation error when net total is higher than gross total", async ({
     page,
   }) => {
     await page
@@ -116,11 +116,41 @@ test.describe("Claim - total cost", () => {
     await expect(page).toHaveURL("/claim/total-cost");
     await expect(
       page.getByRole("link", {
-        name: "Gross total of claim including VAT cannot be less than the net total",
+        name: "Net total cannot be higher than the gross total value",
       }),
     ).toBeVisible();
-    await expect(page.locator("#gross-total-error")).toContainText(
-      "Gross total of claim including VAT cannot be less than the net total",
+    await expect(page.locator("#net-total-error")).toContainText(
+      "Net total cannot be higher than the gross total value",
+    );
+  });
+
+  test("shows validation error when profit cost claim has both 0% and 20% VAT entered", async ({
+    page,
+  }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/subtype");
+    await page.getByLabel("Profit cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+
+    await page.getByLabel("Total for costs charged at 0% VAT").fill("150");
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("200");
+    await page.getByLabel("Gross total of claim including VAT").fill("440");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/total-cost");
+    await expect(
+      page.getByRole("link", {
+        name: "You cannot submit a profit cost claim with both 0% and 20% VAT",
+      }),
+    ).toBeVisible();
+    await expect(page.locator("#zero-vat-total-error")).toContainText(
+      "You cannot submit a profit cost claim with both 0% and 20% VAT",
     );
   });
 
