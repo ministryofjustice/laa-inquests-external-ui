@@ -94,7 +94,7 @@ export class TotalClaimValidator extends FormValidator {
 
     if (
       formData.zeroVatTotal !== undefined &&
-      !this.#isValidMonetaryValue(formData.zeroVatTotal)
+      !this.#hasValidMonetaryValue(formData.zeroVatTotal)
     ) {
       errorSummaries.zeroVatTotalInputError = {
         text: TOTAL_CLAIM_ERROR.INVALID_ZERO_VAT_TOTAL,
@@ -103,7 +103,7 @@ export class TotalClaimValidator extends FormValidator {
 
     if (
       formData.netTotal !== undefined &&
-      !this.#isValidMonetaryValue(formData.netTotal)
+      !this.#hasValidMonetaryValue(formData.netTotal)
     ) {
       errorSummaries.netTotalInputError = {
         text: TOTAL_CLAIM_ERROR.INVALID_NET_TOTAL,
@@ -112,7 +112,7 @@ export class TotalClaimValidator extends FormValidator {
 
     if (
       formData.grossTotal !== undefined &&
-      !this.#isValidMonetaryValue(formData.grossTotal)
+      !this.#hasValidMonetaryValue(formData.grossTotal)
     ) {
       errorSummaries.grossTotalInputError = {
         text: TOTAL_CLAIM_ERROR.INVALID_GROSS_TOTAL,
@@ -145,23 +145,23 @@ export class TotalClaimValidator extends FormValidator {
     const grossTotalValue = this.#parseMonetaryValue(formData.grossTotal);
 
     if (
-      grossTotalValue !== undefined &&
-      netTotalValue !== undefined &&
-      grossTotalValue < netTotalValue
+      this.#hasValidMonetaryValue(formData.grossTotal) &&
+      this.#hasValidMonetaryValue(formData.netTotal) &&
+      grossTotalValue! < netTotalValue!
     ) {
       return TOTAL_CLAIM_ERROR.GROSS_TOTAL_LESS_THAN_NET_TOTAL;
     }
 
     if (
-      grossTotalValue === undefined ||
-      zeroVatValue === undefined ||
-      netTotalValue === undefined
+      !this.#hasValidMonetaryValue(formData.grossTotal) ||
+      !this.#hasValidMonetaryValue(formData.zeroVatTotal) ||
+      !this.#hasValidMonetaryValue(formData.netTotal)
     ) {
       return undefined;
     }
 
     const expectedGrossTotal = this.#roundToTwo(
-      zeroVatValue + netTotalValue + netTotalValue * VAT_RATE,
+      zeroVatValue! + netTotalValue! + netTotalValue! * VAT_RATE,
     );
 
     if (grossTotalValue !== expectedGrossTotal) {
@@ -191,6 +191,10 @@ export class TotalClaimValidator extends FormValidator {
     }
 
     return trimmedInput;
+  }
+
+  #hasValidMonetaryValue(inputValue: string | undefined): inputValue is string {
+    return inputValue !== undefined && this.#isValidMonetaryValue(inputValue);
   }
 
   #isValidMonetaryValue(inputValue: string): boolean {
