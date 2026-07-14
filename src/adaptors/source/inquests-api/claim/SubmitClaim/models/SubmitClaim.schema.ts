@@ -6,9 +6,9 @@ export const SubmitClaimApiErrorSchema = z.object({
 
 export const SubmitClaimRequestSchema = z.object({
   claimType: z.string(),
-  totalProfitCostVatZero: z.number(),
-  totalProfitCostNet: z.number(),
-  totalProfitCostGross: z.number(),
+  totalProfitCostVatZero: z.number().optional().nullable(),
+  totalProfitCostNet: z.number().optional().nullable(),
+  totalProfitCostGross: z.number().nullable(),
   poaTypeId: z.string(),
   claimantId: z.string(),
 });
@@ -19,8 +19,9 @@ export const SubmitClaimResponseSchema = z.object({
   claimTypeId: z.string(),
   statusId: z.string(),
   submissionDate: z.string(),
-  totalProfitCostNet: z.number(),
-  totalProfitCostGross: z.number(),
+  totalProfitCostVatZero: z.number().optional().nullable(),
+  totalProfitCostNet: z.number().optional().nullable(),
+  totalProfitCostGross: z.number().optional().nullable(),
   claimantId: z.string(),
   poaTypeId: z.string(),
 });
