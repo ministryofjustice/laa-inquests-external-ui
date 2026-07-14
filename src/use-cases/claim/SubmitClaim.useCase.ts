@@ -11,9 +11,9 @@ export interface SubmitClaimInput {
   poaTypeId: string;
   claimantId: string;
   accessToken: string | undefined;
-  zeroVatTotal: number;
-  netTotal: number;
-  grossTotal: number;
+  zeroVatTotal: number | null;
+  netTotal: number | null;
+  grossTotal: number | null;
 }
 
 interface SubmitClaimSuccess {

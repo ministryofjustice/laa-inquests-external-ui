@@ -74,21 +74,30 @@ export class ConfirmAndSubmitAdaptor {
 
   #buildSubmitClaimInput(req: Request): SubmitClaimInput {
     const { session } = req;
-    const { claim, providerEmail, accessToken } = session;
-    const parseAmount = (value: string | undefined): number => {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : 0;
-    };
+    const { claim = {}, providerEmail = "", accessToken } = session;
+    const {
+      caseReference = "",
+      type = "",
+      subtype = "",
+      zeroVatTotal,
+      netTotal,
+      grossTotal,
+    } = claim;
     return {
-      laaReference: claim?.caseReference ?? "",
-      claimType: claim?.type ?? "",
-      poaTypeId: claim?.subtype ?? "",
-      claimantId: providerEmail ?? "",
+      laaReference: caseReference,
+      claimType: type,
+      poaTypeId: subtype,
+      claimantId: providerEmail,
       accessToken,
-      zeroVatTotal: parseAmount(claim?.zeroVatTotal),
-      netTotal: parseAmount(claim?.netTotal),
-      grossTotal: parseAmount(claim?.grossTotal),
+      zeroVatTotal: this.#parseAmount(zeroVatTotal),
+      netTotal: this.#parseAmount(netTotal),
+      grossTotal: this.#parseAmount(grossTotal),
     };
+  }
+
+  #parseAmount(value: string | undefined): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   #buildRenderData(req: Request): Record<string, unknown> {
