@@ -47,6 +47,9 @@ export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
   NON_EXPERT_DISBURSEMENT: "Non-expert disbursement",
 };
 
+export const SUBMIT_CLAIM_FALLBACK_ERROR =
+  "Your claim could not be submitted. Please check your answers and try again.";
+
 export const CLAIM_NET_TOTAL_VALUE = 1000;
 export const CLAIM_GROSS_TOTAL_VALUE = 1200;
 

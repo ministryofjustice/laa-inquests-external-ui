@@ -154,6 +154,9 @@ describe("ConfirmAndSubmit adaptor", () => {
         caseReference: "1",
         type: "PAYMENT_ON_ACCOUNT",
         subtype: "PROFIT_COST",
+        zeroVatTotal: "10",
+        netTotal: "1000",
+        grossTotal: "1210",
       };
       requestStub.session.providerEmail = "solicitor@firm.co.uk";
       requestStub.session.accessToken = "my-token";
@@ -167,6 +170,9 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(input.poaTypeId, "PROFIT_COST");
       assert.equal(input.claimantId, "solicitor@firm.co.uk");
       assert.equal(input.accessToken, "my-token");
+      assert.equal(input.zeroVatTotal, 10);
+      assert.equal(input.netTotal, 1000);
+      assert.equal(input.grossTotal, 1210);
     });
 
     it("stores the claimReferenceNumber in the session and redirects to the confirmation page on success", async () => {
@@ -185,6 +191,9 @@ describe("ConfirmAndSubmit adaptor", () => {
         caseReference: "1",
         type: "PAYMENT_ON_ACCOUNT",
         subtype: "PROFIT_COST",
+        zeroVatTotal: "0",
+        netTotal: "1000",
+        grossTotal: "1200",
       };
       requestStub.session.providerEmail = "test@provider.co.uk";
       requestStub.session.accessToken = "my-token";
@@ -196,6 +205,37 @@ describe("ConfirmAndSubmit adaptor", () => {
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/confirmation/success");
       assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("re-renders the check-your-answers page with error summaries when the use case returns VALIDATION_FAILED", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "VALIDATION_FAILED",
+        errorSummaries: {
+          submitError: {
+            text: "Net total cannot be higher than the gross total value",
+          },
+        },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      responseStub.locals = { csrfToken: "test-token" };
+      const requestStub = stubInterface<Request>();
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "claim/check-your-answers");
+      const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.deepEqual(viewModel.errorSummaries, {
+        submitError: {
+          text: "Net total cannot be higher than the gross total value",
+        },
+      });
+      assert.equal(responseStub.redirect.callCount, 0);
     });
 
     it("redirects to the global error route when the use case returns TECHNICAL_FAILURE", async () => {

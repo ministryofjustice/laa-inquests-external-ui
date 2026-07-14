@@ -1,7 +1,12 @@
 import { z } from "zod";
 
+export const SubmitClaimApiErrorSchema = z.object({
+  errorCode: z.string(),
+});
+
 export const SubmitClaimRequestSchema = z.object({
   claimType: z.string(),
+  totalProfitCostVatZero: z.number(),
   totalProfitCostNet: z.number(),
   totalProfitCostGross: z.number(),
   poaTypeId: z.string(),

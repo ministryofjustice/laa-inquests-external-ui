@@ -16,7 +16,29 @@ const coronersLetterFileName = "test_coroners_letter.pdf";
 const bypassCreateApplicationMocks =
   process.env.PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS === "true";
 
+// Sentinel laaReference used in E2E tests to trigger a 422 response from the claim submit endpoint.
+// The GET search handler returns a mock case with this numeric laaReference when the search term is "force-422".
+const FORCE_422_LAA_REFERENCE = "422";
+
 export const apiHandlers = [
+  http.get("*/applications/search", ({ request }) => {
+    const url = new URL(request.url);
+    if (url.searchParams.get("laa_reference") !== "force-422") {
+      return passthrough();
+    }
+    return HttpResponse.json([
+      {
+        laaReference: 422,
+        clientFirstName: "Force",
+        clientLastName: "422",
+        clientDateOfBirth: "01/01/2000",
+        dateSubmitted: "2026-01-01T00:00:00",
+        firmName: "Test Firm",
+        firmNumber: "123",
+        overallDecision: "PENDING",
+      },
+    ]);
+  }),
   http.post(
     `${process.env.INQUESTS_API_URL}/applications/upload-coroners-letter`,
     () =>
@@ -40,8 +62,19 @@ export const apiHandlers = [
       { status: 201 },
     );
   }),
-  http.post("*/applications/*/claim", async () =>
-    HttpResponse.json(
+  http.post("*/applications/*/claim", async ({ request }) => {
+    const url = new URL(request.url);
+    const pathParts = url.pathname.split("/");
+    const laaReference = pathParts[pathParts.indexOf("applications") + 1];
+
+    if (laaReference === FORCE_422_LAA_REFERENCE) {
+      return HttpResponse.json(
+        { errorCode: "NET_TOTAL_HIGHER_THAN_GROSS_TOTAL" },
+        { status: 422 },
+      );
+    }
+
+    return HttpResponse.json(
       {
         claimId: 42,
         laaReference: 1,
@@ -54,6 +87,6 @@ export const apiHandlers = [
         poaTypeId: "PROFIT_COST",
       },
       { status: 201 },
-    ),
-  ),
+    );
+  }),
 ];
