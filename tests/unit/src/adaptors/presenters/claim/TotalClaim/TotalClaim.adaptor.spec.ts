@@ -70,6 +70,37 @@ describe("TotalClaim adaptor", () => {
       });
     });
 
+    it("re-renders with combination error when profit cost subtype has both 0% and 20% VAT fields", () => {
+      const adaptor = new TotalClaimAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "PAYMENT_ON_ACCOUNT", subtype: "PROFIT_COST" },
+      } as Request["session"];
+      requestStub.body = {
+        "zero-vat-total": "150",
+        "net-total": "200",
+        "gross-total": "440",
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
+
+      const [viewName, viewModel] = responseStub.render.getCall(0)
+        .args as unknown as [string, Record<string, unknown>];
+
+      assert.equal(viewName, "claim/total-cost");
+      assert.deepEqual(viewModel.errorSummaries, {
+        zeroVatTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.PROFIT_COST_MIXED_VAT,
+        },
+      });
+    });
+
     it("saves values to session and redirects when submission is valid", () => {
       const adaptor = new TotalClaimAdaptor();
       const requestStub = stubInterface<Request>();

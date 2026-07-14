@@ -1,6 +1,9 @@
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import { CONFIRM_CLAIM_PLACEHOLDER } from "#src/infrastructure/locales/constants.js";
+import {
+  SUBMIT_CLAIM_FALLBACK_ERROR,
+  TOTAL_CLAIM_ERROR,
+} from "#src/infrastructure/locales/constants.js";
 
 export interface SubmitClaimInput {
   laaReference: string;
@@ -8,10 +11,17 @@ export interface SubmitClaimInput {
   poaTypeId: string;
   claimantId: string;
   accessToken: string | undefined;
+  zeroVatTotal: number | null;
+  netTotal: number | null;
+  grossTotal: number | null;
 }
 
 interface SubmitClaimSuccess {
   claimId: number;
+}
+
+export interface SubmitClaimErrorSummaries {
+  submitError: { text: string };
 }
 
 export class SubmitClaimUseCase {
@@ -19,20 +29,35 @@ export class SubmitClaimUseCase {
 
   async execute(
     input: SubmitClaimInput,
-  ): Promise<UseCaseResult<SubmitClaimSuccess>> {
+  ): Promise<UseCaseResult<SubmitClaimSuccess, SubmitClaimErrorSummaries>> {
     try {
-      const response = await this.claimSubmitPort.submitClaim(
+      const result = await this.claimSubmitPort.submitClaim(
         input.laaReference,
         {
           claimType: input.claimType,
-          totalProfitCostNet: CONFIRM_CLAIM_PLACEHOLDER.NET_TOTAL_VALUE,
-          totalProfitCostGross: CONFIRM_CLAIM_PLACEHOLDER.GROSS_TOTAL_VALUE,
+          totalProfitCostVatZero: input.zeroVatTotal,
+          totalProfitCostNet: input.netTotal,
+          totalProfitCostGross: input.grossTotal,
           poaTypeId: input.poaTypeId,
           claimantId: input.claimantId,
         },
         input.accessToken,
       );
-      return { status: "SUCCESS", data: { claimId: response.claimId } };
+
+      if (result.status === "UNPROCESSABLE") {
+        const text =
+          result.errorCode in TOTAL_CLAIM_ERROR
+            ? TOTAL_CLAIM_ERROR[
+                result.errorCode as keyof typeof TOTAL_CLAIM_ERROR
+              ]
+            : SUBMIT_CLAIM_FALLBACK_ERROR;
+        return {
+          status: "VALIDATION_FAILED",
+          errorSummaries: { submitError: { text } },
+        };
+      }
+
+      return { status: "SUCCESS", data: { claimId: result.data.claimId } };
     } catch {
       return { status: "TECHNICAL_FAILURE", reason: "UNEXPECTED_EXCEPTION" };
     }

@@ -35,24 +35,9 @@ export class ConfirmAndSubmitAdaptor {
   }
 
   renderForm(req: Request, res: Response): void {
-    const {
-      locals: { csrfToken },
-    } = res;
-    const {
-      session: { claim },
-    } = req;
-
     res.render("claim/check-your-answers", {
-      csrfToken,
-      caseDetails: this.#buildCaseDetails(claim),
-      claimDetails: {
-        claimType: this.#labelFor(CLAIM_TYPE_LABEL, claim?.type),
-        claimSubtype: this.#labelFor(CLAIM_SUBTYPE_LABEL, claim?.subtype),
-      },
-      cost: this.#buildCostDetails(claim),
-      evidence: {
-        uploadedFiles: CONFIRM_CLAIM_PLACEHOLDER.UPLOADED_FILES,
-      },
+      csrfToken: res.locals.csrfToken,
+      ...this.#buildRenderData(req),
     });
   }
 
@@ -60,6 +45,15 @@ export class ConfirmAndSubmitAdaptor {
     const result = await this.submitClaimUseCase.execute(
       this.#buildSubmitClaimInput(req),
     );
+
+    if (result.status === "VALIDATION_FAILED") {
+      res.render("claim/check-your-answers", {
+        csrfToken: res.locals.csrfToken,
+        ...this.#buildRenderData(req),
+        errorSummaries: result.errorSummaries,
+      });
+      return;
+    }
 
     if (result.status !== "SUCCESS") {
       const reason = "reason" in result ? result.reason : "INVALID_INPUT_STATE";
@@ -80,13 +74,46 @@ export class ConfirmAndSubmitAdaptor {
 
   #buildSubmitClaimInput(req: Request): SubmitClaimInput {
     const { session } = req;
-    const { claim, providerEmail, accessToken } = session;
+    const { claim = {}, providerEmail = "", accessToken } = session;
+    const {
+      caseReference = "",
+      type = "",
+      subtype = "",
+      zeroVatTotal,
+      netTotal,
+      grossTotal,
+    } = claim;
     return {
-      laaReference: claim?.caseReference ?? "",
-      claimType: claim?.type ?? "",
-      poaTypeId: claim?.subtype ?? "",
-      claimantId: providerEmail ?? "",
+      laaReference: caseReference,
+      claimType: type,
+      poaTypeId: subtype,
+      claimantId: providerEmail,
       accessToken,
+      zeroVatTotal: this.#parseAmount(zeroVatTotal),
+      netTotal: this.#parseAmount(netTotal),
+      grossTotal: this.#parseAmount(grossTotal),
+    };
+  }
+
+  #parseAmount(value: string | undefined): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  #buildRenderData(req: Request): Record<string, unknown> {
+    const {
+      session: { claim },
+    } = req;
+    return {
+      caseDetails: this.#buildCaseDetails(claim),
+      claimDetails: {
+        claimType: this.#labelFor(CLAIM_TYPE_LABEL, claim?.type),
+        claimSubtype: this.#labelFor(CLAIM_SUBTYPE_LABEL, claim?.subtype),
+      },
+      cost: this.#buildCostDetails(claim),
+      evidence: {
+        uploadedFiles: CONFIRM_CLAIM_PLACEHOLDER.UPLOADED_FILES,
+      },
     };
   }
 

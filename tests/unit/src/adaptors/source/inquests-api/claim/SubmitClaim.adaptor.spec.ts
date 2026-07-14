@@ -2,6 +2,7 @@ import { strict as assert } from "assert";
 import type { AxiosInstance } from "axios";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
+import { HTTP_UNPROCESSABLE_CONTENT } from "#src/infrastructure/locales/constants.js";
 
 describe("SubmitClaimAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
@@ -30,6 +31,7 @@ describe("SubmitClaimAdaptor", () => {
       "12345",
       {
         claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
         totalProfitCostNet: 1000,
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
@@ -48,6 +50,7 @@ describe("SubmitClaimAdaptor", () => {
       "12345",
       {
         claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
         totalProfitCostNet: 1000,
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
@@ -65,6 +68,7 @@ describe("SubmitClaimAdaptor", () => {
   it("sends the correct request body", async () => {
     const body = {
       claimType: "PAYMENT_ON_ACCOUNT",
+      totalProfitCostVatZero: 100,
       totalProfitCostNet: 1000,
       totalProfitCostGross: 1200,
       poaTypeId: "PROFIT_COST",
@@ -77,11 +81,12 @@ describe("SubmitClaimAdaptor", () => {
     assert.deepEqual(postCall.args[1], body);
   });
 
-  it("returns the response data from the API", async () => {
+  it("returns a CREATED result with the response data when the API call succeeds", async () => {
     const result = await adaptor.submitClaim(
       "12345",
       {
         claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
         totalProfitCostNet: 1000,
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
@@ -90,7 +95,90 @@ describe("SubmitClaimAdaptor", () => {
       "access-token-123",
     );
 
-    assert.deepEqual(result, mockResponse);
+    assert.equal(result.status, "CREATED");
+    assert.deepEqual(
+      (result as { status: string; data: typeof mockResponse }).data,
+      mockResponse,
+    );
+  });
+
+  it("returns an UNPROCESSABLE result with the errorCode when the API responds with 422", async () => {
+    const axiosError = {
+      response: {
+        status: HTTP_UNPROCESSABLE_CONTENT,
+        data: { errorCode: "NET_TOTAL_HIGHER_THAN_GROSS_TOTAL" },
+      },
+    };
+    axiosStub.post.rejects(axiosError);
+
+    const result = await adaptor.submitClaim(
+      "12345",
+      {
+        claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
+        totalProfitCostNet: 1000,
+        totalProfitCostGross: 1200,
+        poaTypeId: "PROFIT_COST",
+        claimantId: "test@provider.co.uk",
+      },
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "UNPROCESSABLE");
+    assert.equal(
+      (result as { status: string; errorCode: string }).errorCode,
+      "NET_TOTAL_HIGHER_THAN_GROSS_TOTAL",
+    );
+  });
+
+  it("returns an UNPROCESSABLE result with an empty errorCode when the 422 body is unrecognised", async () => {
+    const axiosError = {
+      response: {
+        status: HTTP_UNPROCESSABLE_CONTENT,
+        data: { unexpected: "shape" },
+      },
+    };
+    axiosStub.post.rejects(axiosError);
+
+    const result = await adaptor.submitClaim(
+      "12345",
+      {
+        claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
+        totalProfitCostNet: 1000,
+        totalProfitCostGross: 1200,
+        poaTypeId: "PROFIT_COST",
+        claimantId: "test@provider.co.uk",
+      },
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "UNPROCESSABLE");
+    assert.equal(
+      (result as { status: string; errorCode: string }).errorCode,
+      "",
+    );
+  });
+
+  it("re-throws non-422 errors", async () => {
+    axiosStub.post.rejects(new Error("Network error"));
+
+    await assert.rejects(
+      async () =>
+        adaptor.submitClaim(
+          "12345",
+          {
+            claimType: "PAYMENT_ON_ACCOUNT",
+            totalProfitCostVatZero: 100,
+            totalProfitCostNet: 1000,
+            totalProfitCostGross: 1200,
+            poaTypeId: "PROFIT_COST",
+            claimantId: "test@provider.co.uk",
+          },
+          "access-token-123",
+        ),
+      /Network error/,
+    );
   });
 
   it("throws when the access token is missing", async () => {
@@ -100,6 +188,7 @@ describe("SubmitClaimAdaptor", () => {
           "12345",
           {
             claimType: "PAYMENT_ON_ACCOUNT",
+            totalProfitCostVatZero: 100,
             totalProfitCostNet: 1000,
             totalProfitCostGross: 1200,
             poaTypeId: "PROFIT_COST",
@@ -118,6 +207,7 @@ describe("SubmitClaimAdaptor", () => {
           "12345",
           {
             claimType: "PAYMENT_ON_ACCOUNT",
+            totalProfitCostVatZero: 100,
             totalProfitCostNet: 1000,
             totalProfitCostGross: 1200,
             poaTypeId: "PROFIT_COST",

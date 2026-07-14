@@ -1,9 +1,14 @@
 import { z } from "zod";
 
+export const SubmitClaimApiErrorSchema = z.object({
+  errorCode: z.string(),
+});
+
 export const SubmitClaimRequestSchema = z.object({
   claimType: z.string(),
-  totalProfitCostNet: z.number(),
-  totalProfitCostGross: z.number(),
+  totalProfitCostVatZero: z.number().optional().nullable(),
+  totalProfitCostNet: z.number().optional().nullable(),
+  totalProfitCostGross: z.number().nullable(),
   poaTypeId: z.string(),
   claimantId: z.string(),
 });
@@ -14,8 +19,9 @@ export const SubmitClaimResponseSchema = z.object({
   claimTypeId: z.string(),
   statusId: z.string(),
   submissionDate: z.string(),
-  totalProfitCostNet: z.number(),
-  totalProfitCostGross: z.number(),
+  totalProfitCostVatZero: z.number().optional().nullable(),
+  totalProfitCostNet: z.number().optional().nullable(),
+  totalProfitCostGross: z.number().optional().nullable(),
   claimantId: z.string(),
   poaTypeId: z.string(),
 });

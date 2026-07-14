@@ -203,6 +203,42 @@ test.describe("Claim - confirm and submit", () => {
     await expect(page).toHaveURL("/claim/confirmation/success");
   });
 
+  test("displays a 'There is a problem' error summary when the API returns a 422", async ({
+    page,
+  }) => {
+    await page.goto("/claim");
+    await page
+      .getByTestId("case-search-form")
+      .getByLabel("Enter the case reference number")
+      .fill("force-422");
+    await page
+      .getByTestId("case-search-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+    await page.waitForURL("**/claim/results");
+    await page
+      .getByRole("table")
+      .getByRole("row")
+      .nth(1)
+      .getByRole("link")
+      .click();
+    await page.waitForURL("**/claim/type");
+    await page.goto("/claim/check-your-answers");
+
+    await page
+      .getByTestId("confirm-and-submit-form")
+      .getByRole("button", { name: "Finish and submit claim" })
+      .click();
+
+    await expect(page).toHaveURL("/claim/check-your-answers");
+    await expect(
+      page.getByRole("heading", { name: "There is a problem" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Net total cannot be higher than the gross total value"),
+    ).toBeVisible();
+  });
+
   test("shows the Type of POA row when POA is the claim type", async ({
     page,
   }) => {
