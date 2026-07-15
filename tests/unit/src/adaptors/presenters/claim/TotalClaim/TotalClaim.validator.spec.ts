@@ -7,11 +7,33 @@ describe("TotalClaimValidator", () => {
     it("returns error when all inputs are empty", () => {
       const validator = new TotalClaimValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
-        "zero-vat-total": "",
-        "net-total": "",
-        "gross-total": "",
+      const errorSummaries = validator.validateTotalClaim(
+        {
+          "zero-vat-total": "",
+          "net-total": "",
+          "gross-total": "",
+        },
+        "EXPERT_COST",
+      );
+
+      assert.deepEqual(errorSummaries, {
+        zeroVatTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.MISSING_TOTAL_CLAIM_COST,
+        },
       });
+    });
+
+    it("returns shared empty-input error for profit subtype when all inputs are empty", () => {
+      const validator = new TotalClaimValidator();
+
+      const errorSummaries = validator.validateTotalClaim(
+        {
+          "zero-vat-total": "",
+          "net-total": "",
+          "gross-total": "",
+        },
+        "PROFIT_COST",
+      );
 
       assert.deepEqual(errorSummaries, {
         zeroVatTotalInputError: {
@@ -130,21 +152,27 @@ describe("TotalClaimValidator", () => {
     it("returns empty errors when zero VAT total is entered alone with a valid value", () => {
       const validator = new TotalClaimValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
-        "zero-vat-total": "25.50",
-      });
+      const errorSummaries = validator.validateTotalClaim(
+        {
+          "zero-vat-total": "25.50",
+        },
+        "EXPERT_COST",
+      );
 
       assert.deepEqual(errorSummaries, {});
     });
 
-    it("returns empty errors when values are valid and gross total matches calculation", () => {
+    it("returns empty errors for non-profit subtype when values are valid and gross total matches calculation", () => {
       const validator = new TotalClaimValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
-        "zero-vat-total": "100",
-        "net-total": "250.25",
-        "gross-total": "400.30",
-      });
+      const errorSummaries = validator.validateTotalClaim(
+        {
+          "zero-vat-total": "100",
+          "net-total": "250.25",
+          "gross-total": "400.30",
+        },
+        "EXPERT_COST",
+      );
 
       assert.deepEqual(errorSummaries, {});
     });

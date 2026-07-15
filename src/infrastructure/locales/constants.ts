@@ -12,7 +12,7 @@ export const CLAIM_TYPE_ERROR = {
 
 export const TOTAL_CLAIM_ERROR = {
   MISSING_TOTAL_CLAIM_COST:
-    "Enter at least one amount for 0% VAT, net total, or gross total",
+    "Please complete the total value of your claim to continue",
   INVALID_ZERO_VAT_TOTAL:
     "Total for costs charged at 0% VAT must be a valid amount with up to 2 decimal places",
   INVALID_NET_TOTAL:

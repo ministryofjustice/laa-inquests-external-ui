@@ -63,9 +63,17 @@ test.describe("Claim - total cost", () => {
     await expect(backLink).toHaveAttribute("href", "/claim/type");
   });
 
-  test("shows validation error and does not progress when no values are entered", async ({
+  test("shows validation error and does not progress when no values are entered for non-profit POA", async ({
     page,
   }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/subtype");
+    await page.getByLabel("Expert cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+
     await page
       .getByTestId("total-cost-form")
       .getByRole("button", { name: "Continue" })
@@ -75,11 +83,11 @@ test.describe("Claim - total cost", () => {
     await expect(page.getByText("There is a problem")).toBeVisible();
     await expect(
       page.getByRole("link", {
-        name: "Enter at least one amount for 0% VAT, net total, or gross total",
+        name: "Please complete the total value of your claim to continue",
       }),
     ).toBeVisible();
     await expect(page.locator("#zero-vat-total-error")).toContainText(
-      "Enter at least one amount for 0% VAT, net total, or gross total",
+      "Please complete the total value of your claim to continue",
     );
   });
 
@@ -174,6 +182,42 @@ test.describe("Claim - total cost", () => {
     await expect(page.locator("#gross-total-error")).toContainText(
       "Gross total of claim including VAT must equal 0% VAT total plus net total plus 20% VAT",
     );
+  });
+
+  test("allows all three fields for non-profit POA", async ({ page }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/subtype");
+    await page.getByLabel("Expert cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+
+    await page.getByLabel("Total for costs charged at 0% VAT").fill("100.00");
+    await page
+      .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
+      .fill("200.00");
+    await page.getByLabel("Gross total of claim including VAT").fill("340.00");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/evidence");
+  });
+
+  test("allows 0% VAT field only for non-profit POA", async ({ page }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/subtype");
+    await page.getByLabel("Expert cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+
+    await page.getByLabel("Total for costs charged at 0% VAT").fill("150.00");
+
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/evidence");
   });
 
   test("redirects to /claim/evidence when valid values are submitted", async ({
