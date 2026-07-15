@@ -3,6 +3,7 @@ import sinon from "sinon";
 import type { NextFunction, Request, Response } from "express";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { handleServerErrors } from "#src/infrastructure/express/middleware/errors/errors.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 describe("error middleware", () => {
   let req: StubbedInstance<Request>;
@@ -22,7 +23,7 @@ describe("error middleware", () => {
   describe("handleServerErrors", () => {
     it("logs and renders the fallback 500 page", () => {
       const err = new Error("plain error");
-      const consoleSpy = sinon.spy(console, "error");
+      const logSpy = sinon.spy(logger, "logError");
 
       handleServerErrors(
         err,
@@ -31,7 +32,7 @@ describe("error middleware", () => {
         next as unknown as NextFunction,
       );
 
-      assert.equal(consoleSpy.callCount, 1);
+      assert.equal(logSpy.callCount, 1);
       assert.equal(res.render.callCount, 1);
       assert.deepEqual(res.render.firstCall.args, [
         "main/error",

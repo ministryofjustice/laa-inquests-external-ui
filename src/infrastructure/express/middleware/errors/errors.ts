@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { devError } from "#src/infrastructure/express/middleware/logger.js";
-
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import {
   HTTP_INTERNAL_SERVER_ERROR,
   HTTP_NOT_FOUND,
@@ -19,7 +18,7 @@ const handleServerErrors = (
   res: Response,
   _: NextFunction,
 ): void => {
-  devError(`Server Error Middleware: ${err as string}`);
+  logger.logError("Server Error Middleware", "Internal Server Error", err, req);
   res.render("main/error", {
     status: HTTP_INTERNAL_SERVER_ERROR,
     message: "Internal Server Error",
