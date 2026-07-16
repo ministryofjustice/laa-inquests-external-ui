@@ -133,22 +133,6 @@ describe("TotalClaimValidator", () => {
       });
     });
 
-    it("returns error when gross total does not match expected calculation", () => {
-      const validator = new TotalClaimValidator();
-
-      const errorSummaries = validator.validateTotalClaim({
-        "zero-vat-total": "50",
-        "net-total": "100",
-        "gross-total": "160",
-      });
-
-      assert.deepEqual(errorSummaries, {
-        grossTotalInputError: {
-          text: TOTAL_CLAIM_ERROR.INVALID_GROSS_TOTAL_CALCULATION,
-        },
-      });
-    });
-
     it("returns empty errors when zero VAT total is entered alone with a valid value", () => {
       const validator = new TotalClaimValidator();
 
