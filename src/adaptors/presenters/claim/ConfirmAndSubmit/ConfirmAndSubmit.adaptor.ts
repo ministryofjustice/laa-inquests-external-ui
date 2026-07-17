@@ -11,7 +11,7 @@ import {
   SubmitClaimUseCase,
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
-import { appInfo } from "#src/infrastructure/express/middleware/logger.js";
+import { logger as appLogger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
@@ -26,7 +26,9 @@ export class ConfirmAndSubmitAdaptor {
     formatter: Formatter,
     claimSubmitPort: ClaimSubmitPort,
     useCases?: Partial<ConfirmAndSubmitUseCases>,
-    logger: (message: string) => void = appInfo,
+    logger: (message: string) => void = (message) => {
+      appLogger.logInfo("ConfirmAndSubmit", message);
+    },
   ) {
     this.formatter = formatter;
     this.submitClaimUseCase =

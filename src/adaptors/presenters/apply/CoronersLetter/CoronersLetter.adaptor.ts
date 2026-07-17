@@ -4,8 +4,8 @@ import type { UploadCoronersLetterValidator } from "./CoronersLetter.validator.j
 import {
   CORONERS_LETTER_ERROR,
   EMPTY_ARR_LENGTH,
+  HTTP_SERVICE_UNAVAILABLE,
 } from "#src/infrastructure/locales/constants.js";
-import { HTTP_SERVICE_UNAVAILABLE } from "#src/infrastructure/express/middleware/errors.js";
 
 export class CoronersLetterAdaptor {
   formValidator: UploadCoronersLetterValidator;

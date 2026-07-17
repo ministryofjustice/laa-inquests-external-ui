@@ -19,8 +19,13 @@ jobs:
         env:
           CI: true
           # Add session-related environment variables for unit tests
-          SESSION_SECRET: "mocha-test-secret" # Use a simple test secret for Mocha unit tests
+          SESSION_SECRET: "mocha-test-secret"
           SESSION_NAME: "sessionId"
+          AUTH_DIRECTORY_URL: "https://example.test/auth"
+          AUTH_CLIENT_ID: "test-client-id"
+          AUTH_CLIENT_SECRET: "test-client-secret"
+          AUTH_REDIRECT_URI: "https://example.test/callback"
+          AUTH_POST_LOGOUT_URI: "https://example.test/logout"
 
       - name: Upload coverage artifact
         if: always()
