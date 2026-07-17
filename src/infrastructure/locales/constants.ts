@@ -12,7 +12,7 @@ export const CLAIM_TYPE_ERROR = {
 
 export const TOTAL_CLAIM_ERROR = {
   MISSING_TOTAL_CLAIM_COST:
-    "Enter at least one amount for 0% VAT, net total, or gross total",
+    "Please complete the total value of your claim to continue",
   INVALID_ZERO_VAT_TOTAL:
     "Total for costs charged at 0% VAT must be a valid amount with up to 2 decimal places",
   INVALID_NET_TOTAL:
@@ -25,8 +25,6 @@ export const TOTAL_CLAIM_ERROR = {
     "You cannot submit a profit cost claim with both 0% and 20% VAT",
   NET_TOTAL_HIGHER_THAN_GROSS_TOTAL:
     "Net total cannot be higher than the gross total value",
-  INVALID_GROSS_TOTAL_CALCULATION:
-    "Gross total of claim including VAT must equal 0% VAT total plus net total plus 20% VAT",
 };
 
 export const CLAIM_TYPE_VALUE = {

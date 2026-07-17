@@ -2,7 +2,6 @@ import { FormValidator } from "#src/utils/FormValidator.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
 
 const VALID_MONETARY_INPUT_REGEX = /^(?:[0-9]+(?:\.[0-9]{1,2})?)$/v;
-const VAT_RATE = 0.2;
 const PENCE_DIVISOR = 100;
 
 export interface TotalClaimFormData {
@@ -80,18 +79,6 @@ export class TotalClaimValidator extends FormValidator {
       return {
         ...errorSummaries,
         netTotalInputError: { text: netHigherThanGrossError },
-      };
-    }
-
-    const calculationError =
-      this.#validateGrossTotalCalculation(normalisedForm);
-
-    if (calculationError !== undefined) {
-      return {
-        ...errorSummaries,
-        grossTotalInputError: {
-          text: calculationError,
-        },
       };
     }
 
@@ -185,32 +172,6 @@ export class TotalClaimValidator extends FormValidator {
     ) {
       return TOTAL_CLAIM_ERROR.NET_TOTAL_HIGHER_THAN_GROSS_TOTAL;
     }
-    return undefined;
-  }
-
-  #validateGrossTotalCalculation(
-    formData: NormalisedTotalClaimFormData,
-  ): string | undefined {
-    const zeroVatValue = this.#parseMonetaryValue(formData.zeroVatTotal);
-    const netTotalValue = this.#parseMonetaryValue(formData.netTotal);
-    const grossTotalValue = this.#parseMonetaryValue(formData.grossTotal);
-
-    if (
-      !this.#hasValidMonetaryValue(formData.grossTotal) ||
-      !this.#hasValidMonetaryValue(formData.zeroVatTotal) ||
-      !this.#hasValidMonetaryValue(formData.netTotal)
-    ) {
-      return undefined;
-    }
-
-    const expectedGrossTotal = this.#roundToTwo(
-      zeroVatValue! + netTotalValue! + netTotalValue! * VAT_RATE,
-    );
-
-    if (grossTotalValue !== expectedGrossTotal) {
-      return TOTAL_CLAIM_ERROR.INVALID_GROSS_TOTAL_CALCULATION;
-    }
-
     return undefined;
   }
 
