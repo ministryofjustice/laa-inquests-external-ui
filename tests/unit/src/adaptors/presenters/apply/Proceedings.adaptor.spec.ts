@@ -89,7 +89,7 @@ describe("Proceedings adaptor", () => {
 
       const expectedSelectedProceeding = {
         proceedingId: "MN035",
-        proceedingDescription: "Clinical Negligence",
+        proceedingName: "Clinical Negligence",
         matterType: "INQUEST",
       };
 
@@ -160,7 +160,7 @@ describe("Proceedings adaptor", () => {
       const selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -253,7 +253,7 @@ describe("Proceedings adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];

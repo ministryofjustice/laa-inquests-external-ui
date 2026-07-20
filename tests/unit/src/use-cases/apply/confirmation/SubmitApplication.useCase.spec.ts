@@ -220,7 +220,7 @@ function createValidState(
     selectedProceedings: [
       {
         proceedingId: "MN035",
-        proceedingDescription: "Clinical Negligence",
+        proceedingName: "Clinical Negligence",
         matterType: "INQUEST",
       },
     ],

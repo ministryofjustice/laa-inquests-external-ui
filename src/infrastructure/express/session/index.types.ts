@@ -53,7 +53,7 @@ export interface ClaimClientDetails {
 
 export interface Proceeding {
   proceedingId: string;
-  proceedingDescription: string;
+  proceedingName: string;
   matterType: string;
 }
 
