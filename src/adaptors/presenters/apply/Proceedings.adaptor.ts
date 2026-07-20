@@ -162,7 +162,7 @@ export class ProceedingsAdaptor {
 
   #formatProceedingOptions(proceedingOptions: Proceeding[]): Option[] {
     return proceedingOptions.map((proceeding) => ({
-      text: proceeding.proceedingDescription,
+      text: proceeding.proceedingName,
       value: proceeding.proceedingId,
     }));
   }
@@ -173,7 +173,7 @@ export class ProceedingsAdaptor {
     const formattedSelectedProceedings = selectedProceedings.map(
       (proceeding) => ({
         key: { text: proceeding.proceedingId },
-        value: { text: proceeding.proceedingDescription },
+        value: { text: proceeding.proceedingName },
         actions: {
           items: [
             {

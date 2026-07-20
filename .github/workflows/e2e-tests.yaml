@@ -96,18 +96,18 @@ jobs:
           VALUES (:'msw_id', 'e2e-seed.pdf', 'e2e-seed.pdf')
           ON CONFLICT (coroners_letter_id) DO NOTHING;
 
-          INSERT INTO proceeding (proceeding_id, proceeding_description, category_of_law, certificate_type, level_of_service, matter_type, scope_limitation_heading, scope_description, substantive_cost_limitation)
+          INSERT INTO proceeding (proceeding_id, proceeding_name, proceeding_description, category_of_law, certificate_type, level_of_service, matter_type, scope_limitation_heading, scope_description, substantive_cost_limitation)
           VALUES
-            ('PC049', 'CAPA',                                       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('MN035', 'Clinical Negligence',                        'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('MN036', 'Death in Custody - Clinical Negligence',     'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('MH028', 'Mental Health',                              'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('MH030', 'Death in Detention - Mental Health',         'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQ001', 'Death in Custody',                           'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQ002', 'Inquest',                                    'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQ003', 'Schedule 6 Town & Country Planning Act 1990','INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQ004', 'Public Inquiry s1 Inquiries Act 2005',       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQ010', 'S13 Coroner''s Act 1988 - Public Law',       'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000)
+            ('PC049', 'CAPA',                                       'CAPA', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('MN035', 'Clinical Negligence',                        'Clinical Negligence', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('MN036', 'Death in Custody - Clinical Negligence',     'Death in Custody - Clinical Negligence', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('MH028', 'Mental Health',                              'Mental Health', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('MH030', 'Death in Detention - Mental Health',         'Death in Detention - Mental Health', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQ001', 'Death in Custody',                           'Death in Custody', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQ002', 'Inquest',                                    'Inquest', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQ003', 'Schedule 6 Town & Country Planning Act 1990','Schedule 6 Town & Country Planning Act 1990','INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQ004', 'Public Inquiry s1 Inquiries Act 2005',       'Public Inquiry s1 Inquiries Act 2005', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQ010', 'S13 Coroner''s Act 1988 - Public Law',       'S13 Coroner''s Act 1988 - Public Law', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000)
           ON CONFLICT (proceeding_id) DO NOTHING;
 
           INSERT INTO public_body (public_body_id, public_body_description)

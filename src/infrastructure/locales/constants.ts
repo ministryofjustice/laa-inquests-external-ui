@@ -255,52 +255,52 @@ export const UK_POSTCODE_REGEX =
 export const PROCEEDING_OPTIONS = [
   {
     proceedingId: "PC049",
-    proceedingDescription: "CAPA",
+    proceedingName: "CAPA",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MN035",
-    proceedingDescription: "Clinical Negligence",
+    proceedingName: "Clinical Negligence",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MN036",
-    proceedingDescription: "Death in Custody - Clinical Negligence",
+    proceedingName: "Death in Custody - Clinical Negligence",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MH028",
-    proceedingDescription: "Mental Health",
+    proceedingName: "Mental Health",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MH030",
-    proceedingDescription: "Death in Detention - Mental Health",
+    proceedingName: "Death in Detention - Mental Health",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ001",
-    proceedingDescription: "Death in Custody",
+    proceedingName: "Death in Custody",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ002",
-    proceedingDescription: "Inquest",
+    proceedingName: "Inquest",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ003",
-    proceedingDescription: "Schedule 6 Town & Country Planning Act 1990",
+    proceedingName: "Schedule 6 Town & Country Planning Act 1990",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ004",
-    proceedingDescription: "Public Inquiry s1 Inquiries Act 2005",
+    proceedingName: "Public Inquiry s1 Inquiries Act 2005",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ010",
-    proceedingDescription: "S13 Coroner’s Act 1988 - Public Law",
+    proceedingName: "S13 Coroner’s Act 1988 - Public Law",
     matterType: "INQUEST",
   },
 ];
