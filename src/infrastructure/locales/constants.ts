@@ -45,6 +45,27 @@ export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
   NON_EXPERT_DISBURSEMENT: "Non-expert disbursement",
 };
 
+export const CLAIM_REJECTION_REASON_CODES = [
+  "MAX_POA_CLAIMS_EXCEEDED",
+  "CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT",
+  "APPLICATION_CLAIMS_EXCEED_COST_LIMIT",
+  "PROFIT_COST_POA_CLAIM_SUBMITTED_TOO_EARLY",
+] as const;
+
+export type ClaimRejectionReasonCode =
+  (typeof CLAIM_REJECTION_REASON_CODES)[number];
+
+export const CLAIM_REJECTION_REASON_LABEL: Record<
+  ClaimRejectionReasonCode,
+  string
+> = {
+  MAX_POA_CLAIMS_EXCEEDED: "Maximum number of POAs exceeded",
+  CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT: "Claim exceeds cost limit",
+  APPLICATION_CLAIMS_EXCEED_COST_LIMIT: "Aggregate cost limit exceeded",
+  PROFIT_COST_POA_CLAIM_SUBMITTED_TOO_EARLY:
+    "Submitted too early, claim is less than 3 calendar months after certificate was issued",
+};
+
 export const SUBMIT_CLAIM_FALLBACK_ERROR =
   "Your claim could not be submitted. Please check your answers and try again.";
 
