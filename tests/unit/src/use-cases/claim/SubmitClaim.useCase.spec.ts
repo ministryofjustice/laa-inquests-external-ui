@@ -176,4 +176,45 @@ describe("SubmitClaimUseCase", () => {
       { submitError: { text: SUBMIT_CLAIM_FALLBACK_ERROR } },
     );
   });
+
+  it("returns SUCCESS with rejection reasons when the port returns REJECTED", async () => {
+    claimSubmitPort.submitClaim.resolves({
+      status: "REJECTED",
+      data: {
+        claimId: 42,
+        rejectionReasons: [
+          "MAX_POA_CLAIMS_EXCEEDED",
+          "UNLISTED_REJECTION_REASON_CODE",
+        ],
+      },
+    });
+
+    const result = await useCase.execute({
+      laaReference: "1",
+      claimType: "PAYMENT_ON_ACCOUNT",
+      poaTypeId: "PROFIT_COST",
+      claimantId: "test@provider.co.uk",
+      accessToken: "access-token-123",
+      zeroVatTotal: 0,
+      netTotal: 1000,
+      grossTotal: 1200,
+    });
+
+    assert.equal(result.status, "SUCCESS");
+    assert.deepEqual(
+      (
+        result as {
+          status: string;
+          data: { claimId: number; rejectionReasons: string[] };
+        }
+      ).data,
+      {
+        claimId: 42,
+        rejectionReasons: [
+          "MAX_POA_CLAIMS_EXCEEDED",
+          "UNLISTED_REJECTION_REASON_CODE",
+        ],
+      },
+    );
+  });
 });

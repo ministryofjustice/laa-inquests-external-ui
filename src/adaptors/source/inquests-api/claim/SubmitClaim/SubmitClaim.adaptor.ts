@@ -3,11 +3,13 @@ import type {
   ClaimSubmitPort,
   SubmitClaimPortResult,
 } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
-import type {
-  SubmitClaimRequest,
-  SubmitClaimResponse,
-} from "./models/SubmitClaim.types.js";
-import { SubmitClaimApiErrorSchema } from "./models/SubmitClaim.schema.js";
+import type { SubmitClaimRequest } from "./models/SubmitClaim.types.js";
+import {
+  SubmitClaimApiErrorSchema,
+  SubmitClaimResponseAcceptedSchema,
+  SubmitClaimResponseRejectedFallbackSchema,
+  SubmitClaimResponseRejectedSchema,
+} from "./models/SubmitClaim.schema.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { isAxiosErrorWithResponse } from "#src/infrastructure/express/middleware/axios/errors.js";
 import { HTTP_UNPROCESSABLE_CONTENT } from "#src/infrastructure/locales/constants.js";
@@ -24,15 +26,46 @@ export class SubmitClaimAdaptor implements ClaimSubmitPort {
     accessToken: string | undefined,
   ): Promise<SubmitClaimPortResult> {
     try {
-      const response: AxiosResponse<SubmitClaimResponse> =
-        await postToInquestsApi<SubmitClaimResponse, SubmitClaimRequest>({
-          http: this.http,
-          baseUrl: this.baseUrl,
-          path: `/applications/${laaReference}/claim`,
-          body,
-          accessToken,
-        });
-      return { status: "CREATED", data: response.data };
+      const response: AxiosResponse<unknown> = await postToInquestsApi<
+        unknown,
+        SubmitClaimRequest
+      >({
+        http: this.http,
+        baseUrl: this.baseUrl,
+        path: `/applications/${laaReference}/claim`,
+        body,
+        accessToken,
+      });
+
+      const rejectedKnown = SubmitClaimResponseRejectedSchema.safeParse(
+        response.data,
+      );
+
+      if (rejectedKnown.success) {
+        return {
+          status: "REJECTED",
+          data: {
+            claimId: rejectedKnown.data.claimId,
+            rejectionReasons: rejectedKnown.data.rejectionReasons,
+          },
+        };
+      }
+
+      const rejectedFallback =
+        SubmitClaimResponseRejectedFallbackSchema.safeParse(response.data);
+
+      if (rejectedFallback.success) {
+        return {
+          status: "REJECTED",
+          data: {
+            claimId: rejectedFallback.data.claimId,
+            rejectionReasons: rejectedFallback.data.rejectionReasons,
+          },
+        };
+      }
+
+      const accepted = SubmitClaimResponseAcceptedSchema.parse(response.data);
+      return { status: "CREATED", data: accepted };
     } catch (error) {
       if (
         isAxiosErrorWithResponse(error) &&

@@ -1,5 +1,6 @@
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import type { ClaimRejectionReasonCode } from "#src/infrastructure/locales/constants.js";
 
 declare module "express-session" {
   interface SessionData extends Record<
@@ -24,6 +25,7 @@ declare module "express-session" {
     coronersLetterFileName?: string;
     providerEmail?: string;
     claimReferenceNumber?: string;
+    claimRejectionReasons?: ClaimRejectionReasonCode[] | string[];
     claim?: ClaimSession;
   }
 }
