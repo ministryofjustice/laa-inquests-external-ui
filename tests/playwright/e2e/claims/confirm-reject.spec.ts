@@ -45,7 +45,7 @@ test.describe("Claim - confirm reject", () => {
     ).toBeVisible();
 
     await expect(
-      page.locator(".govuk-panel[class*='govuk-!-background-red']"),
+      page.locator(".govuk-panel.app-panel--rejected"),
     ).toBeVisible();
   });
 
