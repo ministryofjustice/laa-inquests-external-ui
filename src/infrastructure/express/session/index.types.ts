@@ -65,6 +65,4 @@ export interface PublicAuthority {
 export type ClientHomeAddress = Address;
 
 export type CorrespondenceAddressSource =
-  | "USE_CLIENT_HOME_ADDRESS"
-  | "USE_SPECIFIED_ADDRESS"
-  | "USE_PROVIDER_ADDRESS";
+  "USE_CLIENT_HOME_ADDRESS" | "USE_SPECIFIED_ADDRESS" | "USE_PROVIDER_ADDRESS";
