@@ -1,0 +1,39 @@
+{% extends "base.njk" %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      {{ govukPanel({
+        titleText: "Payment on account claim has been rejected",
+        classes: "app-panel--rejected"
+      }) }}
+      <div class="govuk-grid-column-two-thirds">
+        <h2 class="govuk-heading-l govuk-!-padding-top-5">Your claim has been rejected because:</h2>
+        <ul class="govuk-list govuk-list--bullet">
+          {% for reason in rejectionReasonDescriptions %}
+            <li>{{ reason }}</li>
+          {% endfor %}
+        </ul>
+
+        <h2 class="govuk-heading-l">What happens next</h2>
+        <p class="govuk-body">
+          You cannot go back and edit your claim.
+        </p>
+        <p class="govuk-body">
+          You need to make a new claim.
+        </p>
+        {{ govukButton({
+          text: "Make a new claim",
+          href: "/claim",
+          classes: "govuk-!-margin-top-4"
+        }) }}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

@@ -26,5 +26,12 @@ export function createConfirmAndSubmitClaimRouter(
     },
   );
 
+  confirmAndSubmitClaimRouter.get(
+    "/confirmation/reject",
+    (req: Request, res: Response): void => {
+      confirmAndSubmitAdaptor.renderConfirmReject(req, res);
+    },
+  );
+
   return confirmAndSubmitClaimRouter;
 }

@@ -20,6 +20,32 @@ describe("SubmitClaimAdaptor", () => {
     poaTypeId: "PROFIT_COST",
   };
 
+  const rejectedMockResponse = {
+    claimId: 2,
+    laaReference: 1,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    statusId: "REJECTED",
+    submissionDate: "2026-07-07T12:25:08.407881",
+    totalProfitCostNet: 1000,
+    totalProfitCostGross: 1200,
+    claimantId: "claimant-123@provider.co.uk",
+    poaTypeId: "PROFIT_COST",
+    rejectionReasons: ["MAX_POA_CLAIMS_EXCEEDED"],
+  };
+
+  const rejectedUnknownCodeResponse = {
+    claimId: 3,
+    laaReference: 1,
+    claimTypeId: "PAYMENT_ON_ACCOUNT",
+    statusId: "REJECTED",
+    submissionDate: "2026-07-07T12:25:08.407881",
+    totalProfitCostNet: 1000,
+    totalProfitCostGross: 1200,
+    claimantId: "claimant-123@provider.co.uk",
+    poaTypeId: "PROFIT_COST",
+    rejectionReasons: ["UNLISTED_REJECTION_REASON_CODE"],
+  };
+
   beforeEach(() => {
     axiosStub = stubInterface<AxiosInstance>();
     axiosStub.post.resolves({ status: 201, data: mockResponse });
@@ -157,6 +183,68 @@ describe("SubmitClaimAdaptor", () => {
     assert.equal(
       (result as { status: string; errorCode: string }).errorCode,
       "",
+    );
+  });
+
+  it("returns a REJECTED result when the API responds with statusId REJECTED and known rejection reasons", async () => {
+    axiosStub.post.resolves({ status: 201, data: rejectedMockResponse });
+
+    const result = await adaptor.submitClaim(
+      "12345",
+      {
+        claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
+        totalProfitCostNet: 1000,
+        totalProfitCostGross: 1200,
+        poaTypeId: "PROFIT_COST",
+        claimantId: "test@provider.co.uk",
+      },
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "REJECTED");
+    assert.deepEqual(
+      (
+        result as {
+          status: string;
+          data: { claimId: number; rejectionReasons: string[] };
+        }
+      ).data,
+      {
+        claimId: 2,
+        rejectionReasons: ["MAX_POA_CLAIMS_EXCEEDED"],
+      },
+    );
+  });
+
+  it("returns a REJECTED result when the API responds with statusId REJECTED and unknown rejection reasons", async () => {
+    axiosStub.post.resolves({ status: 201, data: rejectedUnknownCodeResponse });
+
+    const result = await adaptor.submitClaim(
+      "12345",
+      {
+        claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
+        totalProfitCostNet: 1000,
+        totalProfitCostGross: 1200,
+        poaTypeId: "PROFIT_COST",
+        claimantId: "test@provider.co.uk",
+      },
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "REJECTED");
+    assert.deepEqual(
+      (
+        result as {
+          status: string;
+          data: { claimId: number; rejectionReasons: string[] };
+        }
+      ).data,
+      {
+        claimId: 3,
+        rejectionReasons: ["UNLISTED_REJECTION_REASON_CODE"],
+      },
     );
   });
 
