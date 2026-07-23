@@ -16,14 +16,6 @@ export const SubmitClaimRequestSchema = z.object({
 
 const SubmitClaimResponseBaseSchema = z.object({
   claimId: z.number(),
-  laaReference: z.number(),
-  claimTypeId: z.string(),
-  submissionDate: z.string(),
-  totalProfitCostVatZero: z.number().optional().nullable(),
-  totalProfitCostNet: z.number().optional().nullable(),
-  totalProfitCostGross: z.number().optional().nullable(),
-  claimantId: z.string(),
-  poaTypeId: z.string(),
 });
 
 export const ClaimRejectionReasonCodeSchema = z.enum(
@@ -32,21 +24,15 @@ export const ClaimRejectionReasonCodeSchema = z.enum(
 
 export const SubmitClaimResponseRejectedSchema =
   SubmitClaimResponseBaseSchema.extend({
-    statusId: z.literal("REJECTED"),
     rejectionReasons: z.array(ClaimRejectionReasonCodeSchema).nonempty(),
   });
 
 export const SubmitClaimResponseRejectedFallbackSchema =
   SubmitClaimResponseBaseSchema.extend({
-    statusId: z.literal("REJECTED"),
     rejectionReasons: z.array(z.string()).nonempty(),
   });
 
-export const SubmitClaimResponseAcceptedSchema =
-  SubmitClaimResponseBaseSchema.extend({
-    statusId: z.string().refine((value) => value !== "REJECTED"),
-    rejectionReasons: z.undefined().optional(),
-  });
+export const SubmitClaimResponseAcceptedSchema = SubmitClaimResponseBaseSchema;
 
 export const SubmitClaimResponseSchema = z.union([
   SubmitClaimResponseRejectedSchema,
