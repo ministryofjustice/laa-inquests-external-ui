@@ -11,17 +11,7 @@ describe("SubmitClaimUseCase", () => {
   let claimSubmitPort: StubbedInstance<ClaimSubmitPort>;
   let useCase: SubmitClaimUseCase;
 
-  const mockApiResponse = {
-    claimId: 42,
-    laaReference: 1,
-    claimTypeId: "PAYMENT_ON_ACCOUNT",
-    statusId: "SUBMITTED",
-    submissionDate: "2026-07-07T12:25:08.407881",
-    totalProfitCostNet: 1000,
-    totalProfitCostGross: 1200,
-    claimantId: "test@provider.co.uk",
-    poaTypeId: "PROFIT_COST",
-  };
+  const mockApiResponse = { claimId: 42 };
 
   beforeEach(() => {
     claimSubmitPort = stubInterface<ClaimSubmitPort>();
