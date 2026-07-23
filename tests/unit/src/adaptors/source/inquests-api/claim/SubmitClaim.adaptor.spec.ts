@@ -12,7 +12,7 @@ describe("SubmitClaimAdaptor", () => {
     claimId: 1,
     laaReference: 1,
     claimTypeId: "PAYMENT_ON_ACCOUNT",
-    statusId: "PENDING",
+    statusId: "SUBMITTED",
     submissionDate: "2026-07-07T12:25:08.407881",
     totalProfitCostNet: 1000,
     totalProfitCostGross: 1200,
