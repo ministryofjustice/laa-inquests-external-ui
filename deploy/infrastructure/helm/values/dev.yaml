@@ -49,12 +49,12 @@ ingress:
   enabled: true
   className: modsec-non-prod
   hosts:
-    - host: laa-inquests-external-ui-uat.apps.live.cloud-platform.service.justice.gov.uk
+    - host: laa-inquests-external-ui-dev.apps.live.cloud-platform.service.justice.gov.uk
       paths:
         - path: /
           pathType: Prefix
   annotations:
-    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-external-ui-laa-inquests-external-ui-uat-green"
+    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-external-ui-laa-inquests-external-ui-dev-green"
     external-dns.alpha.kubernetes.io/aws-weight: "100"
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/enable-owasp-core-rules: "true"
@@ -98,14 +98,14 @@ env:
   CONTACT_EMAIL: "eligibility@justice.gov.uk"
   CONTACT_PHONE: ""
   # TODO: Is this value actually being used, I think the real one might be the github variable
-  INQUESTS_API_URL: "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk"
+  INQUESTS_API_URL: "https://laa-inquests-api-dev.apps.live.cloud-platform.service.justice.gov.uk"
   SERVICE_URL: "https://www.gov.uk/legal-aid"
   SESSION_NAME: "sessionId"
   RATELIMIT_HEADERS_ENABLED: true
   RATELIMIT_STORAGE_URI: ""
   RATE_LIMIT_MAX: 10000
   RATE_WINDOW_MS: 900000
-  NODE_ENV: "uat"
+  NODE_ENV: "dev"
 
 autoscaling:
   enabled: false

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-environment=${1:-"uat"}
+environment=${1:-"dev"}
 
 deployments=$(helm -n laa-inquests-external-ui-${environment} list | grep -v "NAME" | grep -v "^laa-inquests-external-ui\>" | cut -f 1)
 

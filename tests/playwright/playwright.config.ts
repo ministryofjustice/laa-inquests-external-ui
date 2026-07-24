@@ -19,7 +19,7 @@ export const TEST_CONFIG = {
   BASE_URL: process.env.BASE_URL || "http://localhost:3000",
   INQUESTS_API_URL:
     process.env.INQUESTS_API_URL ||
-    "https://laa-inquests-api-uat.apps.live.cloud-platform.service.justice.gov.uk",
+    "https://laa-inquests-api-dev.apps.live.cloud-platform.service.justice.gov.uk",
 };
 
 /**
