@@ -30,7 +30,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 2 : 0,
-  workers: 1,
+  workers: process.env.CI === "true" ? 2 : 4,
   reporter: "html",
   use: {
     baseURL: TEST_CONFIG.BASE_URL,
