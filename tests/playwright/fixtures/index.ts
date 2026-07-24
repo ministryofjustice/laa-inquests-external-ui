@@ -1,7 +1,10 @@
 import { test as base, expect, type BrowserContext } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import { PageFactory } from "#tests/playwright/fixtures/pages/PageFactory.js";
-import { AUTH_FILE, SESSION_COOKIE_NAME } from "#tests/playwright/constants/AuthFile.js";
+import {
+  AUTH_FILE,
+  SESSION_COOKIE_NAME,
+} from "#tests/playwright/constants/AuthFile.js";
 import { TEST_CONFIG } from "../playwright.config.js";
 
 type WorkerStorageState = Awaited<ReturnType<BrowserContext["storageState"]>>;
@@ -21,7 +24,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   // Runs once per worker — prevents parallel workers sharing the same session ID from AUTH_FILE.
   workerStorageState: [
     async ({ browser }, use): Promise<void> => {
-      const context = await browser.newContext({ storageState: AUTH_FILE, baseURL: TEST_CONFIG.BASE_URL });
+      const context = await browser.newContext({
+        storageState: AUTH_FILE,
+        baseURL: TEST_CONFIG.BASE_URL,
+      });
       await context.clearCookies({ name: SESSION_COOKIE_NAME });
       const setupPage = await context.newPage();
       await setupPage.goto("/");
@@ -36,7 +42,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   // Each test gets its own page backed by the worker's unique session state.
   page: async ({ browser, workerStorageState }, use): Promise<void> => {
-    const context = await browser.newContext({ storageState: workerStorageState, baseURL: TEST_CONFIG.BASE_URL });
+    const context = await browser.newContext({
+      storageState: workerStorageState,
+      baseURL: TEST_CONFIG.BASE_URL,
+    });
     const testPage = await context.newPage();
     await use(testPage);
     await context.close();
