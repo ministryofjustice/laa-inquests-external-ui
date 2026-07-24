@@ -12,10 +12,12 @@ const OTP_PERIOD_SECONDS = 30;
 
 export default async function globalSetup(): Promise<void> {
   const {
-    E2E_PROVIDER_USERNAME: username,
-    E2E_PROVIDER_PASSWORD: password,
-    E2E_PROVIDER_MFA_TOTP_SECRET: totpSecret,
-  } = process.env;
+    env: {
+      E2E_PROVIDER_USERNAME: username,
+      E2E_PROVIDER_PASSWORD: password,
+      E2E_PROVIDER_MFA_TOTP_SECRET: totpSecret,
+    },
+  } = process;
 
   if (username === undefined || username === "") {
     throw new Error(
