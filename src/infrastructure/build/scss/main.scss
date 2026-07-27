@@ -23,3 +23,8 @@ body.js-enabled {
   background-color: transparent;
   box-shadow: none;
 }
+
+// Override the default green confirmation panel background for rejected claims
+.govuk-panel.app-panel--rejected {
+  background-color: index.govuk-colour("red");
+}

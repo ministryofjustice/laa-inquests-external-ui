@@ -215,7 +215,7 @@ export class ProceedingsAdaptor {
       } else {
         res.render("apply/proceedings/remove-proceeding", {
           csrfToken,
-          proceedingName: proceedingToRemove.proceedingDescription,
+          proceedingName: proceedingToRemove.proceedingName,
           proceedingId: proceedingToRemove.proceedingId,
         });
       }

@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import type { ClaimSession } from "#src/infrastructure/express/session/index.types.js";
 import {
+  EMPTY_ARR_LENGTH,
+  CLAIM_REJECTION_REASON_LABEL,
   CLAIM_SUBTYPE_LABEL,
   CLAIM_TYPE_LABEL,
   CONFIRM_CLAIM_PLACEHOLDER,
@@ -9,6 +11,7 @@ import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim
 import type { Formatter } from "#src/utils/Formatter.js";
 import {
   SubmitClaimUseCase,
+  type SubmitClaimErrorSummaries,
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import { logger as appLogger } from "#src/infrastructure/express/middleware/logger/logger.js";
@@ -49,29 +52,56 @@ export class ConfirmAndSubmitAdaptor {
     );
 
     if (result.status === "VALIDATION_FAILED") {
-      res.render("claim/check-your-answers", {
-        csrfToken: res.locals.csrfToken,
-        ...this.#buildRenderData(req),
-        errorSummaries: result.errorSummaries,
-      });
-      return;
+      this.#renderValidationErrors(req, res, result.errorSummaries);
+    } else if (result.status === "SUCCESS") {
+      this.#handleSuccessfulSubmission(req, res, result.data);
+    } else {
+      this.#handleSubmissionFailure(result, res);
     }
+  }
 
-    if (result.status !== "SUCCESS") {
-      const reason = "reason" in result ? result.reason : "INVALID_INPUT_STATE";
-      this.logger(
-        JSON.stringify({
-          event: "submit.claim.error",
-          reason,
-        }),
-      );
-      res.redirect("/error");
-      return;
-    }
+  #renderValidationErrors(
+    req: Request,
+    res: Response,
+    errorSummaries: SubmitClaimErrorSummaries,
+  ): void {
+    res.render("claim/check-your-answers", {
+      csrfToken: res.locals.csrfToken,
+      ...this.#buildRenderData(req),
+      errorSummaries,
+    });
+  }
 
+  #handleSuccessfulSubmission(
+    req: Request,
+    res: Response,
+    data: { claimId: number; rejectionReasons?: string[] } | undefined,
+  ): void {
     const { session } = req;
-    session.claimReferenceNumber = result.data?.claimId.toString() ?? "";
-    res.redirect("/claim/confirmation/success");
+    session.claimReferenceNumber = data?.claimId.toString() ?? "";
+    session.claimRejectionReasons = data?.rejectionReasons;
+    const hasRejectionReasons =
+      (data?.rejectionReasons?.length ?? EMPTY_ARR_LENGTH) > EMPTY_ARR_LENGTH;
+
+    if (hasRejectionReasons) {
+      res.redirect("/claim/confirmation/reject");
+    } else {
+      res.redirect("/claim/confirmation/success");
+    }
+  }
+
+  #handleSubmissionFailure(
+    result: { status: string; reason?: string },
+    res: Response,
+  ): void {
+    const reason = "reason" in result ? result.reason : "INVALID_INPUT_STATE";
+    this.logger(
+      JSON.stringify({
+        event: "submit.claim.error",
+        reason,
+      }),
+    );
+    res.redirect("/error");
   }
 
   #buildSubmitClaimInput(req: Request): SubmitClaimInput {
@@ -130,6 +160,27 @@ export class ConfirmAndSubmitAdaptor {
     res.render("claim/confirm-success", {
       csrfToken,
       claimReferenceNumber,
+    });
+  }
+
+  renderConfirmReject(req: Request, res: Response): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    const rejectionReasonDescriptions = (
+      req.session.claimRejectionReasons ?? []
+    ).map((reason) =>
+      reason in CLAIM_REJECTION_REASON_LABEL
+        ? CLAIM_REJECTION_REASON_LABEL[
+            reason as keyof typeof CLAIM_REJECTION_REASON_LABEL
+          ]
+        : reason,
+    );
+
+    res.render("claim/confirm-reject", {
+      csrfToken,
+      rejectionReasonDescriptions,
     });
   }
 

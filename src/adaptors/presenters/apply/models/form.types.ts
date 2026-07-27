@@ -126,14 +126,10 @@ export interface DeceasedDateOfDeathError {
 }
 
 export type CorrespondenceAddressSourceValue =
-  | "USE_CLIENT_HOME_ADDRESS"
-  | "USE_SPECIFIED_ADDRESS"
-  | "USE_PROVIDER_ADDRESS";
+  "USE_CLIENT_HOME_ADDRESS" | "USE_SPECIFIED_ADDRESS" | "USE_PROVIDER_ADDRESS";
 
 export type CorrespondenceRecipientSelectionValue =
-  | "PERSON"
-  | "ORGANISATION"
-  | "NONE";
+  "PERSON" | "ORGANISATION" | "NONE";
 export interface DeceasedDateOfBirthError {
   dateOfBirthInputError?: FormErrorMessage;
 }

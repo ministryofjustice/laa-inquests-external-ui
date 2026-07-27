@@ -1,10 +1,14 @@
 import type {
+  SubmitClaimResponseAccepted,
   SubmitClaimRequest,
-  SubmitClaimResponse,
 } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/models/SubmitClaim.types.js";
 
 export type SubmitClaimPortResult =
-  | { status: "CREATED"; data: SubmitClaimResponse }
+  | { status: "CREATED"; data: SubmitClaimResponseAccepted }
+  | {
+      status: "REJECTED";
+      data: { claimId: number; rejectionReasons: string[] };
+    }
   | { status: "UNPROCESSABLE"; errorCode: string };
 
 export interface ClaimSubmitPort {

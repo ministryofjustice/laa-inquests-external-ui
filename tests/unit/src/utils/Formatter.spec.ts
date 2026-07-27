@@ -39,7 +39,7 @@ describe("Formatter", () => {
       const selectedProceedings = [
         {
           proceedingId: "PC049",
-          proceedingDescription: "CAPA",
+          proceedingName: "CAPA",
           matterType: "INQUEST",
         },
       ];
@@ -62,12 +62,12 @@ describe("Formatter", () => {
       const selectedProceedings = [
         {
           proceedingId: "PC049",
-          proceedingDescription: "CAPA",
+          proceedingName: "CAPA",
           matterType: "INQUEST",
         },
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -93,12 +93,12 @@ describe("Formatter", () => {
       const selectedProceedings = [
         {
           proceedingId: "PC049",
-          proceedingDescription: "CAPA",
+          proceedingName: "CAPA",
           matterType: "INQUEST",
         },
         {
           proceedingId: "PC049",
-          proceedingDescription: "CAPA",
+          proceedingName: "CAPA",
           matterType: "INQUEST",
         },
       ];
@@ -123,7 +123,7 @@ describe("Formatter", () => {
       const selectedProceedings = [
         {
           proceedingId: "PC049",
-          proceedingDescription: "CAPA",
+          proceedingName: "CAPA",
           matterType: "INQUEST",
         },
       ];
@@ -141,7 +141,7 @@ describe("Formatter", () => {
       const selectedProceedings = [
         {
           proceedingId: "PC049",
-          proceedingDescription: "CAPA",
+          proceedingName: "CAPA",
           matterType: "INQUEST",
         },
       ];
@@ -164,12 +164,12 @@ describe("Formatter", () => {
     });
   });
   describe("formatOptionsIntoList", () => {
-    it("return a list containing an options object with text equal to a proceedingDescription and value equal to proceedingId when one proceeding provided", () => {
+    it("return a list containing an options object with text equal to a proceedingName and value equal to proceedingId when one proceeding provided", () => {
       const formatter = new Formatter();
       const proceedinglist = [
         {
           proceedingId: "PC049",
-          proceedingDescription: "CAPA",
+          proceedingName: "CAPA",
           matterType: "INQUEST",
         },
       ];
@@ -181,7 +181,7 @@ describe("Formatter", () => {
       expect(selectedOption.text).to.equal("CAPA");
       expect(selectedOption.value).to.equal("PC049");
     });
-    it("returns multiple option objects with text equal to the proceedingDescription and value equal to proceedingIds", () => {
+    it("returns multiple option objects with text equal to the proceedingName and value equal to proceedingIds", () => {
       const formatter = new Formatter();
 
       const allProceedings = PROCEEDING_OPTIONS;
@@ -190,7 +190,7 @@ describe("Formatter", () => {
 
       expect(options.length).to.equal(10);
       options.forEach((option, i) => {
-        expect(option.text).to.equal(allProceedings[i].proceedingDescription);
+        expect(option.text).to.equal(allProceedings[i].proceedingName);
         expect(option.value).to.equal(allProceedings[i].proceedingId);
       });
     });

@@ -45,6 +45,27 @@ export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
   NON_EXPERT_DISBURSEMENT: "Non-expert disbursement",
 };
 
+export const CLAIM_REJECTION_REASON_CODES = [
+  "MAX_POA_CLAIMS_EXCEEDED",
+  "CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT",
+  "APPLICATION_CLAIMS_EXCEED_COST_LIMIT",
+  "PROFIT_COST_POA_CLAIM_SUBMITTED_TOO_EARLY",
+] as const;
+
+export type ClaimRejectionReasonCode =
+  (typeof CLAIM_REJECTION_REASON_CODES)[number];
+
+export const CLAIM_REJECTION_REASON_LABEL: Record<
+  ClaimRejectionReasonCode,
+  string
+> = {
+  MAX_POA_CLAIMS_EXCEEDED: "Maximum number of POAs exceeded",
+  CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT: "Claim exceeds cost limit",
+  APPLICATION_CLAIMS_EXCEED_COST_LIMIT: "Aggregate cost limit exceeded",
+  PROFIT_COST_POA_CLAIM_SUBMITTED_TOO_EARLY:
+    "Submitted too early, claim is less than 3 calendar months after certificate was issued",
+};
+
 export const SUBMIT_CLAIM_FALLBACK_ERROR =
   "Your claim could not be submitted. Please check your answers and try again.";
 
@@ -255,52 +276,52 @@ export const UK_POSTCODE_REGEX =
 export const PROCEEDING_OPTIONS = [
   {
     proceedingId: "PC049",
-    proceedingDescription: "CAPA",
+    proceedingName: "CAPA",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MN035",
-    proceedingDescription: "Clinical Negligence",
+    proceedingName: "Clinical Negligence",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MN036",
-    proceedingDescription: "Death in Custody - Clinical Negligence",
+    proceedingName: "Death in Custody - Clinical Negligence",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MH028",
-    proceedingDescription: "Mental Health",
+    proceedingName: "Mental Health",
     matterType: "INQUEST",
   },
   {
     proceedingId: "MH030",
-    proceedingDescription: "Death in Detention - Mental Health",
+    proceedingName: "Death in Detention - Mental Health",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ001",
-    proceedingDescription: "Death in Custody",
+    proceedingName: "Death in Custody",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ002",
-    proceedingDescription: "Inquest",
+    proceedingName: "Inquest",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ003",
-    proceedingDescription: "Schedule 6 Town & Country Planning Act 1990",
+    proceedingName: "Schedule 6 Town & Country Planning Act 1990",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ004",
-    proceedingDescription: "Public Inquiry s1 Inquiries Act 2005",
+    proceedingName: "Public Inquiry s1 Inquiries Act 2005",
     matterType: "INQUEST",
   },
   {
     proceedingId: "IQ010",
-    proceedingDescription: "S13 Coroner’s Act 1988 - Public Law",
+    proceedingName: "S13 Coroner’s Act 1988 - Public Law",
     matterType: "INQUEST",
   },
 ];

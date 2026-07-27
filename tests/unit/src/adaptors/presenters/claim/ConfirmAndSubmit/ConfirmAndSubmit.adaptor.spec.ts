@@ -2,7 +2,10 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
-import { CONFIRM_CLAIM_PLACEHOLDER } from "#src/infrastructure/locales/constants.js";
+import {
+  CLAIM_REJECTION_REASON_LABEL,
+  CONFIRM_CLAIM_PLACEHOLDER,
+} from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import { Formatter } from "#src/utils/Formatter.js";
 import { SubmitClaimUseCase } from "#src/use-cases/claim/SubmitClaim.useCase.js";
@@ -207,6 +210,37 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(responseStub.render.callCount, 0);
     });
 
+    it("redirects to the rejected confirmation page when submission succeeds with rejection reasons", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: {
+          claimId: 42,
+          rejectionReasons: ["MAX_POA_CLAIMS_EXCEEDED"],
+        },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "PROFIT_COST",
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claimReferenceNumber, "42");
+      assert.deepEqual(requestStub.session.claimRejectionReasons, [
+        "MAX_POA_CLAIMS_EXCEEDED",
+      ]);
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/confirmation/reject");
+    });
+
     it("re-renders the check-your-answers page with error summaries when the use case returns VALIDATION_FAILED", async () => {
       submitClaimUseCase.execute.resolves({
         status: "VALIDATION_FAILED",
@@ -297,6 +331,54 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(renderArgs[0], "claim/confirm-success");
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.claimReferenceNumber, "99");
+    });
+  });
+
+  describe("renderConfirmReject", () => {
+    it("renders the claim rejection view with mapped rejection reason descriptions", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claimRejectionReasons = [
+        "MAX_POA_CLAIMS_EXCEEDED",
+        "CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT",
+      ];
+
+      adaptor.renderConfirmReject(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "claim/confirm-reject");
+      const viewModel = renderArgs[1] as unknown as {
+        csrfToken: string;
+        rejectionReasonDescriptions: string[];
+      };
+      assert.equal(viewModel.csrfToken, "test-token");
+      assert.deepEqual(viewModel.rejectionReasonDescriptions, [
+        CLAIM_REJECTION_REASON_LABEL.MAX_POA_CLAIMS_EXCEEDED,
+        CLAIM_REJECTION_REASON_LABEL.CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT,
+      ]);
+    });
+
+    it("falls back to showing the raw rejection reason code when it is unknown", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claimRejectionReasons = ["UNKNOWN_REASON_CODE"];
+
+      adaptor.renderConfirmReject(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0).args[1] as unknown as {
+        rejectionReasonDescriptions: string[];
+      };
+
+      assert.deepEqual(viewModel.rejectionReasonDescriptions, [
+        "UNKNOWN_REASON_CODE",
+      ]);
     });
   });
 });

@@ -46,7 +46,7 @@ export class Formatter {
 
   formatOptionsIntoList(proceedingOptions: Proceeding[]): Option[] {
     return proceedingOptions.map((proceeding) => ({
-      text: proceeding.proceedingDescription,
+      text: proceeding.proceedingName,
       value: proceeding.proceedingId,
     }));
   }
@@ -56,7 +56,7 @@ export class Formatter {
   ): SummaryListRow[] {
     const formattedSelectedProceedings = selectedProceedings.map(
       (proceeding) => ({
-        key: { text: proceeding.proceedingDescription },
+        key: { text: proceeding.proceedingName },
         actions: {
           items: [
             {

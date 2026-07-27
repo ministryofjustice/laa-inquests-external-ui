@@ -234,7 +234,7 @@ describe("Confirmation adaptor", () => {
     const proceedings = [
       {
         proceedingId: "MN035",
-        proceedingDescription: "Clinical Negligence",
+        proceedingName: "Clinical Negligence",
         matterType: "INQUEST",
       },
     ];
@@ -400,7 +400,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -504,7 +504,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -585,7 +585,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -653,7 +653,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -712,7 +712,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -775,7 +775,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];
@@ -844,7 +844,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.selectedProceedings = [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ];

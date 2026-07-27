@@ -18,6 +18,7 @@ export interface SubmitClaimInput {
 
 interface SubmitClaimSuccess {
   claimId: number;
+  rejectionReasons?: string[];
 }
 
 export interface SubmitClaimErrorSummaries {
@@ -55,9 +56,17 @@ export class SubmitClaimUseCase {
           status: "VALIDATION_FAILED",
           errorSummaries: { submitError: { text } },
         };
+      } else if (result.status === "REJECTED") {
+        return {
+          status: "SUCCESS",
+          data: {
+            claimId: result.data.claimId,
+            rejectionReasons: result.data.rejectionReasons,
+          },
+        };
+      } else {
+        return { status: "SUCCESS", data: { claimId: result.data.claimId } };
       }
-
-      return { status: "SUCCESS", data: { claimId: result.data.claimId } };
     } catch {
       return { status: "TECHNICAL_FAILURE", reason: "UNEXPECTED_EXCEPTION" };
     }

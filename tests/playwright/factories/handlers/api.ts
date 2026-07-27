@@ -7,8 +7,8 @@
 
 import { http, HttpResponse, passthrough } from "msw";
 
-// This is a UUID that exists in the coroners_letter table in the UAT database
-// It can be recreated by using the /applications/upload-coroners-letter endpoint in the UAT environment
+// This is a UUID that exists in the coroners_letter table in the dev database
+// It can be recreated by using the /applications/upload-coroners-letter endpoint in the dev environment
 const coronersLetterId = "1c84c788-23c4-49e7-a07e-6b391f09c116";
 const coronersLetterFileName = "test_coroners_letter.pdf";
 
@@ -19,12 +19,28 @@ const bypassCreateApplicationMocks =
 // Sentinel laaReference used in E2E tests to trigger a 422 response from the claim submit endpoint.
 // The GET search handler returns a mock case with this numeric laaReference when the search term is "force-422".
 const FORCE_422_LAA_REFERENCE = "422";
+const FORCE_REJECTED_LAA_REFERENCE = "299";
 
 export const apiHandlers = [
   http.get("*/applications/search", ({ request }) => {
     const url = new URL(request.url);
     if (url.searchParams.get("laa_reference") !== "force-422") {
-      return passthrough();
+      if (url.searchParams.get("laa_reference") !== "force-rejected") {
+        return passthrough();
+      }
+
+      return HttpResponse.json([
+        {
+          laaReference: 299,
+          clientFirstName: "Force",
+          clientLastName: "Rejected",
+          clientDateOfBirth: "01/01/2000",
+          dateSubmitted: "2026-01-01T00:00:00",
+          firmName: "Test Firm",
+          firmNumber: "123",
+          overallDecision: "PENDING",
+        },
+      ]);
     }
     return HttpResponse.json([
       {
@@ -74,12 +90,34 @@ export const apiHandlers = [
       );
     }
 
+    if (laaReference === FORCE_REJECTED_LAA_REFERENCE) {
+      return HttpResponse.json(
+        {
+          claimId: 42,
+          laaReference: 299,
+          claimTypeId: "PAYMENT_ON_ACCOUNT",
+          statusId: "REJECTED",
+          submissionDate: "2026-07-07T12:25:08.407881",
+          totalProfitCostNet: 1000,
+          totalProfitCostGross: 1200,
+          claimantId: "test@example.com",
+          poaTypeId: "PROFIT_COST",
+          rejectionReasons: [
+            "MAX_POA_CLAIMS_EXCEEDED",
+            "CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT",
+            "UNLISTED_REJECTION_REASON_CODE",
+          ],
+        },
+        { status: 201 },
+      );
+    }
+
     return HttpResponse.json(
       {
         claimId: 42,
         laaReference: 1,
         claimTypeId: "PAYMENT_ON_ACCOUNT",
-        statusId: "PENDING",
+        statusId: "SUBMITTED",
         submissionDate: "2026-07-07T12:25:08.407881",
         totalProfitCostNet: 1000,
         totalProfitCostGross: 1200,

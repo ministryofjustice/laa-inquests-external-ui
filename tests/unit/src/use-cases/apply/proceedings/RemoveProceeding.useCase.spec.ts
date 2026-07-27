@@ -9,7 +9,7 @@ describe("RemoveProceedingUseCase", () => {
       selectedProceedings: [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
       ],
@@ -21,7 +21,7 @@ describe("RemoveProceedingUseCase", () => {
         selectedProceedings: [
           {
             proceedingId: "MN035",
-            proceedingDescription: "Clinical Negligence",
+            proceedingName: "Clinical Negligence",
             matterType: "INQUEST",
           },
         ],
@@ -36,12 +36,12 @@ describe("RemoveProceedingUseCase", () => {
       selectedProceedings: [
         {
           proceedingId: "MN035",
-          proceedingDescription: "Clinical Negligence",
+          proceedingName: "Clinical Negligence",
           matterType: "INQUEST",
         },
         {
           proceedingId: "IQ002",
-          proceedingDescription: "Inquest",
+          proceedingName: "Inquest",
           matterType: "INQUEST",
         },
       ],

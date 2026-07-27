@@ -22,7 +22,7 @@ describe("AddProceedingUseCase", () => {
       selectedProceedings: [
         {
           proceedingId: "IQ002",
-          proceedingDescription: "Inquest",
+          proceedingName: "Inquest",
           matterType: "INQUEST",
         },
       ],

@@ -1,5 +1,6 @@
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import type { ClaimRejectionReasonCode } from "#src/infrastructure/locales/constants.js";
 
 declare module "express-session" {
   interface SessionData extends Record<
@@ -24,6 +25,7 @@ declare module "express-session" {
     coronersLetterFileName?: string;
     providerEmail?: string;
     claimReferenceNumber?: string;
+    claimRejectionReasons?: ClaimRejectionReasonCode[] | string[];
     claim?: ClaimSession;
   }
 }
@@ -53,7 +55,7 @@ export interface ClaimClientDetails {
 
 export interface Proceeding {
   proceedingId: string;
-  proceedingDescription: string;
+  proceedingName: string;
   matterType: string;
 }
 
@@ -65,6 +67,4 @@ export interface PublicAuthority {
 export type ClientHomeAddress = Address;
 
 export type CorrespondenceAddressSource =
-  | "USE_CLIENT_HOME_ADDRESS"
-  | "USE_SPECIFIED_ADDRESS"
-  | "USE_PROVIDER_ADDRESS";
+  "USE_CLIENT_HOME_ADDRESS" | "USE_SPECIFIED_ADDRESS" | "USE_PROVIDER_ADDRESS";
