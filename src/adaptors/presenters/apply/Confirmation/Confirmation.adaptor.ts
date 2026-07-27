@@ -120,6 +120,8 @@ export class ConfirmationAdaptor {
       declarationConfirmation,
     );
 
+    console.log("processClientDeclarationForm result:", result);
+
     if (result.status === "VALIDATION_FAILED") {
       const {
         locals: { csrfToken },
@@ -138,6 +140,8 @@ export class ConfirmationAdaptor {
 
     const { session } = req;
     if (result.status === "SUCCESS") {
+      console.log("processClientDeclarationForm: Declaration confirmed, proceeding to submit application."
+      );
       const submitResult =
         await this.submitApplicationUseCase.execute(sessionState);
       if (submitResult.status !== "SUCCESS") {

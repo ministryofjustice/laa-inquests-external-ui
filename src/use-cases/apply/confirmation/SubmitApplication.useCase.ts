@@ -41,6 +41,7 @@ export class SubmitApplicationUseCase {
     state: ConfirmationSessionState,
   ): Promise<UseCaseResult<SubmitApplicationSuccess>> {
     const submitBodyResult = this.#generateSubmitBody(state);
+    console.log("SubmitApplicationUseCase: Generated submit body result:", submitBodyResult);
 
     if (submitBodyResult.status === "TECHNICAL_FAILURE") {
       return submitBodyResult;
@@ -88,9 +89,33 @@ export class SubmitApplicationUseCase {
   #generateSubmitBody(state: ConfirmationSessionState): SubmitBodyResult {
     try {
       const client = this.#buildClientForSubmit(state);
+
+      console.log("SubmitApplicationUseCase: Built client for submit:", client);
+      
       this.#applyOptionalClientFields(client, state);
+
+      console.log("SubmitApplicationUseCase: Applied optional client fields:", client);
+
       this.#applyClientAddressesForSubmit(client, state);
+
+      console.log("SubmitApplicationUseCase: Applied client addresses for submit:", client);
+
       this.#applyClientCorrespondenceRecipientForSubmit(client, state);
+
+      console.log("SubmitApplicationUseCase: Applied client correspondence recipient for submit:", client);
+
+      console.log("SubmitApplicationUseCase: Final submit body before validation:", {
+        client,
+        deceased: this.#buildDeceasedForSubmit(state),
+        proceedings: this.#buildProceedingsForSubmit(state),
+        publicBodies: this.#buildPublicBodiesForSubmit(state),
+        provider: {
+          firmCode: state.firmCode!,
+          officeId: state.officeId!,
+          emailAddress: state.providerEmail!,
+        },
+        coronersLetterId: state.coronersLetterId!,
+      });
 
       const submitBodyWithDetails = {
         client,

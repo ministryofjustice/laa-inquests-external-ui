@@ -25,45 +25,53 @@ describe("Proceedings adaptor", () => {
         csrfToken: "abcdefg",
         proceedingOptions: [
           {
-            text: "CAPA",
-            value: "PC049",
+            text: "Death in police custody",
+            value: "IQPC",
           },
           {
-            text: "Clinical Negligence",
-            value: "MN035",
+            text: "Death in prison",
+            value: "IQPO",
           },
           {
-            text: "Death in Custody - Clinical Negligence",
-            value: "MN036",
+            text: "Death during medical treatment",
+            value: "IQMT",
           },
           {
-            text: "Mental Health",
-            value: "MH028",
+            text: "Death in mental health detention",
+            value: "IQMH",
           },
           {
-            text: "Death in Detention - Mental Health",
-            value: "MH030",
+            text: "Death relating to mental health care in the community",
+            value: "IQMC",
           },
           {
-            text: "Death in Custody",
-            value: "IQ001",
+            text: "Death relating to other care in the community",
+            value: "IQCC",
           },
           {
-            text: "Inquest",
-            value: "IQ002",
+            text: "Death relating to issues with condition/safety of housing",
+            value: "IQHO",
           },
           {
-            text: "Schedule 6 Town & Country Planning Act 1990",
-            value: "IQ003",
+            text: "Death relating to a child’s care arrangements",
+            value: "IQCA",
           },
           {
-            text: "Public Inquiry s1 Inquiries Act 2005",
-            value: "IQ004",
+            text: "Death relating to failure to prevent domestic violence",
+            value: "IQDV",
           },
           {
-            text: "S13 Coroner’s Act 1988 - Public Law",
-            value: "IQ010",
+            text: "Death relating to issues in an educational setting",
+            value: "IQED",
           },
+          {
+            text: "Death relating to issues relating to transport",
+            value: "IQTR",
+          },
+          {
+            text: "Other",
+            value: "IQOT",
+          }
         ],
         proceedingInput: undefined,
         selectedProceedings: [],
@@ -88,13 +96,13 @@ describe("Proceedings adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       const expectedSelectedProceeding = {
-        proceedingId: "MN035",
-        proceedingName: "Clinical Negligence",
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
         matterType: "INQUEST",
       };
 
       requestStub.body = {
-        "proceeding-option": "MN035",
+        "proceeding-option": "IQPC",
       };
 
       responseStub.locals = {
