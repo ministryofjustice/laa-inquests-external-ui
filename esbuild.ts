@@ -61,6 +61,7 @@ const externalModules: string[] = [
   "@azure/msal-node",
   "multer",
   "*.node",
+  "debug",
 ];
 
 const buildScss = async (
