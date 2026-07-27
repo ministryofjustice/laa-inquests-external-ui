@@ -97,7 +97,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.0",
     "lint-staged": "^17.1.1",
     "livereload": "^0.10.2",
     "middleware-axios": "^3.0.0",
