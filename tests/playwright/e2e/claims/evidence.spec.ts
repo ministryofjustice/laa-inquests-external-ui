@@ -65,7 +65,9 @@ test.describe("Claim - evidence", () => {
     );
 
     await expect(
-      page.locator("label[for='documents']").filter({ hasText: "Upload new files" }),
+      page
+        .locator("label[for='documents']")
+        .filter({ hasText: "Upload new files" }),
     ).toBeVisible();
   });
 
