@@ -29,7 +29,7 @@
     "seed-app": "yarn clean && yarn build:ts && node public/esbuild.js && PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS=true yarn playwright test --config=tests/playwright/playwright.config.ts --project=setup --project='seed application'"
   },
   "engines": {
-    "node": "26.4.0"
+    "node": "26.5.0"
   },
   "dependencies": {
     "@ministryofjustice/frontend": "^9.0.0",
