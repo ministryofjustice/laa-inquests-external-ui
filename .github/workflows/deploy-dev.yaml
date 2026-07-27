@@ -145,5 +145,5 @@ jobs:
         uses: ./.github/actions/notify
         with:
           app-environment: dev
-          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_dev }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL_UAT }}
           pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
