@@ -120,8 +120,6 @@ export class ConfirmationAdaptor {
       declarationConfirmation,
     );
 
-    console.log("processClientDeclarationForm result:", result);
-
     if (result.status === "VALIDATION_FAILED") {
       const {
         locals: { csrfToken },

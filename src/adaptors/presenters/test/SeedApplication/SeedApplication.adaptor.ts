@@ -30,7 +30,6 @@ export class SeedApplicationAdaptor {
       return;
     }
     try {
-
       const uploadResponse =
         await this.uploadCoronersLetterAdaptor.uploadCoronersLetter(
           {
@@ -50,7 +49,7 @@ export class SeedApplicationAdaptor {
         });
         return;
       }
-    
+
       const requestBody = this.#buildSeedRequestBody(
         req,
         uploadResponse.coronersLetterId,
@@ -73,7 +72,10 @@ export class SeedApplicationAdaptor {
         laaReference: response.laaReference,
       });
     } catch (error) {
-      console.error("SeedApplicationAdaptor.seedApplication encountered an error:", error);
+      console.error(
+        "SeedApplicationAdaptor.seedApplication encountered an error:",
+        error,
+      );
       res.status(HTTP_INTERNAL_SERVER_ERROR).json({
         message: "Failed to seed application due to an unexpected error",
       });
