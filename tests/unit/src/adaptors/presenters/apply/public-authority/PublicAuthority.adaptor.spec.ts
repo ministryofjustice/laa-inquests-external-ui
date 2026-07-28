@@ -174,7 +174,7 @@ describe("PublicAuthority adaptor", () => {
       assert.deepInclude(renderArgs[1], {
         errorSummaries: {
           noPublicAuthoritySelected: {
-            text: "Please select a public authority",
+            text: "Please select at least one public authority",
           },
         },
       });

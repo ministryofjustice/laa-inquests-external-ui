@@ -1,3 +1,4 @@
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 
 export interface PublicAuthorityError {
@@ -5,11 +6,11 @@ export interface PublicAuthorityError {
 }
 
 export interface PublicAuthorityFormData {
-  publicAuthorityOption?: string;
+  publicAuthorityOption?: string | string[];
 }
 
 export const PUBLIC_AUTHORITY_ERROR = {
-  NO_SELECTION: "Please select a public authority",
+  NO_SELECTION: "Please select at least one public authority",
 };
 
 export class PublicAuthorityValidator extends FormValidator {
@@ -20,7 +21,13 @@ export class PublicAuthorityValidator extends FormValidator {
 
     const { publicAuthorityOption } = formBody;
 
-    if (typeof publicAuthorityOption !== "string") {
+    const selectedOptions = Array.isArray(publicAuthorityOption)
+      ? publicAuthorityOption
+      : typeof publicAuthorityOption === "string"
+        ? [publicAuthorityOption]
+        : [];
+
+    if (selectedOptions.length === EMPTY_ARR_LENGTH) {
       errorSummaries.noPublicAuthoritySelected = {
         text: PUBLIC_AUTHORITY_ERROR.NO_SELECTION,
       };

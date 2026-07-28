@@ -9,7 +9,7 @@ describe("PublicAuthorityValidator", () => {
     it("returns expected error message when no public authority is selected", () => {
       const formValidator = new PublicAuthorityValidator();
 
-      const formBody: Partial<Record<string, string>> = {
+      const formBody: Record<string, string> = {
         _csrf: "abcdefg",
       };
 
@@ -21,6 +21,19 @@ describe("PublicAuthorityValidator", () => {
           text: PUBLIC_AUTHORITY_ERROR.NO_SELECTION,
         },
       });
+    });
+
+    it("returns no error when multiple authorities are selected", () => {
+      const formValidator = new PublicAuthorityValidator();
+
+      const formBody: Record<string, unknown> = {
+        publicAuthorityOption: ["cabinet-office", "moj"],
+      };
+
+      const errorSummaries =
+        formValidator.validatePublicAuthorityInput(formBody);
+
+      assert.deepEqual(errorSummaries, {});
     });
   });
 });
