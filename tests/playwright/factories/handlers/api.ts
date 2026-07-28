@@ -9,7 +9,7 @@ import { http, HttpResponse, passthrough } from "msw";
 
 // This is a UUID that exists in the coroners_letter table in the dev database
 // It can be recreated by using the /applications/upload-coroners-letter endpoint in the dev environment
-const coronersLetterId = "8f57fed0-1cd5-4478-990d-1803adce82c0";
+const coronersLetterId = "1c84c788-23c4-49e7-a07e-6b391f09c116";
 const coronersLetterFileName = "test_coroners_letter.pdf";
 
 // As a temporary measure, until we stop using mocks for e2e tests, this is used to populate the database
