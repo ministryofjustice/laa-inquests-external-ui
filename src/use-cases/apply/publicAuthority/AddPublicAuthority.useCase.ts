@@ -1,7 +1,6 @@
 import { PUBLIC_AUTHORITY_OPTIONS } from "#src/infrastructure/locales/constants.js";
 import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import type { PublicAuthoritySessionState } from "#src/use-cases/apply/publicAuthority/models/publicAuthoritySessionState.types.js";
 
 interface AddPublicAuthorityOutput {
   selectedPublicAuthority: PublicAuthority;
@@ -11,7 +10,6 @@ interface AddPublicAuthorityOutput {
 export class AddPublicAuthorityUseCase {
   execute(
     publicAuthorityOption: string | undefined,
-    state: PublicAuthoritySessionState,
   ): UseCaseResult<AddPublicAuthorityOutput> {
     if (typeof publicAuthorityOption !== "string") {
       return {
@@ -35,10 +33,7 @@ export class AddPublicAuthorityUseCase {
       status: "SUCCESS",
       data: {
         selectedPublicAuthority,
-        selectedPublicAuthorities: [
-          selectedPublicAuthority,
-          ...(state.selectedPublicAuthorities ?? []),
-        ],
+        selectedPublicAuthorities: [selectedPublicAuthority],
       },
     };
   }
