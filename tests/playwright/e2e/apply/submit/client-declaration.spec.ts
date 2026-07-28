@@ -221,12 +221,6 @@ test.describe("Provider can", () => {
     await page.getByLabel("Department for Transport", { exact: true }).click();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.url()).toContain("/apply/public-authority/confirmation");
-
-    await getAndUpdateFormFields(page, {
-      No: "",
-    });
-    await continueNextPage("add-another-public-authority-form");
     await expect(page.url()).toContain("/apply/upload-coroners-letter");
 
     await uploadDummyCoronersLetter();
