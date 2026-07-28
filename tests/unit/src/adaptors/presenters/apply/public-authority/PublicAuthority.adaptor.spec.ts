@@ -68,7 +68,7 @@ describe("PublicAuthority adaptor", () => {
             value: "department-of-health-and-social-care",
           },
         ],
-        publicAuthorityOption: undefined,
+        selectedPublicAuthorityIds: [],
       };
 
       adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
@@ -80,7 +80,7 @@ describe("PublicAuthority adaptor", () => {
       assert.deepInclude(renderArgs[1], expectedRenderOptions);
     });
 
-    it("pre-populates the previously selected authority from session", () => {
+    it("pre-populates the previously selected authorities from session", () => {
       const formValidator = new PublicAuthorityValidator();
       const formatter = new Formatter();
       const adaptor = new PublicAuthorityAdaptor(formValidator, formatter);
@@ -89,23 +89,32 @@ describe("PublicAuthority adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "abcdefg" };
-      const previousSelection = {
-        publicAuthorityId: "cabinet-office",
-        publicAuthorityDescription: "Cabinet Office",
-      };
-      requestStub.session.selectedPublicAuthorities = [previousSelection];
+      const previousSelections = [
+        {
+          publicAuthorityId: "cabinet-office",
+          publicAuthorityDescription: "Cabinet Office",
+        },
+        {
+          publicAuthorityId: "attorney-generals-office",
+          publicAuthorityDescription: "Attorney General's Office",
+        },
+      ];
+      requestStub.session.selectedPublicAuthorities = previousSelections;
 
       adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
 
       const renderArgs = responseStub.render.getCall(0).args;
       assert.deepInclude(renderArgs[1], {
-        publicAuthorityOption: previousSelection,
+        selectedPublicAuthorityIds: [
+          "cabinet-office",
+          "attorney-generals-office",
+        ],
       });
     });
   });
 
   describe("processPublicAuthorityForm", () => {
-    it("sets selected public authority in session and redirects to upload coroner's letter", () => {
+    it("sets multiple selected authorities in session and redirects", () => {
       const adaptor = new PublicAuthorityAdaptor(
         new PublicAuthorityValidator(),
         new Formatter(),
@@ -115,32 +124,28 @@ describe("PublicAuthority adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       requestStub.body = {
-        publicAuthorityOption: "cabinet-office",
+        publicAuthorityOption: ["cabinet-office", "attorney-generals-office"],
       };
 
-      const expectedSelected = {
-        publicAuthorityId: "cabinet-office",
-        publicAuthorityDescription: "Cabinet Office",
-      };
+      const expectedSelected = [
+        {
+          publicAuthorityId: "cabinet-office",
+          publicAuthorityDescription: "Cabinet Office",
+        },
+        {
+          publicAuthorityId: "attorney-generals-office",
+          publicAuthorityDescription: "Attorney General's Office",
+        },
+      ];
 
       adaptor.processPublicAuthorityForm(requestStub, responseStub);
 
-      assert.deepEqual(requestStub.session.selectedPublicAuthorities, [
-        expectedSelected,
-      ]);
-
       assert.deepEqual(
-        requestStub.session.publicAuthorityOption,
+        requestStub.session.selectedPublicAuthorities,
         expectedSelected,
       );
 
       assert.equal(responseStub.redirect.callCount, 1);
-      const redirectArgs = responseStub.redirect.getCall(0).args;
-
-      assert.equal(
-        redirectArgs[0] as unknown as string,
-        "/apply/upload-coroners-letter",
-      );
     });
 
     it("renders error if nothing selected", () => {

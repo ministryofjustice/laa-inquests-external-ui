@@ -33,10 +33,6 @@ describe("AddPublicAuthorityUseCase", () => {
 
     if (result.status === "SUCCESS") {
       assert.ok(result.data);
-      assert.equal(
-        result.data.selectedPublicAuthority.publicAuthorityId,
-        "cabinet-office",
-      );
       assert.deepEqual(
         result.data.selectedPublicAuthorities.map(
           (publicAuthority) => publicAuthority.publicAuthorityId,
@@ -44,5 +40,37 @@ describe("AddPublicAuthorityUseCase", () => {
         ["cabinet-office"],
       );
     }
+  });
+
+  it("returns multiple selected authorities as an array", () => {
+    const useCase = new AddPublicAuthorityUseCase();
+
+    const result = useCase.execute([
+      "cabinet-office",
+      "attorney-generals-office",
+    ]);
+
+    assert.equal(result.status, "SUCCESS");
+
+    if (result.status === "SUCCESS") {
+      assert.ok(result.data);
+      assert.deepEqual(
+        result.data.selectedPublicAuthorities.map(
+          (publicAuthority) => publicAuthority.publicAuthorityId,
+        ),
+        ["cabinet-office", "attorney-generals-office"],
+      );
+    }
+  });
+
+  it("returns technical failure when an array contains an invalid authority", () => {
+    const useCase = new AddPublicAuthorityUseCase();
+
+    const result = useCase.execute(["cabinet-office", "not-real"]);
+
+    assert.deepEqual(result, {
+      status: "TECHNICAL_FAILURE",
+      reason: "INVALID_INPUT_STATE",
+    });
   });
 });

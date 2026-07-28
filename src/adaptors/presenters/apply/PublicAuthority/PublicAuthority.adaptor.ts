@@ -36,14 +36,18 @@ export class PublicAuthorityAdaptor {
       locals: { csrfToken },
     } = res;
 
+    const selectedPublicAuthorityIds =
+      req.session.selectedPublicAuthorities?.map(
+        (auth) => auth.publicAuthorityId,
+      ) ?? [];
+
     res.render("apply/public-authority/add-public-authority", {
       csrfToken,
       publicAuthorityOptions:
         this.formatter.formatPublicAuthorityOptionsIntoList(
           PUBLIC_AUTHORITY_OPTIONS,
         ),
-      publicAuthorityOption:
-        req.session.selectedPublicAuthorities?.[EMPTY_ARR_LENGTH],
+      selectedPublicAuthorityIds,
     });
   }
 
@@ -76,15 +80,13 @@ export class PublicAuthorityAdaptor {
           this.formatter.formatPublicAuthorityOptionsIntoList(
             PUBLIC_AUTHORITY_OPTIONS,
           ),
-        publicAuthorityOption:
-          req.session.selectedPublicAuthorities?.[EMPTY_ARR_LENGTH],
+        selectedPublicAuthorityIds: [],
         errorSummaries: errors,
       });
     } else {
       const { data } = addPublicAuthorityResult;
-      const { selectedPublicAuthority, selectedPublicAuthorities } = data;
+      const { selectedPublicAuthorities } = data;
 
-      req.session.publicAuthorityOption = { ...selectedPublicAuthority };
       req.session.selectedPublicAuthorities = selectedPublicAuthorities;
 
       res.redirect("/apply/upload-coroners-letter");
