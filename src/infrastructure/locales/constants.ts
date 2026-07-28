@@ -328,24 +328,24 @@ export const PROCEEDING_OPTIONS = [
 
 export const PUBLIC_AUTHORITY_OPTIONS = [
   {
-    publicAuthorityId: "prime-ministers-office-10-downing-street",
-    publicAuthorityDescription: "Prime Minister's Office 10 Downing Street",
+    publicAuthorityId: "attorney-generals-office",
+    publicAuthorityDescription: "Attorney General's Office",
   },
   {
     publicAuthorityId: "cabinet-office",
     publicAuthorityDescription: "Cabinet Office",
   },
   {
-    publicAuthorityId: "attorney-generals-office",
-    publicAuthorityDescription: "Attorney General's Office",
+    publicAuthorityId: "department-devolved-to-wales",
+    publicAuthorityDescription: "Department Devolved to Wales",
   },
   {
     publicAuthorityId: "department-for-business-and-trade",
-    publicAuthorityDescription: "Department for Business & Trade",
+    publicAuthorityDescription: "Department for Business and Trade",
   },
   {
     publicAuthorityId: "department-for-culture-media-and-sport",
-    publicAuthorityDescription: "Department for Culture, Media & Sport",
+    publicAuthorityDescription: "Department for Culture, Media and Sport",
   },
   {
     publicAuthorityId: "department-for-education",
@@ -353,17 +353,23 @@ export const PUBLIC_AUTHORITY_OPTIONS = [
   },
   {
     publicAuthorityId: "department-for-energy-security-and-net-zero",
-    publicAuthorityDescription: "Department for Energy Security & Net Zero",
+    publicAuthorityDescription: "Department for Energy Security and Net Zero",
   },
   {
     publicAuthorityId: "department-for-environment-food-and-rural-affairs",
     publicAuthorityDescription:
-      "Department for Environment, Food & Rural Affairs",
+      "Department for Environment, Food and Rural Affairs",
+  },
+  {
+    publicAuthorityId:
+      "department-for-housing-communities-and-local-government",
+    publicAuthorityDescription:
+      "Department for Housing, Communities and Local Government",
   },
   {
     publicAuthorityId: "department-for-science-innovation-and-technology",
     publicAuthorityDescription:
-      "Department for Science, Innovation & Technology",
+      "Department for Science, Innovation and Technology",
   },
   {
     publicAuthorityId: "department-for-transport",
@@ -371,11 +377,31 @@ export const PUBLIC_AUTHORITY_OPTIONS = [
   },
   {
     publicAuthorityId: "department-for-work-and-pensions",
-    publicAuthorityDescription: "Department for Work & Pensions",
+    publicAuthorityDescription: "Department for Work and Pensions",
   },
   {
     publicAuthorityId: "department-of-health-and-social-care",
-    publicAuthorityDescription: "Department of Health & Social Care",
+    publicAuthorityDescription: "Department of Health and Social Care",
+  },
+  {
+    publicAuthorityId: "foreign-commonwealth-and-development-office",
+    publicAuthorityDescription: "Foreign, Commonwealth and Development Office",
+  },
+  {
+    publicAuthorityId: "hm-treasury",
+    publicAuthorityDescription: "HM Treasury",
+  },
+  {
+    publicAuthorityId: "home-office",
+    publicAuthorityDescription: "Home Office",
+  },
+  {
+    publicAuthorityId: "ministry-of-defence",
+    publicAuthorityDescription: "Ministry of Defence",
+  },
+  {
+    publicAuthorityId: "ministry-of-justice",
+    publicAuthorityDescription: "Ministry of Justice",
   },
 ];
 
