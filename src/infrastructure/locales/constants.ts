@@ -275,53 +275,63 @@ export const UK_POSTCODE_REGEX =
 
 export const PROCEEDING_OPTIONS = [
   {
-    proceedingId: "PC049",
-    proceedingName: "CAPA",
+    proceedingId: "IQPC",
+    proceedingName: "Death in police custody",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "MN035",
-    proceedingName: "Clinical Negligence",
+    proceedingId: "IQPO",
+    proceedingName: "Death in prison",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "MN036",
-    proceedingName: "Death in Custody - Clinical Negligence",
+    proceedingId: "IQMT",
+    proceedingName: "Death during medical treatment",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "MH028",
-    proceedingName: "Mental Health",
+    proceedingId: "IQMH",
+    proceedingName: "Death in mental health detention",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "MH030",
-    proceedingName: "Death in Detention - Mental Health",
+    proceedingId: "IQMC",
+    proceedingName: "Death relating to mental health care in the community",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQ001",
-    proceedingName: "Death in Custody",
+    proceedingId: "IQCC",
+    proceedingName: "Death relating to other care in the community",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQ002",
-    proceedingName: "Inquest",
+    proceedingId: "IQHO",
+    proceedingName: "Death relating to issues with condition/safety of housing",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQ003",
-    proceedingName: "Schedule 6 Town & Country Planning Act 1990",
+    proceedingId: "IQCA",
+    proceedingName: "Death relating to a child’s care arrangements",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQ004",
-    proceedingName: "Public Inquiry s1 Inquiries Act 2005",
+    proceedingId: "IQDV",
+    proceedingName: "Death relating to failure to prevent domestic violence",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQ010",
-    proceedingName: "S13 Coroner’s Act 1988 - Public Law",
+    proceedingId: "IQED",
+    proceedingName: "Death relating to issues in an educational setting",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQTR",
+    proceedingName: "Death relating to issues relating to transport",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQOT",
+    proceedingName: "Other",
     matterType: "INQUEST",
   },
 ];

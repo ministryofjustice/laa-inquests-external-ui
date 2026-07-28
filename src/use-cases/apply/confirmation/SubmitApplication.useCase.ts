@@ -88,6 +88,7 @@ export class SubmitApplicationUseCase {
   #generateSubmitBody(state: ConfirmationSessionState): SubmitBodyResult {
     try {
       const client = this.#buildClientForSubmit(state);
+
       this.#applyOptionalClientFields(client, state);
       this.#applyClientAddressesForSubmit(client, state);
       this.#applyClientCorrespondenceRecipientForSubmit(client, state);

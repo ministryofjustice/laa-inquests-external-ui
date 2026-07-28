@@ -153,7 +153,9 @@ test.describe("Provider can", () => {
     await continueNextPage("correspondence-recipient-form");
 
     await expect(page.url()).toContain("/apply/proceedings");
-    await page.getByLabel("CAPA", { exact: true }).click();
+    await page
+      .getByLabel("Death in mental health detention", { exact: true })
+      .click();
     await continueNextPage("add-proceeding-form");
 
     await expect(page.url()).toContain("/apply/proceedings/confirmation");

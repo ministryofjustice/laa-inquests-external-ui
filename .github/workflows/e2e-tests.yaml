@@ -107,7 +107,19 @@ jobs:
             ('IQ002', 'Inquest',                                    'Inquest', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
             ('IQ003', 'Schedule 6 Town & Country Planning Act 1990','Schedule 6 Town & Country Planning Act 1990','INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
             ('IQ004', 'Public Inquiry s1 Inquiries Act 2005',       'Public Inquiry s1 Inquiries Act 2005', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQ010', 'S13 Coroner''s Act 1988 - Public Law',       'S13 Coroner''s Act 1988 - Public Law', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000)
+            ('IQ010', 'S13 Coroner''s Act 1988 - Public Law',       'S13 Coroner''s Act 1988 - Public Law', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQPC', 'Death in police custody',                                  'Death in police custody', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQPO', 'Death in prison',                                          'Death in prison', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQMT', 'Death during medical treatment',                           'Death during medical treatment', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQMH', 'Death in mental health detention',                         'Death in mental health detention', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQMC', 'Death relating to mental health care in the community',    'Death relating to mental health care in the community', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQCC', 'Death relating to other care in the community',            'Death relating to other care in the community', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQHO', 'Death relating to issues with condition/safety of housing','Death relating to issues with condition/safety of housing', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQCA', 'Death relating to a child’s care arrangements',            'Death relating to a child’s care arrangements', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQDV', 'Death relating to failure to prevent domestic violence',   'Death relating to failure to prevent domestic violence', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQED', 'Death relating to issues in an educational setting',       'Death relating to issues in an educational setting', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQTR', 'Death relating to issues relating to transport',           'Death relating to issues relating to transport', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
+            ('IQOT', 'Other',                                                    'Other', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000)
           ON CONFLICT (proceeding_id) DO NOTHING;
 
           INSERT INTO public_body (public_body_id, public_body_description)

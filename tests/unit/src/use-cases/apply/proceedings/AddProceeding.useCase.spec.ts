@@ -18,11 +18,11 @@ describe("AddProceedingUseCase", () => {
   it("adds selected proceeding to the top of the selected list", () => {
     const useCase = new AddProceedingUseCase();
 
-    const result = useCase.execute("MN035", {
+    const result = useCase.execute("IQPO", {
       selectedProceedings: [
         {
-          proceedingId: "IQ002",
-          proceedingName: "Inquest",
+          proceedingId: "IQPC",
+          proceedingName: "Death in police custody",
           matterType: "INQUEST",
         },
       ],
@@ -32,12 +32,12 @@ describe("AddProceedingUseCase", () => {
 
     if (result.status === "SUCCESS") {
       assert.ok(result.data);
-      assert.equal(result.data.selectedProceeding.proceedingId, "MN035");
+      assert.equal(result.data.selectedProceeding.proceedingId, "IQPO");
       assert.deepEqual(
         result.data.selectedProceedings.map(
           (proceeding) => proceeding.proceedingId,
         ),
-        ["MN035", "IQ002"],
+        ["IQPO", "IQPC"],
       );
     }
   });
