@@ -89,11 +89,8 @@ export class SubmitApplicationUseCase {
     try {
       const client = this.#buildClientForSubmit(state);
 
-      console.log("SubmitApplicationUseCase: Built client for submit:", client);
-
       this.#applyOptionalClientFields(client, state);
       this.#applyClientAddressesForSubmit(client, state);
-
       this.#applyClientCorrespondenceRecipientForSubmit(client, state);
 
       const submitBodyWithDetails = {
