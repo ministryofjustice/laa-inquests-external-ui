@@ -383,10 +383,6 @@ export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
 };
 
-export const PUBLIC_AUTHORITY_SUCCESS = {
-  REMOVED: "Public authority has been removed",
-};
-
 export const CORONERS_LETTER_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
   FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
