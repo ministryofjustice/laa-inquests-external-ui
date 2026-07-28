@@ -47,7 +47,7 @@ test.describe("Add proceedings", () => {
   test("after adding another proceeding, on redirect, the page displays a summary list of proceedings already added", async ({
     page,
   }) => {
-    const proceedingToSelect = "Mental Health";
+    const proceedingToSelect = "Death in mental health detention";
     await selectProceeding(page, proceedingToSelect);
 
     const addAnotherForm = await page.getByTestId(
@@ -64,6 +64,8 @@ test.describe("Add proceedings", () => {
     await expect(proceedingsTable).toBeVisible();
 
     const proceedingsData = proceedingsTable.getByText(proceedingToSelect);
-    await expect(proceedingsData).toContainText("Mental Health");
+    await expect(proceedingsData).toContainText(
+      "Death in mental health detention",
+    );
   });
 });

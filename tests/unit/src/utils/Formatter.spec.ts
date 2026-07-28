@@ -133,7 +133,9 @@ describe("Formatter", () => {
 
       expect(tableRows.length).to.equal(1);
       const [selectedRow] = tableRows;
-      expect(selectedRow.key).to.deep.equal({ text: "Death in police custody" });
+      expect(selectedRow.key).to.deep.equal({
+        text: "Death in police custody",
+      });
       expect(selectedRow.value).to.equal(undefined);
     });
     it("includes an actions property with a remove link for the selected proceeding", () => {

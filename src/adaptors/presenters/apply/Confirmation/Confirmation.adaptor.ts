@@ -140,8 +140,6 @@ export class ConfirmationAdaptor {
 
     const { session } = req;
     if (result.status === "SUCCESS") {
-      console.log("processClientDeclarationForm: Declaration confirmed, proceeding to submit application."
-      );
       const submitResult =
         await this.submitApplicationUseCase.execute(sessionState);
       if (submitResult.status !== "SUCCESS") {

@@ -22,8 +22,6 @@ export class ValidateClientDeclarationUseCase {
       };
     }
 
-    console.log("ValidateClientDeclarationUseCase: Declaration confirmed.");
-
     return {
       status: "SUCCESS",
     };

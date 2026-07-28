@@ -67,7 +67,7 @@ describe("Proceedings adaptor", () => {
           {
             text: "Other",
             value: "IQOT",
-          }
+          },
         ],
         proceedingInput: undefined,
         selectedProceedings: [],

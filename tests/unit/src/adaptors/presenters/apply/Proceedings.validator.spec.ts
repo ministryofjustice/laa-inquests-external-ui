@@ -20,7 +20,7 @@ describe("ProceedingsValidator", () => {
       const formValidator = new ProceedingsValidator();
       const formBody = {
         _csrf: "abcdefg",
-        "proceeding-option": "Mental Health",
+        "proceeding-option": "Death in mental health detention",
       };
       const errorSummaries =
         formValidator.validateAddAnotherProceeding(formBody);
