@@ -84,14 +84,6 @@ describe("Confirmation adaptor", () => {
     const expectedFormattedPublicAuthorities = [
       {
         key: { text: "Test public authority" },
-        actions: {
-          items: [
-            {
-              href: "/apply/public-authority/remove?publicAuthorityId=12345",
-              text: "Remove",
-            },
-          ],
-        },
       },
     ];
 
