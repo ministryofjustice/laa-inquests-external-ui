@@ -96,7 +96,6 @@ export class SubmitApplicationUseCase {
 
       this.#applyClientCorrespondenceRecipientForSubmit(client, state);
 
-
       const submitBodyWithDetails = {
         client,
         deceased: this.#buildDeceasedForSubmit(state),
