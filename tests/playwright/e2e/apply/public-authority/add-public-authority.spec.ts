@@ -17,19 +17,34 @@ test.describe("Add public authority", () => {
     await expect(continueButton).toBeVisible();
 
     for (const option of PUBLIC_AUTHORITY_OPTIONS) {
-      const radio = await page.getByLabel(option.publicAuthorityDescription, {
-        exact: true,
-      });
-      await expect(radio).toBeVisible();
+      const checkbox = await page.getByLabel(
+        option.publicAuthorityDescription,
+        {
+          exact: true,
+        },
+      );
+      await expect(checkbox).toBeVisible();
     }
   });
 
-  test("redirects to upload coroner's letter after selecting a public authority", async ({
+  test("redirects to upload coroner's letter after selecting a single public authority", async ({
     page,
   }) => {
     await page.goto("/apply/public-authority");
 
     await page.getByLabel("Cabinet Office", { exact: true }).check();
+    await page.getByRole("button").click();
+
+    await expect(page).toHaveURL("/apply/upload-coroners-letter");
+  });
+
+  test("redirects to upload coroner's letter after selecting multiple public authorities", async ({
+    page,
+  }) => {
+    await page.goto("/apply/public-authority");
+
+    await page.getByLabel("Cabinet Office", { exact: true }).check();
+    await page.getByLabel("Attorney General's Office", { exact: true }).check();
     await page.getByRole("button").click();
 
     await expect(page).toHaveURL("/apply/upload-coroners-letter");
@@ -42,9 +57,12 @@ test.describe("Add public authority", () => {
 
     await page.getByRole("button").click();
 
-    const errorMessage = page.getByText("Please select a public authority", {
-      exact: true,
-    });
+    const errorMessage = page.getByText(
+      "Please select at least one public authority",
+      {
+        exact: true,
+      },
+    );
     await expect(errorMessage).toBeVisible();
   });
 });

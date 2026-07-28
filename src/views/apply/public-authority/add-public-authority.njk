@@ -1,7 +1,7 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
-{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
@@ -27,7 +27,7 @@
          <form data-testid="add-proceeding-form" action="/apply/public-authority" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
               
-            {{ govukRadios({
+            {{ govukCheckboxes({
             name: "publicAuthorityOption",
             fieldset: {
                 legend: {
@@ -39,7 +39,8 @@
             hint: {
                 text: t("pages.apply.publicAuthority.search.hint")
             },
-            errorMessage: errorSummaries.noPublicAuthoritySelected,            value: publicAuthorityOption.publicAuthorityId if publicAuthorityOption else undefined,
+            errorMessage: errorSummaries.noPublicAuthoritySelected,
+            values: selectedPublicAuthorityIds if selectedPublicAuthorityIds else [],
             items: publicAuthorityOptions
             }) }}
 
