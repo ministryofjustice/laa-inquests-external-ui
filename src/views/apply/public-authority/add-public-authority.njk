@@ -1,9 +1,7 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
-{% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
-{%- from "moj/components/search/macro.njk" import mojSearch -%}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% block content %}
@@ -25,8 +23,6 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
-
 
          <form data-testid="add-proceeding-form" action="/apply/public-authority" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
@@ -35,7 +31,7 @@
             name: "publicAuthorityOption",
             fieldset: {
                 legend: {
-                   text: "Which public authority needs to be added?" if isAddingAnother else t("pages.apply.publicAuthority.title"),
+                   text: t("pages.apply.publicAuthority.title"),
                     isPageHeading: true,
                     classes: "govuk-fieldset__legend--l"
                 }
@@ -43,7 +39,7 @@
             hint: {
                 text: t("pages.apply.publicAuthority.search.hint")
             },
-            errorMessage: errorSummaries.noPublicAuthoritySelected,            value: publicAuthorityOption,
+            errorMessage: errorSummaries.noPublicAuthoritySelected,            value: publicAuthorityOption.publicAuthorityId if publicAuthorityOption else undefined,
             items: publicAuthorityOptions
             }) }}
 
