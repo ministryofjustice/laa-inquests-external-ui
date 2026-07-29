@@ -43,6 +43,13 @@ export interface ClaimSession {
   zeroVatTotal?: string;
   netTotal?: string;
   grossTotal?: string;
+  evidenceFiles?: ClaimEvidenceFile[];
+  evidenceFileIds?: string[];
+}
+
+export interface ClaimEvidenceFile {
+  id: string;
+  fileName: string;
 }
 
 export interface ClaimClientDetails {

@@ -89,4 +89,52 @@ test.describe("Claim - evidence", () => {
 
     await expect(page).toHaveURL("/claim/check-your-answers");
   });
+
+  test("uploads evidence using javascript multi-file uploader", async ({
+    page,
+  }) => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+
+    expect(response.status()).toBe(201);
+
+    await page.reload();
+
+    await expect(
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: "test-evidence.pdf" })
+        .first(),
+    ).toBeVisible();
+  });
+});
+
+test.describe("Claim - evidence (no javascript)", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("uploads evidence and redirects back to evidence page", async ({
+    page,
+  }) => {
+    await page.goto("/claim/evidence");
+
+    await page.setInputFiles("#documents", {
+      name: "test-evidence.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("fake evidence content"),
+    });
+
+    await page.getByRole("button", { name: "Upload file" }).click();
+
+    await expect(page).toHaveURL("/claim/evidence");
+  });
 });

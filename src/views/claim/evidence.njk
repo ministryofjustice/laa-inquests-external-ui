@@ -18,6 +18,16 @@
       <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">Upload evidence</h1>
 
+          {% if errorSummaries and errorSummaries.evidenceError %}
+            {{ govukErrorSummary({
+              titleText: "There is a problem",
+              errorList: [{
+                text: errorSummaries.evidenceError.text,
+                href: "#documents"
+              }]
+            }) }}
+          {% endif %}
+
           <p class="govuk-body">You can upload:</p>
           <ul class="govuk-list govuk-list--bullet">
             <li>.jpg, .png, .pdf, .bmp</li>
@@ -33,7 +43,9 @@
           <p class="govuk-body">You can upload all your files at once, or one at a time.</p>
           
           <form action="/claim/evidence/upload" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="uploadMode" value="html" />
             {% set uploadHtml %}
+              {% set errorMessage = errorSummaries.evidenceError if errorSummaries and errorSummaries.evidenceError %}
               {{ govukFileUpload({
                 id: "documents",
                 name: "documents",
@@ -55,7 +67,7 @@
               {{ mojMultiFileUpload({
                 uploadedFiles: {
                 heading: { text: "Uploaded files" },
-                items: []
+                items: uploadedFiles
               },
               uploadHtml: uploadHtml
             }) }}

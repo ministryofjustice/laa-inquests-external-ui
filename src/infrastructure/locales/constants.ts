@@ -415,6 +415,24 @@ export const CORONERS_LETTER_ALLOWED_FILE_TYPES = [
   "application/pdf",
 ];
 
+export const CLAIM_EVIDENCE_ERROR = {
+  NO_FILE_CHOSEN: "Select a file",
+  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
+  FILE_IS_EMPTY: "The selected file is empty",
+  INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
+  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+};
+
+export const CLAIM_EVIDENCE_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
+export const CLAIM_EVIDENCE_TOO_SMALL_FILE_SIZE_BYTES = 0;
+
+export const CLAIM_EVIDENCE_ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/bmp",
+  "application/pdf",
+];
+
 export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:
     "You need to confirm the declaration to submit this application",

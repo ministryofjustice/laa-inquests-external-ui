@@ -11,6 +11,8 @@ import { http, HttpResponse, passthrough } from "msw";
 // It can be recreated by using the /applications/upload-coroners-letter endpoint in the dev environment
 const coronersLetterId = "1c84c788-23c4-49e7-a07e-6b391f09c116";
 const coronersLetterFileName = "test_coroners_letter.pdf";
+const evidenceFileId = "2f76cf9d-a90f-4f9c-8f27-bf22312c7138";
+const evidenceFileName = "test-evidence.pdf";
 
 // As a temporary measure, until we stop using mocks for e2e tests, this is used to populate the database
 const bypassCreateApplicationMocks =
@@ -62,6 +64,17 @@ export const apiHandlers = [
         {
           coronersLetterId: coronersLetterId,
           coronersLetterFileName: coronersLetterFileName,
+        },
+        { status: 201 },
+      ),
+  ),
+  http.post(
+    `${process.env.INQUESTS_API_URL}/applications/claim/upload-evidence`,
+    () =>
+      HttpResponse.json(
+        {
+          claimEvidenceId: evidenceFileId,
+          claimEvidenceFileName: evidenceFileName,
         },
         { status: 201 },
       ),

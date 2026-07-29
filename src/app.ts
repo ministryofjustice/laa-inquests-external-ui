@@ -11,6 +11,7 @@ import {
   handleRouteNotFound,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
 import { initializeI18nextSync } from "./infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
@@ -80,6 +81,12 @@ app.post(
   "/apply/upload-coroners-letter",
   upload.single("coroners-letter-file-upload"),
 );
+
+app.post("/claim/evidence/upload", upload.single("documents"), (req, res) => {
+  indexRouter(req, res, () => {
+    res.status(HTTP_NOT_FOUND).end();
+  });
+});
 
 setupCsrf(app);
 
