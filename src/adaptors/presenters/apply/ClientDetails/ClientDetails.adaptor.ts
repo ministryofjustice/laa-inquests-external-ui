@@ -496,7 +496,7 @@ export class ClientDetailsAdaptor {
     const { data } = updatedRecipientResult;
     const { clientCorrespondenceRecipient } = data;
     req.session.clientCorrespondenceRecipient = clientCorrespondenceRecipient;
-    res.redirect("/apply/proceedings");
+    res.redirect("/apply/proceeding");
   }
 
   renderHasPrevApplicationForm(req: Request, res: Response): void {

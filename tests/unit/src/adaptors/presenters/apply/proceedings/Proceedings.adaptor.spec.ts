@@ -1,8 +1,8 @@
 import { assert } from "chai";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
-import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
-import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.adaptor.js";
+import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.validator.js";
 import { Formatter } from "#src/utils/Formatter.js";
 
 describe("Proceedings adaptor", () => {

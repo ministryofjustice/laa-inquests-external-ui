@@ -22,7 +22,7 @@ export class DeceasedDetailsAdaptor {
   }
 
   #getNameBackButtonUrl(proceeding: Proceeding | undefined | null): string {
-    return "/apply/proceedings";
+    return "/apply/proceeding";
   }
 
   renderNameForm(req: Request, res: Response): void {

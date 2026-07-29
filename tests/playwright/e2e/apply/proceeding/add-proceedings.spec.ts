@@ -8,7 +8,7 @@ test.describe("Add proceedings", () => {
   test("renders expected proceeding page heading, proceeding options and continue button", async ({
     page,
   }) => {
-    await page.goto("/apply/proceedings");
+    await page.goto("/apply/proceeding");
 
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
     const heading = selectProceedingForm.getByText(
@@ -29,7 +29,7 @@ test.describe("Add proceedings", () => {
   test("renders error message on clicking continue without selecting a proceeding", async ({
     page,
   }) => {
-    await page.goto("/apply/proceedings");
+    await page.goto("/apply/proceeding");
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
 
     const continueButton = selectProceedingForm.getByRole("button");

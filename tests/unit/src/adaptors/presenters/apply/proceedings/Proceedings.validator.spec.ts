@@ -1,4 +1,4 @@
-import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.validator.js";
 import { PROCEEDING_ERROR } from "#src/infrastructure/locales/constants.js";
 import { assert } from "chai";
 

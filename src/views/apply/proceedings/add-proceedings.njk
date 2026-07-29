@@ -15,7 +15,7 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-         <form data-testid="add-proceeding-form" action="/apply/proceedings" method="POST">
+         <form data-testid="add-proceeding-form" action="/apply/proceeding" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
               {{ govukRadios({
                 name: "proceeding-option",
