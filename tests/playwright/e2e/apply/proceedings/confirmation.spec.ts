@@ -6,7 +6,7 @@ test.describe("Confirm proceedings", () => {
   test("renders expected proceeding confirmation page heading, summary table, form to add another proceeding, and continue button", async ({
     page,
   }) => {
-    const proceedingToSelect = "Mental Health";
+    const proceedingToSelect = "Death in mental health detention";
     await selectProceeding(page, proceedingToSelect);
 
     const addAnotherForm = await page.getByTestId(
@@ -30,12 +30,14 @@ test.describe("Confirm proceedings", () => {
     await expect(proceedingsTable).toBeVisible();
 
     const proceedingsData = proceedingsTable.getByText(proceedingToSelect);
-    await expect(proceedingsData).toContainText("Mental Health");
+    await expect(proceedingsData).toContainText(
+      "Death in mental health detention",
+    );
   });
   test("renders error message if option is not selected before clicking continue", async ({
     page,
   }) => {
-    const proceedingToSelect = "Mental Health";
+    const proceedingToSelect = "Death in mental health detention";
     await selectProceeding(page, proceedingToSelect);
 
     const addAnotherForm = await page.getByTestId(
@@ -58,7 +60,7 @@ test.describe("Confirm proceedings", () => {
   test("redirects to deceased details page if no selected", async ({
     page,
   }) => {
-    const proceedingToSelect = "Mental Health";
+    const proceedingToSelect = "Death in mental health detention";
     await selectProceeding(page, proceedingToSelect);
 
     const addAnotherForm = await page.getByTestId(
@@ -80,7 +82,7 @@ test.describe("Confirm proceedings", () => {
   test("redirects to add proceedings page if yes selected", async ({
     page,
   }) => {
-    const proceedingToSelect = "Mental Health";
+    const proceedingToSelect = "Death in mental health detention";
     await selectProceeding(page, proceedingToSelect);
 
     const addAnotherForm = await page.getByTestId(

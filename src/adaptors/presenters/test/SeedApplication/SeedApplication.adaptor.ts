@@ -29,48 +29,57 @@ export class SeedApplicationAdaptor {
       });
       return;
     }
+    try {
+      const uploadResponse =
+        await this.uploadCoronersLetterAdaptor.uploadCoronersLetter(
+          {
+            buffer: Buffer.from("seeded coroners letter content"),
+            mimetype: "application/pdf",
+            originalname: "seeded-coroners-letter.pdf",
+          },
+          accessToken,
+        );
 
-    const uploadResponse =
-      await this.uploadCoronersLetterAdaptor.uploadCoronersLetter(
-        {
-          buffer: Buffer.from("seeded coroners letter content"),
-          mimetype: "application/pdf",
-          originalname: "seeded-coroners-letter.pdf",
-        },
+      if (
+        uploadResponse.status !== "SUCCESS" ||
+        uploadResponse.coronersLetterId === undefined
+      ) {
+        res.status(HTTP_INTERNAL_SERVER_ERROR).json({
+          message: "Failed to upload coroner's letter for seeding",
+        });
+        return;
+      }
+
+      const requestBody = this.#buildSeedRequestBody(
+        req,
+        uploadResponse.coronersLetterId,
+      );
+      const response = await this.submitApplicationAdaptor.submitApplication(
+        requestBody,
         accessToken,
       );
 
-    if (
-      uploadResponse.status !== "SUCCESS" ||
-      uploadResponse.coronersLetterId === undefined
-    ) {
-      res.status(HTTP_INTERNAL_SERVER_ERROR).json({
-        message: "Failed to upload coroner's letter for seeding",
+      if (response.statusCode !== HTTP_CREATED) {
+        res.status(HTTP_INTERNAL_SERVER_ERROR).json({
+          message: "Failed to seed application",
+        });
+        return;
+      }
+
+      session.applicationReferenceNumber = String(response.laaReference);
+
+      res.status(HTTP_CREATED).json({
+        laaReference: response.laaReference,
       });
-      return;
-    }
-
-    const requestBody = this.#buildSeedRequestBody(
-      req,
-      uploadResponse.coronersLetterId,
-    );
-    const response = await this.submitApplicationAdaptor.submitApplication(
-      requestBody,
-      accessToken,
-    );
-
-    if (response.statusCode !== HTTP_CREATED) {
+    } catch (error) {
+      console.error(
+        "SeedApplicationAdaptor.seedApplication encountered an error:",
+        error,
+      );
       res.status(HTTP_INTERNAL_SERVER_ERROR).json({
-        message: "Failed to seed application",
+        message: "Failed to seed application due to an unexpected error",
       });
-      return;
     }
-
-    session.applicationReferenceNumber = String(response.laaReference);
-
-    res.status(HTTP_CREATED).json({
-      laaReference: response.laaReference,
-    });
   }
 
   #buildSeedRequestBody(
@@ -110,7 +119,7 @@ export class SeedApplicationAdaptor {
       },
       proceedings: [
         {
-          proceedingId: "PC049",
+          proceedingId: "IQCA",
         },
       ],
       publicBodies: [
