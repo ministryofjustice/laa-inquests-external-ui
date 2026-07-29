@@ -52,22 +52,13 @@ export class Formatter {
   }
 
   formatSelectedIntoTableRows(
-    selectedProceedings: Proceeding[],
+    selectedProceeding: Proceeding,
   ): SummaryListRow[] {
-    const formattedSelectedProceedings = selectedProceedings.map(
-      (proceeding) => ({
-        key: { text: proceeding.proceedingName },
-        actions: {
-          items: [
-            {
-              href: `/apply/proceedings/remove?proceedingId=${proceeding.proceedingId}`,
-              text: "Remove",
-            },
-          ],
-        },
-      }),
-    );
-    return formattedSelectedProceedings;
+    return [
+      {
+        key: { text: selectedProceeding.proceedingName },
+      },
+    ];
   }
 
   formatIntoTableRows(

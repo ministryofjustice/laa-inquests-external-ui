@@ -76,7 +76,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
         deceasedCoronerReference: "COR-123",
         deceasedFurtherInformation: undefined,
       },
-      proceedings: [],
+      proceedings: undefined,
       publicAuthorities: [
         {
           publicAuthorityId: "cabinet-office",

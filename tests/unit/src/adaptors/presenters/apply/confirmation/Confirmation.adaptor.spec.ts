@@ -232,14 +232,6 @@ describe("Confirmation adaptor", () => {
     const expectedFormattedProceedings = [
       {
         key: { text: "Clinical Negligence" },
-        actions: {
-          items: [
-            {
-              href: "/apply/proceedings/remove?proceedingId=MN035",
-              text: "Remove",
-            },
-          ],
-        },
       },
     ];
 

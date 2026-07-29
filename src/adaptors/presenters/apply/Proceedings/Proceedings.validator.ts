@@ -1,7 +1,4 @@
-import {
-  PROCEEDING_ERROR,
-  EMPTY_ARR_LENGTH,
-} from "#src/infrastructure/locales/constants.js";
+import { PROCEEDING_ERROR } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type {
   ProceedingsError,
