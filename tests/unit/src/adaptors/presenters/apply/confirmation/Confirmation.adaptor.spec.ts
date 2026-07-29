@@ -140,7 +140,7 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedCoronerReference = "12345678910";
     requestStub.session.deceasedFurtherInformation = "Linked details text";
     requestStub.session.selectedPublicAuthorities = [];
-    requestStub.session.selectedProceedings = [];
+    requestStub.session.selectedProceeding = undefined;
 
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
 
@@ -223,13 +223,11 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
 
-    const proceedings = [
-      {
-        proceedingId: "MN035",
-        proceedingName: "Clinical Negligence",
-        matterType: "INQUEST",
-      },
-    ];
+    const proceeding = {
+      proceedingId: "MN035",
+      proceedingName: "Clinical Negligence",
+      matterType: "INQUEST",
+    };
 
     const expectedFormattedProceedings = [
       {
@@ -245,7 +243,7 @@ describe("Confirmation adaptor", () => {
       },
     ];
 
-    requestStub.session.selectedProceedings = proceedings;
+    requestStub.session.selectedProceeding = proceeding;
     requestStub.session.selectedPublicAuthorities = [];
 
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
@@ -389,13 +387,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "MN035",
+        proceedingName: "Clinical Negligence",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -493,13 +489,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "MN035", //TODO: Update these Ids to match the new proceedingId format
+        proceedingName: "Clinical Negligence",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -574,13 +568,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "MN035",
+        proceedingName: "Clinical Negligence",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -642,13 +634,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "MN035",
+        proceedingName: "Clinical Negligence",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -701,13 +691,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "MN035",
+        proceedingName: "Clinical Negligence",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -764,13 +752,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "MN035",
+        proceedingName: "Clinical Negligence",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -833,13 +819,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "MN035",
+        proceedingName: "Clinical Negligence",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {

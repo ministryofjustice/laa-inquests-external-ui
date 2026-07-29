@@ -13,33 +13,5 @@ export function createProceedingsRouter(
     proceedingsAdaptor.processProceedingsForm(req, res);
   });
 
-  proceedingsRouter.get(
-    "/proceedings/confirmation",
-    (req: Request, res: Response) => {
-      proceedingsAdaptor.renderProceedingsConfirmation(req, res);
-    },
-  );
-
-  proceedingsRouter.post(
-    "/proceedings/confirmation",
-    (req: Request, res: Response) => {
-      proceedingsAdaptor.processProceedingsConfirmation(req, res);
-    },
-  );
-
-  proceedingsRouter.get(
-    "/proceedings/remove",
-    (req: Request, res: Response) => {
-      proceedingsAdaptor.renderProceedingsRemoveForm(req, res);
-    },
-  );
-
-  proceedingsRouter.post(
-    "/proceedings/remove",
-    (req: Request, res: Response) => {
-      proceedingsAdaptor.processProceedingsRemove(req, res);
-    },
-  );
-
   return proceedingsRouter;
 }

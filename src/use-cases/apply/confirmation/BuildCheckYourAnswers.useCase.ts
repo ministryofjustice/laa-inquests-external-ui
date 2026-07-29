@@ -67,7 +67,10 @@ export class BuildCheckYourAnswersUseCase {
         deceasedCoronerReference: state.deceasedCoronerReference,
         deceasedFurtherInformation: state.deceasedFurtherInformation,
       },
-      proceedings: state.selectedProceedings ?? [],
+      proceedings:
+        state.selectedProceeding === undefined
+          ? []
+          : [state.selectedProceeding],
       publicAuthorities: state.selectedPublicAuthorities ?? [],
       coronersLetterFileName: state.coronersLetterFileName,
     };

@@ -9,7 +9,7 @@ declare module "express-session" {
   > {
     // This allows both specific properties and dynamic namespace access
     error: FormError;
-    selectedProceedings?: Proceeding[];
+    selectedProceeding?: Proceeding;
     selectedPublicAuthorities?: PublicAuthority[];
     clientHomeAddress?: ClientHomeAddress;
     clientCorrespondenceAddress?: ClientHomeAddress;

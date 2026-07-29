@@ -3,7 +3,6 @@ import {
   PROCEEDING_OPTIONS,
 } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "#tests/playwright/fixtures/index.js";
-import { selectProceeding } from "#tests/playwright/fixtures/pages/Proceedings.js";
 
 test.describe("Add proceedings", () => {
   test("renders expected proceeding page heading, proceeding options and continue button", async ({
@@ -42,30 +41,6 @@ test.describe("Add proceedings", () => {
     await expect(errorMessageElement).toBeVisible();
     await expect(errorMessageElement).toContainText(
       PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
-    );
-  });
-  test("after adding another proceeding, on redirect, the page displays a summary list of proceedings already added", async ({
-    page,
-  }) => {
-    const proceedingToSelect = "Death in mental health detention";
-    await selectProceeding(page, proceedingToSelect);
-
-    const addAnotherForm = await page.getByTestId(
-      "add-another-proceeding-form",
-    );
-    const yesRadio = addAnotherForm.getByLabel("Yes");
-    await yesRadio.click();
-
-    const continueButton = addAnotherForm.getByRole("button");
-    await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
-
-    const proceedingsTable = page.getByTestId("proceedings-table");
-    await expect(proceedingsTable).toBeVisible();
-
-    const proceedingsData = proceedingsTable.getByText(proceedingToSelect);
-    await expect(proceedingsData).toContainText(
-      "Death in mental health detention",
     );
   });
 });

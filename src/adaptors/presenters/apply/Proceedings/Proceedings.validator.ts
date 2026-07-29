@@ -24,33 +24,4 @@ export class ProceedingsValidator extends FormValidator {
 
     return errorSummaries;
   }
-
-  validateAddAnotherProceeding(
-    formBody: Partial<ProceedingsFormData>,
-  ): Partial<ProceedingsError> {
-    const errorSummaries: Partial<ProceedingsError> = {};
-
-    const { "add-another-proceeding": isAddingAnotherProceeding } = formBody;
-
-    if (typeof isAddingAnotherProceeding !== "string") {
-      errorSummaries.noConfirmationSelected = {
-        text: PROCEEDING_ERROR.NO_CONFIRMATION_SPECIFIED,
-      };
-    }
-    return errorSummaries;
-  }
-
-  validateProceedingList(
-    selectedProceedings: unknown[],
-  ): Partial<ProceedingsError> {
-    const errorSummaries: Partial<ProceedingsError> = {};
-
-    if (selectedProceedings.length === EMPTY_ARR_LENGTH) {
-      errorSummaries.noProceedingsInList = {
-        text: PROCEEDING_ERROR.NO_PROCEEDINGS_IN_LIST,
-      };
-    }
-
-    return errorSummaries;
-  }
 }

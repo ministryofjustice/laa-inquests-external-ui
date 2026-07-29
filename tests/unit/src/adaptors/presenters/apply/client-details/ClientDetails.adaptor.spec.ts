@@ -462,13 +462,11 @@ describe("Client details adaptor", () => {
       "correspondence-recipient-person-name": "",
       "correspondence-recipient-organisation-name": "",
     };
-    requestStub.session.selectedProceedings = [
-      {
-        proceedingId: "MN035",
-        proceedingName: "Clinical Negligence",
-        matterType: "INQUEST",
-      },
-    ];
+    requestStub.session.selectedProceeding = {
+      proceedingId: "MN035",
+      proceedingName: "Clinical Negligence",
+      matterType: "INQUEST",
+    };
 
     clientDetailsAdaptor.processCorrespondenceRecipientForm(
       requestStub,
@@ -476,7 +474,7 @@ describe("Client details adaptor", () => {
     );
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/proceedings/confirmation");
+    assert.equal(redirectArgs[0], "/apply/proceedings");
   });
 
   it("process has prev application form sets boolean value to false in session when previous application does not exist", () => {

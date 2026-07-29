@@ -158,11 +158,6 @@ test.describe("Provider can", () => {
       .click();
     await continueNextPage("add-proceeding-form");
 
-    await expect(page.url()).toContain("/apply/proceedings/confirmation");
-    await getAndUpdateFormFields(page, {
-      No: "",
-    });
-    await continueNextPage("add-another-proceeding-form");
     await expect(page.url()).toContain("/apply/deceased-details/name");
 
     await getAndUpdateFormFields(
