@@ -37,6 +37,19 @@ export class EvidenceAdaptor {
   }
 
   processForm(req: Request, res: Response): void {
+    const errors = this.formValidator.validateEvidenceSelection(
+      req.session.claim?.evidenceFiles,
+    );
+
+    if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
+      res.render("claim/evidence", {
+        csrfToken: res.locals.csrfToken,
+        errorSummaries: errors,
+        uploadedFiles: this.#buildUploadedFiles(req),
+      });
+      return;
+    }
+
     res.redirect("/claim/check-your-answers");
   }
 
@@ -115,13 +128,7 @@ export class EvidenceAdaptor {
       }));
     }
 
-    const uploadedFileIds = req.session.claim?.evidenceFileIds ?? [];
-    return uploadedFileIds.map((fileId) => ({
-      message: { text: fileId },
-      fileName: fileId,
-      originalFileName: fileId,
-      deleteButton: { text: "Delete" },
-    }));
+    return [];
   }
 
   #renderNoJsError(

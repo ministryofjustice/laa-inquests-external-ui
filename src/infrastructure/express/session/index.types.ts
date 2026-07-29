@@ -44,7 +44,6 @@ export interface ClaimSession {
   netTotal?: string;
   grossTotal?: string;
   evidenceFiles?: ClaimEvidenceFile[];
-  evidenceFileIds?: string[];
 }
 
 export interface ClaimEvidenceFile {

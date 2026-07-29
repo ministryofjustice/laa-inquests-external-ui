@@ -79,7 +79,7 @@ test.describe("Claim - evidence", () => {
     await expect(continueButton).toHaveAttribute("type", "submit");
   });
 
-  test("redirects to /claim/check-your-answers when continue is clicked", async ({
+  test("stays on evidence page and shows error when continue is clicked without uploads", async ({
     page,
   }) => {
     await page
@@ -87,7 +87,10 @@ test.describe("Claim - evidence", () => {
       .getByRole("button", { name: "Continue" })
       .click();
 
-    await expect(page).toHaveURL("/claim/check-your-answers");
+    await expect(page).toHaveURL("/claim/evidence");
+    await expect(page.locator(".govuk-error-summary")).toContainText(
+      "Minimum of one evidence file required",
+    );
   });
 
   test("uploads evidence using javascript multi-file uploader", async ({
@@ -116,6 +119,31 @@ test.describe("Claim - evidence", () => {
         .filter({ hasText: "test-evidence.pdf" })
         .first(),
     ).toBeVisible();
+  });
+
+  test("redirects to /claim/check-your-answers when continue is clicked with an uploaded file", async ({
+    page,
+  }) => {
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/claim/evidence/upload") &&
+          response.request().method() === "POST" &&
+          response.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+
+    await page
+      .getByTestId("evidence-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+
+    await expect(page).toHaveURL("/claim/check-your-answers");
   });
 });
 

@@ -417,6 +417,7 @@ export const CORONERS_LETTER_ALLOWED_FILE_TYPES = [
 
 export const CLAIM_EVIDENCE_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
+  MINIMUM_ONE_FILE_REQUIRED: "Minimum of one evidence file required",
   FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
   FILE_IS_EMPTY: "The selected file is empty",
   INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",

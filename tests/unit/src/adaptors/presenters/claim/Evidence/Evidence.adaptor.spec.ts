@@ -19,6 +19,7 @@ describe("Evidence adaptor", () => {
   beforeEach(() => {
     uploadEvidenceUseCase = stubInterface<UploadEvidenceUseCase>();
     uploadEvidenceValidator = stubInterface<UploadEvidenceValidator>();
+    uploadEvidenceValidator.validateEvidenceSelection.returns({});
     uploadEvidenceValidator.validateEvidenceUploadFile.returns({});
   });
 
@@ -79,7 +80,7 @@ describe("Evidence adaptor", () => {
   });
 
   describe("processForm", () => {
-    it("redirects to /claim/check-your-answers when the form is submitted", () => {
+    it("re-renders evidence page with error summary when no evidence file is in session", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
@@ -87,9 +88,53 @@ describe("Evidence adaptor", () => {
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "csrf-token" };
+
+      uploadEvidenceValidator.validateEvidenceSelection.returns({
+        evidenceError: {
+          text: "Minimum of one evidence file required",
+        },
+      });
 
       adaptor.processForm(requestStub, responseStub);
 
+      assert.equal(
+        uploadEvidenceValidator.validateEvidenceSelection.calledWith(undefined),
+        true,
+      );
+      assert.equal(responseStub.render.callCount, 1);
+      const [view, viewModel] = responseStub.render.getCall(0).args;
+      assert.equal(view, "claim/evidence");
+      assert.deepEqual(viewModel, {
+        csrfToken: "csrf-token",
+        errorSummaries: {
+          evidenceError: {
+            text: "Minimum of one evidence file required",
+          },
+        },
+        uploadedFiles: [],
+      });
+      assert.equal(responseStub.redirect.callCount, 0);
+    });
+
+    it("redirects to /claim/check-your-answers when at least one evidence file is in session", () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        evidenceFiles: [{ id: "file-id-123", fileName: "test-evidence.pdf" }],
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(
+        uploadEvidenceValidator.validateEvidenceSelection.callCount,
+        1,
+      );
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
