@@ -227,7 +227,7 @@ test.describe("Apply - check your answers", () => {
 
     await expect(interestedPartiesChangeLink).toHaveAttribute(
       "href",
-      "/apply/public-authority/confirmation",
+      "/apply/public-authority",
     );
   });
 

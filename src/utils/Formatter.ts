@@ -76,14 +76,6 @@ export class Formatter {
     const formattedPublicAuthorities = selectedPublicAuthorities.map(
       (publicAuthority) => ({
         key: { text: publicAuthority.publicAuthorityDescription },
-        actions: {
-          items: [
-            {
-              href: `/apply/public-authority/remove?publicAuthorityId=${publicAuthority.publicAuthorityId}`,
-              text: "Remove",
-            },
-          ],
-        },
       }),
     );
     return formattedPublicAuthorities;
@@ -96,17 +88,5 @@ export class Formatter {
       text: authority.publicAuthorityDescription,
       value: authority.publicAuthorityId,
     }));
-  }
-
-  filterAvailablePublicAuthorities(
-    selectedPublicAuthorities: PublicAuthority[] | [],
-    allPublicAuthorities: PublicAuthority[],
-  ): PublicAuthority[] {
-    return allPublicAuthorities.filter(
-      (option) =>
-        !selectedPublicAuthorities.some(
-          (selected) => selected.publicAuthorityId === option.publicAuthorityId,
-        ),
-    );
   }
 }

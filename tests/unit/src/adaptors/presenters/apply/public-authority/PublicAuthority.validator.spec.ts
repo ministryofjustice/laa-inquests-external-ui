@@ -1,7 +1,6 @@
 import {
   PublicAuthorityValidator,
   PUBLIC_AUTHORITY_ERROR,
-  PublicAuthorityFormData,
 } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { assert } from "chai";
 
@@ -10,7 +9,7 @@ describe("PublicAuthorityValidator", () => {
     it("returns expected error message when no public authority is selected", () => {
       const formValidator = new PublicAuthorityValidator();
 
-      const formBody: Partial<Record<string, string>> = {
+      const formBody: Record<string, string> = {
         _csrf: "abcdefg",
       };
 
@@ -23,24 +22,18 @@ describe("PublicAuthorityValidator", () => {
         },
       });
     });
-  });
 
-  describe("validateAddAnotherPublicAuthority", () => {
-    it("returns expected error message when no confirmation option is selected", () => {
+    it("returns no error when multiple authorities are selected", () => {
       const formValidator = new PublicAuthorityValidator();
 
-      const formBody: Partial<Record<string, string>> = {
-        _csrf: "abcdefg",
+      const formBody: Record<string, unknown> = {
+        publicAuthorityOption: ["cabinet-office", "moj"],
       };
 
       const errorSummaries =
-        formValidator.validateAddAnotherPublicAuthority(formBody);
+        formValidator.validatePublicAuthorityInput(formBody);
 
-      assert.deepEqual(errorSummaries, {
-        noConfirmationSelected: {
-          text: PUBLIC_AUTHORITY_ERROR.NO_CONFIRMATION,
-        },
-      });
+      assert.deepEqual(errorSummaries, {});
     });
   });
 });

@@ -57,10 +57,6 @@
         "search": {
           "label": "Search for public authorities",
           "hint": "Select one authority at a time."
-        },
-        "radio": {
-          "legendText": "Do you want to add another public authority?",
-          "hint": "You will only be shown authorities that can be added."
         }
       },
       "RemovePublicAuthority": {

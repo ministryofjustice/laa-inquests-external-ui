@@ -19,33 +19,5 @@ export function createPublicAuthorityRouter(
     },
   );
 
-  publicAuthorityRouter.get(
-    "/public-authority/confirmation",
-    (req: Request, res: Response) => {
-      publicAuthorityAdaptor.renderPublicAuthorityConfirmation(req, res);
-    },
-  );
-
-  publicAuthorityRouter.post(
-    "/public-authority/confirmation",
-    (req: Request, res: Response) => {
-      publicAuthorityAdaptor.processPublicAuthorityConfirmation(req, res);
-    },
-  );
-
-  publicAuthorityRouter.get(
-    "/public-authority/remove",
-    (req: Request, res: Response) => {
-      publicAuthorityAdaptor.renderPublicAuthorityRemoveForm(req, res);
-    },
-  );
-
-  publicAuthorityRouter.post(
-    "/public-authority/remove",
-    (req: Request, res: Response) => {
-      publicAuthorityAdaptor.processPublicAuthorityRemove(req, res);
-    },
-  );
-
   return publicAuthorityRouter;
 }

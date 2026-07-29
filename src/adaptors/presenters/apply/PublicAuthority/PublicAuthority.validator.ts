@@ -1,27 +1,16 @@
-import { FormValidator } from "#src/utils/FormValidator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import { FormValidator } from "#src/utils/FormValidator.js";
 
 export interface PublicAuthorityError {
   noPublicAuthoritySelected?: { text: string };
-  noConfirmationSelected?: { text: string };
-  noPublicAuthoritiesInList?: { text: string };
 }
 
 export interface PublicAuthorityFormData {
-  publicAuthorityOption?: string;
-  "add-another-public-authority"?: string;
-}
-
-export interface RemovePublicAuthorityFormData {
-  publicAuthorityId: string;
-  "remove-public-authority": string;
+  publicAuthorityOption?: string | string[];
 }
 
 export const PUBLIC_AUTHORITY_ERROR = {
-  NO_SELECTION: "Please select a public authority",
-  NO_CONFIRMATION: "Please select either yes or no to continue.",
-  NO_PUBLIC_AUTHORITIES_IN_LIST:
-    "A case must have a minimum of 1 interested party",
+  NO_SELECTION: "Please select at least one public authority",
 };
 
 export class PublicAuthorityValidator extends FormValidator {
@@ -32,40 +21,15 @@ export class PublicAuthorityValidator extends FormValidator {
 
     const { publicAuthorityOption } = formBody;
 
-    if (typeof publicAuthorityOption !== "string") {
+    const selectedOptions = Array.isArray(publicAuthorityOption)
+      ? publicAuthorityOption
+      : typeof publicAuthorityOption === "string"
+        ? [publicAuthorityOption]
+        : [];
+
+    if (selectedOptions.length === EMPTY_ARR_LENGTH) {
       errorSummaries.noPublicAuthoritySelected = {
         text: PUBLIC_AUTHORITY_ERROR.NO_SELECTION,
-      };
-    }
-
-    return errorSummaries;
-  }
-
-  validateAddAnotherPublicAuthority(
-    formBody: Partial<PublicAuthorityFormData>,
-  ): Partial<PublicAuthorityError> {
-    const errorSummaries: Partial<PublicAuthorityError> = {};
-
-    const { "add-another-public-authority": isAddingAnotherPublicAuthority } =
-      formBody;
-
-    if (typeof isAddingAnotherPublicAuthority !== "string") {
-      errorSummaries.noConfirmationSelected = {
-        text: PUBLIC_AUTHORITY_ERROR.NO_CONFIRMATION,
-      };
-    }
-
-    return errorSummaries;
-  }
-
-  validatePublicAuthorityList(
-    selectedPublicAuthorities: unknown[],
-  ): Partial<PublicAuthorityError> {
-    const errorSummaries: Partial<PublicAuthorityError> = {};
-
-    if (selectedPublicAuthorities.length === EMPTY_ARR_LENGTH) {
-      errorSummaries.noPublicAuthoritiesInList = {
-        text: PUBLIC_AUTHORITY_ERROR.NO_PUBLIC_AUTHORITIES_IN_LIST,
       };
     }
 

@@ -1,30 +1,40 @@
-import { PUBLIC_AUTHORITY_OPTIONS } from "#src/infrastructure/locales/constants.js";
+import {
+  PUBLIC_AUTHORITY_OPTIONS,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import type { PublicAuthoritySessionState } from "#src/use-cases/apply/publicAuthority/models/publicAuthoritySessionState.types.js";
 
 interface AddPublicAuthorityOutput {
-  selectedPublicAuthority: PublicAuthority;
   selectedPublicAuthorities: PublicAuthority[];
 }
 
 export class AddPublicAuthorityUseCase {
   execute(
-    publicAuthorityOption: string | undefined,
-    state: PublicAuthoritySessionState,
+    publicAuthorityOptions: string | string[] | undefined,
   ): UseCaseResult<AddPublicAuthorityOutput> {
-    if (typeof publicAuthorityOption !== "string") {
+    const selectedOptions = Array.isArray(publicAuthorityOptions)
+      ? publicAuthorityOptions
+      : typeof publicAuthorityOptions === "string"
+        ? [publicAuthorityOptions]
+        : [];
+
+    if (selectedOptions.length === EMPTY_ARR_LENGTH) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: "INVALID_INPUT_STATE",
       };
     }
 
-    const selectedPublicAuthority = PUBLIC_AUTHORITY_OPTIONS.find(
-      (option) => option.publicAuthorityId === publicAuthorityOption,
-    );
+    const selectedPublicAuthorities = selectedOptions
+      .map((optionId) =>
+        PUBLIC_AUTHORITY_OPTIONS.find(
+          (option) => option.publicAuthorityId === optionId,
+        ),
+      )
+      .filter((option): option is PublicAuthority => option !== undefined);
 
-    if (selectedPublicAuthority === undefined) {
+    if (selectedPublicAuthorities.length !== selectedOptions.length) {
       return {
         status: "TECHNICAL_FAILURE",
         reason: "INVALID_INPUT_STATE",
@@ -34,11 +44,7 @@ export class AddPublicAuthorityUseCase {
     return {
       status: "SUCCESS",
       data: {
-        selectedPublicAuthority,
-        selectedPublicAuthorities: [
-          selectedPublicAuthority,
-          ...(state.selectedPublicAuthorities ?? []),
-        ],
+        selectedPublicAuthorities,
       },
     };
   }
