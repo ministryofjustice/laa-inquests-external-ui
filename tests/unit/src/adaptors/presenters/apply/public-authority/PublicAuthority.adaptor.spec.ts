@@ -23,20 +23,20 @@ describe("PublicAuthority adaptor", () => {
         csrfToken: "abcdefg",
         publicAuthorityOptions: [
           {
-            text: "Prime Minister's Office 10 Downing Street",
-            value: "prime-ministers-office-10-downing-street",
-          },
-          { text: "Cabinet Office", value: "cabinet-office" },
-          {
             text: "Attorney General's Office",
             value: "attorney-generals-office",
           },
+          { text: "Cabinet Office", value: "cabinet-office" },
           {
-            text: "Department for Business & Trade",
+            text: "Department Devolved to Wales",
+            value: "department-devolved-to-wales",
+          },
+          {
+            text: "Department for Business and Trade",
             value: "department-for-business-and-trade",
           },
           {
-            text: "Department for Culture, Media & Sport",
+            text: "Department for Culture, Media and Sport",
             value: "department-for-culture-media-and-sport",
           },
           {
@@ -44,15 +44,19 @@ describe("PublicAuthority adaptor", () => {
             value: "department-for-education",
           },
           {
-            text: "Department for Energy Security & Net Zero",
+            text: "Department for Energy Security and Net Zero",
             value: "department-for-energy-security-and-net-zero",
           },
           {
-            text: "Department for Environment, Food & Rural Affairs",
+            text: "Department for Environment, Food and Rural Affairs",
             value: "department-for-environment-food-and-rural-affairs",
           },
           {
-            text: "Department for Science, Innovation & Technology",
+            text: "Department for Housing, Communities and Local Government",
+            value: "department-for-housing-communities-and-local-government",
+          },
+          {
+            text: "Department for Science, Innovation and Technology",
             value: "department-for-science-innovation-and-technology",
           },
           {
@@ -60,13 +64,21 @@ describe("PublicAuthority adaptor", () => {
             value: "department-for-transport",
           },
           {
-            text: "Department for Work & Pensions",
+            text: "Department for Work and Pensions",
             value: "department-for-work-and-pensions",
           },
           {
-            text: "Department of Health & Social Care",
+            text: "Department of Health and Social Care",
             value: "department-of-health-and-social-care",
           },
+          {
+            text: "Foreign, Commonwealth and Development Office",
+            value: "foreign-commonwealth-and-development-office",
+          },
+          { text: "HM Treasury", value: "hm-treasury" },
+          { text: "Home Office", value: "home-office" },
+          { text: "Ministry of Defence", value: "ministry-of-defence" },
+          { text: "Ministry of Justice", value: "ministry-of-justice" },
         ],
         publicAuthorityOption: undefined,
         selectedPublicAuthorities: [],
