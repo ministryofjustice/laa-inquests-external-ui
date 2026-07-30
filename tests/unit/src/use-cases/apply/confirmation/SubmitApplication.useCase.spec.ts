@@ -226,7 +226,7 @@ function createValidState(
     ],
     selectedPublicAuthorities: [
       {
-          publicAuthorityId: "Cabinet Office",
+        publicAuthorityId: "Cabinet Office",
         publicAuthorityDescription: "Cabinet Office",
       },
     ],
