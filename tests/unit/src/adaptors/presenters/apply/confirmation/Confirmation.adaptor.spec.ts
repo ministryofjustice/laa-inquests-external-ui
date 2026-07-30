@@ -399,7 +399,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -503,7 +503,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -584,7 +584,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -652,7 +652,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -711,7 +711,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -774,7 +774,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -843,7 +843,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];

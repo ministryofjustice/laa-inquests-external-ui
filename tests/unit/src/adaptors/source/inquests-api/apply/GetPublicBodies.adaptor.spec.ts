@@ -42,6 +42,7 @@ describe("GetPublicBodiesAdaptor", () => {
       "http://localhost/applications/public-bodies",
     );
     assert.deepEqual(getCall.args[1], {
+      params: undefined,
       headers: { Authorization: "Bearer access-token-123" },
     });
   });

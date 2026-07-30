@@ -260,7 +260,7 @@ export class SubmitApplicationUseCase {
   ): SubmitApplicationRequest["publicBodies"] {
     return (
       state.selectedPublicAuthorities?.map((body) => ({
-        publicBodyId: body.publicAuthorityDescription,
+        publicBodyId: body.publicAuthorityId,
       })) ?? []
     );
   }
