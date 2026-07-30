@@ -31,6 +31,7 @@ import { createTotalClaimRouter } from "./claim/totalClaim.router.js";
 import { TotalClaimAdaptor } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.adaptor.js";
 import { createEvidenceRouter } from "./claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
+import { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -47,6 +48,8 @@ import { requireAuth } from "../middleware/auth/requireAuth.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import { UploadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/UploadEvidence.adaptor.js";
+import { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
@@ -212,7 +215,16 @@ const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor(
 
 const totalClaimAdaptor = new TotalClaimAdaptor();
 
-const evidenceAdaptor = new EvidenceAdaptor();
+const uploadEvidenceSource = new UploadEvidenceAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const uploadEvidenceUseCase = new UploadEvidenceUseCase(uploadEvidenceSource);
+const uploadEvidenceValidator = new UploadEvidenceValidator();
+const evidenceAdaptor = new EvidenceAdaptor(
+  uploadEvidenceValidator,
+  uploadEvidenceUseCase,
+);
 
 indexRouter.use(
   "/claim",

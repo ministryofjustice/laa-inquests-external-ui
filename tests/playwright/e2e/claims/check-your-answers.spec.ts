@@ -74,6 +74,21 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByLabel("Gross total of claim including VAT").fill("133.33");
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/evidence");
+
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/claim/evidence/upload") &&
+          response.request().method() === "POST" &&
+          response.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/check-your-answers");
 

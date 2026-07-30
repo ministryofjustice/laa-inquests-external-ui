@@ -13,5 +13,12 @@ export function createEvidenceRouter(
     evidenceAdaptor.processForm(req, res);
   });
 
+  evidenceRouter.post(
+    "/evidence/upload",
+    async (req: Request, res: Response): Promise<void> => {
+      await evidenceAdaptor.processEvidenceUpload(req, res);
+    },
+  );
+
   return evidenceRouter;
 }

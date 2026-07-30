@@ -1,7 +1,21 @@
 import { initAll as initGOVUK } from "govuk-frontend";
 import { initAll as initMOJ } from "@ministryofjustice/frontend";
+import { MultiFileUpload } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
 
 const COPY_RESET_DELAY_MS = 4000;
+
+function initialiseMultiFileUpload(): void {
+  const multiFileUploadElement = document.querySelector(
+    '[data-module="moj-multi-file-upload"]',
+  );
+
+  if (multiFileUploadElement !== null) {
+    void new MultiFileUpload(multiFileUploadElement, {
+      uploadUrl: "/claim/evidence/upload",
+      deleteUrl: "/claim/evidence/delete",
+    });
+  }
+}
 
 function copyText(
   textElementId: string,
@@ -43,6 +57,7 @@ const initialiseFrontendPackages = (): void => {
     try {
       initGOVUK();
       initMOJ();
+      initialiseMultiFileUpload();
       copyText(
         "#claim-reference-number",
         "#copy-claim-reference-number",
