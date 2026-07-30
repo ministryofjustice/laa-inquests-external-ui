@@ -25,7 +25,7 @@ export class ProceedingsAdaptor {
       csrfToken,
       proceedingOptions:
         this.formatter.formatOptionsIntoList(PROCEEDING_OPTIONS),
-      proceedingInput: req.session.proceedingInput,
+      proceedingOption: req.session.proceedingOption?.proceedingId ?? "",
     });
   }
 
@@ -42,21 +42,19 @@ export class ProceedingsAdaptor {
     const proceedingErrors = this.formValidator.validateProceedingInput(
       req.body,
     );
-    //TODO: Refactor the subsequent if statement. We have removed the use case from here
     const selectedProceeding = PROCEEDING_OPTIONS.find(
       (option) => option.proceedingId === proceedingOption,
     );
 
     if (
-      (proceedingOption === undefined &&
-        Object.keys(proceedingErrors).length > EMPTY_ARR_LENGTH) ||
+      Object.keys(proceedingErrors).length > EMPTY_ARR_LENGTH ||
       selectedProceeding === undefined
     ) {
       const renderOptions = {
         csrfToken,
         proceedingOptions:
           this.formatter.formatOptionsIntoList(PROCEEDING_OPTIONS),
-        proceedingOption: req.session.proceedingOption,
+        proceedingOption: req.session.proceedingOption?.proceedingId ?? "",
         errorSummaries: proceedingErrors,
       };
 

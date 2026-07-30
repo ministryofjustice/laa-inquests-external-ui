@@ -43,4 +43,37 @@ test.describe("Add proceedings", () => {
       PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
     );
   });
+
+  test("pre-selects proceeding radio when navigating back from check-your-answers", async ({
+    page,
+  }) => {
+    await page.goto("/apply/proceeding");
+    const selectProceedingForm = await page.getByTestId("add-proceeding-form");
+
+    const deathInPoliceCustodyRadio = await page.getByLabel(
+      "Death in police custody",
+      { exact: true },
+    );
+    await deathInPoliceCustodyRadio.click();
+
+    const continueButton = selectProceedingForm.getByRole("button");
+    await continueButton.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.goto("/apply/check-your-answers");
+
+    const proceedingsSummaryList = page.getByTestId("proceedings-summary-list");
+    const proceedingsChangeLink = proceedingsSummaryList.getByRole("link", {
+      name: "Change",
+    });
+    await proceedingsChangeLink.click();
+    await page.waitForLoadState("domcontentloaded");
+
+    await expect(page.url()).toContain("/apply/proceeding");
+
+    const radioInput = await page.locator(
+      'input[name="proceeding-option"][value="IQPC"]',
+    );
+    await expect(radioInput).toBeChecked();
+  });
 });

@@ -73,13 +73,70 @@ describe("Proceedings adaptor", () => {
             value: "IQOT",
           },
         ],
-        proceedingInput: undefined,
+        proceedingOption: "",
       };
       proceedingsAdaptor.renderProceedingSelectForm(requestStub, responseStub);
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
       assert(renderArgs[0], "apply/proceeding/add-proceedings");
       assert.deepInclude(renderArgs[1], expectedRenderOptions);
+    });
+
+    it("renders proceeding selection form with pre-selected option from session", () => {
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter();
+      const proceedingsAdaptor = new ProceedingsAdaptor(
+        formValidator,
+        formatter,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      requestStub.session.proceedingOption = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      proceedingsAdaptor.renderProceedingSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/proceeding/add-proceedings");
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      assert.equal((renderArgs[1] as any).proceedingOption, "IQPC");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      assert.equal((renderArgs[1] as any).csrfToken, "abcdefg");
+    });
+
+    it("renders proceeding selection form with empty string when no session data", () => {
+      const formValidator = new ProceedingsValidator();
+      const formatter = new Formatter();
+      const proceedingsAdaptor = new ProceedingsAdaptor(
+        formValidator,
+        formatter,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      proceedingsAdaptor.renderProceedingSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      assert.equal((renderArgs[1] as any).proceedingOption, "");
     });
   });
   describe("processProceedingsForm", () => {
@@ -151,6 +208,10 @@ describe("Proceedings adaptor", () => {
           },
         },
       });
+
+      // Should also pass proceedingOption as empty string when no session data
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      assert.equal((renderArgs[1] as any).proceedingOption, "");
     });
   });
 });
