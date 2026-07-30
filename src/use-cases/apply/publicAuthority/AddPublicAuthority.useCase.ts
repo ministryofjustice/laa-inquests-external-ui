@@ -1,7 +1,4 @@
-import {
-  PUBLIC_AUTHORITY_OPTIONS,
-  EMPTY_ARR_LENGTH,
-} from "#src/infrastructure/locales/constants.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
@@ -12,6 +9,7 @@ interface AddPublicAuthorityOutput {
 export class AddPublicAuthorityUseCase {
   execute(
     publicAuthorityOptions: string | string[] | undefined,
+    availablePublicAuthorities: PublicAuthority[],
   ): UseCaseResult<AddPublicAuthorityOutput> {
     const selectedOptions = Array.isArray(publicAuthorityOptions)
       ? publicAuthorityOptions
@@ -28,7 +26,7 @@ export class AddPublicAuthorityUseCase {
 
     const selectedPublicAuthorities = selectedOptions
       .map((optionId) =>
-        PUBLIC_AUTHORITY_OPTIONS.find(
+        availablePublicAuthorities.find(
           (option) => option.publicAuthorityId === optionId,
         ),
       )

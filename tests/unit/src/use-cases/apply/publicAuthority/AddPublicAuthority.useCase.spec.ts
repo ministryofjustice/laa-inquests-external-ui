@@ -1,11 +1,22 @@
 import { strict as assert } from "assert";
 import { AddPublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/AddPublicAuthority.useCase.js";
 
+const AVAILABLE_PUBLIC_AUTHORITIES = [
+  {
+    publicAuthorityId: "Cabinet Office",
+    publicAuthorityDescription: "Cabinet Office",
+  },
+  {
+    publicAuthorityId: "Attorney General's Office",
+    publicAuthorityDescription: "Attorney General's Office",
+  },
+];
+
 describe("AddPublicAuthorityUseCase", () => {
   it("returns technical failure when public authority option is missing", () => {
     const useCase = new AddPublicAuthorityUseCase();
 
-    const result = useCase.execute(undefined);
+    const result = useCase.execute(undefined, AVAILABLE_PUBLIC_AUTHORITIES);
 
     assert.deepEqual(result, {
       status: "TECHNICAL_FAILURE",
@@ -16,7 +27,10 @@ describe("AddPublicAuthorityUseCase", () => {
   it("returns technical failure when public authority option is not in the list", () => {
     const useCase = new AddPublicAuthorityUseCase();
 
-    const result = useCase.execute("not-a-real-authority");
+    const result = useCase.execute(
+      "not-a-real-authority",
+      AVAILABLE_PUBLIC_AUTHORITIES,
+    );
 
     assert.deepEqual(result, {
       status: "TECHNICAL_FAILURE",
@@ -27,7 +41,10 @@ describe("AddPublicAuthorityUseCase", () => {
   it("returns the selected public authority as a single-item list", () => {
     const useCase = new AddPublicAuthorityUseCase();
 
-    const result = useCase.execute("cabinet-office");
+    const result = useCase.execute(
+      "Cabinet Office",
+      AVAILABLE_PUBLIC_AUTHORITIES,
+    );
 
     assert.equal(result.status, "SUCCESS");
 
@@ -37,7 +54,7 @@ describe("AddPublicAuthorityUseCase", () => {
         result.data.selectedPublicAuthorities.map(
           (publicAuthority) => publicAuthority.publicAuthorityId,
         ),
-        ["cabinet-office"],
+        ["Cabinet Office"],
       );
     }
   });
@@ -45,10 +62,10 @@ describe("AddPublicAuthorityUseCase", () => {
   it("returns multiple selected authorities as an array", () => {
     const useCase = new AddPublicAuthorityUseCase();
 
-    const result = useCase.execute([
-      "cabinet-office",
-      "attorney-generals-office",
-    ]);
+    const result = useCase.execute(
+      ["Cabinet Office", "Attorney General's Office"],
+      AVAILABLE_PUBLIC_AUTHORITIES,
+    );
 
     assert.equal(result.status, "SUCCESS");
 
@@ -58,7 +75,7 @@ describe("AddPublicAuthorityUseCase", () => {
         result.data.selectedPublicAuthorities.map(
           (publicAuthority) => publicAuthority.publicAuthorityId,
         ),
-        ["cabinet-office", "attorney-generals-office"],
+        ["Cabinet Office", "Attorney General's Office"],
       );
     }
   });
@@ -66,7 +83,10 @@ describe("AddPublicAuthorityUseCase", () => {
   it("returns technical failure when an array contains an invalid authority", () => {
     const useCase = new AddPublicAuthorityUseCase();
 
-    const result = useCase.execute(["cabinet-office", "not-real"]);
+    const result = useCase.execute(
+      ["Cabinet Office", "not-real"],
+      AVAILABLE_PUBLIC_AUTHORITIES,
+    );
 
     assert.deepEqual(result, {
       status: "TECHNICAL_FAILURE",

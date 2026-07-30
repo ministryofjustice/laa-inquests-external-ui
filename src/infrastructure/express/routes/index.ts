@@ -38,6 +38,7 @@ import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js
 import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
+import { GetPublicBodiesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetPublicBodies/GetPublicBodies.adaptor.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
@@ -156,9 +157,14 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
 
 const publicAuthorityFormatter = new Formatter();
 const publicAuthorityValidator = new PublicAuthorityValidator();
+const getPublicBodiesSource = new GetPublicBodiesAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
 const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
   publicAuthorityValidator,
   publicAuthorityFormatter,
+  getPublicBodiesSource,
 );
 
 const submitApplicationSource = new SubmitApplicationAdaptor(
