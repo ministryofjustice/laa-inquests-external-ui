@@ -95,6 +95,17 @@ export const apiHandlers = [
     const url = new URL(request.url);
     const pathParts = url.pathname.split("/");
     const laaReference = pathParts[pathParts.indexOf("applications") + 1];
+    const body = (await request.json()) as { claimEvidenceIds?: unknown };
+
+    if (
+      !Array.isArray(body.claimEvidenceIds) ||
+      body.claimEvidenceIds.length === 0
+    ) {
+      return HttpResponse.json(
+        { errorCode: "MISSING_CLAIM_EVIDENCE" },
+        { status: 422 },
+      );
+    }
 
     if (laaReference === FORCE_422_LAA_REFERENCE) {
       return HttpResponse.json(

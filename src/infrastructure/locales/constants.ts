@@ -69,6 +69,10 @@ export const CLAIM_REJECTION_REASON_LABEL: Record<
 export const SUBMIT_CLAIM_FALLBACK_ERROR =
   "Your claim could not be submitted. Please check your answers and try again.";
 
+export const CLAIM_EVIDENCE_SUBMIT_ERROR = {
+  MISSING_CLAIM_EVIDENCE: "Claim evidence is required",
+};
+
 export const CLAIM_NET_TOTAL_VALUE = 1000;
 export const CLAIM_GROSS_TOTAL_VALUE = 1200;
 

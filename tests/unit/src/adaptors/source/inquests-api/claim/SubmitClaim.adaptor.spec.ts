@@ -36,6 +36,7 @@ describe("SubmitClaimAdaptor", () => {
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
         claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
       },
       "access-token-123",
     );
@@ -55,6 +56,7 @@ describe("SubmitClaimAdaptor", () => {
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
         claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
       },
       "my-token",
     );
@@ -73,6 +75,10 @@ describe("SubmitClaimAdaptor", () => {
       totalProfitCostGross: 1200,
       poaTypeId: "PROFIT_COST",
       claimantId: "test@provider.co.uk",
+      claimEvidenceIds: [
+        "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "5b1a9e2b-2a1d-4e2a-9c3b-1f2e3d4c5b6a",
+      ],
     };
 
     await adaptor.submitClaim("12345", body, "access-token-123");
@@ -91,6 +97,7 @@ describe("SubmitClaimAdaptor", () => {
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
         claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
       },
       "access-token-123",
     );
@@ -120,6 +127,7 @@ describe("SubmitClaimAdaptor", () => {
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
         claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
       },
       "access-token-123",
     );
@@ -149,6 +157,7 @@ describe("SubmitClaimAdaptor", () => {
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
         claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
       },
       "access-token-123",
     );
@@ -172,6 +181,7 @@ describe("SubmitClaimAdaptor", () => {
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
         claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
       },
       "access-token-123",
     );
@@ -203,6 +213,7 @@ describe("SubmitClaimAdaptor", () => {
         totalProfitCostGross: 1200,
         poaTypeId: "PROFIT_COST",
         claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
       },
       "access-token-123",
     );
@@ -236,6 +247,7 @@ describe("SubmitClaimAdaptor", () => {
             totalProfitCostGross: 1200,
             poaTypeId: "PROFIT_COST",
             claimantId: "test@provider.co.uk",
+            claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
           },
           "access-token-123",
         ),
@@ -255,6 +267,7 @@ describe("SubmitClaimAdaptor", () => {
             totalProfitCostGross: 1200,
             poaTypeId: "PROFIT_COST",
             claimantId: "test@provider.co.uk",
+            claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
           },
           undefined,
         ),
@@ -274,6 +287,7 @@ describe("SubmitClaimAdaptor", () => {
             totalProfitCostGross: 1200,
             poaTypeId: "PROFIT_COST",
             claimantId: "test@provider.co.uk",
+            claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
           },
           "",
         ),

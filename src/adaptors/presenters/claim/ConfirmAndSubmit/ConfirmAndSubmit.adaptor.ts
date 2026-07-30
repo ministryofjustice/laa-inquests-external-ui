@@ -114,6 +114,7 @@ export class ConfirmAndSubmitAdaptor {
       zeroVatTotal,
       netTotal,
       grossTotal,
+      evidenceFiles,
     } = claim;
     return {
       laaReference: caseReference,
@@ -124,6 +125,7 @@ export class ConfirmAndSubmitAdaptor {
       zeroVatTotal: this.#parseAmount(zeroVatTotal),
       netTotal: this.#parseAmount(netTotal),
       grossTotal: this.#parseAmount(grossTotal),
+      claimEvidenceIds: (evidenceFiles ?? []).map((file) => file.id),
     };
   }
 
