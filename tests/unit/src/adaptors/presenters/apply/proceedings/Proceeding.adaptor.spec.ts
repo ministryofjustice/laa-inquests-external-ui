@@ -2,13 +2,13 @@ import { assert } from "chai";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.adaptor.js";
-import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.validator.js";
+import { ProceedingValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceeding.validator.js";
 import { Formatter } from "#src/utils/Formatter.js";
 
 describe("Proceedings adaptor", () => {
   describe("renderProceedingSelectForm", () => {
     it("renders proceeding selection form", () => {
-      const formValidator = new ProceedingsValidator();
+      const formValidator = new ProceedingValidator();
       const formatter = new Formatter();
       const proceedingsAdaptor = new ProceedingsAdaptor(
         formValidator,
@@ -83,7 +83,7 @@ describe("Proceedings adaptor", () => {
     });
 
     it("renders proceeding selection form with pre-selected option from session", () => {
-      const formValidator = new ProceedingsValidator();
+      const formValidator = new ProceedingValidator();
       const formatter = new Formatter();
       const proceedingsAdaptor = new ProceedingsAdaptor(
         formValidator,
@@ -116,7 +116,7 @@ describe("Proceedings adaptor", () => {
     });
 
     it("renders proceeding selection form with empty string when no session data", () => {
-      const formValidator = new ProceedingsValidator();
+      const formValidator = new ProceedingValidator();
       const formatter = new Formatter();
       const proceedingsAdaptor = new ProceedingsAdaptor(
         formValidator,
@@ -141,7 +141,7 @@ describe("Proceedings adaptor", () => {
   });
   describe("processProceedingsForm", () => {
     it("adds selected proceedings to the session object", () => {
-      const formValidator = new ProceedingsValidator();
+      const formValidator = new ProceedingValidator();
       const formatter = new Formatter();
       const proceedingsAdaptor = new ProceedingsAdaptor(
         formValidator,
@@ -176,10 +176,10 @@ describe("Proceedings adaptor", () => {
       );
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
-      assert(redirectArgs[0], "/apply/deceased-details/name");
+      assert.equal(redirectArgs[0] as unknown as string, "/apply/deceased-details/name");
     });
     it("renders error message if no proceeding option is selected", async () => {
-      const formValidator = new ProceedingsValidator();
+      const formValidator = new ProceedingValidator();
       const formatter = new Formatter();
       const proceedingsAdaptor = new ProceedingsAdaptor(
         formValidator,
@@ -194,12 +194,12 @@ describe("Proceedings adaptor", () => {
       };
 
       proceedingsAdaptor.processProceedingsForm(requestStub, responseStub);
-      assert.deepEqual(requestStub.session.selectedProceedings, undefined);
+      assert.deepEqual(requestStub.session.selectedProceeding, undefined);
       assert.deepEqual(requestStub.session.proceedingOption, undefined);
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert(renderArgs[0], "apply/proceeding/add-proceedings");
+      assert.equal(renderArgs[0], "apply/proceeding/add-proceedings");
 
       assert.deepInclude(renderArgs[1], {
         errorSummaries: {

@@ -1,11 +1,11 @@
-import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.validator.js";
+import { ProceedingValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceeding.validator.js";
 import { PROCEEDING_ERROR } from "#src/infrastructure/locales/constants.js";
 import { assert } from "chai";
 
-describe("ProceedingsValidator", () => {
+describe("ProceedingValidator", () => {
   describe("validateProceedingInput", () => {
     it("returns expected error message when no proceeding is selected", () => {
-      const formValidator = new ProceedingsValidator();
+      const formValidator = new ProceedingValidator();
       const formBody = {
         _csrf: "abcdefg",
       };

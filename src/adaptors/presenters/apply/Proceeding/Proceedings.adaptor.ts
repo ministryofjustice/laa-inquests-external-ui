@@ -5,14 +5,14 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type { ProceedingsFormData } from "../models/form.types.js";
-import type { ProceedingsValidator } from "./Proceedings.validator.js";
+import type { ProceedingValidator } from "./Proceeding.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
 
 export class ProceedingsAdaptor {
-  formValidator: ProceedingsValidator;
+  formValidator: ProceedingValidator;
   formatter: Formatter;
 
-  constructor(formValidator: ProceedingsValidator, formatter: Formatter) {
+  constructor(formValidator: ProceedingValidator, formatter: Formatter) {
     this.formValidator = formValidator;
     this.formatter = formatter;
   }
