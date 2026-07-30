@@ -109,10 +109,8 @@ describe("Proceedings adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "apply/proceeding/add-proceedings");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      assert.equal((renderArgs[1] as any).proceedingOption, "IQPC");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      assert.equal((renderArgs[1] as any).csrfToken, "abcdefg");
+      assert.propertyVal(renderArgs[1], "proceedingOption", "IQPC");
+      assert.propertyVal(renderArgs[1], "csrfToken", "abcdefg");
     });
 
     it("renders proceeding selection form with empty string when no session data", () => {
@@ -135,8 +133,7 @@ describe("Proceedings adaptor", () => {
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      assert.equal((renderArgs[1] as any).proceedingOption, "");
+      assert.propertyVal(renderArgs[1], "proceedingOption", "");
     });
   });
   describe("processProceedingsForm", () => {
@@ -213,8 +210,7 @@ describe("Proceedings adaptor", () => {
       });
 
       // Should also pass proceedingOption as empty string when no session data
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      assert.equal((renderArgs[1] as any).proceedingOption, "");
+      assert.propertyVal(renderArgs[1], "proceedingOption", "");
     });
   });
 });
