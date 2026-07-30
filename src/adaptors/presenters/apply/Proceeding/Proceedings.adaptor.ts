@@ -21,7 +21,7 @@ export class ProceedingsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/proceedings/add-proceedings", {
+    res.render("apply/proceeding/add-proceedings", {
       csrfToken,
       proceedingOptions:
         this.formatter.formatOptionsIntoList(PROCEEDING_OPTIONS),
@@ -60,7 +60,7 @@ export class ProceedingsAdaptor {
         errorSummaries: proceedingErrors,
       };
 
-      res.render("apply/proceedings/add-proceedings", renderOptions);
+      res.render("apply/proceeding/add-proceedings", renderOptions);
     } else {
       req.session.proceedingOption = { ...selectedProceeding };
       req.session.selectedProceeding = selectedProceeding;

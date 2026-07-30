@@ -5,11 +5,11 @@ export function createProceedingsRouter(
   proceedingsRouter: Router,
   proceedingsAdaptor: ProceedingsAdaptor,
 ): Router {
-  proceedingsRouter.get("/proceedings", (req: Request, res: Response): void => {
+  proceedingsRouter.get("/proceeding", (req: Request, res: Response): void => {
     proceedingsAdaptor.renderProceedingSelectForm(req, res);
   });
 
-  proceedingsRouter.post("/proceedings", (req: Request, res: Response) => {
+  proceedingsRouter.post("/proceeding", (req: Request, res: Response) => {
     proceedingsAdaptor.processProceedingsForm(req, res);
   });
 
