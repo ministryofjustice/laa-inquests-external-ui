@@ -29,7 +29,7 @@ describe("SubmitApplicationAdaptor", () => {
 
       const selectedProceedings = [
         {
-          proceedingId: "MN035",
+          proceedingId: "IQCN",
         },
       ];
 

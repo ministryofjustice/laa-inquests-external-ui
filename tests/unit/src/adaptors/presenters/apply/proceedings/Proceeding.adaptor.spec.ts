@@ -176,7 +176,10 @@ describe("Proceedings adaptor", () => {
       );
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectArgs[0] as unknown as string, "/apply/deceased-details/name");
+      assert.equal(
+        redirectArgs[0] as unknown as string,
+        "/apply/deceased-details/name",
+      );
     });
     it("renders error message if no proceeding option is selected", async () => {
       const formValidator = new ProceedingValidator();

@@ -4,7 +4,6 @@ import { CORRESPONDENCE_ADDRESS_SOURCE } from "#src/infrastructure/locales/const
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 import type { ClientDeclarationFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
-import type { SummaryListRow } from "#src/adaptors/presenters/apply/models/summaryList.types.js";
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
 import {
   BuildCheckYourAnswersUseCase,
@@ -199,9 +198,10 @@ export class ConfirmationAdaptor {
     return {
       client: this.#buildClientViewModel(data),
       deceasedDetails: this.#buildDeceasedDetailsViewModel(data),
-      proceeding: data.proceeding
-        ? this.formatter.formatSelectedIntoTableRows(data.proceeding)
-        : null,
+      proceeding:
+        data.proceeding === undefined
+          ? null
+          : this.formatter.formatSelectedIntoTableRows(data.proceeding),
       publicAuthorities: this.formatter.formatIntoTableRows(
         data.publicAuthorities,
       ),

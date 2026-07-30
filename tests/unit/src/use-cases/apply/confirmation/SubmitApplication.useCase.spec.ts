@@ -218,7 +218,7 @@ function createValidState(
     deceasedCoronerReference: "COR-123",
     deceasedFurtherInformation: "No additional details",
     selectedProceeding: {
-      proceedingId: "MN035",
+      proceedingId: "IQCN",
       proceedingName: "Clinical Negligence",
       matterType: "INQUEST",
     },

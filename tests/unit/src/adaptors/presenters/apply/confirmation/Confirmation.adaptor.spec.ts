@@ -497,7 +497,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedFurtherInformation = "Further info";
 
       requestStub.session.selectedProceeding = {
-        proceedingId: "IQPC", //TODO: Update these Ids to match the new proceedingId format
+        proceedingId: "IQPC",
         proceedingName: "Death in police custody",
         matterType: "INQUEST",
       };

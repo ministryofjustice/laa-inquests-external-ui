@@ -463,7 +463,7 @@ describe("Client details adaptor", () => {
       "correspondence-recipient-organisation-name": "",
     };
     requestStub.session.selectedProceeding = {
-      proceedingId: "MN035",
+      proceedingId: "IQCN",
       proceedingName: "Clinical Negligence",
       matterType: "INQUEST",
     };

@@ -245,7 +245,6 @@ export class SubmitApplicationUseCase {
     };
   }
 
-  //TODO: Rename proceedingS to proceeding. The API side takes an array of proceedings at the moment but we are only giving it one at a time.
   #buildProceedingsForSubmit(
     state: ConfirmationSessionState,
   ): SubmitApplicationRequest["proceedings"] {
