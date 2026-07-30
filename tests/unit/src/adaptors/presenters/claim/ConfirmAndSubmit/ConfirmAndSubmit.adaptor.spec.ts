@@ -160,6 +160,10 @@ describe("ConfirmAndSubmit adaptor", () => {
         zeroVatTotal: "10",
         netTotal: "1000",
         grossTotal: "1210",
+        evidenceFiles: [
+          { id: "evidence-id-1", fileName: "a.pdf" },
+          { id: "evidence-id-2", fileName: "b.pdf" },
+        ],
       };
       requestStub.session.providerEmail = "solicitor@firm.co.uk";
       requestStub.session.accessToken = "my-token";
@@ -176,6 +180,35 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(input.zeroVatTotal, 10);
       assert.equal(input.netTotal, 1000);
       assert.equal(input.grossTotal, 1210);
+      assert.deepEqual(input.claimEvidenceIds, [
+        "evidence-id-1",
+        "evidence-id-2",
+      ]);
+    });
+
+    it("defaults claimEvidenceIds to an empty array when no evidence files are in session", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "PROFIT_COST",
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      assert(submitClaimUseCase.execute.calledOnce);
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.deepEqual(input.claimEvidenceIds, []);
     });
 
     it("stores the claimReferenceNumber in the session and redirects to the confirmation page on success", async () => {

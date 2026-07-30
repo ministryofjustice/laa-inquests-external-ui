@@ -12,6 +12,7 @@ export const SubmitClaimRequestSchema = z.object({
   totalProfitCostGross: z.number().nullable(),
   poaTypeId: z.string(),
   claimantId: z.string(),
+  claimEvidenceIds: z.array(z.string()).nonempty(),
 });
 
 const SubmitClaimResponseBaseSchema = z.object({
