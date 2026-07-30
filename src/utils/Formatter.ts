@@ -51,14 +51,10 @@ export class Formatter {
     }));
   }
 
-  formatSelectedIntoTableRows(
-    selectedProceeding: Proceeding,
-  ): SummaryListRow[] {
-    return [
-      {
-        key: { text: selectedProceeding.proceedingName },
-      },
-    ];
+  formatSelectedIntoTableRows(selectedProceeding: Proceeding): SummaryListRow {
+    return {
+      key: { text: selectedProceeding.proceedingName },
+    };
   }
 
   formatIntoTableRows(

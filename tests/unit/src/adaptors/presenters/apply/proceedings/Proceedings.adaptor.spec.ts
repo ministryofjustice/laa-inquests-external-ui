@@ -78,7 +78,7 @@ describe("Proceedings adaptor", () => {
       proceedingsAdaptor.renderProceedingSelectForm(requestStub, responseStub);
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert(renderArgs[0], "apply/proceedings/add-proceedings");
+      assert(renderArgs[0], "apply/proceeding/add-proceedings");
       assert.deepInclude(renderArgs[1], expectedRenderOptions);
     });
   });
@@ -142,7 +142,7 @@ describe("Proceedings adaptor", () => {
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert(renderArgs[0], "apply/proceedings/add-proceedings");
+      assert(renderArgs[0], "apply/proceeding/add-proceedings");
 
       assert.deepInclude(renderArgs[1], {
         errorSummaries: {

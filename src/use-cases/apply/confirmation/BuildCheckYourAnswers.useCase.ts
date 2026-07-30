@@ -33,7 +33,7 @@ export interface BuildCheckYourAnswersOutput {
     deceasedCoronerReference?: string;
     deceasedFurtherInformation?: string | null;
   };
-  proceedings?: Proceeding;
+  proceeding?: Proceeding;
   publicAuthorities: PublicAuthority[];
   coronersLetterFileName: string | undefined;
 }
@@ -67,7 +67,7 @@ export class BuildCheckYourAnswersUseCase {
         deceasedCoronerReference: state.deceasedCoronerReference,
         deceasedFurtherInformation: state.deceasedFurtherInformation,
       },
-      proceedings: state.selectedProceeding,
+      proceeding: state.selectedProceeding,
       publicAuthorities: state.selectedPublicAuthorities ?? [],
       coronersLetterFileName: state.coronersLetterFileName,
     };

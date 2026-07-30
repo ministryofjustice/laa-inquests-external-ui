@@ -126,15 +126,13 @@ describe("Formatter", () => {
         matterType: "INQUEST",
       };
 
-      const tableRows =
+      const tableRow =
         formatter.formatSelectedIntoTableRows(selectedProceeding);
 
-      expect(tableRows.length).to.equal(1);
-      const [selectedRow] = tableRows;
-      expect(selectedRow.key).to.deep.equal({
+      expect(tableRow.key).to.deep.equal({
         text: "Death in police custody",
       });
-      expect(selectedRow.value).to.equal(undefined);
+      expect(tableRow.value).to.equal(undefined);
     });
     it("does not include an actions property (no remove link)", () => {
       const formatter = new Formatter();
@@ -144,12 +142,10 @@ describe("Formatter", () => {
         matterType: "INQUEST",
       };
 
-      const tableRows =
+      const tableRow =
         formatter.formatSelectedIntoTableRows(selectedProceeding);
 
-      expect(tableRows.length).to.equal(1);
-      const [selectedRow] = tableRows;
-      expect(selectedRow.actions).to.equal(undefined);
+      expect(tableRow.actions).to.equal(undefined);
     });
   });
   describe("formatOptionsIntoList", () => {

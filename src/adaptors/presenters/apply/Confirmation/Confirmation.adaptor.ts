@@ -4,6 +4,7 @@ import { CORRESPONDENCE_ADDRESS_SOURCE } from "#src/infrastructure/locales/const
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 import type { ClientDeclarationFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
+import type { SummaryListRow } from "#src/adaptors/presenters/apply/models/summaryList.types.js";
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
 import {
   BuildCheckYourAnswersUseCase,
@@ -191,17 +192,16 @@ export class ConfirmationAdaptor {
       deceasedCoronerReference: string;
       deceasedFurtherInformation?: string | null;
     };
-    proceedings: ReturnType<Formatter["formatSelectedIntoTableRows"]>;
+    proceeding: ReturnType<Formatter["formatSelectedIntoTableRows"]> | null;
     publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
     coronersLetterFileName: string;
   } {
     return {
       client: this.#buildClientViewModel(data),
       deceasedDetails: this.#buildDeceasedDetailsViewModel(data),
-      proceedings:
-        data.proceedings === undefined
-          ? [] //TODO: Doesn't need to be an array. Update the view njk to not loop over items
-          : this.formatter.formatSelectedIntoTableRows(data.proceedings),
+      proceeding: data.proceeding
+        ? this.formatter.formatSelectedIntoTableRows(data.proceeding)
+        : null,
       publicAuthorities: this.formatter.formatIntoTableRows(
         data.publicAuthorities,
       ),
