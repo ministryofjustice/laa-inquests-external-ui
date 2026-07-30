@@ -1,5 +1,11 @@
 import { test, expect } from "#tests/playwright/fixtures/index.js";
-import { PUBLIC_AUTHORITY_OPTIONS } from "#src/infrastructure/locales/constants.js";
+
+const EXPECTED_PUBLIC_BODIES = [
+  "Attorney General's Office",
+  "Cabinet Office",
+  "Department for Transport",
+  "API-only public body",
+];
 
 test.describe("Add public authority", () => {
   test("renders expected public authority page heading, public authority options and continue button", async ({
@@ -16,13 +22,10 @@ test.describe("Add public authority", () => {
     await expect(heading).toBeVisible();
     await expect(continueButton).toBeVisible();
 
-    for (const option of PUBLIC_AUTHORITY_OPTIONS) {
-      const checkbox = await page.getByLabel(
-        option.publicAuthorityDescription,
-        {
-          exact: true,
-        },
-      );
+    for (const option of EXPECTED_PUBLIC_BODIES) {
+      const checkbox = await page.getByLabel(option, {
+        exact: true,
+      });
       await expect(checkbox).toBeVisible();
     }
   });
