@@ -4,10 +4,12 @@ import {
   EMPTY_ARR_LENGTH,
   HTTP_BAD_REQUEST,
   HTTP_CREATED,
+  HTTP_INTERNAL_SERVER_ERROR,
   HTTP_SERVICE_UNAVAILABLE,
   HTTP_UNPROCESSABLE_CONTENT,
 } from "#src/infrastructure/locales/constants.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
+import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 
 const SERVICE_UNAVAILABLE_MESSAGE =
@@ -16,13 +18,16 @@ const SERVICE_UNAVAILABLE_MESSAGE =
 export class EvidenceAdaptor {
   formValidator: UploadEvidenceValidator;
   uploadEvidenceUseCase: UploadEvidenceUseCase;
+  deleteEvidenceUseCase: DeleteEvidenceUseCase;
 
   constructor(
     formValidator: UploadEvidenceValidator,
     uploadEvidenceUseCase: UploadEvidenceUseCase,
+    deleteEvidenceUseCase: DeleteEvidenceUseCase,
   ) {
     this.formValidator = formValidator;
     this.uploadEvidenceUseCase = uploadEvidenceUseCase;
+    this.deleteEvidenceUseCase = deleteEvidenceUseCase;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -54,6 +59,11 @@ export class EvidenceAdaptor {
   }
 
   async processEvidenceUpload(req: Request, res: Response): Promise<void> {
+    if (this.#isNoJsUpload(req) && this.#extractEvidenceFileId(req) !== undefined) {
+      await this.processEvidenceDeleteNoJs(req, res);
+      return;
+    }
+
     const { file } = req;
     const isNoJsUpload = this.#isNoJsUpload(req);
 
@@ -100,12 +110,81 @@ export class EvidenceAdaptor {
     });
   }
 
+  async processEvidenceDelete(req: Request, res: Response): Promise<void> {
+    const evidenceFileId = this.#extractEvidenceFileId(req);
+    if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
+      res.status(HTTP_BAD_REQUEST).json({
+        error: { message: CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN },
+      });
+      return;
+    }
+
+    const result = await this.deleteEvidenceUseCase.execute({
+      evidenceFileId,
+      accessToken: req.session.accessToken,
+    });
+
+    if (result.status !== "SUCCESS") {
+      res.status(HTTP_INTERNAL_SERVER_ERROR).json({
+        error: { message: SERVICE_UNAVAILABLE_MESSAGE },
+      });
+      return;
+    }
+
+    this.#removeEvidenceFileFromSession(req, evidenceFileId);
+    res.status(200).json({ success: true });
+  }
+
+  async processEvidenceDeleteNoJs(req: Request, res: Response): Promise<void> {
+    const evidenceFileId = this.#extractEvidenceFileId(req);
+    if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
+      this.#renderNoJsError(
+        req,
+        res,
+        CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN,
+        HTTP_BAD_REQUEST,
+      );
+      return;
+    }
+
+    const result = await this.deleteEvidenceUseCase.execute({
+      evidenceFileId,
+      accessToken: req.session.accessToken,
+    });
+
+    if (result.status !== "SUCCESS") {
+      this.#renderNoJsError(
+        req,
+        res,
+        SERVICE_UNAVAILABLE_MESSAGE,
+        HTTP_SERVICE_UNAVAILABLE,
+      );
+      return;
+    }
+
+    this.#removeEvidenceFileFromSession(req, evidenceFileId);
+    res.redirect("/claim/evidence");
+  }
+
   #isNoJsUpload(req: Request): boolean {
     const { uploadMode } = req.body as { uploadMode?: string | string[] };
     return (
       uploadMode === "html" ||
       (Array.isArray(uploadMode) && uploadMode.includes("html"))
     );
+  }
+
+  #extractEvidenceFileId(req: Request): string | undefined {
+    const body = req.body as {
+      delete?: string | string[];
+      fileName?: string | string[];
+      filename?: string | string[];
+    };
+    const candidate = body.delete ?? body.fileName ?? body.filename;
+    if (Array.isArray(candidate)) {
+      return candidate.find((value) => typeof value === "string" && value !== "");
+    }
+    return candidate;
   }
 
   #buildUploadedFiles(req: Request): Array<{
@@ -233,6 +312,14 @@ export class EvidenceAdaptor {
           fileName: evidenceFileName,
         },
       ],
+    };
+  }
+
+  #removeEvidenceFileFromSession(req: Request, evidenceFileId: string): void {
+    const existingFiles = req.session.claim?.evidenceFiles ?? [];
+    req.session.claim = {
+      ...req.session.claim,
+      evidenceFiles: existingFiles.filter((file) => file.id !== evidenceFileId),
     };
   }
 }

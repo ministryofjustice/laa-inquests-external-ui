@@ -50,6 +50,8 @@ import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/Co
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
 import { UploadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/UploadEvidence.adaptor.js";
 import { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
+import { DeleteEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/DeleteEvidence/DeleteEvidence.adaptor.js";
+import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
@@ -220,10 +222,16 @@ const uploadEvidenceSource = new UploadEvidenceAdaptor(
   config.INQUESTS_API_URL,
 );
 const uploadEvidenceUseCase = new UploadEvidenceUseCase(uploadEvidenceSource);
+const deleteEvidenceSource = new DeleteEvidenceAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const deleteEvidenceUseCase = new DeleteEvidenceUseCase(deleteEvidenceSource);
 const uploadEvidenceValidator = new UploadEvidenceValidator();
 const evidenceAdaptor = new EvidenceAdaptor(
   uploadEvidenceValidator,
   uploadEvidenceUseCase,
+  deleteEvidenceUseCase,
 );
 
 indexRouter.use(
