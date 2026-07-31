@@ -43,7 +43,7 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
       >({
         http: this.http,
         baseUrl: this.baseUrl,
-        path: "/applications/claim/upload-evidence",
+        path: "/claims/evidence",
         body: formData,
         accessToken,
       });

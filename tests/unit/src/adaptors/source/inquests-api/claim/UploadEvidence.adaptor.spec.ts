@@ -47,10 +47,7 @@ describe("UploadEvidenceAdaptor", () => {
     const actualUrl = postCall.args[0];
     const actualBody = postCall.args[1];
 
-    assert.equal(
-      actualUrl,
-      "http://localhost/applications/claim/upload-evidence",
-    );
+    assert.equal(actualUrl, "http://localhost/claims/evidence");
     assert.equal(actualBody instanceof FormData, true);
     assert.deepEqual(postCall.args[2], {
       headers: {
