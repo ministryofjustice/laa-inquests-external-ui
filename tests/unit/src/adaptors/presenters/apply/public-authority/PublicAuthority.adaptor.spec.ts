@@ -6,6 +6,7 @@ import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicA
 import { Formatter } from "#src/utils/Formatter.js";
 import type { GetPublicBodiesPort } from "#src/ports/source/inquests-api/GetPublicBodies.port.js";
 
+// TODO: Again, feels weird this is in one place
 const API_PUBLIC_BODIES = [
   {
     publicBodyId: "Attorney General's Office",
@@ -22,6 +23,7 @@ const API_PUBLIC_BODIES = [
 ];
 
 describe("PublicAuthority adaptor", () => {
+  // TODO: Do a before each at this point?
   function buildAdaptor(getPublicBodiesPort?: GetPublicBodiesPort) {
     const port = getPublicBodiesPort ?? stubInterface<GetPublicBodiesPort>();
     return new PublicAuthorityAdaptor(
@@ -118,27 +120,19 @@ describe("PublicAuthority adaptor", () => {
       });
     });
 
-    it("renders the 503 error page when loading public bodies fails", async () => {
+    it("throws when loading public bodies fails", async () => {
       const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
       getPublicBodiesPort.getPublicBodies.rejects(new Error("Network error"));
       const adaptor = buildAdaptor(getPublicBodiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
-      responseStub.status.returns(responseStub);
 
-      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
-
-      assert.equal(responseStub.status.callCount, 1);
-      assert.equal(responseStub.status.getCall(0).args[0], 503);
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepEqual(responseStub.render.getCall(0).args, [
-        "main/error",
-        {
-          status: "503",
-          error: "Service unavailable. Please try again later.",
-        },
-      ]);
+      await assert.rejects(
+        () =>
+          adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub),
+        { message: "UNEXPECTED_EXCEPTION" },
+      );
     });
   });
 
@@ -226,27 +220,18 @@ describe("PublicAuthority adaptor", () => {
       });
     });
 
-    it("renders 503 error page when loading public bodies fails", async () => {
+    it("throws when loading public bodies fails", async () => {
       const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
       getPublicBodiesPort.getPublicBodies.rejects(new Error("Network error"));
       const adaptor = buildAdaptor(getPublicBodiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
-      responseStub.status.returns(responseStub);
 
-      await adaptor.processPublicAuthorityForm(requestStub, responseStub);
-
-      assert.equal(responseStub.status.callCount, 1);
-      assert.equal(responseStub.status.getCall(0).args[0], 503);
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepEqual(responseStub.render.getCall(0).args, [
-        "main/error",
-        {
-          status: "503",
-          error: "Service unavailable. Please try again later.",
-        },
-      ]);
+      await assert.rejects(
+        () => adaptor.processPublicAuthorityForm(requestStub, responseStub),
+        { message: "UNEXPECTED_EXCEPTION" },
+      );
     });
   });
 });

@@ -1,8 +1,5 @@
 import type { Request, Response } from "express";
-import {
-  EMPTY_ARR_LENGTH,
-  HTTP_SERVICE_UNAVAILABLE,
-} from "#src/infrastructure/locales/constants.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
   PublicAuthorityValidator,
@@ -57,11 +54,11 @@ export class PublicAuthorityAdaptor {
       getPublicBodiesResult.status !== "SUCCESS" ||
       getPublicBodiesResult.data === undefined
     ) {
-      res.status(HTTP_SERVICE_UNAVAILABLE).render("main/error", {
-        status: "503",
-        error: "Service unavailable. Please try again later.",
-      });
-      return;
+      throw new Error(
+        getPublicBodiesResult.status === "TECHNICAL_FAILURE"
+          ? getPublicBodiesResult.reason
+          : "UNEXPECTED_FAILURE",
+      );
     }
 
     const publicAuthorityOptions = this.#mapPublicBodiesToPublicAuthorities(
@@ -96,6 +93,7 @@ export class PublicAuthorityAdaptor {
       body: { publicAuthorityOption },
     } = req;
 
+    // TODO: Dislike API is called a second time here
     const getPublicBodiesResult = await this.getPublicBodiesUseCase.execute(
       session.accessToken,
     );
@@ -104,11 +102,11 @@ export class PublicAuthorityAdaptor {
       getPublicBodiesResult.status !== "SUCCESS" ||
       getPublicBodiesResult.data === undefined
     ) {
-      res.status(HTTP_SERVICE_UNAVAILABLE).render("main/error", {
-        status: "503",
-        error: "Service unavailable. Please try again later.",
-      });
-      return;
+      throw new Error(
+        getPublicBodiesResult.status === "TECHNICAL_FAILURE"
+          ? getPublicBodiesResult.reason
+          : "UNEXPECTED_FAILURE",
+      );
     }
 
     const publicAuthorityOptions = this.#mapPublicBodiesToPublicAuthorities(
@@ -122,6 +120,8 @@ export class PublicAuthorityAdaptor {
       publicAuthorityOptions,
     );
 
+    // TODO: Remove public body vs public authority :(
+    // TODO: ... isn't this always an array?
     const selectedPublicAuthorityIds = Array.isArray(publicAuthorityOption)
       ? publicAuthorityOption
       : typeof publicAuthorityOption === "string"
