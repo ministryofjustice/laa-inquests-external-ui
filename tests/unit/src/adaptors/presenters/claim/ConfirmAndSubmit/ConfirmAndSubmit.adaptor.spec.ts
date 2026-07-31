@@ -2,10 +2,7 @@ import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
-import {
-  CLAIM_REJECTION_REASON_LABEL,
-  CONFIRM_CLAIM_PLACEHOLDER,
-} from "#src/infrastructure/locales/constants.js";
+import { CLAIM_REJECTION_REASON_LABEL } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import { Formatter } from "#src/utils/Formatter.js";
 import { SubmitClaimUseCase } from "#src/use-cases/claim/SubmitClaim.useCase.js";
@@ -133,10 +130,42 @@ describe("ConfirmAndSubmit adaptor", () => {
 
       assert.equal(viewModel.cost.netTotal, "");
       assert.equal(viewModel.cost.grossTotal, "");
-      assert.deepEqual(
-        viewModel.evidence.uploadedFiles,
-        CONFIRM_CLAIM_PLACEHOLDER.UPLOADED_FILES,
-      );
+      assert.deepEqual(viewModel.evidence.uploadedFiles, []);
+    });
+
+    it("maps uploaded evidence files from the session to view model rows", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        evidenceFiles: [
+          { id: "evidence-id-1", fileName: "report.pdf", sizeBytes: 2048 },
+          { id: "evidence-id-2", fileName: "photo.PNG" },
+        ],
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.deepEqual(viewModel.evidence.uploadedFiles, [
+        {
+          id: "evidence-id-1",
+          name: "report.pdf",
+          type: "pdf",
+          size: "2KB",
+        },
+        {
+          id: "evidence-id-2",
+          name: "photo.PNG",
+          type: "png",
+          size: "",
+        },
+      ]);
     });
   });
 

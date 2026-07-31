@@ -3,6 +3,7 @@ export type TechnicalFailureReason =
   | "INVALID_RESPONSE"
   | "UNEXPECTED_EXCEPTION"
   | "UPSTREAM_REJECTED"
+  | "NOT_FOUND"
   | "FILE_SCAN_FOUND_VIRUS";
 
 export type UseCaseResult<Data = undefined, ValidationErrors = undefined> =

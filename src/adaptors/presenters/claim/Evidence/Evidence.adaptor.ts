@@ -79,6 +79,7 @@ export class EvidenceAdaptor {
       req,
       result.data?.evidenceFileId,
       result.data?.evidenceFileName,
+      file!.size,
     );
 
     if (isNoJsUpload) {
@@ -213,6 +214,7 @@ export class EvidenceAdaptor {
     req: Request,
     evidenceFileId: string | undefined,
     evidenceFileName: string | undefined,
+    sizeBytes: number | undefined,
   ): void {
     if (
       typeof evidenceFileId !== "string" ||
@@ -231,6 +233,7 @@ export class EvidenceAdaptor {
         {
           id: evidenceFileId,
           fileName: evidenceFileName,
+          sizeBytes,
         },
       ],
     };

@@ -7,6 +7,9 @@ import type { SummaryListRow } from "../adaptors/presenters/apply/models/summary
 
 const TWO_DECIMAL_PLACES = 2;
 
+const BYTES_PER_KB = 1024;
+const MIN_DISPLAY_KB = 1;
+
 const GBP_CURRENCY_FORMATTER = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "GBP",
@@ -27,6 +30,14 @@ export class Formatter {
     }
 
     return GBP_CURRENCY_FORMATTER.format(parsedValue);
+  }
+
+  formatFileSize(sizeBytes: number | undefined): string {
+    if (typeof sizeBytes !== "number" || !Number.isFinite(sizeBytes)) {
+      return "";
+    }
+
+    return `${Math.max(MIN_DISPLAY_KB, Math.round(sizeBytes / BYTES_PER_KB))}KB`;
   }
 
   filterAvailableOptions(
