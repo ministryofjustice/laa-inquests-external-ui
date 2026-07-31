@@ -5,7 +5,6 @@ import {
   CLAIM_REJECTION_REASON_LABEL,
   CLAIM_SUBTYPE_LABEL,
   CLAIM_TYPE_LABEL,
-  CONFIRM_CLAIM_PLACEHOLDER,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { Formatter } from "#src/utils/Formatter.js";
@@ -146,9 +145,19 @@ export class ConfirmAndSubmitAdaptor {
       },
       cost: this.#buildCostDetails(claim),
       evidence: {
-        uploadedFiles: CONFIRM_CLAIM_PLACEHOLDER.UPLOADED_FILES,
+        uploadedFiles: (claim?.evidenceFiles ?? []).map((file) => ({
+          id: file.id,
+          name: file.fileName,
+          type: this.#fileType(file.fileName),
+          size: this.formatter.formatFileSize(file.sizeBytes),
+        })),
       },
     };
+  }
+
+  #fileType(fileName: string): string {
+    const [, extension] = /\.([^.]+)$/v.exec(fileName) ?? [];
+    return typeof extension === "string" ? extension.toLowerCase() : "";
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {

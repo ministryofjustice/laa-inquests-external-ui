@@ -152,6 +152,7 @@ describe("Evidence adaptor", () => {
         buffer: Buffer.from("evidence-content"),
         mimetype: "application/pdf",
         originalname: evidenceFileName,
+        size: 16,
       } as Express.Multer.File;
       requestStub.body = {};
       return requestStub;
@@ -192,6 +193,7 @@ describe("Evidence adaptor", () => {
         {
           id: evidenceFileId,
           fileName: evidenceFileName,
+          sizeBytes: 16,
         },
       ]);
       assert.equal(responseStub.redirect.callCount, 1);
@@ -225,6 +227,7 @@ describe("Evidence adaptor", () => {
         {
           id: evidenceFileId,
           fileName: evidenceFileName,
+          sizeBytes: 16,
         },
       ]);
       assert.equal(responseStub.status.calledWith(HTTP_CREATED), true);

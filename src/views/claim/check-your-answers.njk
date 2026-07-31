@@ -157,9 +157,9 @@
               <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">{{ file.name }}</dt>
                 <dd class="govuk-summary-list__value">
-                  <a class="govuk-link govuk-!-font-weight-bold" href="#">View</a>
+                  <a class="govuk-link govuk-!-font-weight-bold" href="/claim/evidence/{{ file.id }}/view" target="_blank" rel="noopener noreferrer">View</a>
                   |
-                  <a class="govuk-link" href="#">Download ({{ file.type }} {{ file.size }})</a>
+                  <a class="govuk-link" href="/claim/evidence/{{ file.id }}/download">Download ({{ file.type }} {{ file.size }})</a>
                 </dd>
               </div>
               {% endfor %}
