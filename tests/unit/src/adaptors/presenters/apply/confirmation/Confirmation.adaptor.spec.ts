@@ -89,6 +89,12 @@ describe("Confirmation adaptor", () => {
 
     requestStub.session.selectedPublicAuthorities = publicAuthorities;
 
+    requestStub.session.selectedProceeding = {
+      proceedingId: "IQPC",
+      proceedingName: "Death in police custody",
+      matterType: "INQUEST",
+    };
+
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
@@ -115,7 +121,9 @@ describe("Confirmation adaptor", () => {
         deceasedCoronerReference: "12345678910",
         deceasedFurtherInformation: "Case linked details",
       },
-      proceedings: [],
+      proceeding: {
+        key: { text: "Death in police custody" },
+      },
       publicAuthorities: expectedFormattedPublicAuthorities,
       coronersLetterFileName: testCoronersLetterFileName,
     });
@@ -140,7 +148,11 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedCoronerReference = "12345678910";
     requestStub.session.deceasedFurtherInformation = "Linked details text";
     requestStub.session.selectedPublicAuthorities = [];
-    requestStub.session.selectedProceedings = [];
+    requestStub.session.selectedProceeding = {
+      proceedingId: "IQPC",
+      proceedingName: "Death in police custody",
+      matterType: "INQUEST",
+    };
 
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
 
@@ -183,6 +195,11 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
     requestStub.session.selectedPublicAuthorities = [];
+    requestStub.session.selectedProceeding = {
+      proceedingId: "IQPC",
+      proceedingName: "Death in police custody",
+      matterType: "INQUEST",
+    };
 
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
 
@@ -223,29 +240,17 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
 
-    const proceedings = [
-      {
-        proceedingId: "MN035",
-        proceedingName: "Clinical Negligence",
-        matterType: "INQUEST",
-      },
-    ];
+    const proceeding = {
+      proceedingId: "IQPC",
+      proceedingName: "Death in police custody",
+      matterType: "INQUEST",
+    };
 
-    const expectedFormattedProceedings = [
-      {
-        key: { text: "Clinical Negligence" },
-        actions: {
-          items: [
-            {
-              href: "/apply/proceedings/remove?proceedingId=MN035",
-              text: "Remove",
-            },
-          ],
-        },
-      },
-    ];
+    const expectedFormattedProceeding = {
+      key: { text: "Death in police custody" },
+    };
 
-    requestStub.session.selectedProceedings = proceedings;
+    requestStub.session.selectedProceeding = proceeding;
     requestStub.session.selectedPublicAuthorities = [];
 
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
@@ -253,7 +258,7 @@ describe("Confirmation adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     const renderModel = renderArgs[1] as unknown as Record<string, any>;
 
-    assert.deepEqual(renderModel.proceedings, expectedFormattedProceedings);
+    assert.deepEqual(renderModel.proceeding, expectedFormattedProceeding);
   });
 
   it("render confirm success page", () => {
@@ -389,13 +394,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -448,7 +451,7 @@ describe("Confirmation adaptor", () => {
 
       assert.deepEqual(submitBody.proceedings, [
         {
-          proceedingId: "MN035",
+          proceedingId: "IQPC",
         },
       ]);
       assert.deepEqual(submitBody.publicBodies, [
@@ -493,13 +496,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -574,13 +575,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -642,13 +641,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -701,13 +698,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -764,13 +759,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {
@@ -833,13 +826,11 @@ describe("Confirmation adaptor", () => {
       requestStub.session.deceasedCoronerReference = "COR-123";
       requestStub.session.deceasedFurtherInformation = "Further info";
 
-      requestStub.session.selectedProceedings = [
-        {
-          proceedingId: "MN035",
-          proceedingName: "Clinical Negligence",
-          matterType: "INQUEST",
-        },
-      ];
+      requestStub.session.selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
 
       requestStub.session.selectedPublicAuthorities = [
         {

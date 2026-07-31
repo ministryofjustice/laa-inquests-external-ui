@@ -1,7 +1,7 @@
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 
 export interface DeceasedDetailsSessionState {
-  selectedProceedings?: Proceeding[];
+  selectedProceeding?: Proceeding;
   deceasedFirstName?: string;
   deceasedLastName?: string;
   deceasedDateOfDeathDay?: string;

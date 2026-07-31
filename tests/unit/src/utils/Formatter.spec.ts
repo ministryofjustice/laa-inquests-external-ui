@@ -120,49 +120,32 @@ describe("Formatter", () => {
   describe("formatSelectedIntoTableRows", () => {
     it("returns the proceeding description text in the key property of the returned row object", () => {
       const formatter = new Formatter();
-      const selectedProceedings = [
-        {
-          proceedingId: "IQPC",
-          proceedingName: "Death in police custody",
-          matterType: "INQUEST",
-        },
-      ];
-
-      const tableRows =
-        formatter.formatSelectedIntoTableRows(selectedProceedings);
-
-      expect(tableRows.length).to.equal(1);
-      const [selectedRow] = tableRows;
-      expect(selectedRow.key).to.deep.equal({
-        text: "Death in police custody",
-      });
-      expect(selectedRow.value).to.equal(undefined);
-    });
-    it("includes an actions property with a remove link for the selected proceeding", () => {
-      const formatter = new Formatter();
-      const selectedProceedings = [
-        {
-          proceedingId: "IQPC",
-          proceedingName: "Death in police custody",
-          matterType: "INQUEST",
-        },
-      ];
-
-      const expectedActions = {
-        items: [
-          {
-            href: "/apply/proceedings/remove?proceedingId=IQPC",
-            text: "Remove",
-          },
-        ],
+      const selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
       };
 
-      const tableRows =
-        formatter.formatSelectedIntoTableRows(selectedProceedings);
+      const tableRow =
+        formatter.formatSelectedIntoTableRows(selectedProceeding);
 
-      expect(tableRows.length).to.equal(1);
-      const [selectedRow] = tableRows;
-      expect(selectedRow.actions).to.deep.equal(expectedActions);
+      expect(tableRow.key).to.deep.equal({
+        text: "Death in police custody",
+      });
+      expect(tableRow.value).to.equal(undefined);
+    });
+    it("does not include an actions property (no remove link)", () => {
+      const formatter = new Formatter();
+      const selectedProceeding = {
+        proceedingId: "IQPC",
+        proceedingName: "Death in police custody",
+        matterType: "INQUEST",
+      };
+
+      const tableRow =
+        formatter.formatSelectedIntoTableRows(selectedProceeding);
+
+      expect(tableRow.actions).to.equal(undefined);
     });
   });
   describe("formatOptionsIntoList", () => {

@@ -9,7 +9,6 @@ import {
   CORRESPONDENCE_RECIPIENT_TYPE,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
-import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { ClientDetailsValidator } from "./ClientDetails.validator.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 import type { Address } from "#src/domain/Client/Address.js";
@@ -494,17 +493,10 @@ export class ClientDetailsAdaptor {
       return;
     }
 
-    const checkProceedings = (
-      proceedings: Proceeding[] | undefined | null,
-    ): boolean => proceedings !== undefined && proceedings !== null;
-    const redirectUrl = checkProceedings(req.session.selectedProceedings)
-      ? "/apply/proceedings/confirmation"
-      : "/apply/proceedings";
-
     const { data } = updatedRecipientResult;
     const { clientCorrespondenceRecipient } = data;
     req.session.clientCorrespondenceRecipient = clientCorrespondenceRecipient;
-    res.redirect(redirectUrl);
+    res.redirect("/apply/proceeding");
   }
 
   renderHasPrevApplicationForm(req: Request, res: Response): void {

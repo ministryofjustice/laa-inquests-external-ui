@@ -343,7 +343,7 @@ describe("Client details adaptor", () => {
     );
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/proceedings");
+    assert.equal(redirectArgs[0], "/apply/proceeding");
   });
 
   it("process correspondence recipient form clears recipient when no is selected", () => {
@@ -371,7 +371,7 @@ describe("Client details adaptor", () => {
     assert.equal(requestStub.session.clientCorrespondenceRecipient, null);
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/proceedings");
+    assert.equal(redirectArgs[0], "/apply/proceeding");
   });
 
   it("process nino form adds nino to session when nino exists", () => {
@@ -447,7 +447,7 @@ describe("Client details adaptor", () => {
     );
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/proceedings");
+    assert.equal(redirectArgs[0], "/apply/proceeding");
   });
   it("process correspondence recipient form redirects to confirm proceedings form if a proceeding has been previously selected", () => {
     const formValidator = new ClientDetailsValidator();
@@ -462,13 +462,11 @@ describe("Client details adaptor", () => {
       "correspondence-recipient-person-name": "",
       "correspondence-recipient-organisation-name": "",
     };
-    requestStub.session.selectedProceedings = [
-      {
-        proceedingId: "MN035",
-        proceedingName: "Clinical Negligence",
-        matterType: "INQUEST",
-      },
-    ];
+    requestStub.session.selectedProceeding = {
+      proceedingId: "IQCN",
+      proceedingName: "Clinical Negligence",
+      matterType: "INQUEST",
+    };
 
     clientDetailsAdaptor.processCorrespondenceRecipientForm(
       requestStub,
@@ -476,7 +474,7 @@ describe("Client details adaptor", () => {
     );
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/proceedings/confirmation");
+    assert.equal(redirectArgs[0], "/apply/proceeding");
   });
 
   it("process has prev application form sets boolean value to false in session when previous application does not exist", () => {

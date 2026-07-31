@@ -117,7 +117,7 @@ test.describe("Client details - correspondence recipient", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page.url()).toContain("/apply/proceedings");
+    await expect(page.url()).toContain("/apply/proceeding");
   });
 
   test("continues to proceedings page when no is selected", async ({
@@ -129,7 +129,7 @@ test.describe("Client details - correspondence recipient", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page.url()).toContain("/apply/proceedings");
+    await expect(page.url()).toContain("/apply/proceeding");
   });
 
   test("clears no organisation specified error when switching from organisation to person option", async ({

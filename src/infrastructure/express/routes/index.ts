@@ -8,9 +8,9 @@ import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDet
 import { ConfirmationAdaptor } from "#src/adaptors/presenters/apply/Confirmation/Confirmation.adaptor.js";
 import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
 import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
-import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.adaptor.js";
+import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.adaptor.js";
 import { createProceedingsRouter } from "./apply/proceedings.router.js";
-import { ProceedingsValidator } from "#src/adaptors/presenters/apply/Proceedings/Proceedings.validator.js";
+import { ProceedingValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceeding.validator.js";
 import { Formatter } from "#src/utils/Formatter.js";
 import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.formatter.js";
 import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.adaptor.js";
@@ -148,9 +148,9 @@ const deceasedDetailsAdaptor = new DeceasedDetailsAdaptor(
 );
 
 const proceedingsFormatter = new Formatter();
-const proceedingsValidator = new ProceedingsValidator();
+const proceedingValidator = new ProceedingValidator();
 const proceedingsAdaptor = new ProceedingsAdaptor(
-  proceedingsValidator,
+  proceedingValidator,
   proceedingsFormatter,
 );
 

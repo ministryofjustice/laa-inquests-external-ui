@@ -191,52 +191,80 @@ export class ConfirmationAdaptor {
       deceasedCoronerReference: string;
       deceasedFurtherInformation?: string | null;
     };
-    proceedings: ReturnType<Formatter["formatSelectedIntoTableRows"]>;
+    proceeding: ReturnType<Formatter["formatSelectedIntoTableRows"]> | null;
     publicAuthorities: ReturnType<Formatter["formatIntoTableRows"]>;
     coronersLetterFileName: string;
+  } {
+    return {
+      client: this.#buildClientViewModel(data),
+      deceasedDetails: this.#buildDeceasedDetailsViewModel(data),
+      proceeding:
+        data.proceeding === undefined
+          ? null
+          : this.formatter.formatSelectedIntoTableRows(data.proceeding),
+      publicAuthorities: this.formatter.formatIntoTableRows(
+        data.publicAuthorities,
+      ),
+      coronersLetterFileName: data.coronersLetterFileName ?? "",
+    };
+  }
+
+  #buildClientViewModel(data: BuildCheckYourAnswersOutput): {
+    clientFirstName: string;
+    clientLastName: string;
+    clientLastNameAtBirth?: string | null;
+    clientDob: string;
+    clientNino?: string | null;
+    prevLaaReferenceInput?: string | null;
+    clientAddress: string;
+    clientCorrespondenceAddress: string;
+    clientCorrespondenceRecipient: string;
   } {
     const clientAddress = this.#getClientAddressSummary(data);
     const clientPostcode = this.#getClientPostcodeSummary(data);
 
     return {
-      client: {
-        clientFirstName: data.client.clientFirstName ?? "",
-        clientLastName: data.client.clientLastName ?? "",
-        clientLastNameAtBirth: data.client.clientLastNameAtBirth,
-        clientDob: this.#createDateString(
-          data.client.clientDobDay,
-          data.client.clientDobMonth,
-          data.client.clientDobYear,
-        ),
-        clientNino: data.client.clientNino,
-        prevLaaReferenceInput: data.client.prevLaaReferenceInput,
-        clientAddress: `${clientAddress} ${clientPostcode}`,
-        clientCorrespondenceAddress:
-          this.#getClientCorrespondenceAddressSummary(data),
-        clientCorrespondenceRecipient:
-          data.client.clientCorrespondenceRecipient?.recipientName ??
-          "Correspondence will be addressed to the client",
-      },
-      deceasedDetails: {
-        deceasedFirstName: data.deceasedDetails.deceasedFirstName ?? "",
-        deceasedLastName: data.deceasedDetails.deceasedLastName ?? "",
-        dateOfDeath: this.#createDateString(
-          data.deceasedDetails.dateOfDeathDay,
-          data.deceasedDetails.dateOfDeathMonth,
-          data.deceasedDetails.dateOfDeathYear,
-        ),
-        deceasedClientRelationship:
-          data.deceasedDetails.deceasedClientRelationship ?? "",
-        deceasedCoronerReference:
-          data.deceasedDetails.deceasedCoronerReference ?? "",
-        deceasedFurtherInformation:
-          data.deceasedDetails.deceasedFurtherInformation,
-      },
-      proceedings: this.formatter.formatSelectedIntoTableRows(data.proceedings),
-      publicAuthorities: this.formatter.formatIntoTableRows(
-        data.publicAuthorities,
+      clientFirstName: data.client.clientFirstName ?? "",
+      clientLastName: data.client.clientLastName ?? "",
+      clientLastNameAtBirth: data.client.clientLastNameAtBirth,
+      clientDob: this.#createDateString(
+        data.client.clientDobDay,
+        data.client.clientDobMonth,
+        data.client.clientDobYear,
       ),
-      coronersLetterFileName: data.coronersLetterFileName ?? "",
+      clientNino: data.client.clientNino,
+      prevLaaReferenceInput: data.client.prevLaaReferenceInput,
+      clientAddress: `${clientAddress} ${clientPostcode}`,
+      clientCorrespondenceAddress:
+        this.#getClientCorrespondenceAddressSummary(data),
+      clientCorrespondenceRecipient:
+        data.client.clientCorrespondenceRecipient?.recipientName ??
+        "Correspondence will be addressed to the client",
+    };
+  }
+
+  #buildDeceasedDetailsViewModel(data: BuildCheckYourAnswersOutput): {
+    deceasedFirstName: string;
+    deceasedLastName: string;
+    dateOfDeath: string;
+    deceasedClientRelationship: string;
+    deceasedCoronerReference: string;
+    deceasedFurtherInformation?: string | null;
+  } {
+    return {
+      deceasedFirstName: data.deceasedDetails.deceasedFirstName ?? "",
+      deceasedLastName: data.deceasedDetails.deceasedLastName ?? "",
+      dateOfDeath: this.#createDateString(
+        data.deceasedDetails.dateOfDeathDay,
+        data.deceasedDetails.dateOfDeathMonth,
+        data.deceasedDetails.dateOfDeathYear,
+      ),
+      deceasedClientRelationship:
+        data.deceasedDetails.deceasedClientRelationship ?? "",
+      deceasedCoronerReference:
+        data.deceasedDetails.deceasedCoronerReference ?? "",
+      deceasedFurtherInformation:
+        data.deceasedDetails.deceasedFurtherInformation,
     };
   }
 

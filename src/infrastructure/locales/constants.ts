@@ -258,7 +258,7 @@ export const DECEASED_DETAILS_ERROR = {
 export const DECEASED_NAME_PAGE = {
   HEADING: "What is the name of the deceased?",
   FORM_PATH: "/apply/deceased-details/name",
-  BACK_PATH: "/apply/proceedings",
+  BACK_PATH: "/apply/proceeding",
   NEXT_PATH: "apply/deceased-details/dod",
   FIRST_NAME_LABEL: "First name",
   LAST_NAME_LABEL: "Last name",
