@@ -68,16 +68,14 @@ export const apiHandlers = [
         { status: 201 },
       ),
   ),
-  http.post(
-    `${process.env.INQUESTS_API_URL}/applications/claim/upload-evidence`,
-    () =>
-      HttpResponse.json(
-        {
-          claimEvidenceId: evidenceFileId,
-          claimEvidenceFileName: evidenceFileName,
-        },
-        { status: 201 },
-      ),
+  http.post(`${process.env.INQUESTS_API_URL}/claims/evidence`, () =>
+    HttpResponse.json(
+      {
+        claimEvidenceId: evidenceFileId,
+        claimEvidenceFileName: evidenceFileName,
+      },
+      { status: 201 },
+    ),
   ),
   http.post("*/applications", async () => {
     if (bypassCreateApplicationMocks) {
