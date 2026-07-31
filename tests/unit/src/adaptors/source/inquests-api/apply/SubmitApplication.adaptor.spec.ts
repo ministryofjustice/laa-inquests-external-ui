@@ -57,7 +57,7 @@ describe("SubmitApplicationAdaptor", () => {
           furtherInformation: "further information",
           clientRelationshipToDeceased: "child",
         },
-        proceedings: selectedProceeding,
+        proceeding: selectedProceeding,
         publicBodies: selectedPublicAuthorities,
         provider: {
           firmCode: "0A123B",
@@ -119,7 +119,9 @@ describe("SubmitApplicationAdaptor", () => {
           furtherInformation: "",
           clientRelationshipToDeceased: "child",
         },
-        proceedings: null,
+        proceeding: {
+          proceedingId: "IQCA",
+        },
         publicBodies: [],
         provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
       };
@@ -165,7 +167,9 @@ describe("SubmitApplicationAdaptor", () => {
             furtherInformation: "",
             clientRelationshipToDeceased: "child",
           },
-          proceedings: null,
+          proceeding: {
+            proceedingId: "IQCA",
+          },
           publicBodies: [],
           provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
         },

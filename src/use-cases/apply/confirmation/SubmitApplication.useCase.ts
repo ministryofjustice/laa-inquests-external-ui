@@ -95,7 +95,7 @@ export class SubmitApplicationUseCase {
       const submitBodyWithDetails = {
         client,
         deceased: this.#buildDeceasedForSubmit(state),
-        proceedings: this.#buildProceedingsForSubmit(state),
+        proceeding: this.#buildProceedingForSubmit(state),
         publicBodies: this.#buildPublicBodiesForSubmit(state),
         provider: {
           firmCode: state.firmCode!,
@@ -245,15 +245,12 @@ export class SubmitApplicationUseCase {
     };
   }
 
-  #buildProceedingsForSubmit(
+  #buildProceedingForSubmit(
     state: ConfirmationSessionState,
-  ): SubmitApplicationRequest["proceedings"] {
+  ): SubmitApplicationRequest["proceeding"] {
     const { selectedProceeding } = state;
-    if (selectedProceeding === undefined) {
-      return null;
-    }
     return {
-      proceedingId: selectedProceeding.proceedingId,
+      proceedingId: selectedProceeding!.proceedingId,
     };
   }
 
