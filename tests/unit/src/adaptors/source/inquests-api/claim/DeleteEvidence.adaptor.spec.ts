@@ -20,7 +20,10 @@ describe("DeleteEvidenceAdaptor", () => {
   });
 
   it("returns success for 204 responses", async () => {
-    const result = await adaptor.deleteEvidence({ evidenceFileId }, "token-123");
+    const result = await adaptor.deleteEvidence(
+      { evidenceFileId },
+      "token-123",
+    );
 
     assert.deepEqual(result, {
       status: "SUCCESS",
@@ -33,7 +36,10 @@ describe("DeleteEvidenceAdaptor", () => {
     assert.equal(axiosStub.delete.calledOnce, true);
     const deleteCall = axiosStub.delete.getCall(0);
 
-    assert.equal(deleteCall.args[0], `http://localhost/claims/${evidenceFileId}`);
+    assert.equal(
+      deleteCall.args[0],
+      `http://localhost/claims/${evidenceFileId}`,
+    );
     assert.deepEqual(deleteCall.args[1], {
       headers: {
         Authorization: "Bearer token-123",
@@ -44,7 +50,10 @@ describe("DeleteEvidenceAdaptor", () => {
   it("returns invalid input failure when upstream responds with 404", async () => {
     axiosStub.delete.resolves({ status: 404, data: {} });
 
-    const result = await adaptor.deleteEvidence({ evidenceFileId }, "token-123");
+    const result = await adaptor.deleteEvidence(
+      { evidenceFileId },
+      "token-123",
+    );
 
     assert.deepEqual(result, {
       status: "TECHNICAL_FAILURE",
@@ -55,7 +64,10 @@ describe("DeleteEvidenceAdaptor", () => {
   it("returns upstream rejected failure for non-204 responses", async () => {
     axiosStub.delete.resolves({ status: 500, data: {} });
 
-    const result = await adaptor.deleteEvidence({ evidenceFileId }, "token-123");
+    const result = await adaptor.deleteEvidence(
+      { evidenceFileId },
+      "token-123",
+    );
 
     assert.deepEqual(result, {
       status: "TECHNICAL_FAILURE",
@@ -66,7 +78,10 @@ describe("DeleteEvidenceAdaptor", () => {
   it("returns unexpected exception when request throws", async () => {
     axiosStub.delete.rejects(new Error("network error"));
 
-    const result = await adaptor.deleteEvidence({ evidenceFileId }, "token-123");
+    const result = await adaptor.deleteEvidence(
+      { evidenceFileId },
+      "token-123",
+    );
 
     assert.deepEqual(result, {
       status: "TECHNICAL_FAILURE",

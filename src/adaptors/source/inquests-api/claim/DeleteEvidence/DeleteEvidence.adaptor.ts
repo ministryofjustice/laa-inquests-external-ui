@@ -5,10 +5,10 @@ import type {
   DeleteEvidenceResponse,
 } from "./models/DeleteEvidence.types.js";
 import { DeleteEvidenceResponseSchema } from "./models/DeleteEvidence.schema.js";
-import {
-  HTTP_NOT_FOUND,
-} from "#src/infrastructure/locales/constants.js";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
 import { deleteFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
+
+const HTTP_NO_CONTENT = 204;
 
 export class DeleteEvidenceAdaptor implements DeleteEvidencePort {
   constructor(
@@ -28,10 +28,13 @@ export class DeleteEvidenceAdaptor implements DeleteEvidencePort {
         accessToken,
       });
 
-      if (response.status !== 204) {
+      if (response.status !== HTTP_NO_CONTENT) {
         return {
           status: "TECHNICAL_FAILURE",
-          reason: response.status === HTTP_NOT_FOUND ? "INVALID_INPUT_STATE" : "UPSTREAM_REJECTED",
+          reason:
+            response.status === HTTP_NOT_FOUND
+              ? "INVALID_INPUT_STATE"
+              : "UPSTREAM_REJECTED",
         };
       }
 

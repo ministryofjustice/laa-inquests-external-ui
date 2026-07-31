@@ -14,6 +14,7 @@ import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 
 const SERVICE_UNAVAILABLE_MESSAGE =
   "Service unavailable. Please try again later.";
+const HTTP_SUCCESS = 200;
 
 export class EvidenceAdaptor {
   formValidator: UploadEvidenceValidator;
@@ -59,7 +60,10 @@ export class EvidenceAdaptor {
   }
 
   async processEvidenceUpload(req: Request, res: Response): Promise<void> {
-    if (this.#isNoJsUpload(req) && this.#extractEvidenceFileId(req) !== undefined) {
+    if (
+      this.#isNoJsUpload(req) &&
+      this.#extractEvidenceFileId(req) !== undefined
+    ) {
       await this.processEvidenceDeleteNoJs(req, res);
       return;
     }
@@ -132,7 +136,7 @@ export class EvidenceAdaptor {
     }
 
     this.#removeEvidenceFileFromSession(req, evidenceFileId);
-    res.status(200).json({ success: true });
+    res.status(HTTP_SUCCESS).json({ success: true });
   }
 
   async processEvidenceDeleteNoJs(req: Request, res: Response): Promise<void> {
@@ -182,7 +186,9 @@ export class EvidenceAdaptor {
     };
     const candidate = body.delete ?? body.fileName ?? body.filename;
     if (Array.isArray(candidate)) {
-      return candidate.find((value) => typeof value === "string" && value !== "");
+      return candidate.find(
+        (value) => typeof value === "string" && value !== "",
+      );
     }
     return candidate;
   }

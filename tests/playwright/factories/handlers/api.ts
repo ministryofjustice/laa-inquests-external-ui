@@ -77,8 +77,9 @@ export const apiHandlers = [
       { status: 201 },
     ),
   ),
-  http.delete(`${process.env.INQUESTS_API_URL}/claims/:claimEvidenceId`, () =>
-    new HttpResponse(null, { status: 204 }),
+  http.delete(
+    `${process.env.INQUESTS_API_URL}/claims/:claimEvidenceId`,
+    () => new HttpResponse(null, { status: 204 }),
   ),
   http.post("*/applications", async () => {
     if (bypassCreateApplicationMocks) {

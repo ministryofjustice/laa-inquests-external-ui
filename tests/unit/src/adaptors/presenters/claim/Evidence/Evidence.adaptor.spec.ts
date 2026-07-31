@@ -139,7 +139,10 @@ describe("Evidence adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(uploadEvidenceValidator.validateEvidenceSelection.callCount, 1);
+      assert.equal(
+        uploadEvidenceValidator.validateEvidenceSelection.callCount,
+        1,
+      );
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");

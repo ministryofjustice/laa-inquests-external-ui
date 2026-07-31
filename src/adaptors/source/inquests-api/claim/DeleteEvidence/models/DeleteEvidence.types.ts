@@ -6,4 +6,6 @@ import type {
 
 export type DeleteEvidenceRequest = z.infer<typeof DeleteEvidenceRequestSchema>;
 
-export type DeleteEvidenceResponse = z.infer<typeof DeleteEvidenceResponseSchema>;
+export type DeleteEvidenceResponse = z.infer<
+  typeof DeleteEvidenceResponseSchema
+>;
