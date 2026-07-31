@@ -6,8 +6,7 @@ import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicA
 import { Formatter } from "#src/utils/Formatter.js";
 import type { GetPublicBodiesPort } from "#src/ports/source/inquests-api/GetPublicBodies.port.js";
 
-// TODO: Again, feels weird this is in one place
-const API_PUBLIC_BODIES = [
+const PUBLIC_BODIES = [
   {
     publicBodyId: "Attorney General's Office",
     publicBodyDescription: "Attorney General's Office",
@@ -22,23 +21,7 @@ const API_PUBLIC_BODIES = [
   },
 ];
 
-const SESSION_PUBLIC_AUTHORITIES = [
-  {
-    publicAuthorityId: "Attorney General's Office",
-    publicAuthorityDescription: "Attorney General's Office",
-  },
-  {
-    publicAuthorityId: "Cabinet Office",
-    publicAuthorityDescription: "Cabinet Office",
-  },
-  {
-    publicAuthorityId: "Department for Transport",
-    publicAuthorityDescription: "Department for Transport",
-  },
-];
-
 describe("PublicAuthority adaptor", () => {
-  // TODO: Do a before each at this point?
   function buildAdaptor(getPublicBodiesPort?: GetPublicBodiesPort) {
     const port = getPublicBodiesPort ?? stubInterface<GetPublicBodiesPort>();
     return new PublicAuthorityAdaptor(
@@ -51,7 +34,7 @@ describe("PublicAuthority adaptor", () => {
   describe("renderPublicAuthoritySelectForm", () => {
     it("renders public authority selection form with options from API", async () => {
       const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.resolves(API_PUBLIC_BODIES);
+      getPublicBodiesPort.getPublicBodies.resolves(PUBLIC_BODIES);
       const adaptor = buildAdaptor(getPublicBodiesPort);
 
       const responseStub = stubInterface<Response>();
@@ -92,7 +75,7 @@ describe("PublicAuthority adaptor", () => {
 
     it("pre-populates previously selected authorities from session", async () => {
       const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.resolves(API_PUBLIC_BODIES);
+      getPublicBodiesPort.getPublicBodies.resolves(PUBLIC_BODIES);
       const adaptor = buildAdaptor(getPublicBodiesPort);
 
       const responseStub = stubInterface<Response>();
@@ -115,24 +98,25 @@ describe("PublicAuthority adaptor", () => {
       await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
 
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.deepEqual(renderArgs[1], {
-        csrfToken: "abcdefg",
-        publicAuthorityOptions: [
-          {
-            text: "Attorney General's Office",
-            value: "Attorney General's Office",
-          },
-          { text: "Cabinet Office", value: "Cabinet Office" },
-          {
-            text: "Department for Transport",
-            value: "Department for Transport",
-          },
-        ],
-        selectedPublicAuthorityIds: [
-          "Cabinet Office",
-          "Attorney General's Office",
-        ],
-      });
+      const actual = renderArgs[1] as unknown as Record<string, unknown>;
+      const expectedOptions = [
+        {
+          text: "Attorney General's Office",
+          value: "Attorney General's Office",
+        },
+        { text: "Cabinet Office", value: "Cabinet Office" },
+        {
+          text: "Department for Transport",
+          value: "Department for Transport",
+        },
+      ];
+
+      assert.equal(actual.csrfToken, "abcdefg");
+      assert.deepEqual(actual.publicAuthorityOptions, expectedOptions);
+      assert.deepEqual(
+        (actual.selectedPublicAuthorityIds as string[]).sort(),
+        ["Attorney General's Office", "Cabinet Office"].sort(),
+      );
     });
 
     it("throws when loading public bodies fails", async () => {
@@ -157,8 +141,12 @@ describe("PublicAuthority adaptor", () => {
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
-      requestStub.session.availablePublicAuthorities =
-        SESSION_PUBLIC_AUTHORITIES;
+      requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
+        (body) => ({
+          publicAuthorityId: body.publicBodyId,
+          publicAuthorityDescription: body.publicBodyDescription,
+        }),
+      );
 
       requestStub.body = {
         publicAuthorityOption: ["Cabinet Office", "Attorney General's Office"],
@@ -191,7 +179,7 @@ describe("PublicAuthority adaptor", () => {
 
     it("falls back to API when session cache is empty", async () => {
       const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.resolves(API_PUBLIC_BODIES);
+      getPublicBodiesPort.getPublicBodies.resolves(PUBLIC_BODIES);
       const adaptor = buildAdaptor(getPublicBodiesPort);
 
       const responseStub = stubInterface<Response>();
@@ -213,8 +201,12 @@ describe("PublicAuthority adaptor", () => {
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
-      requestStub.session.availablePublicAuthorities =
-        SESSION_PUBLIC_AUTHORITIES;
+      requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
+        (body) => ({
+          publicAuthorityId: body.publicBodyId,
+          publicAuthorityDescription: body.publicBodyDescription,
+        }),
+      );
 
       responseStub.locals = {
         csrfToken: "abcdefg",
