@@ -117,11 +117,9 @@ export class SeedApplicationAdaptor {
         furtherInformation: "seeded for claims journey",
         clientRelationshipToDeceased: "guardian",
       },
-      proceedings: [
-        {
-          proceedingId: "IQCA",
-        },
-      ],
+      proceedings: {
+        proceedingId: "IQCA",
+      },
       publicBodies: [
         {
           publicBodyId: "Department for Transport",

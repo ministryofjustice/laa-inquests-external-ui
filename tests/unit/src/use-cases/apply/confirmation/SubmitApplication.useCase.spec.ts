@@ -102,8 +102,8 @@ describe("SubmitApplicationUseCase", () => {
         clientRelationshipToDeceased: state.deceasedClientRelationship,
       },
       proceedings: state.selectedProceeding
-        ? [{ proceedingId: state.selectedProceeding.proceedingId }]
-        : [],
+        ? { proceedingId: state.selectedProceeding.proceedingId }
+        : null,
       publicBodies: state.selectedPublicAuthorities?.map((publicAuthority) => ({
         publicBodyId: publicAuthority.publicAuthorityId,
       })),

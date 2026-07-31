@@ -250,13 +250,11 @@ export class SubmitApplicationUseCase {
   ): SubmitApplicationRequest["proceedings"] {
     const { selectedProceeding } = state;
     if (selectedProceeding === undefined) {
-      return [];
+      return null;
     }
-    return [
-      {
-        proceedingId: selectedProceeding.proceedingId,
-      },
-    ];
+    return {
+      proceedingId: selectedProceeding.proceedingId,
+    };
   }
 
   #buildPublicBodiesForSubmit(
