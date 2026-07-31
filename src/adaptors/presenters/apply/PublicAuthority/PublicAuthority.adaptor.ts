@@ -150,6 +150,8 @@ export class PublicAuthorityAdaptor {
     return publicAuthorities;
   }
 
+  // This isn't great because we call public bodies and authorities the different things
+  // Will make a follow up PR to standardise names, but it's a 40-file change so exluding from this PR for now
   #mapPublicBodiesToPublicAuthorities(
     publicBodies: GetPublicBodiesResponse,
   ): PublicAuthority[] {
