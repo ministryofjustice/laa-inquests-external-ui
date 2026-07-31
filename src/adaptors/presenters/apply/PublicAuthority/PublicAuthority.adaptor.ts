@@ -6,31 +6,31 @@ import type {
   PublicAuthorityFormData,
 } from "./PublicAuthority.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
-import type { GetPublicBodiesPort } from "#src/ports/source/inquests-api/GetPublicBodies.port.js";
-import { GetPublicBodiesUseCase } from "#src/use-cases/apply/publicAuthority/GetPublicBodies.useCase.js";
+import type { GetPublicAuthoritiesPort } from "#src/ports/source/inquests-api/GetPublicAuthorities.port.js";
+import { GetPublicAuthoritiesUseCase } from "#src/use-cases/apply/publicAuthority/GetPublicAuthorities.useCase.js";
 import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
-import type { GetPublicBodiesResponse } from "#src/adaptors/source/inquests-api/apply/GetPublicBodies/models/GetPublicBodies.types.js";
+import type { GetPublicAuthoritiesResponse } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/models/GetPublicAuthorities.types.js";
 
 interface PublicAuthorityUseCases {
-  getPublicBodies: GetPublicBodiesUseCase;
+  getPublicAuthorities: GetPublicAuthoritiesUseCase;
 }
 
 export class PublicAuthorityAdaptor {
   formValidator: PublicAuthorityValidator;
   formatter: Formatter;
-  getPublicBodiesUseCase: GetPublicBodiesUseCase;
+  getPublicAuthoritiesUseCase: GetPublicAuthoritiesUseCase;
 
   constructor(
     formValidator: PublicAuthorityValidator,
     formatter: Formatter,
-    getPublicBodiesPort: GetPublicBodiesPort,
+    getPublicAuthoritiesPort: GetPublicAuthoritiesPort,
     useCases?: Partial<PublicAuthorityUseCases>,
   ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
-    this.getPublicBodiesUseCase =
-      useCases?.getPublicBodies ??
-      new GetPublicBodiesUseCase(getPublicBodiesPort);
+    this.getPublicAuthoritiesUseCase =
+      useCases?.getPublicAuthorities ??
+      new GetPublicAuthoritiesUseCase(getPublicAuthoritiesPort);
   }
 
   async renderPublicAuthoritySelectForm(
@@ -42,23 +42,22 @@ export class PublicAuthorityAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const getPublicBodiesResult = await this.getPublicBodiesUseCase.execute(
-      session.accessToken,
-    );
+    const getPublicAuthoritiesResult =
+      await this.getPublicAuthoritiesUseCase.execute(session.accessToken);
 
     if (
-      getPublicBodiesResult.status !== "SUCCESS" ||
-      getPublicBodiesResult.data === undefined
+      getPublicAuthoritiesResult.status !== "SUCCESS" ||
+      getPublicAuthoritiesResult.data === undefined
     ) {
       throw new Error(
-        getPublicBodiesResult.status === "TECHNICAL_FAILURE"
-          ? getPublicBodiesResult.reason
+        getPublicAuthoritiesResult.status === "TECHNICAL_FAILURE"
+          ? getPublicAuthoritiesResult.reason
           : "UNEXPECTED_FAILURE",
       );
     }
 
     const publicAuthorityOptions = this.#mapPublicBodiesToPublicAuthorities(
-      getPublicBodiesResult.data,
+      getPublicAuthoritiesResult.data,
     );
 
     session.availablePublicAuthorities = publicAuthorityOptions;
@@ -130,7 +129,7 @@ export class PublicAuthorityAdaptor {
       return session.availablePublicAuthorities;
     }
 
-    const result = await this.getPublicBodiesUseCase.execute(
+    const result = await this.getPublicAuthoritiesUseCase.execute(
       session.accessToken,
     );
 
@@ -150,10 +149,8 @@ export class PublicAuthorityAdaptor {
     return publicAuthorities;
   }
 
-  // This isn't great because we call public bodies and authorities the different things
-  // Will make a follow up PR to standardise names, but it's a 40-file change so exluding from this PR for now
   #mapPublicBodiesToPublicAuthorities(
-    publicBodies: GetPublicBodiesResponse,
+    publicBodies: GetPublicAuthoritiesResponse,
   ): PublicAuthority[] {
     return publicBodies.map((publicBody) => ({
       publicAuthorityId: publicBody.publicBodyId,

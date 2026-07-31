@@ -1,15 +1,15 @@
 import { strict as assert } from "assert";
 import type { AxiosInstance } from "axios";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
-import { GetPublicBodiesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetPublicBodies/GetPublicBodies.adaptor.js";
+import { GetPublicAuthoritiesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/GetPublicAuthorities.adaptor.js";
 
-describe("GetPublicBodiesAdaptor", () => {
+describe("GetPublicAuthoritiesAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
-  let adaptor: GetPublicBodiesAdaptor;
+  let adaptor: GetPublicAuthoritiesAdaptor;
 
   beforeEach(() => {
     axiosStub = stubInterface<AxiosInstance>();
-    adaptor = new GetPublicBodiesAdaptor(axiosStub, "http://localhost");
+    adaptor = new GetPublicAuthoritiesAdaptor(axiosStub, "http://localhost");
   });
 
   it("returns public bodies from the API response", async () => {
@@ -23,7 +23,7 @@ describe("GetPublicBodiesAdaptor", () => {
       ],
     });
 
-    const result = await adaptor.getPublicBodies("access-token-123");
+    const result = await adaptor.getPublicAuthorities("access-token-123");
 
     assert.equal(result.length, 1);
     assert.equal(result[0].publicBodyId, "Cabinet Office");
@@ -33,7 +33,7 @@ describe("GetPublicBodiesAdaptor", () => {
   it("calls the correct API endpoint with auth header", async () => {
     axiosStub.get.resolves({ status: 200, data: [] });
 
-    await adaptor.getPublicBodies("access-token-123");
+    await adaptor.getPublicAuthorities("access-token-123");
 
     assert(axiosStub.get.calledOnce);
     const getCall = axiosStub.get.getCall(0);
@@ -49,7 +49,7 @@ describe("GetPublicBodiesAdaptor", () => {
 
   it("throws when access token is missing", async () => {
     await assert.rejects(
-      async () => adaptor.getPublicBodies(undefined),
+      async () => adaptor.getPublicAuthorities(undefined),
       /Missing access token/,
     );
   });

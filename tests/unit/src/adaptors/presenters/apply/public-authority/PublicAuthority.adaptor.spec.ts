@@ -4,7 +4,7 @@ import type { Request, Response } from "express";
 import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.adaptor.js";
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { Formatter } from "#src/utils/Formatter.js";
-import type { GetPublicBodiesPort } from "#src/ports/source/inquests-api/GetPublicBodies.port.js";
+import type { GetPublicAuthoritiesPort } from "#src/ports/source/inquests-api/GetPublicAuthorities.port.js";
 
 const PUBLIC_BODIES = [
   {
@@ -22,8 +22,9 @@ const PUBLIC_BODIES = [
 ];
 
 describe("PublicAuthority adaptor", () => {
-  function buildAdaptor(getPublicBodiesPort?: GetPublicBodiesPort) {
-    const port = getPublicBodiesPort ?? stubInterface<GetPublicBodiesPort>();
+  function buildAdaptor(getPublicAuthoritiesPort?: GetPublicAuthoritiesPort) {
+    const port =
+      getPublicAuthoritiesPort ?? stubInterface<GetPublicAuthoritiesPort>();
     return new PublicAuthorityAdaptor(
       new PublicAuthorityValidator(),
       new Formatter(),
@@ -33,9 +34,10 @@ describe("PublicAuthority adaptor", () => {
 
   describe("renderPublicAuthoritySelectForm", () => {
     it("renders public authority selection form with options from API", async () => {
-      const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.resolves(PUBLIC_BODIES);
-      const adaptor = buildAdaptor(getPublicBodiesPort);
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -74,9 +76,10 @@ describe("PublicAuthority adaptor", () => {
     });
 
     it("pre-populates previously selected authorities from session", async () => {
-      const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.resolves(PUBLIC_BODIES);
-      const adaptor = buildAdaptor(getPublicBodiesPort);
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -120,9 +123,12 @@ describe("PublicAuthority adaptor", () => {
     });
 
     it("throws when loading public bodies fails", async () => {
-      const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.rejects(new Error("Network error"));
-      const adaptor = buildAdaptor(getPublicBodiesPort);
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.rejects(
+        new Error("Network error"),
+      );
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -178,9 +184,10 @@ describe("PublicAuthority adaptor", () => {
     });
 
     it("falls back to API when session cache is empty", async () => {
-      const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.resolves(PUBLIC_BODIES);
-      const adaptor = buildAdaptor(getPublicBodiesPort);
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -192,7 +199,7 @@ describe("PublicAuthority adaptor", () => {
 
       await adaptor.processPublicAuthorityForm(requestStub, responseStub);
 
-      assert.equal(getPublicBodiesPort.getPublicBodies.callCount, 1);
+      assert.equal(getPublicAuthoritiesPort.getPublicAuthorities.callCount, 1);
       assert.equal(responseStub.redirect.callCount, 1);
     });
 
@@ -245,9 +252,12 @@ describe("PublicAuthority adaptor", () => {
     });
 
     it("throws when loading public bodies fails", async () => {
-      const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.rejects(new Error("Network error"));
-      const adaptor = buildAdaptor(getPublicBodiesPort);
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.rejects(
+        new Error("Network error"),
+      );
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();

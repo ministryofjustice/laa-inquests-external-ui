@@ -1,15 +1,15 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
-import type { GetPublicBodiesPort } from "#src/ports/source/inquests-api/GetPublicBodies.port.js";
-import { GetPublicBodiesUseCase } from "#src/use-cases/apply/publicAuthority/GetPublicBodies.useCase.js";
+import type { GetPublicAuthoritiesPort } from "#src/ports/source/inquests-api/GetPublicAuthorities.port.js";
+import { GetPublicAuthoritiesUseCase } from "#src/use-cases/apply/publicAuthority/GetPublicAuthorities.useCase.js";
 
-describe("GetPublicBodiesUseCase", () => {
-  let getPublicBodiesPort: StubbedInstance<GetPublicBodiesPort>;
-  let useCase: GetPublicBodiesUseCase;
+describe("GetPublicAuthoritiesUseCase", () => {
+  let getPublicAuthoritiesPort: StubbedInstance<GetPublicAuthoritiesPort>;
+  let useCase: GetPublicAuthoritiesUseCase;
 
   beforeEach(() => {
-    getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-    useCase = new GetPublicBodiesUseCase(getPublicBodiesPort);
+    getPublicAuthoritiesPort = stubInterface<GetPublicAuthoritiesPort>();
+    useCase = new GetPublicAuthoritiesUseCase(getPublicAuthoritiesPort);
   });
 
   it("returns success with public bodies when API responds", async () => {
@@ -20,7 +20,7 @@ describe("GetPublicBodiesUseCase", () => {
       },
     ];
 
-    getPublicBodiesPort.getPublicBodies.resolves(publicBodies);
+    getPublicAuthoritiesPort.getPublicAuthorities.resolves(publicBodies);
 
     const result = await useCase.execute("access-token-123");
 
@@ -29,7 +29,9 @@ describe("GetPublicBodiesUseCase", () => {
   });
 
   it("returns technical failure when API throws", async () => {
-    getPublicBodiesPort.getPublicBodies.rejects(new Error("Network error"));
+    getPublicAuthoritiesPort.getPublicAuthorities.rejects(
+      new Error("Network error"),
+    );
 
     const result = await useCase.execute("access-token-123");
 
