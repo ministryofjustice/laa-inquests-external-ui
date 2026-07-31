@@ -1,6 +1,7 @@
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import {
+  CLAIM_EVIDENCE_SUBMIT_ERROR,
   SUBMIT_CLAIM_FALLBACK_ERROR,
   TOTAL_CLAIM_ERROR,
 } from "#src/infrastructure/locales/constants.js";
@@ -14,6 +15,7 @@ export interface SubmitClaimInput {
   zeroVatTotal: number | null;
   netTotal: number | null;
   grossTotal: number | null;
+  claimEvidenceIds: string[];
 }
 
 interface SubmitClaimSuccess {
@@ -41,17 +43,13 @@ export class SubmitClaimUseCase {
           totalProfitCostGross: input.grossTotal,
           poaTypeId: input.poaTypeId,
           claimantId: input.claimantId,
+          claimEvidenceIds: input.claimEvidenceIds,
         },
         input.accessToken,
       );
 
       if (result.status === "UNPROCESSABLE") {
-        const text =
-          result.errorCode in TOTAL_CLAIM_ERROR
-            ? TOTAL_CLAIM_ERROR[
-                result.errorCode as keyof typeof TOTAL_CLAIM_ERROR
-              ]
-            : SUBMIT_CLAIM_FALLBACK_ERROR;
+        const text = this.#resolveErrorText(result.errorCode);
         return {
           status: "VALIDATION_FAILED",
           errorSummaries: { submitError: { text } },
@@ -70,5 +68,17 @@ export class SubmitClaimUseCase {
     } catch {
       return { status: "TECHNICAL_FAILURE", reason: "UNEXPECTED_EXCEPTION" };
     }
+  }
+
+  #resolveErrorText(errorCode: string): string {
+    if (errorCode in TOTAL_CLAIM_ERROR) {
+      return TOTAL_CLAIM_ERROR[errorCode as keyof typeof TOTAL_CLAIM_ERROR];
+    }
+    if (errorCode in CLAIM_EVIDENCE_SUBMIT_ERROR) {
+      return CLAIM_EVIDENCE_SUBMIT_ERROR[
+        errorCode as keyof typeof CLAIM_EVIDENCE_SUBMIT_ERROR
+      ];
+    }
+    return SUBMIT_CLAIM_FALLBACK_ERROR;
   }
 }

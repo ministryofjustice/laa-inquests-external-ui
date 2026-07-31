@@ -3,6 +3,7 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import { SubmitClaimUseCase } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import {
+  CLAIM_EVIDENCE_SUBMIT_ERROR,
   SUBMIT_CLAIM_FALLBACK_ERROR,
   TOTAL_CLAIM_ERROR,
 } from "#src/infrastructure/locales/constants.js";
@@ -32,6 +33,7 @@ describe("SubmitClaimUseCase", () => {
       zeroVatTotal: 0,
       netTotal: 1000,
       grossTotal: 1200,
+      claimEvidenceIds: ["evidence-id-1"],
     });
 
     assert.equal(result.status, "SUCCESS");
@@ -51,6 +53,7 @@ describe("SubmitClaimUseCase", () => {
       zeroVatTotal: 25,
       netTotal: 1000,
       grossTotal: 1225,
+      claimEvidenceIds: ["evidence-id-1"],
     });
 
     assert(claimSubmitPort.submitClaim.calledOnce);
@@ -70,6 +73,7 @@ describe("SubmitClaimUseCase", () => {
       zeroVatTotal: 10,
       netTotal: 500,
       grossTotal: 610,
+      claimEvidenceIds: ["evidence-id-1"],
     });
 
     assert(claimSubmitPort.submitClaim.calledOnce);
@@ -96,6 +100,7 @@ describe("SubmitClaimUseCase", () => {
       zeroVatTotal: 0,
       netTotal: 1000,
       grossTotal: 1200,
+      claimEvidenceIds: ["evidence-id-1"],
     });
 
     assert.equal(result.status, "TECHNICAL_FAILURE");
@@ -120,6 +125,7 @@ describe("SubmitClaimUseCase", () => {
       zeroVatTotal: 0,
       netTotal: 1000,
       grossTotal: 1200,
+      claimEvidenceIds: ["evidence-id-1"],
     });
 
     assert.equal(result.status, "VALIDATION_FAILED");
@@ -153,6 +159,7 @@ describe("SubmitClaimUseCase", () => {
       zeroVatTotal: 0,
       netTotal: 1000,
       grossTotal: 1200,
+      claimEvidenceIds: ["evidence-id-1"],
     });
 
     assert.equal(result.status, "VALIDATION_FAILED");
@@ -165,6 +172,60 @@ describe("SubmitClaimUseCase", () => {
       ).errorSummaries,
       { submitError: { text: SUBMIT_CLAIM_FALLBACK_ERROR } },
     );
+  });
+
+  it("returns VALIDATION_FAILED with 'Claim evidence is required' when the port returns UNPROCESSABLE with MISSING_CLAIM_EVIDENCE", async () => {
+    claimSubmitPort.submitClaim.resolves({
+      status: "UNPROCESSABLE",
+      errorCode: "MISSING_CLAIM_EVIDENCE",
+    });
+
+    const result = await useCase.execute({
+      laaReference: "1",
+      claimType: "PAYMENT_ON_ACCOUNT",
+      poaTypeId: "PROFIT_COST",
+      claimantId: "test@provider.co.uk",
+      accessToken: "access-token-123",
+      zeroVatTotal: 0,
+      netTotal: 1000,
+      grossTotal: 1200,
+      claimEvidenceIds: [],
+    });
+
+    assert.equal(result.status, "VALIDATION_FAILED");
+    assert.deepEqual(
+      (
+        result as {
+          status: string;
+          errorSummaries: { submitError: { text: string } };
+        }
+      ).errorSummaries,
+      {
+        submitError: {
+          text: CLAIM_EVIDENCE_SUBMIT_ERROR.MISSING_CLAIM_EVIDENCE,
+        },
+      },
+    );
+  });
+
+  it("calls submitClaim with the claimEvidenceIds from input", async () => {
+    await useCase.execute({
+      laaReference: "1",
+      claimType: "PAYMENT_ON_ACCOUNT",
+      poaTypeId: "PROFIT_COST",
+      claimantId: "test@provider.co.uk",
+      accessToken: "access-token-123",
+      zeroVatTotal: 0,
+      netTotal: 1000,
+      grossTotal: 1200,
+      claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+    });
+
+    assert(claimSubmitPort.submitClaim.calledOnce);
+    const [, body] = claimSubmitPort.submitClaim.getCall(0).args;
+    assert.deepEqual(body.claimEvidenceIds, [
+      "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    ]);
   });
 
   it("returns SUCCESS with rejection reasons when the port returns REJECTED", async () => {
@@ -188,6 +249,7 @@ describe("SubmitClaimUseCase", () => {
       zeroVatTotal: 0,
       netTotal: 1000,
       grossTotal: 1200,
+      claimEvidenceIds: ["evidence-id-1"],
     });
 
     assert.equal(result.status, "SUCCESS");

@@ -9,6 +9,20 @@ test.describe("Claim - confirm success", () => {
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
+    await page.goto("/claim/evidence");
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/claim/evidence/upload") &&
+          response.request().method() === "POST" &&
+          response.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("evidence content"),
+      }),
+    ]);
     await page.goto("/claim/check-your-answers");
     await page
       .getByTestId("confirm-and-submit-form")

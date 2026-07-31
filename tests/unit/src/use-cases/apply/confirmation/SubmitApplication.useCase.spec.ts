@@ -101,9 +101,9 @@ describe("SubmitApplicationUseCase", () => {
         furtherInformation: state.deceasedFurtherInformation,
         clientRelationshipToDeceased: state.deceasedClientRelationship,
       },
-      proceedings: state.selectedProceedings?.map((proceeding) => ({
-        proceedingId: proceeding.proceedingId,
-      })),
+      proceedings: state.selectedProceeding
+        ? [{ proceedingId: state.selectedProceeding.proceedingId }]
+        : [],
       publicBodies: state.selectedPublicAuthorities?.map((publicAuthority) => ({
         publicBodyId: publicAuthority.publicAuthorityId,
       })),
@@ -217,13 +217,11 @@ function createValidState(
     deceasedClientRelationship: "Sibling",
     deceasedCoronerReference: "COR-123",
     deceasedFurtherInformation: "No additional details",
-    selectedProceedings: [
-      {
-        proceedingId: "MN035",
-        proceedingName: "Clinical Negligence",
-        matterType: "INQUEST",
-      },
-    ],
+    selectedProceeding: {
+      proceedingId: "IQCN",
+      proceedingName: "Clinical Negligence",
+      matterType: "INQUEST",
+    },
     selectedPublicAuthorities: [
       {
         publicAuthorityId: "Cabinet Office",

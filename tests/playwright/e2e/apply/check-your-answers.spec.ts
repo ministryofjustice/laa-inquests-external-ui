@@ -202,7 +202,7 @@ test.describe("Apply - check your answers", () => {
 
     await expect(proceedingsChangeLink).toHaveAttribute(
       "href",
-      "/apply/proceedings/confirmation",
+      "/apply/proceeding",
     );
   });
 

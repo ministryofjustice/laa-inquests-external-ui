@@ -69,6 +69,10 @@ export const CLAIM_REJECTION_REASON_LABEL: Record<
 export const SUBMIT_CLAIM_FALLBACK_ERROR =
   "Your claim could not be submitted. Please check your answers and try again.";
 
+export const CLAIM_EVIDENCE_SUBMIT_ERROR = {
+  MISSING_CLAIM_EVIDENCE: "Claim evidence is required",
+};
+
 export const CLAIM_NET_TOTAL_VALUE = 1000;
 export const CLAIM_GROSS_TOTAL_VALUE = 1200;
 
@@ -254,7 +258,7 @@ export const DECEASED_DETAILS_ERROR = {
 export const DECEASED_NAME_PAGE = {
   HEADING: "What is the name of the deceased?",
   FORM_PATH: "/apply/deceased-details/name",
-  BACK_PATH: "/apply/proceedings",
+  BACK_PATH: "/apply/proceeding",
   NEXT_PATH: "apply/deceased-details/dod",
   FIRST_NAME_LABEL: "First name",
   LAST_NAME_LABEL: "Last name",

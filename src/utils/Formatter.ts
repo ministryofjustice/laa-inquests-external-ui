@@ -51,23 +51,10 @@ export class Formatter {
     }));
   }
 
-  formatSelectedIntoTableRows(
-    selectedProceedings: Proceeding[],
-  ): SummaryListRow[] {
-    const formattedSelectedProceedings = selectedProceedings.map(
-      (proceeding) => ({
-        key: { text: proceeding.proceedingName },
-        actions: {
-          items: [
-            {
-              href: `/apply/proceedings/remove?proceedingId=${proceeding.proceedingId}`,
-              text: "Remove",
-            },
-          ],
-        },
-      }),
-    );
-    return formattedSelectedProceedings;
+  formatSelectedIntoTableRows(selectedProceeding: Proceeding): SummaryListRow {
+    return {
+      key: { text: selectedProceeding.proceedingName },
+    };
   }
 
   formatIntoTableRows(

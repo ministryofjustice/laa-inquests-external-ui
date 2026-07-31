@@ -7,7 +7,6 @@ import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
-import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 import {
@@ -249,10 +248,15 @@ export class SubmitApplicationUseCase {
   #buildProceedingsForSubmit(
     state: ConfirmationSessionState,
   ): SubmitApplicationRequest["proceedings"] {
-    const selectedProceedings = state.selectedProceedings ?? [];
-    return selectedProceedings.map((proceeding: Proceeding) => ({
-      proceedingId: proceeding.proceedingId,
-    }));
+    const { selectedProceeding } = state;
+    if (selectedProceeding === undefined) {
+      return [];
+    }
+    return [
+      {
+        proceedingId: selectedProceeding.proceedingId,
+      },
+    ];
   }
 
   #buildPublicBodiesForSubmit(

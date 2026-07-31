@@ -120,13 +120,13 @@
                 actions: {
                   items: [
                     {
-                      href: "/apply/proceedings/confirmation",
+                      href: "/apply/proceeding",
                       text: "Change"
                     }
                   ]
                 }
               },
-              rows: proceedings
+              rows: [proceeding] if proceeding else []
             }) }}
           </div>
           <div data-testid="deceased-details-summary-list">

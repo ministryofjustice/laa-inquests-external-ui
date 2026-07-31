@@ -31,7 +31,7 @@ export interface ConfirmationSessionState {
   deceasedCoronerReference?: string;
   deceasedFurtherInformation?: string;
   prevLaaReferenceInput?: string | null;
-  selectedProceedings?: Proceeding[];
+  selectedProceeding?: Proceeding;
   selectedPublicAuthorities?: PublicAuthority[];
   firmCode?: string;
   officeId?: string;

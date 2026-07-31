@@ -21,10 +21,8 @@ export class DeceasedDetailsAdaptor {
     this.formValidator = formValidator;
   }
 
-  #getNameBackButtonUrl(proceedings: Proceeding[] | undefined | null): string {
-    return proceedings !== undefined && proceedings !== null
-      ? "/apply/proceedings/confirmation"
-      : "/apply/proceedings";
+  #getNameBackButtonUrl(proceeding: Proceeding | undefined | null): string {
+    return "/apply/proceeding";
   }
 
   renderNameForm(req: Request, res: Response): void {
@@ -33,7 +31,7 @@ export class DeceasedDetailsAdaptor {
     } = res;
 
     const backButtonUrl = this.#getNameBackButtonUrl(
-      req.session.selectedProceedings,
+      req.session.selectedProceeding,
     );
     const nameView = this.#buildDeceasedDetailsView("name", {
       deceasedFirstName: getStringValue(req.session.deceasedFirstName),
@@ -68,7 +66,7 @@ export class DeceasedDetailsAdaptor {
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       const backButtonUrl = this.#getNameBackButtonUrl(
-        req.session.selectedProceedings,
+        req.session.selectedProceeding,
       );
       const nameView = this.#buildDeceasedDetailsView("name", {
         deceasedFirstName: firstName,

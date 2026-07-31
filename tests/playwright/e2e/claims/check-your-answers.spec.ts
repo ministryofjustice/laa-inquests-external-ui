@@ -210,12 +210,44 @@ test.describe("Claim - confirm and submit", () => {
   test("redirects to the claim confirmation success page when the claim is submitted", async ({
     page,
   }) => {
+    await page.goto("/claim/evidence");
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/claim/evidence/upload") &&
+          response.request().method() === "POST" &&
+          response.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/check-your-answers");
+
     await page
       .getByTestId("confirm-and-submit-form")
       .getByRole("button", { name: "Finish and submit claim" })
       .click();
 
     await expect(page).toHaveURL("/claim/confirmation/success");
+  });
+
+  test("displays a 'There is a problem' error summary when claim evidence is missing", async ({
+    page,
+  }) => {
+    await page
+      .getByTestId("confirm-and-submit-form")
+      .getByRole("button", { name: "Finish and submit claim" })
+      .click();
+
+    await expect(page).toHaveURL("/claim/check-your-answers");
+    await expect(
+      page.getByRole("heading", { name: "There is a problem" }),
+    ).toBeVisible();
+    await expect(page.getByText("Claim evidence is required")).toBeVisible();
   });
 
   test("displays a 'There is a problem' error summary when the API returns a 422", async ({
@@ -238,7 +270,23 @@ test.describe("Claim - confirm and submit", () => {
       .getByRole("link")
       .click();
     await page.waitForURL("**/claim/type");
-    await page.goto("/claim/check-your-answers");
+
+    await page.goto("/claim/evidence");
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/claim/evidence/upload") &&
+          response.request().method() === "POST" &&
+          response.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/check-your-answers");
 
     await page
       .getByTestId("confirm-and-submit-form")

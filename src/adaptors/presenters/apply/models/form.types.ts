@@ -102,18 +102,10 @@ export interface DeceasedNameError {
 
 export interface ProceedingsFormData extends FormBody {
   "proceeding-option": string;
-  "add-another-proceeding": string;
-}
-
-export interface RemoveProceedingFormData extends FormBody {
-  proceedingId: string;
-  "remove-proceeding": string;
 }
 
 export interface ProceedingsError {
   noProceedingSelected?: FormErrorMessage;
-  noConfirmationSelected?: FormErrorMessage;
-  noProceedingsInList?: FormErrorMessage;
 }
 
 export interface Option {

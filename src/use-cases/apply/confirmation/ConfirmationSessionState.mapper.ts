@@ -17,9 +17,7 @@ export class ConfirmationSessionStateMapper {
       coronersLetterId: getStringValue(session.coronersLetterId),
       coronersLetterFileName: getStringValue(session.coronersLetterFileName),
       providerEmail: getStringValue(session.providerEmail),
-      selectedProceedings: Array.isArray(session.selectedProceedings)
-        ? session.selectedProceedings
-        : undefined,
+      selectedProceeding: session.selectedProceeding,
       selectedPublicAuthorities: Array.isArray(
         session.selectedPublicAuthorities,
       )
