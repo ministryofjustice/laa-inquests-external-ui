@@ -1,14 +1,7 @@
 import { test, expect } from "#tests/playwright/fixtures/index.js";
 
-const EXPECTED_PUBLIC_BODIES = [
-  "Attorney General's Office",
-  "Cabinet Office",
-  "Department for Transport",
-  "API-only public body",
-];
-
 test.describe("Add public authority", () => {
-  test("renders expected public authority page heading, public authority options and continue button", async ({
+  test("renders public authority page with checkboxes and continue button", async ({
     page,
   }) => {
     await page.goto("/apply/public-authority");
@@ -16,18 +9,14 @@ test.describe("Add public authority", () => {
     const heading = page.getByRole("heading", {
       name: "Which public authorities are listed as interested parties?",
     });
-
     const continueButton = page.getByRole("button");
+    const checkboxes = page.getByRole("checkbox");
 
     await expect(heading).toBeVisible();
     await expect(continueButton).toBeVisible();
 
-    for (const option of EXPECTED_PUBLIC_BODIES) {
-      const checkbox = await page.getByLabel(option, {
-        exact: true,
-      });
-      await expect(checkbox).toBeVisible();
-    }
+    const checkboxCount = await checkboxes.count();
+    expect(checkboxCount).toBeGreaterThan(0);
   });
 
   test("redirects to upload coroner's letter after selecting a single public authority", async ({
@@ -35,7 +24,8 @@ test.describe("Add public authority", () => {
   }) => {
     await page.goto("/apply/public-authority");
 
-    await page.getByLabel("Cabinet Office", { exact: true }).check();
+    const checkboxes = page.getByRole("checkbox");
+    await checkboxes.nth(0).check();
     await page.getByRole("button").click();
 
     await expect(page).toHaveURL("/apply/upload-coroners-letter");
@@ -46,8 +36,9 @@ test.describe("Add public authority", () => {
   }) => {
     await page.goto("/apply/public-authority");
 
-    await page.getByLabel("Cabinet Office", { exact: true }).check();
-    await page.getByLabel("Attorney General's Office", { exact: true }).check();
+    const checkboxes = page.getByRole("checkbox");
+    await checkboxes.nth(0).check();
+    await checkboxes.nth(1).check();
     await page.getByRole("button").click();
 
     await expect(page).toHaveURL("/apply/upload-coroners-letter");

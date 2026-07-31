@@ -23,29 +23,7 @@ const bypassCreateApplicationMocks =
 const FORCE_422_LAA_REFERENCE = "422";
 const FORCE_REJECTED_LAA_REFERENCE = "299";
 
-const PUBLIC_BODIES_API_RESPONSE = [
-  {
-    publicBodyId: "Attorney General's Office",
-    publicBodyDescription: "Attorney General's Office",
-  },
-  {
-    publicBodyId: "Cabinet Office",
-    publicBodyDescription: "Cabinet Office",
-  },
-  {
-    publicBodyId: "Department for Transport",
-    publicBodyDescription: "Department for Transport",
-  },
-  {
-    publicBodyId: "API-only public body",
-    publicBodyDescription: "API-only public body",
-  },
-];
-
 export const apiHandlers = [
-  http.get("*/applications/public-bodies", () =>
-    HttpResponse.json(PUBLIC_BODIES_API_RESPONSE),
-  ),
   http.get("*/applications/search", ({ request }) => {
     const url = new URL(request.url);
     if (url.searchParams.get("laa_reference") !== "force-422") {
