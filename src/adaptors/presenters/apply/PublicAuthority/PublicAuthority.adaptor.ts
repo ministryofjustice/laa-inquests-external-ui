@@ -6,21 +6,18 @@ import type {
   PublicAuthorityFormData,
 } from "./PublicAuthority.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
-import { AddPublicAuthorityUseCase } from "#src/use-cases/apply/publicAuthority/AddPublicAuthority.useCase.js";
 import type { GetPublicBodiesPort } from "#src/ports/source/inquests-api/GetPublicBodies.port.js";
 import { GetPublicBodiesUseCase } from "#src/use-cases/apply/publicAuthority/GetPublicBodies.useCase.js";
 import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
 import type { GetPublicBodiesResponse } from "#src/adaptors/source/inquests-api/apply/GetPublicBodies/models/GetPublicBodies.types.js";
 
 interface PublicAuthorityUseCases {
-  addPublicAuthority: AddPublicAuthorityUseCase;
   getPublicBodies: GetPublicBodiesUseCase;
 }
 
 export class PublicAuthorityAdaptor {
   formValidator: PublicAuthorityValidator;
   formatter: Formatter;
-  addPublicAuthorityUseCase: AddPublicAuthorityUseCase;
   getPublicBodiesUseCase: GetPublicBodiesUseCase;
 
   constructor(
@@ -31,8 +28,6 @@ export class PublicAuthorityAdaptor {
   ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
-    this.addPublicAuthorityUseCase =
-      useCases?.addPublicAuthority ?? new AddPublicAuthorityUseCase();
     this.getPublicBodiesUseCase =
       useCases?.getPublicBodies ??
       new GetPublicBodiesUseCase(getPublicBodiesPort);
@@ -42,12 +37,13 @@ export class PublicAuthorityAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
+    const { session } = req;
     const {
       locals: { csrfToken },
     } = res;
 
     const getPublicBodiesResult = await this.getPublicBodiesUseCase.execute(
-      req.session.accessToken,
+      session.accessToken,
     );
 
     if (
@@ -65,8 +61,10 @@ export class PublicAuthorityAdaptor {
       getPublicBodiesResult.data,
     );
 
+    session.availablePublicAuthorities = publicAuthorityOptions;
+
     const selectedPublicAuthorityIds =
-      req.session.selectedPublicAuthorities?.map(
+      session.selectedPublicAuthorities?.map(
         (auth) => auth.publicAuthorityId,
       ) ?? [];
 
@@ -93,63 +91,63 @@ export class PublicAuthorityAdaptor {
       body: { publicAuthorityOption },
     } = req;
 
-    // TODO: Dislike API is called a second time here
-    const getPublicBodiesResult = await this.getPublicBodiesUseCase.execute(
-      session.accessToken,
-    );
-
-    if (
-      getPublicBodiesResult.status !== "SUCCESS" ||
-      getPublicBodiesResult.data === undefined
-    ) {
-      throw new Error(
-        getPublicBodiesResult.status === "TECHNICAL_FAILURE"
-          ? getPublicBodiesResult.reason
-          : "UNEXPECTED_FAILURE",
-      );
-    }
-
-    const publicAuthorityOptions = this.#mapPublicBodiesToPublicAuthorities(
-      getPublicBodiesResult.data,
-    );
+    const availablePublicAuthorities =
+      await this.#getAvailablePublicAuthorities(req.session);
 
     const errors = this.formValidator.validatePublicAuthorityInput(req.body);
 
-    const addPublicAuthorityResult = this.addPublicAuthorityUseCase.execute(
-      publicAuthorityOption,
-      publicAuthorityOptions,
-    );
-
-    // TODO: Remove public body vs public authority :(
-    // TODO: ... isn't this always an array?
     const selectedPublicAuthorityIds = Array.isArray(publicAuthorityOption)
       ? publicAuthorityOption
       : typeof publicAuthorityOption === "string"
         ? [publicAuthorityOption]
         : [];
 
-    if (
-      Object.keys(errors).length > EMPTY_ARR_LENGTH ||
-      addPublicAuthorityResult.status !== "SUCCESS" ||
-      addPublicAuthorityResult.data === undefined
-    ) {
+    if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/public-authority/add-public-authority", {
         csrfToken,
         publicAuthorityOptions:
           this.formatter.formatPublicAuthorityOptionsIntoList(
-            publicAuthorityOptions,
+            availablePublicAuthorities,
           ),
         selectedPublicAuthorityIds,
         errorSummaries: errors,
       });
     } else {
-      const { data } = addPublicAuthorityResult;
-      const { selectedPublicAuthorities } = data;
-
-      session.selectedPublicAuthorities = selectedPublicAuthorities;
+      session.selectedPublicAuthorities = selectedPublicAuthorityIds
+        .map((id) =>
+          availablePublicAuthorities.find((a) => a.publicAuthorityId === id),
+        )
+        .filter((a): a is PublicAuthority => a !== undefined);
 
       res.redirect("/apply/upload-coroners-letter");
     }
+  }
+
+  async #getAvailablePublicAuthorities(
+    session: Request["session"],
+  ): Promise<PublicAuthority[]> {
+    if (session.availablePublicAuthorities !== undefined) {
+      return session.availablePublicAuthorities;
+    }
+
+    const result = await this.getPublicBodiesUseCase.execute(
+      session.accessToken,
+    );
+
+    if (result.status !== "SUCCESS" || result.data === undefined) {
+      throw new Error(
+        result.status === "TECHNICAL_FAILURE"
+          ? result.reason
+          : "UNEXPECTED_FAILURE",
+      );
+    }
+
+    const publicAuthorities = this.#mapPublicBodiesToPublicAuthorities(
+      result.data,
+    );
+    // eslint-disable-next-line require-atomic-updates -- Express sessions are per-request; no concurrency risk
+    session.availablePublicAuthorities = publicAuthorities;
+    return publicAuthorities;
   }
 
   #mapPublicBodiesToPublicAuthorities(

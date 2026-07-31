@@ -22,6 +22,21 @@ const API_PUBLIC_BODIES = [
   },
 ];
 
+const SESSION_PUBLIC_AUTHORITIES = [
+  {
+    publicAuthorityId: "Attorney General's Office",
+    publicAuthorityDescription: "Attorney General's Office",
+  },
+  {
+    publicAuthorityId: "Cabinet Office",
+    publicAuthorityDescription: "Cabinet Office",
+  },
+  {
+    publicAuthorityId: "Department for Transport",
+    publicAuthorityDescription: "Department for Transport",
+  },
+];
+
 describe("PublicAuthority adaptor", () => {
   // TODO: Do a before each at this point?
   function buildAdaptor(getPublicBodiesPort?: GetPublicBodiesPort) {
@@ -138,13 +153,12 @@ describe("PublicAuthority adaptor", () => {
 
   describe("processPublicAuthorityForm", () => {
     it("sets selected authorities in session and redirects", async () => {
-      const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
-      getPublicBodiesPort.getPublicBodies.resolves(API_PUBLIC_BODIES);
-      const adaptor = buildAdaptor(getPublicBodiesPort);
+      const adaptor = buildAdaptor();
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
-      requestStub.session.accessToken = "access-token-123";
+      requestStub.session.availablePublicAuthorities =
+        SESSION_PUBLIC_AUTHORITIES;
 
       requestStub.body = {
         publicAuthorityOption: ["Cabinet Office", "Attorney General's Office"],
@@ -175,7 +189,7 @@ describe("PublicAuthority adaptor", () => {
       );
     });
 
-    it("renders error if nothing is selected", async () => {
+    it("falls back to API when session cache is empty", async () => {
       const getPublicBodiesPort = stubInterface<GetPublicBodiesPort>();
       getPublicBodiesPort.getPublicBodies.resolves(API_PUBLIC_BODIES);
       const adaptor = buildAdaptor(getPublicBodiesPort);
@@ -183,6 +197,24 @@ describe("PublicAuthority adaptor", () => {
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.session.accessToken = "access-token-123";
+
+      requestStub.body = {
+        publicAuthorityOption: ["Cabinet Office"],
+      };
+
+      await adaptor.processPublicAuthorityForm(requestStub, responseStub);
+
+      assert.equal(getPublicBodiesPort.getPublicBodies.callCount, 1);
+      assert.equal(responseStub.redirect.callCount, 1);
+    });
+
+    it("renders error if nothing is selected", async () => {
+      const adaptor = buildAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.availablePublicAuthorities =
+        SESSION_PUBLIC_AUTHORITIES;
 
       responseStub.locals = {
         csrfToken: "abcdefg",
