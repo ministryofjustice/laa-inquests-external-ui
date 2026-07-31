@@ -7,7 +7,7 @@ test.describe("Add public authority", () => {
     await page.goto("/apply/public-authority");
 
     const heading = page.getByRole("heading", {
-      name: "Which public authorities are listed as interested parties?",
+      name: "Who are the listed public authorities on this application?",
     });
     const continueButton = page.getByRole("button");
     const checkboxes = page.getByRole("checkbox");
