@@ -27,21 +27,17 @@ export const TEST_CONFIG = {
  */
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./setup/mfa.globalSetup.ts",
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 2 : 0,
-  workers: 1,
+  workers: process.env.CI === "true" ? 2 : 4,
   reporter: "html",
   use: {
     baseURL: TEST_CONFIG.BASE_URL,
     trace: process.env.CI === "true" ? "on" : "on-first-retry",
   },
   projects: [
-    {
-      name: "setup",
-      testDir: "./setup",
-      testMatch: /mfa\.setup\.ts/,
-    },
     {
       name: "seed application",
       testDir: "./setup",
@@ -50,7 +46,6 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
       },
-      dependencies: ["setup"],
     },
     {
       name: "e2e - no auth",
@@ -59,7 +54,6 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
       },
-      dependencies: ["setup"],
     },
     {
       name: "auth", // The auth tests break the user setup we do earlier, so must go last
@@ -68,7 +62,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
       },
-      dependencies: ["setup"],
+      dependencies: ["e2e - no auth"],
     },
   ],
   webServer: {

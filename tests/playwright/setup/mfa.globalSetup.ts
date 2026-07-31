@@ -1,6 +1,7 @@
-import { test as setup } from "@playwright/test";
+import { chromium } from "@playwright/test";
 import * as OTPAuth from "otpauth";
 import { AUTH_FILE } from "#tests/playwright/constants/AuthFile.js";
+import { TEST_CONFIG } from "../playwright.config.js";
 
 const MICROSOFT_NEXT_BUTTON_NAME = "Next";
 const MICROSOFT_OTP_SELECTOR = "input#idTxtBx_SAOTCC_OTC";
@@ -9,7 +10,7 @@ const MICROSOFT_STAY_SIGNED_IN_SELECTOR = "input[type=submit][value='Yes']";
 const OTP_DIGITS = 6;
 const OTP_PERIOD_SECONDS = 30;
 
-setup("authenticate provider with MFA", async ({ page }) => {
+export default async function globalSetup(): Promise<void> {
   const {
     env: {
       E2E_PROVIDER_USERNAME: username,
@@ -35,6 +36,10 @@ setup("authenticate provider with MFA", async ({ page }) => {
       "Missing required environment variable: E2E_PROVIDER_MFA_TOTP_SECRET",
     );
   }
+
+  const browser = await chromium.launch();
+  const context = await browser.newContext({ baseURL: TEST_CONFIG.BASE_URL });
+  const page = await context.newPage();
 
   await page.goto("/auth/login");
 
@@ -66,5 +71,6 @@ setup("authenticate provider with MFA", async ({ page }) => {
   }
 
   await page.waitForURL("/");
-  await page.context().storageState({ path: AUTH_FILE });
-});
+  await context.storageState({ path: AUTH_FILE });
+  await browser.close();
+}
