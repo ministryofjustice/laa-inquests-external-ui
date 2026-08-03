@@ -75,6 +75,30 @@ describe("PublicAuthority adaptor", () => {
       assert.deepEqual(renderArgs[1], expectedRenderOptions);
     });
 
+    it("does not call API when public authorities are already in session", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.accessToken = "access-token-123";
+      requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
+        (body) => ({
+          publicAuthorityId: body.publicBodyId,
+          publicAuthorityDescription: body.publicBodyDescription,
+        }),
+      );
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+
+      assert.equal(getPublicAuthoritiesPort.getPublicAuthorities.callCount, 0);
+    });
+
     it("pre-populates previously selected authorities from session", async () => {
       const getPublicAuthoritiesPort =
         stubInterface<GetPublicAuthoritiesPort>();

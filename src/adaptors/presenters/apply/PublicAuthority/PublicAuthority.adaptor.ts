@@ -42,25 +42,8 @@ export class PublicAuthorityAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const getPublicAuthoritiesResult =
-      await this.getPublicAuthoritiesUseCase.execute(session.accessToken);
-
-    if (
-      getPublicAuthoritiesResult.status !== "SUCCESS" ||
-      getPublicAuthoritiesResult.data === undefined
-    ) {
-      throw new Error(
-        getPublicAuthoritiesResult.status === "TECHNICAL_FAILURE"
-          ? getPublicAuthoritiesResult.reason
-          : "UNEXPECTED_FAILURE",
-      );
-    }
-
-    const publicAuthorityOptions = this.#mapPublicBodiesToPublicAuthorities(
-      getPublicAuthoritiesResult.data,
-    );
-
-    session.availablePublicAuthorities = publicAuthorityOptions;
+    const availablePublicAuthorities =
+      await this.#getAvailablePublicAuthorities(req.session);
 
     const selectedPublicAuthorityIds =
       session.selectedPublicAuthorities?.map(
@@ -71,7 +54,7 @@ export class PublicAuthorityAdaptor {
       csrfToken,
       publicAuthorityOptions:
         this.formatter.formatPublicAuthorityOptionsIntoList(
-          publicAuthorityOptions,
+          availablePublicAuthorities,
         ),
       selectedPublicAuthorityIds,
     });
