@@ -6,12 +6,10 @@ import {
   HTTP_CREATED,
   HTTP_SERVICE_UNAVAILABLE,
   HTTP_UNPROCESSABLE_CONTENT,
+  SERVICE_UNAVAILABLE_MESSAGE,
 } from "#src/infrastructure/locales/constants.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
-
-const SERVICE_UNAVAILABLE_MESSAGE =
-  "Service unavailable. Please try again later.";
 
 export class EvidenceAdaptor {
   formValidator: UploadEvidenceValidator;
@@ -47,10 +45,9 @@ export class EvidenceAdaptor {
         errorSummaries: errors,
         uploadedFiles: this.#buildUploadedFiles(req),
       });
-      return;
+    } else {
+      res.redirect("/claim/check-your-answers");
     }
-
-    res.redirect("/claim/check-your-answers");
   }
 
   async processEvidenceUpload(req: Request, res: Response): Promise<void> {
@@ -60,45 +57,31 @@ export class EvidenceAdaptor {
     const errors = this.formValidator.validateEvidenceUploadFile(file);
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
       this.#handleValidationFailure(req, res, errors, isNoJsUpload);
-      return;
+    } else {
+      const result = await this.uploadEvidenceUseCase.execute({
+        buffer: file!.buffer,
+        mimetype: file!.mimetype,
+        originalname: file!.originalname,
+        accessToken: req.session.accessToken,
+      });
+
+      const hasValidData =
+        result.status === "SUCCESS" &&
+        this.#checkNonEmptyString(result.data?.evidenceFileId) &&
+        this.#checkNonEmptyString(result.data?.evidenceFileName);
+
+      if (hasValidData) {
+        this.#handleUploadSuccess({
+          req,
+          res,
+          data: result.data!,
+          file: file!,
+          isNoJsUpload,
+        });
+      } else {
+        this.#handleUploadFailure({ req, res, result, isNoJsUpload });
+      }
     }
-
-    const result = await this.uploadEvidenceUseCase.execute({
-      buffer: file!.buffer,
-      mimetype: file!.mimetype,
-      originalname: file!.originalname,
-      accessToken: req.session.accessToken,
-    });
-
-    if (result.status !== "SUCCESS") {
-      this.#handleUploadFailure({ req, res, result, isNoJsUpload });
-      return;
-    }
-
-    this.#storeUploadedFile(
-      req,
-      result.data?.evidenceFileId,
-      result.data?.evidenceFileName,
-      file!.size,
-    );
-
-    if (isNoJsUpload) {
-      res.redirect("/claim/evidence");
-      return;
-    }
-
-    const uploadedFile = file!;
-
-    res.status(HTTP_CREATED).json({
-      success: {
-        messageText: `${uploadedFile.originalname} uploaded`,
-        messageHtml: `${uploadedFile.originalname} uploaded`,
-      },
-      file: {
-        filename: result.data?.evidenceFileId ?? "",
-        originalname: uploadedFile.originalname,
-      },
-    });
   }
 
   #isNoJsUpload(req: Request): boolean {
@@ -127,9 +110,9 @@ export class EvidenceAdaptor {
         originalFileName: file.fileName,
         deleteButton: { text: "Delete" },
       }));
+    } else {
+      return [];
     }
-
-    return [];
   }
 
   #renderNoJsError(
@@ -173,15 +156,14 @@ export class EvidenceAdaptor {
 
     if (isNoJsUpload) {
       this.#renderNoJsError(req, res, message, HTTP_BAD_REQUEST);
-      return;
+    } else {
+      this.#renderJsonUploadError(
+        res,
+        message,
+        req.file?.originalname,
+        HTTP_UNPROCESSABLE_CONTENT,
+      );
     }
-
-    this.#renderJsonUploadError(
-      res,
-      message,
-      req.file?.originalname,
-      HTTP_UNPROCESSABLE_CONTENT,
-    );
   }
 
   #handleUploadFailure(options: {
@@ -199,43 +181,74 @@ export class EvidenceAdaptor {
 
     if (isNoJsUpload) {
       this.#renderNoJsError(req, res, message, HTTP_SERVICE_UNAVAILABLE);
-      return;
+    } else {
+      this.#renderJsonUploadError(
+        res,
+        message,
+        req.file?.originalname,
+        HTTP_SERVICE_UNAVAILABLE,
+      );
     }
+  }
 
-    this.#renderJsonUploadError(
-      res,
-      message,
-      req.file?.originalname,
-      HTTP_SERVICE_UNAVAILABLE,
+  #checkNonEmptyString(value: string | undefined): boolean {
+    return typeof value === "string" && value !== "";
+  }
+
+  #handleUploadSuccess(options: {
+    req: Request;
+    res: Response;
+    data: { evidenceFileId: string; evidenceFileName: string };
+    file: Express.Multer.File;
+    isNoJsUpload: boolean;
+  }): void {
+    const { req, res, data, file, isNoJsUpload } = options;
+
+    this.#storeUploadedFile(
+      req,
+      data.evidenceFileId,
+      data.evidenceFileName,
+      file.size,
     );
+
+    if (isNoJsUpload) {
+      res.redirect("/claim/evidence");
+    } else {
+      res.status(HTTP_CREATED).json({
+        success: {
+          messageText: `${file.originalname} uploaded`,
+          messageHtml: `${file.originalname} uploaded`,
+        },
+        file: {
+          filename: data.evidenceFileId,
+          originalname: file.originalname,
+        },
+      });
+    }
   }
 
   #storeUploadedFile(
     req: Request,
-    evidenceFileId: string | undefined,
-    evidenceFileName: string | undefined,
-    sizeBytes: number | undefined,
+    evidenceFileId: string,
+    evidenceFileName: string,
+    fileSize: number | undefined,
   ): void {
     if (
-      typeof evidenceFileId !== "string" ||
-      evidenceFileId === "" ||
-      typeof evidenceFileName !== "string" ||
-      evidenceFileName === ""
+      this.#checkNonEmptyString(evidenceFileId) &&
+      this.#checkNonEmptyString(evidenceFileName)
     ) {
-      return;
+      const existingFiles = req.session.claim?.evidenceFiles ?? [];
+      req.session.claim = {
+        ...req.session.claim,
+        evidenceFiles: [
+          ...existingFiles,
+          {
+            id: evidenceFileId,
+            fileName: evidenceFileName,
+            fileSize,
+          },
+        ],
+      };
     }
-
-    const existingFiles = req.session.claim?.evidenceFiles ?? [];
-    req.session.claim = {
-      ...req.session.claim,
-      evidenceFiles: [
-        ...existingFiles,
-        {
-          id: evidenceFileId,
-          fileName: evidenceFileName,
-          sizeBytes,
-        },
-      ],
-    };
   }
 }
