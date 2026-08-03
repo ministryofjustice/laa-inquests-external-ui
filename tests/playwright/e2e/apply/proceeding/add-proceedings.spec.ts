@@ -51,7 +51,7 @@ test.describe("Add proceedings", () => {
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
 
     const deathInPoliceCustodyRadio = await page.getByLabel(
-      "Death in police custody",
+      "IQPC - Death in police custody",
       { exact: true },
     );
     await deathInPoliceCustodyRadio.click();
