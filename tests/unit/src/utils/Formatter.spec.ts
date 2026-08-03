@@ -175,7 +175,9 @@ describe("Formatter", () => {
 
       expect(options.length).to.equal(12);
       options.forEach((option, i) => {
-        expect(option.text).to.equal(`${allProceedings[i].proceedingId} - ${allProceedings[i].proceedingName}`);
+        expect(option.text).to.equal(
+          `${allProceedings[i].proceedingId} - ${allProceedings[i].proceedingName}`,
+        );
         expect(option.value).to.equal(allProceedings[i].proceedingId);
       });
     });

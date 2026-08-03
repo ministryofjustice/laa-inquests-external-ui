@@ -44,7 +44,7 @@
         "title": "What does your client want legal aid for?",
         "search": {
           "label": "Search for legal proceedings",
-          "hint": "Select one proceeding at a time.",
+          "hint": "Select what the legal aid application is for",
           "options": []
         },
         "radio": {
