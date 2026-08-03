@@ -142,7 +142,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.session.claim = {
         evidenceFiles: [
-          { id: "evidence-id-1", fileName: "report.pdf", sizeBytes: 2048 },
+          { id: "evidence-id-1", fileName: "report.pdf", fileSize: 2048 },
           { id: "evidence-id-2", fileName: "photo.PNG" },
         ],
       };
@@ -157,13 +157,13 @@ describe("ConfirmAndSubmit adaptor", () => {
           id: "evidence-id-1",
           name: "report.pdf",
           type: "pdf",
-          size: "2KB",
+          fileSize: "2KB",
         },
         {
           id: "evidence-id-2",
           name: "photo.PNG",
           type: "png",
-          size: "",
+          fileSize: "",
         },
       ]);
     });
