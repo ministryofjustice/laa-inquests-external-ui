@@ -156,8 +156,8 @@ export class ConfirmAndSubmitAdaptor {
   }
 
   #fileType(fileName: string): string {
-    const [, extension] = /\.([^.]+)$/v.exec(fileName) ?? [];
-    return typeof extension === "string" ? extension.toLowerCase() : "";
+    const [fileType] = /(?<=\.)[^.]+$/v.exec(fileName) ?? [];
+    return typeof fileType === "string" ? fileType.toUpperCase() : "";
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {
