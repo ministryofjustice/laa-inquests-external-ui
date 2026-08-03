@@ -38,39 +38,40 @@ export class UploadEvidenceUseCase {
         accessToken,
       );
 
-      const { status } = responseRaw;
-
-      if (status === "SUCCESS") {
+      if (responseRaw.status === "SUCCESS") {
+        const { evidenceFileId, evidenceFileName } = responseRaw;
         if (
-          typeof responseRaw.evidenceFileId === "string" &&
-          responseRaw.evidenceFileId !== "" &&
-          typeof responseRaw.evidenceFileName === "string" &&
-          responseRaw.evidenceFileName !== ""
+          typeof evidenceFileId !== "string" ||
+          evidenceFileId === "" ||
+          typeof evidenceFileName !== "string" ||
+          evidenceFileName === ""
         ) {
+          return this.#technicalFailure("UNEXPECTED_EXCEPTION");
+        } else {
           return {
             status: "SUCCESS",
             data: {
-              evidenceFileId: responseRaw.evidenceFileId,
-              evidenceFileName: responseRaw.evidenceFileName,
+              evidenceFileId,
+              evidenceFileName,
             },
           };
         }
-
-        return {
-          status: "TECHNICAL_FAILURE",
-          reason: "UNEXPECTED_EXCEPTION",
-        };
+      } else {
+        return this.#technicalFailure(
+          responseRaw.reason as TechnicalFailureReason,
+        );
       }
-
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: responseRaw.reason as TechnicalFailureReason,
-      };
     } catch {
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
-      };
+      return this.#technicalFailure("UNEXPECTED_EXCEPTION");
     }
+  }
+
+  #technicalFailure(
+    reason: TechnicalFailureReason,
+  ): UseCaseResult<UploadEvidenceOutput> {
+    return {
+      status: "TECHNICAL_FAILURE",
+      reason,
+    };
   }
 }
