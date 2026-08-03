@@ -62,7 +62,6 @@ describe("SubmitApplicationAdaptor", () => {
         proceedings: selectedProceedings,
         publicBodies: selectedPublicAuthorities,
         provider: {
-          firmCode: "0A123B",
           officeId: "001",
           emailAddress: "test@example.com",
         },
@@ -123,7 +122,7 @@ describe("SubmitApplicationAdaptor", () => {
         },
         proceedings: [],
         publicBodies: [],
-        provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
+        provider: { officeId: "Y", emailAddress: "z@z.com" },
       };
 
       await adaptor.submitApplication(minimalBody, "access-token-123");
@@ -169,7 +168,7 @@ describe("SubmitApplicationAdaptor", () => {
           },
           proceedings: [],
           publicBodies: [],
-          provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
+          provider: { officeId: "Y", emailAddress: "z@z.com" },
         },
         "access-token-123",
       );

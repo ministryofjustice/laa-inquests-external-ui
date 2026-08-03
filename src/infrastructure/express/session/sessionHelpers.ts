@@ -33,7 +33,6 @@ export class SessionHelper {
             "cookie",
             "user",
             "userId",
-            "firmCode",
             "officeId",
             "providerEmail",
             "accessToken",

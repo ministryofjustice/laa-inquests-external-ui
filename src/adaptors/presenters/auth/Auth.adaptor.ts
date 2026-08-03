@@ -27,7 +27,6 @@ export class AuthAdaptor {
     );
     Object.assign(req.session, {
       userId: user.userId,
-      firmCode: user.firmCode,
       officeId: user.officeId,
       providerEmail: user.providerEmail,
       accessToken: user.accessToken,
