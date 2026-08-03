@@ -1,4 +1,6 @@
 export const MAX_CHARACTER_LENGTH = 100;
+export const SERVICE_UNAVAILABLE_MESSAGE =
+  "Service unavailable. Please try again later.";
 
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
