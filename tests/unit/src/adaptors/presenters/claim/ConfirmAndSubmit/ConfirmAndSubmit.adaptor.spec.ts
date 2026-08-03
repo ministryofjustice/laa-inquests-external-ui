@@ -156,13 +156,13 @@ describe("ConfirmAndSubmit adaptor", () => {
         {
           id: "evidence-id-1",
           name: "report.pdf",
-          type: "pdf",
+          type: "PDF",
           fileSize: "2KB",
         },
         {
           id: "evidence-id-2",
           name: "photo.PNG",
-          type: "png",
+          type: "PNG",
           fileSize: "",
         },
       ]);
