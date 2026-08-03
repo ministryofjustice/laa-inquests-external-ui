@@ -149,7 +149,7 @@ export class ConfirmAndSubmitAdaptor {
           id: file.id,
           name: file.fileName,
           type: this.#fileType(file.fileName),
-          size: this.formatter.formatFileSize(file.sizeBytes),
+          fileSize: this.formatter.formatFileSize(file.fileSize),
         })),
       },
     };
