@@ -108,7 +108,6 @@ describe("SubmitApplicationUseCase", () => {
         publicBodyId: publicAuthority.publicAuthorityId,
       })),
       provider: {
-        firmCode: state.firmCode,
         officeId: state.officeId,
         emailAddress: state.providerEmail,
       },
@@ -119,7 +118,7 @@ describe("SubmitApplicationUseCase", () => {
 
   it("returns invalid input state and does not call adapter when required state is missing", async () => {
     const state = createValidState({
-      firmCode: undefined,
+      officeId: undefined,
     });
 
     const result = await useCase.execute(state);
@@ -228,7 +227,6 @@ function createValidState(
         publicAuthorityDescription: "Cabinet Office",
       },
     ],
-    firmCode: "0A123B",
     officeId: "001",
     accessToken: "access-token-123",
     coronersLetterId: uuidv4(),

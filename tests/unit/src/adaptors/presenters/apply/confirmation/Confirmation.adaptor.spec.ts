@@ -378,7 +378,6 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = "AB123456C";
-      requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
@@ -459,7 +458,6 @@ describe("Confirmation adaptor", () => {
       ]);
 
       assert.deepEqual(submitBody.provider, {
-        firmCode: "0A123B",
         officeId: "001",
         emailAddress: "test@example.com",
       });
@@ -478,7 +476,6 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
@@ -548,7 +545,6 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceAddressSource =
@@ -619,7 +615,6 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = {
@@ -679,7 +674,6 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = null;
@@ -741,7 +735,6 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = null as unknown as string;
-      requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
@@ -808,7 +801,6 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = "AB123456C";
-      requestStub.session.firmCode = "0A123B";
       requestStub.session.officeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
