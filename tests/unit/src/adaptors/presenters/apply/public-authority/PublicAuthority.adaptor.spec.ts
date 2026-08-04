@@ -1,19 +1,47 @@
-import { assert } from "chai";
-import { stubInterface } from "ts-sinon";
+import { strict as assert } from "assert";
+import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { PublicAuthorityAdaptor } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.adaptor.js";
 import { PublicAuthorityValidator } from "#src/adaptors/presenters/apply/PublicAuthority/PublicAuthority.validator.js";
 import { Formatter } from "#src/utils/Formatter.js";
+import type { GetPublicAuthoritiesPort } from "#src/ports/source/inquests-api/GetPublicAuthorities.port.js";
+
+const PUBLIC_BODIES = [
+  {
+    publicBodyId: "Attorney General's Office",
+    publicBodyDescription: "Attorney General's Office",
+  },
+  {
+    publicBodyId: "Cabinet Office",
+    publicBodyDescription: "Cabinet Office",
+  },
+  {
+    publicBodyId: "Department for Transport",
+    publicBodyDescription: "Department for Transport",
+  },
+];
 
 describe("PublicAuthority adaptor", () => {
+  function buildAdaptor(getPublicAuthoritiesPort?: GetPublicAuthoritiesPort) {
+    const port =
+      getPublicAuthoritiesPort ?? stubInterface<GetPublicAuthoritiesPort>();
+    return new PublicAuthorityAdaptor(
+      new PublicAuthorityValidator(),
+      new Formatter(),
+      port,
+    );
+  }
+
   describe("renderPublicAuthoritySelectForm", () => {
-    it("renders public authority selection form with all options", () => {
-      const formValidator = new PublicAuthorityValidator();
-      const formatter = new Formatter();
-      const adaptor = new PublicAuthorityAdaptor(formValidator, formatter);
+    it("renders public authority selection form with options from API", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
+      requestStub.session.accessToken = "access-token-123";
 
       responseStub.locals = {
         csrfToken: "abcdefg",
@@ -24,133 +52,148 @@ describe("PublicAuthority adaptor", () => {
         publicAuthorityOptions: [
           {
             text: "Attorney General's Office",
-            value: "attorney-generals-office",
+            value: "Attorney General's Office",
           },
-          { text: "Cabinet Office", value: "cabinet-office" },
-          {
-            text: "Department Devolved to Wales",
-            value: "department-devolved-to-wales",
-          },
-          {
-            text: "Department for Business and Trade",
-            value: "department-for-business-and-trade",
-          },
-          {
-            text: "Department for Culture, Media and Sport",
-            value: "department-for-culture-media-and-sport",
-          },
-          {
-            text: "Department for Education",
-            value: "department-for-education",
-          },
-          {
-            text: "Department for Energy Security and Net Zero",
-            value: "department-for-energy-security-and-net-zero",
-          },
-          {
-            text: "Department for Environment, Food and Rural Affairs",
-            value: "department-for-environment-food-and-rural-affairs",
-          },
-          {
-            text: "Department for Housing, Communities and Local Government",
-            value: "department-for-housing-communities-and-local-government",
-          },
-          {
-            text: "Department for Science, Innovation and Technology",
-            value: "department-for-science-innovation-and-technology",
-          },
+          { text: "Cabinet Office", value: "Cabinet Office" },
           {
             text: "Department for Transport",
-            value: "department-for-transport",
+            value: "Department for Transport",
           },
-          {
-            text: "Department for Work and Pensions",
-            value: "department-for-work-and-pensions",
-          },
-          {
-            text: "Department of Health and Social Care",
-            value: "department-of-health-and-social-care",
-          },
-          {
-            text: "Foreign, Commonwealth and Development Office",
-            value: "foreign-commonwealth-and-development-office",
-          },
-          { text: "HM Treasury", value: "hm-treasury" },
-          { text: "Home Office", value: "home-office" },
-          { text: "Ministry of Defence", value: "ministry-of-defence" },
-          { text: "Ministry of Justice", value: "ministry-of-justice" },
         ],
         selectedPublicAuthorityIds: [],
       };
 
-      adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
 
-      assert(renderArgs[0], "apply/public-authority/add-public-authority");
-      assert.deepInclude(renderArgs[1], expectedRenderOptions);
+      assert.equal(
+        renderArgs[0],
+        "apply/public-authority/add-public-authority",
+      );
+      assert.deepEqual(renderArgs[1], expectedRenderOptions);
     });
 
-    it("pre-populates the previously selected authorities from session", () => {
-      const formValidator = new PublicAuthorityValidator();
-      const formatter = new Formatter();
-      const adaptor = new PublicAuthorityAdaptor(formValidator, formatter);
+    it("does not call API when public authorities are already in session", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
+      requestStub.session.accessToken = "access-token-123";
+      requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
+        (body) => ({
+          publicAuthorityId: body.publicBodyId,
+          publicAuthorityDescription: body.publicBodyDescription,
+        }),
+      );
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+
+      assert.equal(getPublicAuthoritiesPort.getPublicAuthorities.callCount, 0);
+    });
+
+    it("pre-populates previously selected authorities from session", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.accessToken = "access-token-123";
 
       responseStub.locals = { csrfToken: "abcdefg" };
       const previousSelections = [
         {
-          publicAuthorityId: "cabinet-office",
+          publicAuthorityId: "Cabinet Office",
           publicAuthorityDescription: "Cabinet Office",
         },
         {
-          publicAuthorityId: "attorney-generals-office",
+          publicAuthorityId: "Attorney General's Office",
           publicAuthorityDescription: "Attorney General's Office",
         },
       ];
       requestStub.session.selectedPublicAuthorities = previousSelections;
 
-      adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
 
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.deepInclude(renderArgs[1], {
-        selectedPublicAuthorityIds: [
-          "cabinet-office",
-          "attorney-generals-office",
-        ],
-      });
-    });
-  });
+      const actual = renderArgs[1] as unknown as Record<string, unknown>;
+      const expectedOptions = [
+        {
+          text: "Attorney General's Office",
+          value: "Attorney General's Office",
+        },
+        { text: "Cabinet Office", value: "Cabinet Office" },
+        {
+          text: "Department for Transport",
+          value: "Department for Transport",
+        },
+      ];
 
-  describe("processPublicAuthorityForm", () => {
-    it("sets multiple selected authorities in session and redirects", () => {
-      const adaptor = new PublicAuthorityAdaptor(
-        new PublicAuthorityValidator(),
-        new Formatter(),
+      assert.equal(actual.csrfToken, "abcdefg");
+      assert.deepEqual(actual.publicAuthorityOptions, expectedOptions);
+      assert.deepEqual(
+        (actual.selectedPublicAuthorityIds as string[]).sort(),
+        ["Attorney General's Office", "Cabinet Office"].sort(),
       );
+    });
+
+    it("throws when loading public bodies fails", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.rejects(
+        new Error("Network error"),
+      );
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
 
+      await assert.rejects(
+        () =>
+          adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub),
+        { message: "UNEXPECTED_EXCEPTION" },
+      );
+    });
+  });
+
+  describe("processPublicAuthorityForm", () => {
+    it("sets selected authorities in session and redirects", async () => {
+      const adaptor = buildAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
+        (body) => ({
+          publicAuthorityId: body.publicBodyId,
+          publicAuthorityDescription: body.publicBodyDescription,
+        }),
+      );
+
       requestStub.body = {
-        publicAuthorityOption: ["cabinet-office", "attorney-generals-office"],
+        publicAuthorityOption: ["Cabinet Office", "Attorney General's Office"],
       };
 
       const expectedSelected = [
         {
-          publicAuthorityId: "cabinet-office",
+          publicAuthorityId: "Cabinet Office",
           publicAuthorityDescription: "Cabinet Office",
         },
         {
-          publicAuthorityId: "attorney-generals-office",
+          publicAuthorityId: "Attorney General's Office",
           publicAuthorityDescription: "Attorney General's Office",
         },
       ];
 
-      adaptor.processPublicAuthorityForm(requestStub, responseStub);
+      await adaptor.processPublicAuthorityForm(requestStub, responseStub);
 
       assert.deepEqual(
         requestStub.session.selectedPublicAuthorities,
@@ -158,22 +201,49 @@ describe("PublicAuthority adaptor", () => {
       );
 
       assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/apply/upload-coroners-letter",
+      );
     });
 
-    it("renders error if nothing selected", () => {
-      const adaptor = new PublicAuthorityAdaptor(
-        new PublicAuthorityValidator(),
-        new Formatter(),
-      );
+    it("falls back to API when session cache is empty", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
+      requestStub.session.accessToken = "access-token-123";
+
+      requestStub.body = {
+        publicAuthorityOption: ["Cabinet Office"],
+      };
+
+      await adaptor.processPublicAuthorityForm(requestStub, responseStub);
+
+      assert.equal(getPublicAuthoritiesPort.getPublicAuthorities.callCount, 1);
+      assert.equal(responseStub.redirect.callCount, 1);
+    });
+
+    it("renders error if nothing is selected", async () => {
+      const adaptor = buildAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
+        (body) => ({
+          publicAuthorityId: body.publicBodyId,
+          publicAuthorityDescription: body.publicBodyDescription,
+        }),
+      );
 
       responseStub.locals = {
         csrfToken: "abcdefg",
       };
 
-      adaptor.processPublicAuthorityForm(requestStub, responseStub);
+      await adaptor.processPublicAuthorityForm(requestStub, responseStub);
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
@@ -183,13 +253,43 @@ describe("PublicAuthority adaptor", () => {
         "apply/public-authority/add-public-authority",
       );
 
-      assert.deepInclude(renderArgs[1], {
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: "abcdefg",
+        publicAuthorityOptions: [
+          {
+            text: "Attorney General's Office",
+            value: "Attorney General's Office",
+          },
+          { text: "Cabinet Office", value: "Cabinet Office" },
+          {
+            text: "Department for Transport",
+            value: "Department for Transport",
+          },
+        ],
+        selectedPublicAuthorityIds: [],
         errorSummaries: {
           noPublicAuthoritySelected: {
             text: "Please select at least one public authority",
           },
         },
       });
+    });
+
+    it("throws when loading public bodies fails", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.rejects(
+        new Error("Network error"),
+      );
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      await assert.rejects(
+        () => adaptor.processPublicAuthorityForm(requestStub, responseStub),
+        { message: "UNEXPECTED_EXCEPTION" },
+      );
     });
   });
 });

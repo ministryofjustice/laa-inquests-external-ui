@@ -7,15 +7,15 @@ export function createPublicAuthorityRouter(
 ): Router {
   publicAuthorityRouter.get(
     "/public-authority",
-    (req: Request, res: Response): void => {
-      publicAuthorityAdaptor.renderPublicAuthoritySelectForm(req, res);
+    async (req: Request, res: Response): Promise<void> => {
+      await publicAuthorityAdaptor.renderPublicAuthoritySelectForm(req, res);
     },
   );
 
   publicAuthorityRouter.post(
     "/public-authority",
-    (req: Request, res: Response) => {
-      publicAuthorityAdaptor.processPublicAuthorityForm(req, res);
+    async (req: Request, res: Response): Promise<void> => {
+      await publicAuthorityAdaptor.processPublicAuthorityForm(req, res);
     },
   );
 

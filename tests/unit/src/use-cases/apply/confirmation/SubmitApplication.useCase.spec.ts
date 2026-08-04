@@ -105,7 +105,7 @@ describe("SubmitApplicationUseCase", () => {
         ? [{ proceedingId: state.selectedProceeding.proceedingId }]
         : [],
       publicBodies: state.selectedPublicAuthorities?.map((publicAuthority) => ({
-        publicBodyId: publicAuthority.publicAuthorityDescription,
+        publicBodyId: publicAuthority.publicAuthorityId,
       })),
       provider: {
         firmCode: state.firmCode,
@@ -224,7 +224,7 @@ function createValidState(
     },
     selectedPublicAuthorities: [
       {
-        publicAuthorityId: "cabinet-office",
+        publicAuthorityId: "Cabinet Office",
         publicAuthorityDescription: "Cabinet Office",
       },
     ],

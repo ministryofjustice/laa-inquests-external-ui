@@ -11,6 +11,7 @@ declare module "express-session" {
     error: FormError;
     selectedProceeding?: Proceeding;
     proceedingOption?: Proceeding;
+    availablePublicAuthorities?: PublicAuthority[];
     selectedPublicAuthorities?: PublicAuthority[];
     clientHomeAddress?: ClientHomeAddress;
     clientCorrespondenceAddress?: ClientHomeAddress;
