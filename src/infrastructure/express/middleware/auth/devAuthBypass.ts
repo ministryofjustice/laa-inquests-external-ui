@@ -2,7 +2,8 @@ import type { NextFunction, Request, Response } from "express";
 
 const DEV_SESSION_DATA = {
   userId: "dev-user-id",
-  user: { name: "Developer User" },
+  // # TEMPORARY - Keep existing E2E header assertions stable while bypassing provider login.
+  user: { name: "External Test [LAA]" },
   firmCode: "0A123B",
   officeId: "001",
   providerEmail: "developer@example.com",

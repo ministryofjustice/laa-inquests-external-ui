@@ -113,7 +113,11 @@ indexRouter.get("/health", (req: Request, res: Response): void => {
 
 indexRouter.use("/", createErrorRouter(errorRouter));
 
-if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
+if (
+  (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) ||
+  // # TEMPORARY - Allow bypassed session seeding in test runs to avoid provider MFA login.
+  (process.env.NODE_ENV === "test" && process.env.DEV_SKIP_AUTH === "true")
+) {
   const { seedDevAuthSession } = (await import(
     DEV_AUTH_BYPASS_MODULE_PATH
   )) as {

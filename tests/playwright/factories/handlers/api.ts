@@ -28,7 +28,19 @@ export const apiHandlers = [
     const url = new URL(request.url);
     if (url.searchParams.get("laa_reference") !== "force-422") {
       if (url.searchParams.get("laa_reference") !== "force-rejected") {
-        return passthrough();
+        // # TEMPORARY - Return a local mock so E2E does not rely on provider-authenticated upstream search.
+        return HttpResponse.json([
+          {
+            laaReference: 1,
+            clientFirstName: "Mock",
+            clientLastName: "Result",
+            clientDateOfBirth: "01/01/2000",
+            dateSubmitted: "2026-01-01T00:00:00",
+            firmName: "Test Firm",
+            firmNumber: "123",
+            overallDecision: "PENDING",
+          },
+        ]);
       }
 
       return HttpResponse.json([

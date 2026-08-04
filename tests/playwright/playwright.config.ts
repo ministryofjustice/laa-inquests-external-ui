@@ -1,6 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
-import { AUTH_FILE } from "./constants/AuthFile.js";
 
 dotenv.config({ path: "../.env.external" });
 
@@ -38,38 +37,47 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "setup",
-      testDir: "./setup",
-      testMatch: /mfa\.setup\.ts/,
-    },
-    {
-      name: "seed application",
-      testDir: "./setup",
-      testMatch: /seedApplication\.setup\.ts/,
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: AUTH_FILE,
-      },
-      dependencies: ["setup"],
-    },
-    {
+      // # TEMPORARY - Run only non-auth journey tests while bypass auth is enabled.
       name: "e2e - no auth",
       testIgnore: /e2e\/auth/,
       use: {
         ...devices["Desktop Chrome"],
-        storageState: AUTH_FILE,
       },
-      dependencies: ["setup"],
     },
-    {
-      name: "auth", // The auth tests break the user setup we do earlier, so must go last
-      testDir: "./e2e/auth",
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: AUTH_FILE,
-      },
-      dependencies: ["setup"],
-    },
+    // # TEMPORARY - Full provider-auth project chain is disabled while test-user login is paused.
+    // {
+    //   name: "setup",
+    //   testDir: "./setup",
+    //   testMatch: /mfa\.setup\.ts/,
+    // },
+    // {
+    //   name: "seed application",
+    //   testDir: "./setup",
+    //   testMatch: /seedApplication\.setup\.ts/,
+    //   use: {
+    //     ...devices["Desktop Chrome"],
+    //     storageState: AUTH_FILE,
+    //   },
+    //   dependencies: ["setup"],
+    // },
+    // {
+    //   name: "e2e - no auth",
+    //   testIgnore: /e2e\/auth/,
+    //   use: {
+    //     ...devices["Desktop Chrome"],
+    //     storageState: AUTH_FILE,
+    //   },
+    //   dependencies: ["setup"],
+    // },
+    // {
+    //   name: "auth", // The auth tests break the user setup we do earlier, so must go last
+    //   testDir: "./e2e/auth",
+    //   use: {
+    //     ...devices["Desktop Chrome"],
+    //     storageState: AUTH_FILE,
+    //   },
+    //   dependencies: ["setup"],
+    // },
   ],
   webServer: {
     command: "yarn tsx tests/playwright/factories/handlers/testMsw.js",
@@ -81,6 +89,8 @@ export default defineConfig({
     cwd: "../..", // Run from project root since config is now in tests/playwright/ subdirectory
     env: {
       NODE_ENV: "test",
+      // # TEMPORARY - Enable session seeding path in test env to avoid provider login.
+      DEV_SKIP_AUTH: "true",
       PORT: "3000",
       SESSION_SECRET: "test-secret-key-for-playwright-tests",
       SESSION_NAME: "test-session",
