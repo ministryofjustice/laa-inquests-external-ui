@@ -154,7 +154,7 @@ test.describe("Provider can", () => {
 
     await expect(page.url()).toContain("/apply/proceeding");
     await page
-      .getByLabel("Death in mental health detention", { exact: true })
+      .getByLabel("IQMH - Death in mental health detention", { exact: true })
       .click();
     await continueNextPage("add-proceeding-form");
 
