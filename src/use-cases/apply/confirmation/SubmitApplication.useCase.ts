@@ -189,9 +189,6 @@ export class SubmitApplicationUseCase {
     const clientCorrespondenceRecipient =
       this.#getClientCorrespondenceRecipient(state);
 
-    client.isClientCorrespondenceRecipient =
-      clientCorrespondenceRecipient === null;
-
     if (clientCorrespondenceRecipient === null) {
       delete client.correspondenceRecipient;
     } else {
@@ -218,7 +215,6 @@ export class SubmitApplicationUseCase {
         CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
       homeAddress: null,
       correspondenceAddress: null,
-      isClientCorrespondenceRecipient: true,
     };
   }
 

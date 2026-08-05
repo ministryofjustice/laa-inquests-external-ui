@@ -28,7 +28,6 @@ export const SubmitApplicationRequestSchema = z.object({
         })
         .optional()
         .nullable(),
-      isClientCorrespondenceRecipient: z.boolean(),
       correspondenceRecipient: z
         .object({
           recipientType: z.enum([
@@ -48,28 +47,6 @@ export const SubmitApplicationRequestSchema = z.object({
         })
         .optional()
         .nullable(),
-    })
-    .superRefine((client, ctx) => {
-      if (client.isClientCorrespondenceRecipient) {
-        if (client.correspondenceRecipient !== undefined) {
-          ctx.addIssue({
-            code: "custom",
-            path: ["correspondenceRecipient"],
-            message:
-              "correspondenceRecipient must not be provided when isClientCorrespondenceRecipient is true",
-          });
-        }
-        return;
-      }
-
-      if (client.correspondenceRecipient === undefined) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["correspondenceRecipient"],
-          message:
-            "correspondenceRecipient is required when isClientCorrespondenceRecipient is false",
-        });
-      }
     }),
   deceased: z.object({
     deceasedFirstName: z.string(),
