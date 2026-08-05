@@ -275,7 +275,7 @@ test.describe("Claim - confirm and submit", () => {
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
-      .fill("1");
+      .fill("31");
     await page
       .getByTestId("case-search-form")
       .getByRole("button", { name: "Continue" })
@@ -293,7 +293,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.goto("/claim/check-your-answers");
 
     const caseDetails = page.getByTestId("case-details-summary-list");
-    await expect(caseDetails.getByText("1", { exact: true })).toBeVisible();
+    await expect(caseDetails.getByText("31", { exact: true })).toBeVisible();
     const texts = await caseDetails.getByRole("definition").allInnerTexts();
     assert.equal(texts.length, 5);
   });
