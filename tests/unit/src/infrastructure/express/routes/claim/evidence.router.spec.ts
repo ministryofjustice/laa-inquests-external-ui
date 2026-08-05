@@ -4,6 +4,7 @@ import request from "supertest";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { createEvidenceRouter } from "#src/infrastructure/express/routes/claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
+import type { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import type { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
@@ -13,6 +14,7 @@ describe("createEvidenceRouter", () => {
     const uploadEvidenceValidator = stubInterface<UploadEvidenceValidator>();
     const uploadEvidenceUseCase = stubInterface<UploadEvidenceUseCase>();
     const deleteEvidenceUseCase = stubInterface<DeleteEvidenceUseCase>();
+    const downloadEvidenceAdaptor = stubInterface<DownloadEvidenceAdaptor>();
 
     deleteEvidenceUseCase.execute.resolves({ status: "SUCCESS" });
 
@@ -46,7 +48,9 @@ describe("createEvidenceRouter", () => {
     });
 
     const router = express.Router();
-    app.use(createEvidenceRouter(router, evidenceAdaptor));
+    app.use(
+      createEvidenceRouter(router, evidenceAdaptor, downloadEvidenceAdaptor),
+    );
 
     const response = await request(app)
       .post("/evidence/delete")
