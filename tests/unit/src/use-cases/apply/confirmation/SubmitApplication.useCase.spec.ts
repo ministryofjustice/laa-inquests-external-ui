@@ -101,11 +101,11 @@ describe("SubmitApplicationUseCase", () => {
         furtherInformation: state.deceasedFurtherInformation,
         clientRelationshipToDeceased: state.deceasedClientRelationship,
       },
-      proceedings: state.selectedProceeding
-        ? [{ proceedingId: state.selectedProceeding.proceedingId }]
-        : [],
+      proceeding: state.selectedProceeding
+        ? { proceedingId: state.selectedProceeding.proceedingId }
+        : null,
       publicBodies: state.selectedPublicAuthorities?.map((publicAuthority) => ({
-        publicBodyId: publicAuthority.publicAuthorityDescription,
+        publicBodyId: publicAuthority.publicAuthorityId,
       })),
       provider: {
         firmCode: state.firmCode,
@@ -224,7 +224,7 @@ function createValidState(
     },
     selectedPublicAuthorities: [
       {
-        publicAuthorityId: "cabinet-office",
+        publicAuthorityId: "Cabinet Office",
         publicAuthorityDescription: "Cabinet Office",
       },
     ],

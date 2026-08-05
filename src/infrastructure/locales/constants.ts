@@ -1,4 +1,6 @@
 export const MAX_CHARACTER_LENGTH = 100;
+export const SERVICE_UNAVAILABLE_MESSAGE =
+  "Service unavailable. Please try again later.";
 
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
@@ -340,85 +342,6 @@ export const PROCEEDING_OPTIONS = [
   },
 ];
 
-export const PUBLIC_AUTHORITY_OPTIONS = [
-  {
-    publicAuthorityId: "attorney-generals-office",
-    publicAuthorityDescription: "Attorney General's Office",
-  },
-  {
-    publicAuthorityId: "cabinet-office",
-    publicAuthorityDescription: "Cabinet Office",
-  },
-  {
-    publicAuthorityId: "department-devolved-to-wales",
-    publicAuthorityDescription: "Department Devolved to Wales",
-  },
-  {
-    publicAuthorityId: "department-for-business-and-trade",
-    publicAuthorityDescription: "Department for Business and Trade",
-  },
-  {
-    publicAuthorityId: "department-for-culture-media-and-sport",
-    publicAuthorityDescription: "Department for Culture, Media and Sport",
-  },
-  {
-    publicAuthorityId: "department-for-education",
-    publicAuthorityDescription: "Department for Education",
-  },
-  {
-    publicAuthorityId: "department-for-energy-security-and-net-zero",
-    publicAuthorityDescription: "Department for Energy Security and Net Zero",
-  },
-  {
-    publicAuthorityId: "department-for-environment-food-and-rural-affairs",
-    publicAuthorityDescription:
-      "Department for Environment, Food and Rural Affairs",
-  },
-  {
-    publicAuthorityId:
-      "department-for-housing-communities-and-local-government",
-    publicAuthorityDescription:
-      "Department for Housing, Communities and Local Government",
-  },
-  {
-    publicAuthorityId: "department-for-science-innovation-and-technology",
-    publicAuthorityDescription:
-      "Department for Science, Innovation and Technology",
-  },
-  {
-    publicAuthorityId: "department-for-transport",
-    publicAuthorityDescription: "Department for Transport",
-  },
-  {
-    publicAuthorityId: "department-for-work-and-pensions",
-    publicAuthorityDescription: "Department for Work and Pensions",
-  },
-  {
-    publicAuthorityId: "department-of-health-and-social-care",
-    publicAuthorityDescription: "Department of Health and Social Care",
-  },
-  {
-    publicAuthorityId: "foreign-commonwealth-and-development-office",
-    publicAuthorityDescription: "Foreign, Commonwealth and Development Office",
-  },
-  {
-    publicAuthorityId: "hm-treasury",
-    publicAuthorityDescription: "HM Treasury",
-  },
-  {
-    publicAuthorityId: "home-office",
-    publicAuthorityDescription: "Home Office",
-  },
-  {
-    publicAuthorityId: "ministry-of-defence",
-    publicAuthorityDescription: "Ministry of Defence",
-  },
-  {
-    publicAuthorityId: "ministry-of-justice",
-    publicAuthorityDescription: "Ministry of Justice",
-  },
-];
-
 export const PUBLIC_AUTHORITY_ERROR = {
   NO_SELECTION: "Please select a public authority",
 };
@@ -467,6 +390,7 @@ export const CLIENT_DECLARATION_ERROR = {
 
 export const HTTP_CREATED = 201;
 
+export const HTTP_OK = 200;
 export const HTTP_BAD_REQUEST = 400;
 export const HTTP_UNAUTHORIZED = 401;
 export const HTTP_FORBIDDEN = 403;

@@ -27,11 +27,9 @@ describe("SubmitApplicationAdaptor", () => {
 
       const testCoronersLetterId = uuidv4();
 
-      const selectedProceedings = [
-        {
-          proceedingId: "IQCN",
-        },
-      ];
+      const selectedProceeding = {
+        proceedingId: "IQCN",
+      };
 
       const selectedPublicAuthorities = [
         {
@@ -59,7 +57,7 @@ describe("SubmitApplicationAdaptor", () => {
           furtherInformation: "further information",
           clientRelationshipToDeceased: "child",
         },
-        proceedings: selectedProceedings,
+        proceeding: selectedProceeding,
         publicBodies: selectedPublicAuthorities,
         provider: {
           firmCode: "0A123B",
@@ -121,7 +119,9 @@ describe("SubmitApplicationAdaptor", () => {
           furtherInformation: "",
           clientRelationshipToDeceased: "child",
         },
-        proceedings: [],
+        proceeding: {
+          proceedingId: "IQCA",
+        },
         publicBodies: [],
         provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
       };
@@ -167,7 +167,9 @@ describe("SubmitApplicationAdaptor", () => {
             furtherInformation: "",
             clientRelationshipToDeceased: "child",
           },
-          proceedings: [],
+          proceeding: {
+            proceedingId: "IQCA",
+          },
           publicBodies: [],
           provider: { firmCode: "X", officeId: "Y", emailAddress: "z@z.com" },
         },

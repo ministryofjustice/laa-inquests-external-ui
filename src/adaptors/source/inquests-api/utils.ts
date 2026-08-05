@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosResponse } from "axios";
+import type { AxiosInstance, AxiosResponse, ResponseType } from "axios";
 
 interface PostToInquestsApiParams<TBody> {
   http: AxiosInstance;
@@ -32,12 +32,22 @@ interface GetFromInquestsApiParams {
   path: string;
   params?: Record<string, string>;
   accessToken: string | undefined;
+  responseType?: ResponseType;
+  validateStatus?: (status: number) => boolean;
 }
 
 export async function getFromInquestsApi<TResponse>(
   options: GetFromInquestsApiParams,
 ): Promise<AxiosResponse<TResponse>> {
-  const { http, baseUrl, path, params, accessToken } = options;
+  const {
+    http,
+    baseUrl,
+    path,
+    params,
+    accessToken,
+    responseType,
+    validateStatus,
+  } = options;
 
   if (typeof accessToken !== "string" || accessToken === "") {
     throw new Error("Missing access token for Inquests API request");
@@ -45,6 +55,8 @@ export async function getFromInquestsApi<TResponse>(
 
   return await http.get<TResponse>(`${baseUrl}${path}`, {
     params,
+    ...(responseType === undefined ? {} : { responseType }),
+    ...(validateStatus === undefined ? {} : { validateStatus }),
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

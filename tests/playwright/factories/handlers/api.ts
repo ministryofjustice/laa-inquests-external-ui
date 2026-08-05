@@ -14,6 +14,10 @@ const coronersLetterFileName = "test_coroners_letter.pdf";
 const evidenceFileId = "2f76cf9d-a90f-4f9c-8f27-bf22312c7138";
 const evidenceFileName = "test-evidence.pdf";
 
+// Sentinel claim evidence id used in E2E tests to trigger a 404 from the
+// claim evidence download endpoint.
+const NOT_FOUND_EVIDENCE_ID = "00000000-0000-0000-0000-000000000404";
+
 // As a temporary measure, until we stop using mocks for e2e tests, this is used to populate the database
 const bypassCreateApplicationMocks =
   process.env.PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS === "true";
@@ -80,6 +84,29 @@ export const apiHandlers = [
   http.delete(
     `${process.env.INQUESTS_API_URL}/claims/:claimEvidenceId`,
     () => new HttpResponse(null, { status: 204 }),
+  http.get(
+    `${process.env.INQUESTS_API_URL}/claims/:evidenceId`,
+    ({ request, params }) => {
+      const { evidenceId } = params;
+
+      if (evidenceId === NOT_FOUND_EVIDENCE_ID) {
+        return new HttpResponse(null, { status: 404 });
+      }
+
+      const url = new URL(request.url);
+      const disposition =
+        url.searchParams.get("disposition") === "inline"
+          ? "inline"
+          : "attachment";
+
+      return new HttpResponse("mock evidence file content", {
+        status: 200,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `${disposition}; filename="${evidenceFileName}"`,
+        },
+      });
+    },
   ),
   http.post("*/applications", async () => {
     if (bypassCreateApplicationMocks) {

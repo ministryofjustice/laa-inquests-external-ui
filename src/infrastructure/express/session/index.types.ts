@@ -11,6 +11,7 @@ declare module "express-session" {
     error: FormError;
     selectedProceeding?: Proceeding;
     proceedingOption?: Proceeding;
+    availablePublicAuthorities?: PublicAuthority[];
     selectedPublicAuthorities?: PublicAuthority[];
     clientHomeAddress?: ClientHomeAddress;
     clientCorrespondenceAddress?: ClientHomeAddress;
@@ -50,6 +51,7 @@ export interface ClaimSession {
 export interface ClaimEvidenceFile {
   id: string;
   fileName: string;
+  fileSize?: number;
 }
 
 export interface ClaimClientDetails {

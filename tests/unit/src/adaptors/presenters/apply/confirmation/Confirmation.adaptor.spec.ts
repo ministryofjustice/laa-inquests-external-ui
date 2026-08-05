@@ -402,7 +402,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -449,11 +449,9 @@ describe("Confirmation adaptor", () => {
       assert.equal(submitBody.deceased.furtherInformation, "Further info");
       assert.equal(submitBody.deceased.clientRelationshipToDeceased, "Spouse");
 
-      assert.deepEqual(submitBody.proceedings, [
-        {
-          proceedingId: "IQPC",
-        },
-      ]);
+      assert.deepEqual(submitBody.proceeding, {
+        proceedingId: "IQPC",
+      });
       assert.deepEqual(submitBody.publicBodies, [
         {
           publicBodyId: "Home Office",
@@ -504,7 +502,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -583,7 +581,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -649,7 +647,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -706,7 +704,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -767,7 +765,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];
@@ -834,7 +832,7 @@ describe("Confirmation adaptor", () => {
 
       requestStub.session.selectedPublicAuthorities = [
         {
-          publicAuthorityId: "home-office",
+          publicAuthorityId: "Home Office",
           publicAuthorityDescription: "Home Office",
         },
       ];

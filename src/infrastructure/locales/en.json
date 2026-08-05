@@ -44,7 +44,7 @@
         "title": "What does your client want legal aid for?",
         "search": {
           "label": "Search for legal proceedings",
-          "hint": "Select one proceeding at a time.",
+          "hint": "Select what the legal aid application is for",
           "options": []
         },
         "radio": {
@@ -53,10 +53,10 @@
         }
       },
       "publicAuthority": {
-        "title": "Which public authorities are listed as interested parties?",
+        "title": "Who are the listed public authorities on this application?",
         "search": {
           "label": "Search for public authorities",
-          "hint": "Select one authority at a time."
+          "hint": "Select all that apply"
         }
       },
       "RemovePublicAuthority": {

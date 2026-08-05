@@ -7,6 +7,9 @@ import type { SummaryListRow } from "../adaptors/presenters/apply/models/summary
 
 const TWO_DECIMAL_PLACES = 2;
 
+const BYTES_PER_KB = 1024;
+const MIN_DISPLAY_KB = 1;
+
 const GBP_CURRENCY_FORMATTER = new Intl.NumberFormat("en-GB", {
   style: "currency",
   currency: "GBP",
@@ -16,17 +19,24 @@ const GBP_CURRENCY_FORMATTER = new Intl.NumberFormat("en-GB", {
 
 export class Formatter {
   formatCurrency(inputValue: string | undefined): string {
-    if (typeof inputValue !== "string") {
-      return "";
-    }
-
     const parsedValue = Number(inputValue);
-
-    if (!Number.isFinite(parsedValue)) {
+    if (typeof inputValue === "string" && Number.isFinite(parsedValue)) {
+      return GBP_CURRENCY_FORMATTER.format(parsedValue);
+    } else {
       return "";
     }
+  }
 
-    return GBP_CURRENCY_FORMATTER.format(parsedValue);
+  formatFileSize(fileSize: number | undefined): string {
+    if (typeof fileSize !== "number" || !Number.isFinite(fileSize)) {
+      return "";
+    } else {
+      const filesizeInKB = Math.max(
+        MIN_DISPLAY_KB,
+        Math.round(fileSize / BYTES_PER_KB),
+      );
+      return `${filesizeInKB}KB`;
+    }
   }
 
   filterAvailableOptions(
@@ -46,7 +56,7 @@ export class Formatter {
 
   formatOptionsIntoList(proceedingOptions: Proceeding[]): Option[] {
     return proceedingOptions.map((proceeding) => ({
-      text: proceeding.proceedingName,
+      text: `${proceeding.proceedingId} - ${proceeding.proceedingName}`,
       value: proceeding.proceedingId,
     }));
   }

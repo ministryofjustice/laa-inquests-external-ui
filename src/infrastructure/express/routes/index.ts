@@ -38,6 +38,7 @@ import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js
 import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
+import { GetPublicAuthoritiesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/GetPublicAuthorities.adaptor.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
@@ -52,6 +53,9 @@ import { UploadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/U
 import { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import { DeleteEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/DeleteEvidence/DeleteEvidence.adaptor.js";
 import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
+import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
+import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
+import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
@@ -158,9 +162,14 @@ const proceedingsAdaptor = new ProceedingsAdaptor(
 
 const publicAuthorityFormatter = new Formatter();
 const publicAuthorityValidator = new PublicAuthorityValidator();
+const getPublicAuthoritiesSource = new GetPublicAuthoritiesAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
 const publicAuthorityAdaptor = new PublicAuthorityAdaptor(
   publicAuthorityValidator,
   publicAuthorityFormatter,
+  getPublicAuthoritiesSource,
 );
 
 const submitApplicationSource = new SubmitApplicationAdaptor(
@@ -234,12 +243,27 @@ const evidenceAdaptor = new EvidenceAdaptor(
   deleteEvidenceUseCase,
 );
 
+const downloadEvidenceSource = new DownloadEvidenceSource(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const downloadEvidenceUseCase = new DownloadEvidenceUseCase(
+  downloadEvidenceSource,
+);
+const downloadEvidenceAdaptor = new DownloadEvidenceAdaptor(
+  downloadEvidenceUseCase,
+);
+
 indexRouter.use(
   "/claim",
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
   createTotalClaimRouter(totalClaimRouter, totalClaimAdaptor),
-  createEvidenceRouter(evidenceRouter, evidenceAdaptor),
+  createEvidenceRouter(
+    evidenceRouter,
+    evidenceAdaptor,
+    downloadEvidenceAdaptor,
+  ),
   createConfirmAndSubmitClaimRouter(
     confirmAndSubmitClaimRouter,
     confirmAndSubmitAdaptor,
