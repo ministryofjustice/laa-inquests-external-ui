@@ -12,9 +12,6 @@ import {
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
-
-const SERVICE_UNAVAILABLE_MESSAGE =
-  "Service unavailable. Please try again later.";
 const HTTP_SUCCESS = 200;
 
 export class EvidenceAdaptor {

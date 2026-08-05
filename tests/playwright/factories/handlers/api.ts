@@ -84,6 +84,7 @@ export const apiHandlers = [
   http.delete(
     `${process.env.INQUESTS_API_URL}/claims/:claimEvidenceId`,
     () => new HttpResponse(null, { status: 204 }),
+  ),
   http.get(
     `${process.env.INQUESTS_API_URL}/claims/:evidenceId`,
     ({ request, params }) => {
