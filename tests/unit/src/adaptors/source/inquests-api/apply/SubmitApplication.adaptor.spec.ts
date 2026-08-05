@@ -45,7 +45,6 @@ describe("SubmitApplicationAdaptor", () => {
           dateOfBirth: formatDateDDMMYYYY(1990, "01", "01"),
           hasNoFixedAbode: false,
           correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-          isClientCorrespondenceRecipient: true,
           nationalInsuranceNumber: "AB123456C",
         },
         deceased: {
@@ -108,7 +107,6 @@ describe("SubmitApplicationAdaptor", () => {
           dateOfBirth: "01/01/1990",
           hasNoFixedAbode: false,
           correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-          isClientCorrespondenceRecipient: true,
         },
         deceased: {
           deceasedFirstName: "D",
@@ -156,7 +154,6 @@ describe("SubmitApplicationAdaptor", () => {
             dateOfBirth: "01/01/1990",
             hasNoFixedAbode: false,
             correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-            isClientCorrespondenceRecipient: true,
           },
           deceased: {
             deceasedFirstName: "D",
