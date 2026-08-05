@@ -163,7 +163,7 @@ describe("Formatter", () => {
 
       expect(options.length).to.equal(1);
       const [selectedOption] = options;
-      expect(selectedOption.text).to.equal("Death in police custody");
+      expect(selectedOption.text).to.equal("IQPC - Death in police custody");
       expect(selectedOption.value).to.equal("IQPC");
     });
     it("returns multiple option objects with text equal to the proceedingName and value equal to proceedingIds", () => {
@@ -175,7 +175,9 @@ describe("Formatter", () => {
 
       expect(options.length).to.equal(12);
       options.forEach((option, i) => {
-        expect(option.text).to.equal(allProceedings[i].proceedingName);
+        expect(option.text).to.equal(
+          `${allProceedings[i].proceedingId} - ${allProceedings[i].proceedingName}`,
+        );
         expect(option.value).to.equal(allProceedings[i].proceedingId);
       });
     });

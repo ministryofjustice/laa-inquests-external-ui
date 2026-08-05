@@ -80,11 +80,9 @@ export const SubmitApplicationRequestSchema = z.object({
     furtherInformation: z.string(),
     clientRelationshipToDeceased: z.string(),
   }),
-  proceedings: z.array(
-    z.object({
-      proceedingId: z.string(),
-    }),
-  ),
+  proceeding: z.object({
+    proceedingId: z.string(),
+  }),
   publicBodies: z.array(
     z.object({
       publicBodyId: z.string(),

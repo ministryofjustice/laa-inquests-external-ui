@@ -46,7 +46,7 @@ export class Formatter {
 
   formatOptionsIntoList(proceedingOptions: Proceeding[]): Option[] {
     return proceedingOptions.map((proceeding) => ({
-      text: proceeding.proceedingName,
+      text: `${proceeding.proceedingId} - ${proceeding.proceedingName}`,
       value: proceeding.proceedingId,
     }));
   }

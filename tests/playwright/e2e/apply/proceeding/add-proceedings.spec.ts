@@ -20,9 +20,12 @@ test.describe("Add proceedings", () => {
     await expect(continueButton).toBeVisible();
 
     for (const option of PROCEEDING_OPTIONS) {
-      const radio = await page.getByLabel(option.proceedingName, {
-        exact: true,
-      });
+      const radio = await page.getByLabel(
+        `${option.proceedingId} - ${option.proceedingName}`,
+        {
+          exact: true,
+        },
+      );
       await expect(radio).toBeVisible();
     }
   });
@@ -51,7 +54,7 @@ test.describe("Add proceedings", () => {
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
 
     const deathInPoliceCustodyRadio = await page.getByLabel(
-      "Death in police custody",
+      "IQPC - Death in police custody",
       { exact: true },
     );
     await deathInPoliceCustodyRadio.click();

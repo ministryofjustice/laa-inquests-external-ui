@@ -25,51 +25,51 @@ describe("Proceedings adaptor", () => {
         csrfToken: "abcdefg",
         proceedingOptions: [
           {
-            text: "Death in police custody",
+            text: "IQPC - Death in police custody",
             value: "IQPC",
           },
           {
-            text: "Death in prison",
+            text: "IQPO - Death in prison",
             value: "IQPO",
           },
           {
-            text: "Death during medical treatment",
+            text: "IQMT - Death during medical treatment",
             value: "IQMT",
           },
           {
-            text: "Death in mental health detention",
+            text: "IQMH - Death in mental health detention",
             value: "IQMH",
           },
           {
-            text: "Death relating to mental health care in the community",
+            text: "IQMC - Death relating to mental health care in the community",
             value: "IQMC",
           },
           {
-            text: "Death relating to other care in the community",
+            text: "IQCC - Death relating to other care in the community",
             value: "IQCC",
           },
           {
-            text: "Death relating to issues with condition/safety of housing",
+            text: "IQHO - Death relating to issues with condition/safety of housing",
             value: "IQHO",
           },
           {
-            text: "Death relating to a child’s care arrangements",
+            text: "IQCA - Death relating to a child’s care arrangements",
             value: "IQCA",
           },
           {
-            text: "Death relating to failure to prevent domestic violence",
+            text: "IQDV - Death relating to failure to prevent domestic violence",
             value: "IQDV",
           },
           {
-            text: "Death relating to issues in an educational setting",
+            text: "IQED - Death relating to issues in an educational setting",
             value: "IQED",
           },
           {
-            text: "Death relating to issues relating to transport",
+            text: "IQTR - Death relating to issues relating to transport",
             value: "IQTR",
           },
           {
-            text: "Other",
+            text: "IQOT - Other",
             value: "IQOT",
           },
         ],
