@@ -133,7 +133,7 @@ test.describe("Claim - confirm and submit", () => {
 
     await expect(card.getByRole("link", { name: "View" })).toHaveCount(1);
     await expect(
-      card.getByRole("link", { name: "Download (pdf 1KB)" }),
+      card.getByRole("link", { name: "Download (PDF 1KB)" }),
     ).toBeVisible();
   });
 
@@ -160,7 +160,7 @@ test.describe("Claim - confirm and submit", () => {
 
     const downloadLink = page
       .getByTestId("evidence-summary-list")
-      .getByRole("link", { name: "Download (pdf 1KB)" });
+      .getByRole("link", { name: "Download (PDF 1KB)" });
 
     await expect(downloadLink).toHaveAttribute(
       "href",
