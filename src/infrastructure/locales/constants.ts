@@ -1,4 +1,6 @@
 export const MAX_CHARACTER_LENGTH = 100;
+export const SERVICE_UNAVAILABLE_MESSAGE =
+  "Service unavailable. Please try again later.";
 
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
@@ -388,6 +390,7 @@ export const CLIENT_DECLARATION_ERROR = {
 
 export const HTTP_CREATED = 201;
 
+export const HTTP_OK = 200;
 export const HTTP_BAD_REQUEST = 400;
 export const HTTP_UNAUTHORIZED = 401;
 export const HTTP_FORBIDDEN = 403;

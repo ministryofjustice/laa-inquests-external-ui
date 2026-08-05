@@ -51,6 +51,9 @@ import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/Co
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
 import { UploadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/UploadEvidence.adaptor.js";
 import { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
+import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
+import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
+import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
@@ -232,12 +235,27 @@ const evidenceAdaptor = new EvidenceAdaptor(
   uploadEvidenceUseCase,
 );
 
+const downloadEvidenceSource = new DownloadEvidenceSource(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const downloadEvidenceUseCase = new DownloadEvidenceUseCase(
+  downloadEvidenceSource,
+);
+const downloadEvidenceAdaptor = new DownloadEvidenceAdaptor(
+  downloadEvidenceUseCase,
+);
+
 indexRouter.use(
   "/claim",
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
   createTotalClaimRouter(totalClaimRouter, totalClaimAdaptor),
-  createEvidenceRouter(evidenceRouter, evidenceAdaptor),
+  createEvidenceRouter(
+    evidenceRouter,
+    evidenceAdaptor,
+    downloadEvidenceAdaptor,
+  ),
   createConfirmAndSubmitClaimRouter(
     confirmAndSubmitClaimRouter,
     confirmAndSubmitAdaptor,

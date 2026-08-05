@@ -51,6 +51,7 @@ export interface ClaimSession {
 export interface ClaimEvidenceFile {
   id: string;
   fileName: string;
+  fileSize?: number;
 }
 
 export interface ClaimClientDetails {
