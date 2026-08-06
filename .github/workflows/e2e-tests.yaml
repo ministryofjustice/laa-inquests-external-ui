@@ -70,7 +70,18 @@ jobs:
             -e DB_HOST=127.0.0.1 \
             -e DB_PORT=5432 \
             ghcr.io/ministryofjustice/laa-inquests-api:latest \
-            alembic upgrade head && python bin/seed.py
+            alembic upgrade head
+
+      - name: Run API database seeding
+        run: |
+          docker run --rm --network host \
+            -e DB_USER=postgres \
+            -e DB_PASSWORD=postgres \
+            -e DB_NAME=api \
+            -e DB_HOST=127.0.0.1 \
+            -e DB_PORT=5432 \
+            ghcr.io/ministryofjustice/laa-inquests-api:latest \
+            python bin/seed.py
 
       # Without these seeds POST /applications fails with a FK violation and
       # the submit E2E test hangs on the client-declaration page.
