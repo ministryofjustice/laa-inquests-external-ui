@@ -70,7 +70,7 @@ jobs:
             -e DB_HOST=127.0.0.1 \
             -e DB_PORT=5432 \
             ghcr.io/ministryofjustice/laa-inquests-api:latest \
-            alembic upgrade head
+            alembic upgrade head && python bin/seed.py
 
       # Without these seeds POST /applications fails with a FK violation and
       # the submit E2E test hangs on the client-declaration page.
@@ -78,69 +78,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends postgresql-client
-
-      - name: Seed reference data for E2E submit test
-        env:
-          PGHOST: 127.0.0.1
-          PGPORT: "5432"
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGDATABASE: api
-          MSW_CORONERS_LETTER_ID: 1c84c788-23c4-49e7-a07e-6b391f09c116
-        run: |
-          set -euo pipefail
-
-          psql -v ON_ERROR_STOP=1 \
-               -v msw_id="${MSW_CORONERS_LETTER_ID}" <<'SQL'
-          INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
-          VALUES (:'msw_id', 'e2e-seed.pdf', 'e2e-seed.pdf')
-          ON CONFLICT (coroners_letter_id) DO NOTHING;
-
-          INSERT INTO proceeding (proceeding_id, proceeding_name, proceeding_description, category_of_law, certificate_type, level_of_service, matter_type, scope_limitation_heading, scope_description, substantive_cost_limitation)
-          VALUES
-            ('IQPC', 'Death in police custody',                                  'Death in police custody', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQPO', 'Death in prison',                                          'Death in prison', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQMT', 'Death during medical treatment',                           'Death during medical treatment', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQMH', 'Death in mental health detention',                         'Death in mental health detention', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQMC', 'Death relating to mental health care in the community',    'Death relating to mental health care in the community', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQCC', 'Death relating to other care in the community',            'Death relating to other care in the community', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQHO', 'Death relating to issues with condition/safety of housing','Death relating to issues with condition/safety of housing', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQCA', 'Death relating to a child’s care arrangements',            'Death relating to a child’s care arrangements', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQDV', 'Death relating to failure to prevent domestic violence',   'Death relating to failure to prevent domestic violence', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQED', 'Death relating to issues in an educational setting',       'Death relating to issues in an educational setting', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQTR', 'Death relating to issues relating to transport',           'Death relating to issues relating to transport', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000),
-            ('IQOT', 'Other',                                                    'Other', 'INQUESTS', 'SUBSTANTIVE', 'FULL_REPRESENTATION', 'INQUESTS', 'FINAL_HEARING', 'Seeded for E2E', 10000)
-          ON CONFLICT (proceeding_id) DO NOTHING;
-
-          INSERT INTO public_body (public_body_id, public_body_description)
-          VALUES
-            ('ATTORNEY_GENERAL',                                   'Attorney General''s Office'),
-            ('CABINET_OFFICE',                                     'Cabinet Office'),
-            ('DEPARTMENT_DEVOLVED_TO_WALES',                       'Department Devolved to Wales'),
-            ('DEPARTMENT_FOR_BUSINESS_AND_TRADE',                  'Department for Business and Trade'),
-            ('DEPARTMENT_FOR_CULTURE_MEDIA_AND_SPORT',             'Department for Culture, Media and Sport'),
-            ('DEPARTMENT_FOR_EDUCATION',                           'Department for Education'),
-            ('DEPARTMENT_FOR_ENERGY_SECURITY_AND_NET_ZERO',        'Department for Energy Security and Net Zero'),
-            ('DEPARTMENT_FOR_ENVIRONMENT_FOOD_AND_RURAL_AFFAIRS',  'Department for Environment, Food and Rural Affairs'),
-            ('DEPARTMENT_FOR_HOUSING_COMMUNITIES_AND_LOCAL_GOVERNMENT', 'Department for Housing, Communities and Local Government'),
-            ('DEPARTMENT_FOR_SCIENCE_INNOVATION_AND_TECHNOLOGY',   'Department for Science, Innovation and Technology'),
-            ('DEPARTMENT_FOR_TRANSPORT',                           'Department for Transport'),
-            ('DEPARTMENT_FOR_WORK_AND_PENSIONS',                   'Department for Work and Pensions'),
-            ('DEPARTMENT_OF_HEALTH_AND_SOCIAL_CARE',               'Department of Health and Social Care'),
-            ('FOREIGN_COMMONWEALTH_AND_DEVELOPMENT_OFFICE',        'Foreign, Commonwealth and Development Office'),
-            ('HM_TREASURY',                                        'HM Treasury'),
-            ('HOME_OFFICE',                                        'Home Office'),
-            ('MINISTRY_OF_DEFENCE',                                'Ministry of Defence'),
-            ('MINISTRY_OF_JUSTICE',                                'Ministry of Justice')
-          ON CONFLICT (public_body_id) DO NOTHING;
-          SQL
-
-          echo '--- Seed verification ---'
-          psql -v ON_ERROR_STOP=1 -c "
-            SELECT 'coroners_letter' AS table, COUNT(*) FROM coroners_letter
-            UNION ALL SELECT 'proceeding', COUNT(*) FROM proceeding
-            UNION ALL SELECT 'public_body', COUNT(*) FROM public_body;
-          "
 
       - name: Start API container
         env:
