@@ -22,6 +22,13 @@ export function createEvidenceRouter(
     },
   );
 
+  evidenceRouter.post(
+    "/evidence/delete",
+    async (req: Request, res: Response): Promise<void> => {
+      await evidenceAdaptor.processEvidenceDelete(req, res);
+    },
+  );
+
   evidenceRouter.get(
     "/evidence/:evidenceId/view",
     async (req: Request, res: Response): Promise<void> => {
