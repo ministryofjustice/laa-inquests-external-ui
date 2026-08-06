@@ -17,10 +17,9 @@ export class SeedApplicationAdaptor {
 
   async seedApplication(req: Request, res: Response): Promise<void> {
     const { session } = req;
-    const { accessToken, firmCode, officeId, providerEmail } = session;
+    const { accessToken, officeId, providerEmail } = session;
     if (
       accessToken === undefined ||
-      firmCode === undefined ||
       officeId === undefined ||
       providerEmail === undefined
     ) {
@@ -126,7 +125,6 @@ export class SeedApplicationAdaptor {
         },
       ],
       provider: {
-        firmCode: session.firmCode!,
         officeId: session.officeId!,
         emailAddress: session.providerEmail!,
       },

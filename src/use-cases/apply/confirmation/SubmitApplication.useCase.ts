@@ -98,7 +98,6 @@ export class SubmitApplicationUseCase {
         proceeding: this.#buildProceedingForSubmit(state),
         publicBodies: this.#buildPublicBodiesForSubmit(state),
         provider: {
-          firmCode: state.firmCode!,
           officeId: state.officeId!,
           emailAddress: state.providerEmail!,
         },

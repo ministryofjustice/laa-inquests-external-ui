@@ -35,7 +35,6 @@ export class EntraAuthAdaptor implements AuthPort {
     return {
       userId: result.account?.homeAccountId ?? result.uniqueId,
       userName: result.account?.name ?? undefined,
-      firmCode: this.#extractFirmCode(result.account?.idTokenClaims),
       officeId: this.#extractOfficeId(result.account?.idTokenClaims),
       providerEmail: result.account?.username ?? undefined,
       ...this.#getAccessTokenField(result),
@@ -49,16 +48,6 @@ export class EntraAuthAdaptor implements AuthPort {
       return { accessToken: result.accessToken };
     }
     return {};
-  }
-
-  #extractFirmCode(
-    claims: Record<string, unknown> | undefined,
-  ): string | undefined {
-    const value = claims?.FIRM_CODE;
-    if (typeof value === "string" && value !== "") {
-      return value;
-    }
-    return undefined;
   }
 
   #extractOfficeId(

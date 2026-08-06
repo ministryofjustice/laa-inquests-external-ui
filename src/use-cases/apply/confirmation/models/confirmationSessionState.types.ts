@@ -33,7 +33,6 @@ export interface ConfirmationSessionState {
   prevLaaReferenceInput?: string | null;
   selectedProceeding?: Proceeding;
   selectedPublicAuthorities?: PublicAuthority[];
-  firmCode?: string;
   officeId?: string;
   accessToken?: string;
   coronersLetterId?: string;

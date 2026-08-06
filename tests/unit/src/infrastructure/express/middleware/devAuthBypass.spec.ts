@@ -26,7 +26,6 @@ describe("seedDevAuthSession", () => {
 
     assert.equal(req.session.userId, "dev-user-id");
     assert.deepEqual(req.session.user, { name: "Developer User" });
-    assert.equal(req.session.firmCode, "0A123B");
     assert.equal(req.session.officeId, "001");
     assert.equal(req.session.providerEmail, "developer@example.com");
     assert.equal(req.session.accessToken, "dev-access-token");
