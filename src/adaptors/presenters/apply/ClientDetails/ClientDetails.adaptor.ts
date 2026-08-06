@@ -638,7 +638,7 @@ export class ClientDetailsAdaptor {
       return false;
     }
 
-    const candidate = value as CorrespondenceRecipient;
+    const candidate = value as Partial<CorrespondenceRecipient>;
     return (
       (candidate.recipientType === CORRESPONDENCE_RECIPIENT_TYPE.PERSON ||
         candidate.recipientType ===
