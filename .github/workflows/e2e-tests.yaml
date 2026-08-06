@@ -25,10 +25,8 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d api"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 5
+          --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
+          --health-timeout 3s --health-retries 5
 
     steps:
       - name: Checkout code
@@ -181,7 +179,7 @@ jobs:
         if: failure()
         run: docker logs inquests-api
 
-      - name: Add coroner's letter seed
+      - name: Dump seeded tables
         if: always()
         env:
           PGHOST: 127.0.0.1
@@ -190,9 +188,10 @@ jobs:
           PGPASSWORD: postgres
           PGDATABASE: api
         run: |
-          set -euo pipefail
+          set -uo pipefail
 
-          psql -v ON_ERROR_STOP=1 <<'SQL'
+          echo "::group::Seeded table contents"
+          psql -e -P pager=off <<'SQL'
           SELECT * FROM address;
           SELECT * FROM application;
           SELECT * FROM application_proceeding;
@@ -208,6 +207,7 @@ jobs:
           SELECT * FROM provider;
           SELECT * FROM public_body;
           SQL
+          echo "::endgroup::"
 
       - name: Stop API container
         if: always()
