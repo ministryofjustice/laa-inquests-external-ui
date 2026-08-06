@@ -181,6 +181,34 @@ jobs:
         if: failure()
         run: docker logs inquests-api
 
+      - name: Add coroner's letter seed
+        if: always()
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: api
+        run: |
+          set -euo pipefail
+
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          SELECT * FROM address;
+          SELECT * FROM application;
+          SELECT * FROM application_proceeding;
+          SELECT * FROM application_public_body;
+          SELECT * FROM claim;
+          SELECT * FROM claim_decision;
+          SELECT * FROM claim_evidence;
+          SELECT * FROM client;
+          SELECT * FROM coroners_letter;
+          SELECT * FROM deceased;
+          SELECT * FROM decision_reason;
+          SELECT * FROM proceeding;
+          SELECT * FROM provider;
+          SELECT * FROM public_body;
+          SQL
+
       - name: Stop API container
         if: always()
         run: docker rm -f inquests-api || true
