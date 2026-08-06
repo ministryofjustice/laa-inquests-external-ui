@@ -55,7 +55,6 @@ export default defineConfig({
     {
       name: "e2e - no auth",
       testIgnore: /e2e\/auth/,
-      testMatch: /case-search-results\.spec\.ts/, // TO SPEED UP THE TESTS TEMPORARILY
       use: {
         ...devices["Desktop Chrome"],
         storageState: AUTH_FILE,
