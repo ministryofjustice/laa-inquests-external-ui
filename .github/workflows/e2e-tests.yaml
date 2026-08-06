@@ -83,6 +83,24 @@ jobs:
             ghcr.io/ministryofjustice/laa-inquests-api:latest \
             python bin/seed.py
 
+      - name: Add coroner's letter seed
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: api
+          MSW_CORONERS_LETTER_ID: 1c84c788-23c4-49e7-a07e-6b391f09c116
+        run: |
+          set -euo pipefail
+
+          psql -v ON_ERROR_STOP=1 \
+               -v msw_id="${MSW_CORONERS_LETTER_ID}" <<'SQL'
+          INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
+          VALUES (:'msw_id', 'e2e-seed.pdf', 'e2e-seed.pdf')
+          ON CONFLICT (coroners_letter_id) DO NOTHING;
+          SQL
+
       # Without these seeds POST /applications fails with a FK violation and
       # the submit E2E test hangs on the client-declaration page.
       - name: Install Postgres client
