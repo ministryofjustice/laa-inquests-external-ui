@@ -25,10 +25,8 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d api"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 5
+          --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
+          --health-timeout 3s --health-retries 5
 
     steps:
       - name: Checkout code
@@ -191,7 +189,7 @@ jobs:
           SELECT * FROM application
           INNER JOIN deceased ON application.deceased_id=deceased.deceased_id
           INNER JOIN provider ON application.provider_id=provider.provider_id
-          WHERE application.laa_reference=1 AND provider.firm_code=1473;
+          WHERE application.laa_reference=1 AND provider.firm_code="1473";
 
           SELECT * FROM application
           INNER JOIN deceased ON application.deceased_id=deceased.deceased_id
