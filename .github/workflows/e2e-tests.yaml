@@ -25,8 +25,10 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
-          --health-timeout 3s --health-retries 5
+          --health-cmd "pg_isready -U postgres -d api"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -148,6 +150,63 @@ jobs:
       - name: Run Playwright tests
         run: |
           yarn seed-app
+        env:
+          CI: true
+          PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
+          # Add session-related environment variables
+          SESSION_SECRET: "playwright-test-secret"
+          SESSION_NAME: "sessionId"
+          NODE_ENV: "test"
+          # Add other required environment variables
+          SERVICE_NAME: "Inquests"
+          SERVICE_PHASE: "Alpha"
+          DEPARTMENT_NAME: "LAA Digital"
+          DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
+          CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
+          INQUESTS_API_URL: "http://127.0.0.1:8027"
+          SERVICE_URL: "https://www.gov.uk/legal-aid"
+          RATELIMIT_HEADERS_ENABLED: "true"
+          RATE_LIMIT_MAX: "10000"
+          RATE_WINDOW_MS: "900000"
+          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+          E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
+          E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
+          E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
+
+      - name: Add coroner's letter seed
+        if: always()
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: api
+        run: |
+          set -euo pipefail
+
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          SELECT * FROM address;
+          SELECT * FROM application;
+          SELECT * FROM application_proceeding;
+          SELECT * FROM application_public_body;
+          SELECT * FROM claim;
+          SELECT * FROM claim_decision;
+          SELECT * FROM claim_evidence;
+          SELECT * FROM client;
+          SELECT * FROM coroners_letter;
+          SELECT * FROM deceased;
+          SELECT * FROM decision_reason;
+          SELECT * FROM proceeding;
+          SELECT * FROM provider;
+          SELECT * FROM public_body;
+          SQL
+
+      - name: Run Playwright tests
+        run: |
+          yarn seed-app
           yarn test:e2e
         env:
           CI: true
@@ -178,36 +237,6 @@ jobs:
       - name: Show API logs on failure
         if: failure()
         run: docker logs inquests-api
-
-      - name: Dump seeded tables
-        if: always()
-        env:
-          PGHOST: 127.0.0.1
-          PGPORT: "5432"
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGDATABASE: api
-        run: |
-          set -uo pipefail
-
-          echo "::group::Seeded table contents"
-          psql -e -P pager=off <<'SQL'
-          SELECT * FROM address;
-          SELECT * FROM application;
-          SELECT * FROM application_proceeding;
-          SELECT * FROM application_public_body;
-          SELECT * FROM claim;
-          SELECT * FROM claim_decision;
-          SELECT * FROM claim_evidence;
-          SELECT * FROM client;
-          SELECT * FROM coroners_letter;
-          SELECT * FROM deceased;
-          SELECT * FROM decision_reason;
-          SELECT * FROM proceeding;
-          SELECT * FROM provider;
-          SELECT * FROM public_body;
-          SQL
-          echo "::endgroup::"
 
       - name: Stop API container
         if: always()
