@@ -123,8 +123,8 @@ jobs:
             -e DB_NAME=api \
             -e DB_HOST=127.0.0.1 \
             -e DB_PORT=5432 \
-            -e TEST_PROVIDER_API_BASE_URL \
-            -e TEST_PROVIDER_API_KEY \
+            -e PROVIDER_API_BASE_URL \
+            -e PROVIDER_API_KEY \
             -e GOV_NOTIFY_API_KEY \
             -e GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID \
             -e GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID \
