@@ -88,6 +88,12 @@ app.post("/claim/evidence/upload", upload.single("documents"), (req, res) => {
   });
 });
 
+app.post("/claim/evidence/delete", (req, res) => {
+  indexRouter(req, res, () => {
+    res.status(HTTP_NOT_FOUND).end();
+  });
+});
+
 setupCsrf(app);
 
 if (process.env.NODE_ENV === "production") {

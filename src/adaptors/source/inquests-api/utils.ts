@@ -62,3 +62,26 @@ export async function getFromInquestsApi<TResponse>(
     },
   });
 }
+
+interface DeleteFromInquestsApiParams {
+  http: AxiosInstance;
+  baseUrl: string;
+  path: string;
+  accessToken: string | undefined;
+}
+
+export async function deleteFromInquestsApi(
+  options: DeleteFromInquestsApiParams,
+): Promise<AxiosResponse> {
+  const { http, baseUrl, path, accessToken } = options;
+
+  if (typeof accessToken !== "string" || accessToken === "") {
+    throw new Error("Missing access token for Inquests API request");
+  }
+
+  return await http.delete(`${baseUrl}${path}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
