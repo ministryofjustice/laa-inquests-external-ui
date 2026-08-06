@@ -1,5 +1,28 @@
 import { test, expect } from "../../fixtures/index.js";
+import type { Page } from "@playwright/test";
 import assert from "assert";
+
+// Mirrors the ids/name returned by the mocked claim evidence endpoints in
+// tests/playwright/factories/handlers/api.ts
+const EVIDENCE_FILE_ID = "2f76cf9d-a90f-4f9c-8f27-bf22312c7138";
+const NOT_FOUND_EVIDENCE_ID = "00000000-0000-0000-0000-000000000404";
+
+async function uploadEvidence(page: Page): Promise<void> {
+  await page.goto("/claim/evidence");
+  await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.url().includes("/claim/evidence/upload") &&
+        response.request().method() === "POST" &&
+        response.status() === 201,
+    ),
+    page.setInputFiles("#documents", {
+      name: "test-evidence.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("fake evidence content"),
+    }),
+  ]);
+}
 
 test.describe("Claim - confirm and submit", () => {
   test.beforeEach(async ({ page }) => {
@@ -97,22 +120,90 @@ test.describe("Claim - confirm and submit", () => {
     await expect(card).toContainText("£133.33");
   });
 
-  test("renders the evidence card with a row per file and view/download links", async ({
+  test("renders the evidence card with a row per uploaded file and view/download links", async ({
     page,
   }) => {
+    await uploadEvidence(page);
+    await page.goto("/claim/check-your-answers");
+
     const card = page.getByTestId("evidence-summary-list");
 
     await expect(card).toContainText("Files");
-    await expect(card).toContainText("evidence-document-1.png");
-    await expect(card).toContainText("evidence-document-2.pdf");
+    await expect(card).toContainText("test-evidence.pdf");
 
-    await expect(card.getByRole("link", { name: "View" })).toHaveCount(2);
+    await expect(card.getByRole("link", { name: "View" })).toHaveCount(1);
     await expect(
-      card.getByRole("link", { name: "Download (png 57KB)" }),
+      card.getByRole("link", { name: "Download (PDF 1KB)" }),
     ).toBeVisible();
-    await expect(
-      card.getByRole("link", { name: "Download (pdf 112KB)" }),
-    ).toBeVisible();
+  });
+
+  test("View link opens the file inline in a new tab", async ({ page }) => {
+    await uploadEvidence(page);
+    await page.goto("/claim/check-your-answers");
+
+    const viewLink = page
+      .getByTestId("evidence-summary-list")
+      .getByRole("link", { name: "View" });
+
+    await expect(viewLink).toHaveAttribute(
+      "href",
+      `/claim/evidence/${EVIDENCE_FILE_ID}/view`,
+    );
+    await expect(viewLink).toHaveAttribute("target", "_blank");
+  });
+
+  test("Download link points to the download route without opening a new tab", async ({
+    page,
+  }) => {
+    await uploadEvidence(page);
+    await page.goto("/claim/check-your-answers");
+
+    const downloadLink = page
+      .getByTestId("evidence-summary-list")
+      .getByRole("link", { name: "Download (PDF 1KB)" });
+
+    await expect(downloadLink).toHaveAttribute(
+      "href",
+      `/claim/evidence/${EVIDENCE_FILE_ID}/download`,
+    );
+    await expect(downloadLink).not.toHaveAttribute("target", "_blank");
+  });
+
+  test("requesting the view route streams the file with an inline disposition", async ({
+    page,
+  }) => {
+    await uploadEvidence(page);
+
+    const response = await page.request.get(
+      `/claim/evidence/${EVIDENCE_FILE_ID}/view`,
+    );
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
+    expect(response.headers()["content-disposition"]).toContain("inline");
+  });
+
+  test("requesting the download route streams the file with an attachment disposition", async ({
+    page,
+  }) => {
+    await uploadEvidence(page);
+
+    const response = await page.request.get(
+      `/claim/evidence/${EVIDENCE_FILE_ID}/download`,
+    );
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-disposition"]).toContain("attachment");
+  });
+
+  test("renders the not found page when the evidence does not exist", async ({
+    page,
+  }) => {
+    const response = await page.request.get(
+      `/claim/evidence/${NOT_FOUND_EVIDENCE_ID}/view`,
+    );
+
+    expect(response.status()).toBe(404);
   });
 
   test("renders Change links pointing to the correct pages", async ({

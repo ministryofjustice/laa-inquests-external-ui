@@ -3,21 +3,25 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
+import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
 import {
   CLAIM_EVIDENCE_ERROR,
   HTTP_BAD_REQUEST,
   HTTP_CREATED,
+  HTTP_INTERNAL_SERVER_ERROR,
   HTTP_SERVICE_UNAVAILABLE,
   HTTP_UNPROCESSABLE_CONTENT,
 } from "#src/infrastructure/locales/constants.js";
 
 describe("Evidence adaptor", () => {
   let uploadEvidenceUseCase: StubbedInstance<UploadEvidenceUseCase>;
+  let deleteEvidenceUseCase: StubbedInstance<DeleteEvidenceUseCase>;
   let uploadEvidenceValidator: StubbedInstance<UploadEvidenceValidator>;
 
   beforeEach(() => {
     uploadEvidenceUseCase = stubInterface<UploadEvidenceUseCase>();
+    deleteEvidenceUseCase = stubInterface<DeleteEvidenceUseCase>();
     uploadEvidenceValidator = stubInterface<UploadEvidenceValidator>();
     uploadEvidenceValidator.validateEvidenceSelection.returns({});
     uploadEvidenceValidator.validateEvidenceUploadFile.returns({});
@@ -28,6 +32,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
 
       const responseStub = stubInterface<Response>();
@@ -49,6 +54,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
 
       const responseStub = stubInterface<Response>();
@@ -84,6 +90,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
 
       const responseStub = stubInterface<Response>();
@@ -121,6 +128,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
 
       const responseStub = stubInterface<Response>();
@@ -152,6 +160,7 @@ describe("Evidence adaptor", () => {
         buffer: Buffer.from("evidence-content"),
         mimetype: "application/pdf",
         originalname: evidenceFileName,
+        size: 16,
       } as Express.Multer.File;
       requestStub.body = {};
       return requestStub;
@@ -161,6 +170,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
       const requestStub = setupFileRequest();
       requestStub.body.uploadMode = "html";
@@ -192,6 +202,7 @@ describe("Evidence adaptor", () => {
         {
           id: evidenceFileId,
           fileName: evidenceFileName,
+          fileSize: 16,
         },
       ]);
       assert.equal(responseStub.redirect.callCount, 1);
@@ -204,6 +215,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
       const requestStub = setupFileRequest();
       requestStub.session.claim = {};
@@ -225,6 +237,7 @@ describe("Evidence adaptor", () => {
         {
           id: evidenceFileId,
           fileName: evidenceFileName,
+          fileSize: 16,
         },
       ]);
       assert.equal(responseStub.status.calledWith(HTTP_CREATED), true);
@@ -245,6 +258,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
       const requestStub = setupFileRequest();
       requestStub.body.uploadMode = "html";
@@ -275,6 +289,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
       const requestStub = setupFileRequest();
       const responseStub = stubInterface<Response>();
@@ -304,6 +319,7 @@ describe("Evidence adaptor", () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
         uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
       );
       const requestStub = setupFileRequest();
       requestStub.body.uploadMode = "html";
@@ -332,6 +348,106 @@ describe("Evidence adaptor", () => {
         },
         uploadedFiles: [],
       });
+    });
+
+    it("deletes evidence in no-js flow when delete input is posted via upload form", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = setupFileRequest();
+      requestStub.body = { uploadMode: "html", delete: "file-id-123" };
+      requestStub.session.claim = {
+        evidenceFiles: [
+          { id: "file-id-123", fileName: "to-delete.pdf" },
+          { id: "file-id-456", fileName: "keep.pdf" },
+        ],
+      };
+      const responseStub = stubInterface<Response>();
+
+      deleteEvidenceUseCase.execute.resolves({ status: "SUCCESS" });
+
+      await adaptor.processEvidenceUpload(requestStub, responseStub);
+
+      assert.equal(uploadEvidenceUseCase.execute.callCount, 0);
+      assert.deepEqual(requestStub.session.claim?.evidenceFiles, [
+        { id: "file-id-456", fileName: "keep.pdf" },
+      ]);
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(responseStub.redirect.getCall(0).args[0], "/claim/evidence");
+    });
+  });
+
+  describe("processEvidenceDelete", () => {
+    it("returns 200 and removes file from session when delete succeeds", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = stubInterface<Request>();
+      requestStub.body = { delete: "file-id-123" };
+      requestStub.session.claim = {
+        evidenceFiles: [
+          { id: "file-id-123", fileName: "delete.pdf" },
+          { id: "file-id-456", fileName: "keep.pdf" },
+        ],
+      };
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+
+      deleteEvidenceUseCase.execute.resolves({ status: "SUCCESS" });
+
+      await adaptor.processEvidenceDelete(requestStub, responseStub);
+
+      assert.equal(responseStub.status.calledWith(200), true);
+      assert.equal(responseStub.json.calledWith({ success: true }), true);
+      assert.deepEqual(requestStub.session.claim?.evidenceFiles, [
+        { id: "file-id-456", fileName: "keep.pdf" },
+      ]);
+    });
+
+    it("returns bad request when evidence file id is missing", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = stubInterface<Request>();
+      requestStub.body = {};
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+
+      await adaptor.processEvidenceDelete(requestStub, responseStub);
+
+      assert.equal(responseStub.status.calledWith(HTTP_BAD_REQUEST), true);
+      assert.equal(responseStub.json.callCount, 1);
+    });
+
+    it("returns internal server error when delete fails", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = stubInterface<Request>();
+      requestStub.body = { delete: "file-id-123" };
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+
+      deleteEvidenceUseCase.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: "UPSTREAM_REJECTED",
+      });
+
+      await adaptor.processEvidenceDelete(requestStub, responseStub);
+
+      assert.equal(
+        responseStub.status.calledWith(HTTP_INTERNAL_SERVER_ERROR),
+        true,
+      );
+      assert.equal(responseStub.json.callCount, 1);
     });
   });
 });

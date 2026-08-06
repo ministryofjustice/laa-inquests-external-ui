@@ -145,6 +145,44 @@ test.describe("Claim - evidence", () => {
 
     await expect(page).toHaveURL("/claim/check-your-answers");
   });
+
+  test("deletes uploaded evidence using javascript multi-file uploader", async ({
+    page,
+  }) => {
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+
+    const deleteButton = page.getByRole("button", {
+      name: /Delete test-evidence\.pdf/i,
+    });
+
+    const [deleteResponse] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/delete") &&
+          r.request().method() === "POST",
+      ),
+      deleteButton.click(),
+    ]);
+
+    expect(deleteResponse.status()).toBe(200);
+    await expect(
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: "test-evidence.pdf" }),
+    ).toHaveCount(0);
+  });
 });
 
 test.describe("Claim - evidence (no javascript)", () => {

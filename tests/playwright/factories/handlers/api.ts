@@ -14,6 +14,10 @@ const coronersLetterFileName = "test_coroners_letter.pdf";
 const evidenceFileId = "2f76cf9d-a90f-4f9c-8f27-bf22312c7138";
 const evidenceFileName = "test-evidence.pdf";
 
+// Sentinel claim evidence id used in E2E tests to trigger a 404 from the
+// claim evidence download endpoint.
+const NOT_FOUND_EVIDENCE_ID = "00000000-0000-0000-0000-000000000404";
+
 // As a temporary measure, until we stop using mocks for e2e tests, this is used to populate the database
 const bypassCreateApplicationMocks =
   process.env.PLAYWRIGHT_BYPASS_CREATE_APPLICATION_MOCKS === "true";
@@ -26,11 +30,9 @@ const FORCE_REJECTED_LAA_REFERENCE = "299";
 export const apiHandlers = [
   http.get("*/applications/search", ({ request }) => {
     const url = new URL(request.url);
-    if (url.searchParams.get("laa_reference") !== "force-422") {
-      if (url.searchParams.get("laa_reference") !== "force-rejected") {
-        return passthrough();
-      }
+    const laaReference = url.searchParams.get("laa_reference");
 
+    if (laaReference === "force-rejected") {
       return HttpResponse.json([
         {
           laaReference: 299,
@@ -44,18 +46,38 @@ export const apiHandlers = [
         },
       ]);
     }
-    return HttpResponse.json([
-      {
-        laaReference: 422,
-        clientFirstName: "Force",
-        clientLastName: "422",
-        clientDateOfBirth: "01/01/2000",
-        dateSubmitted: "2026-01-01T00:00:00",
-        firmName: "Test Firm",
-        firmNumber: "123",
-        overallDecision: "PENDING",
-      },
-    ]);
+
+    if (laaReference === "force-422") {
+      return HttpResponse.json([
+        {
+          laaReference: 422,
+          clientFirstName: "Force",
+          clientLastName: "422",
+          clientDateOfBirth: "01/01/2000",
+          dateSubmitted: "2026-01-01T00:00:00",
+          firmName: "Test Firm",
+          firmNumber: "123",
+          overallDecision: "PENDING",
+        },
+      ]);
+    }
+
+    if (laaReference === "1") {
+      return HttpResponse.json([
+        {
+          laaReference: 1,
+          clientFirstName: "Seed",
+          clientLastName: "Provider",
+          clientDateOfBirth: "01-01-1990",
+          dateSubmitted: "2026-08-06T13:41:38.089Z",
+          firmName: "Seed",
+          firmNumber: "Seed",
+          overallDecision: "PENDING",
+        },
+      ]);
+    }
+
+    return HttpResponse.json([]);
   }),
   http.post(
     `${process.env.INQUESTS_API_URL}/applications/upload-coroners-letter`,
@@ -76,6 +98,34 @@ export const apiHandlers = [
       },
       { status: 201 },
     ),
+  ),
+  http.delete(
+    `${process.env.INQUESTS_API_URL}/claims/:claimEvidenceId`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
+  http.get(
+    `${process.env.INQUESTS_API_URL}/claims/:evidenceId`,
+    ({ request, params }) => {
+      const { evidenceId } = params;
+
+      if (evidenceId === NOT_FOUND_EVIDENCE_ID) {
+        return new HttpResponse(null, { status: 404 });
+      }
+
+      const url = new URL(request.url);
+      const disposition =
+        url.searchParams.get("disposition") === "inline"
+          ? "inline"
+          : "attachment";
+
+      return new HttpResponse("mock evidence file content", {
+        status: 200,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `${disposition}; filename="${evidenceFileName}"`,
+        },
+      });
+    },
   ),
   http.post("*/applications", async () => {
     if (bypassCreateApplicationMocks) {
