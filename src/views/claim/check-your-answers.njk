@@ -112,6 +112,19 @@
             },
             rows: [
               {
+                key: { text: "Total at 0%" },
+                value: { text: cost.zeroVatTotal },
+                actions: {
+                  items: [
+                    {
+                      href: "/claim/total-cost",
+                      text: "Change",
+                      visuallyHiddenText: "total at 0%"
+                    }
+                  ]
+                }
+              },
+              {
                 key: { text: "Net total at 20%" },
                 value: { text: cost.netTotal },
                 actions: {

@@ -218,16 +218,24 @@ export class ConfirmAndSubmitAdaptor {
   }
 
   #buildCostDetails(claim?: ClaimSession): {
+    zeroVatTotal: string;
     netTotal: string;
     grossTotal: string;
   } {
     return {
-      netTotal: this.#formatMoney(claim?.netTotal),
-      grossTotal: this.#formatMoney(claim?.grossTotal),
+      zeroVatTotal: this.#formatMoneyOrNone(claim?.zeroVatTotal),
+      netTotal: this.#formatMoneyOrNone(claim?.netTotal),
+      grossTotal: this.#formatMoneyOrNone(claim?.grossTotal),
     };
   }
 
-  #formatMoney(inputValue: string | undefined): string {
-    return this.formatter.formatCurrency(inputValue);
+  #formatMoneyOrNone(inputValue: string | undefined): string {
+    const formattedCurrency = this.formatter.formatCurrency(inputValue);
+
+    if (formattedCurrency === "") {
+      return "None";
+    } else {
+      return formattedCurrency;
+    }
   }
 }
