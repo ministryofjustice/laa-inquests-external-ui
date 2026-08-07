@@ -105,7 +105,6 @@ export class SeedApplicationAdaptor {
         correspondenceAddressSource:
           CORRESPONDENCE_ADDRESS_SOURCE.USE_PROVIDER_ADDRESS,
         correspondenceAddress: null,
-        isClientCorrespondenceRecipient: true,
       },
       deceased: {
         deceasedFirstName: "Deceased",
