@@ -102,6 +102,7 @@ describe("ConfirmAndSubmit adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.session.claim = {
+        zeroVatTotal: "10",
         netTotal: "1000",
         grossTotal: "1200",
       };
@@ -111,11 +112,12 @@ describe("ConfirmAndSubmit adaptor", () => {
       const viewModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
+      assert.equal(viewModel.cost.zeroVatTotal, "£10.00");
       assert.equal(viewModel.cost.netTotal, "£1,000.00");
       assert.equal(viewModel.cost.grossTotal, "£1,200.00");
     });
 
-    it("returns empty strings for cost details when session cost values are missing", () => {
+    it("returns None for cost details when session cost values are missing", () => {
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 
       const responseStub = stubInterface<Response>();
@@ -128,8 +130,9 @@ describe("ConfirmAndSubmit adaptor", () => {
       const viewModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
-      assert.equal(viewModel.cost.netTotal, "");
-      assert.equal(viewModel.cost.grossTotal, "");
+      assert.equal(viewModel.cost.zeroVatTotal, "None");
+      assert.equal(viewModel.cost.netTotal, "None");
+      assert.equal(viewModel.cost.grossTotal, "None");
       assert.deepEqual(viewModel.evidence.uploadedFiles, []);
     });
 
