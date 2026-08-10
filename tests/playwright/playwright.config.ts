@@ -43,16 +43,6 @@ export default defineConfig({
       testMatch: /auth\.setup\.ts/,
     },
     {
-      name: "seed application",
-      testDir: "./setup",
-      testMatch: /seedApplication\.setup\.ts/,
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: AUTH_FILE,
-      },
-      dependencies: ["setup"],
-    },
-    {
       name: "e2e - no auth",
       testIgnore: /e2e\/auth/,
       use: {

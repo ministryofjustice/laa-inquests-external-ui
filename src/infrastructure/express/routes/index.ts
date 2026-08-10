@@ -60,10 +60,6 @@ import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
-const TEST_SEED_ROUTER_MODULE_PATH =
-  "#public/src/infrastructure/express/routes/test/seedApplication.router.js";
-const TEST_SEED_ADAPTOR_MODULE_PATH =
-  "#public/src/adaptors/presenters/test/SeedApplication/SeedApplication.adaptor.js";
 
 // Create a new router
 const indexRouter = express.Router();
@@ -279,38 +275,5 @@ indexRouter.use(
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
   createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
-
-if (process.env.NODE_ENV === "test") {
-  const { createSeedApplicationRouter } = (await import(
-    TEST_SEED_ROUTER_MODULE_PATH
-  )) as {
-    createSeedApplicationRouter: (
-      seedApplicationRouter: express.Router,
-      seedApplicationAdaptor: unknown,
-    ) => express.Router;
-  };
-  const { SeedApplicationAdaptor } = (await import(
-    TEST_SEED_ADAPTOR_MODULE_PATH
-  )) as {
-    SeedApplicationAdaptor: new (
-      submitApplicationSource: SubmitApplicationAdaptor,
-      uploadCoronersLetterSource: UploadCoronersLetterAdaptor,
-    ) => {
-      seedApplication: (req: Request, res: Response) => Promise<void>;
-    };
-  };
-
-  const seedApplicationRouter = express.Router();
-
-  const seedApplicationAdaptor = new SeedApplicationAdaptor(
-    submitApplicationSource,
-    uploadCoronersLetterSource,
-  );
-
-  indexRouter.use(
-    "/test/seed",
-    createSeedApplicationRouter(seedApplicationRouter, seedApplicationAdaptor),
-  );
-}
 
 export default indexRouter;
