@@ -83,14 +83,22 @@ test.describe("Claim - confirm and submit", () => {
     const card = page.getByTestId("cost-summary-list");
 
     await expect(card).toContainText("Total claim cost");
+    await expect(card).toContainText("Total at 0%");
     await expect(card).toContainText("Net total at 20%");
     await expect(card).toContainText("Gross total at 20%");
+  });
+
+  test("renders None for each missing cost value", async ({ page }) => {
+    const card = page.getByTestId("cost-summary-list");
+
+    await expect(card.getByText("None", { exact: true })).toHaveCount(3);
   });
 
   test("renders the cost card with values entered on the total-cost page", async ({
     page,
   }) => {
     await page.goto("/claim/total-cost");
+    await page.getByLabel("Total for costs charged at 0% VAT").fill("10");
     await page
       .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
       .fill("111.11");
@@ -116,6 +124,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.waitForURL("**/claim/check-your-answers");
 
     const card = page.getByTestId("cost-summary-list");
+    await expect(card).toContainText("£10.00");
     await expect(card).toContainText("£111.11");
     await expect(card).toContainText("£133.33");
   });
@@ -223,6 +232,9 @@ test.describe("Claim - confirm and submit", () => {
     ).toHaveAttribute("href", "/claim/subtype");
 
     const cost = page.getByTestId("cost-summary-list");
+    await expect(
+      cost.getByRole("link", { name: "Change total at 0%" }),
+    ).toHaveAttribute("href", "/claim/total-cost");
     await expect(
       cost.getByRole("link", { name: "Change net total at 20%" }),
     ).toHaveAttribute("href", "/claim/total-cost");
