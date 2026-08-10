@@ -28,6 +28,22 @@ const FORCE_422_LAA_REFERENCE = "422";
 const FORCE_REJECTED_LAA_REFERENCE = "299";
 
 export const apiHandlers = [
+  http.get("*/applications/public-bodies", () =>
+    HttpResponse.json([
+      {
+        publicBodyId: "DEPARTMENT_FOR_TRANSPORT",
+        publicBodyDescription: "Department for Transport",
+      },
+      {
+        publicBodyId: "MINISTRY_OF_JUSTICE",
+        publicBodyDescription: "Ministry of Justice",
+      },
+      {
+        publicBodyId: "MINISTRY_OF_DEFENCE",
+        publicBodyDescription: "Ministry of Defence",
+      },
+    ]),
+  ),
   http.get("*/applications/search", ({ request }) => {
     const url = new URL(request.url);
     const laaReference = url.searchParams.get("laa_reference");
