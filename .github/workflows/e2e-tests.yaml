@@ -153,38 +153,37 @@ jobs:
       # - name: Create auth state directory
       #   run: mkdir -p tests/playwright/.auth
 
-      - name: Run Playwright tests
-        run: |
-          yarn seed-app
-        env:
-          CI: true
-          PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
-          # Add session-related environment variables
-          SESSION_SECRET: "playwright-test-secret"
-          SESSION_NAME: "sessionId"
-          NODE_ENV: "test"
-          # Add other required environment variables
-          SERVICE_NAME: "Inquests"
-          SERVICE_PHASE: "Alpha"
-          DEPARTMENT_NAME: "LAA Digital"
-          DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
-          CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
-          INQUESTS_API_URL: "http://127.0.0.1:8027"
-          SERVICE_URL: "https://www.gov.uk/legal-aid"
-          RATELIMIT_HEADERS_ENABLED: "true"
-          RATE_LIMIT_MAX: "10000"
-          RATE_WINDOW_MS: "900000"
-          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
-          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
-          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
-          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
-          E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
-          E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
-          E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
+      # - name: Run Playwright tests
+      #   run: |
+      #     yarn seed-app
+      #   env:
+      #     CI: true
+      #     PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
+      #     # Add session-related environment variables
+      #     SESSION_SECRET: "playwright-test-secret"
+      #     SESSION_NAME: "sessionId"
+      #     NODE_ENV: "test"
+      #     # Add other required environment variables
+      #     SERVICE_NAME: "Inquests"
+      #     SERVICE_PHASE: "Alpha"
+      #     DEPARTMENT_NAME: "LAA Digital"
+      #     DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
+      #     CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
+      #     INQUESTS_API_URL: "http://127.0.0.1:8027"
+      #     SERVICE_URL: "https://www.gov.uk/legal-aid"
+      #     RATELIMIT_HEADERS_ENABLED: "true"
+      #     RATE_LIMIT_MAX: "10000"
+      #     RATE_WINDOW_MS: "900000"
+      #     AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+      #     AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+      #     AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+      #     INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+      #     E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
+      #     E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
+      #     E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
 
       - name: Run Playwright tests
         run: |
-          yarn seed-app
           yarn test:e2e
         env:
           CI: true
