@@ -4,6 +4,7 @@ import { getAndUpdateFormFields } from "#tests/playwright/fixtures/pages/Apply.j
 test.describe("Client details - correspondence address source", () => {
   test("renders source page with title, guidance, options and hint", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/apply/client-details/correspondence-address-source");
 
@@ -34,6 +35,8 @@ test.describe("Client details - correspondence address source", () => {
     await expect(officeAddress).toBeVisible();
     await expect(officeHint).toBeVisible();
     await expect(continueButton).toHaveText("Continue");
+
+    await checkAccessibility();
   });
 
   test("shows validation error when no option is selected", async ({

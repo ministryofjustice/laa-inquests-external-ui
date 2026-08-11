@@ -36,11 +36,15 @@ test.describe("Claim - confirm and submit", () => {
     await page.goto("/claim/check-your-answers");
   });
 
-  test("renders back link to the evidence page", async ({ page }) => {
+  test("renders back link to the evidence page", async ({
+    page,
+    checkAccessibility,
+  }) => {
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
     await expect(backLink).toBeVisible();
     await expect(backLink).toHaveAttribute("href", "/claim/evidence");
+    await checkAccessibility();
   });
 
   test("renders the page heading", async ({ page }) => {

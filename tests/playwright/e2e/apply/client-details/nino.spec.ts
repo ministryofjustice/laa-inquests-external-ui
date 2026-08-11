@@ -2,7 +2,10 @@ import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../../fixtures/index.js";
 
 test.describe("Client details - NINO page", () => {
-  test("renders NINO page header and back link", async ({ page }) => {
+  test("renders NINO page header and back link", async ({
+    page,
+    checkAccessibility,
+  }) => {
     page.goto("/apply/client-details/nino");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -43,6 +46,8 @@ test.describe("Client details - NINO page", () => {
     await expect(page.url()).toContain(
       "apply/client-details/has-prev-application",
     );
+
+    await checkAccessibility();
   });
   test.describe("render validation errors", () => {
     test("if no radio selected for nino input", async ({ page }) => {

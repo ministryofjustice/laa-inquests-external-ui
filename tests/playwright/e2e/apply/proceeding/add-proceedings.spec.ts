@@ -7,6 +7,7 @@ import { test, expect } from "#tests/playwright/fixtures/index.js";
 test.describe("Add proceedings", () => {
   test("renders expected proceeding page heading, proceeding options and continue button", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/apply/proceeding");
 
@@ -28,6 +29,8 @@ test.describe("Add proceedings", () => {
       );
       await expect(radio).toBeVisible();
     }
+
+    await checkAccessibility();
   });
   test("renders error message on clicking continue without selecting a proceeding", async ({
     page,

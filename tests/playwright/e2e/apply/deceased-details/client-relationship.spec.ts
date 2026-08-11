@@ -18,7 +18,10 @@ test.describe("Provider can", () => {
     form = await page.getByTestId("deceased-client-relationship-form");
   });
 
-  test("view deceased client relationship page", async ({ page }) => {
+  test("view deceased client relationship page", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await validateHeader(
       page,
       "Does your client meet the definition of a family member?",
@@ -44,6 +47,8 @@ test.describe("Provider can", () => {
       form,
       "Please describe the nature of the relationship between your client and the deceased.",
     );
+
+    await checkAccessibility();
   });
 
   test("continue to coroners reference when they've filled in client relationship", async ({

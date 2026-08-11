@@ -17,7 +17,10 @@ test.describe("Provider can", () => {
     form = await page.getByTestId("deceased-date-of-death-form");
   });
 
-  test("view deceased date of death page", async ({ page }) => {
+  test("view deceased date of death page", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await validateHeader(page, "What was their date of death?", 2);
     await validateBackButton(page, "/apply/deceased-details/name");
     await validateFormAttributes(form, "/apply/deceased-details/dod");
@@ -26,6 +29,8 @@ test.describe("Provider can", () => {
 
     const dateOfDeathInput = await form.getByText("Date of death");
     await expect(dateOfDeathInput).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test.describe("view validation errors when", () => {

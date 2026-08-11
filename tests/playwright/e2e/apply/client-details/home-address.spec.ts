@@ -31,7 +31,10 @@ const expectedHomeAddressErrors = {
 };
 
 test.describe("Client details - home address", () => {
-  test("renders home address page header and back link", async ({ page }) => {
+  test("renders home address page header and back link", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await page.goto("/apply/client-details/home-address");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -63,6 +66,8 @@ test.describe("Client details - home address", () => {
     await expect(hasNoFixedAbode).toBeVisible();
     await expect(continueButton).toHaveText("Continue");
     await expect(continueButton).toHaveAttribute("type", "submit");
+
+    await checkAccessibility();
   });
 
   test("continues when no fixed abode is selected", async ({ page }) => {

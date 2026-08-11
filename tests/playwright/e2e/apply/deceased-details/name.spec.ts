@@ -20,7 +20,7 @@ test.describe("Provider can", () => {
     form = await page.getByTestId("deceased-details-form");
   });
 
-  test("view deceased name page", async ({ page }) => {
+  test("view deceased name page", async ({ page, checkAccessibility }) => {
     await validateHeader(page, DECEASED_NAME_PAGE.HEADING, 2);
     await validateBackButton(page, DECEASED_NAME_PAGE.BACK_PATH);
     await validateFormAttributes(form, DECEASED_NAME_PAGE.FORM_PATH);
@@ -33,6 +33,8 @@ test.describe("Provider can", () => {
     });
     await expect(firstNameLabel).toBeVisible();
     await expect(lastNameLabel).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("continue to deceased date of death when they've filled in deceased name", async ({

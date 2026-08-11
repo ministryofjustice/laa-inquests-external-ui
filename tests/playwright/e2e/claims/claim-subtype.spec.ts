@@ -5,11 +5,15 @@ test.describe("Claim - claim subtype", () => {
     await page.goto("/claim/subtype");
   });
 
-  test("renders back link to claim type", async ({ page }) => {
+  test("renders back link to claim type", async ({
+    page,
+    checkAccessibility,
+  }) => {
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
     await expect(backLink).toBeVisible();
     await expect(backLink).toHaveAttribute("href", "/claim/type");
+    await checkAccessibility();
   });
 
   test("renders page heading", async ({ page }) => {

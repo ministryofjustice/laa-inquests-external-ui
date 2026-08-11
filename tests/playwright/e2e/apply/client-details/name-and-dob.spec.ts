@@ -4,7 +4,10 @@ import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { getAndUpdateFormFields } from "#tests/playwright/fixtures/pages/Apply.js";
 
 test.describe("Client details - name and dob", () => {
-  test("renders basic details header and back link", async ({ page }) => {
+  test("renders basic details header and back link", async ({
+    page,
+    checkAccessibility,
+  }) => {
     page.goto("/apply/client-details/name-and-dob");
     const clientDetailsHeading = await page.getByRole("heading", {
       level: 2,
@@ -16,6 +19,8 @@ test.describe("Client details - name and dob", () => {
 
     await expect(backButton).toBeVisible();
     await expect(backButton).toHaveAttribute("href", "/apply");
+
+    await checkAccessibility();
   });
 
   test("renders basic client details form", async ({ page }) => {
