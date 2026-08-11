@@ -109,7 +109,7 @@ export class CaseSearchAdaptor {
       (c) => c.reference === selectedReference,
     );
 
-    if (!selectedClient) {
+    if (selectedClient === undefined) {
       res.redirect("/claim/results");
       return;
     }
