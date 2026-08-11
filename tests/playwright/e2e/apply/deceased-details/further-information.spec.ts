@@ -18,7 +18,10 @@ test.describe("Provider can", () => {
     form = await page.getByTestId("deceased-further-information-form");
   });
 
-  test("view deceased details further information page", async ({ page }) => {
+  test("view deceased details further information page", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await validateHeader(
       page,
       "Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?",
@@ -35,6 +38,8 @@ test.describe("Provider can", () => {
       form,
       "Please provide any details available of linked or bridged inquests",
     );
+
+    await checkAccessibility();
   });
 
   test("continue to confirmation page", async ({ page }) => {

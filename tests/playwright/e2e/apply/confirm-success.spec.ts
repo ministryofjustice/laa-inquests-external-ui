@@ -1,7 +1,10 @@
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Apply - confirm success", () => {
-  test("renders confirm success page header", async ({ page }) => {
+  test("renders confirm success page header", async ({
+    page,
+    checkAccessibility,
+  }) => {
     page.goto("/apply/confirmation/success");
 
     const confirmSuccessHeading = await page.getByRole("heading", {
@@ -12,6 +15,8 @@ test.describe("Apply - confirm success", () => {
 
     await expect(confirmSuccessHeading).toBeVisible();
     await expect(caseRefHeading).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("renders confirm success page content", async ({ page }) => {

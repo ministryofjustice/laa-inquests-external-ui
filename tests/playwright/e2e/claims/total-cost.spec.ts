@@ -5,13 +5,15 @@ test.describe("Claim - total cost", () => {
     await page.goto("/claim/total-cost");
   });
 
-  test("renders page heading", async ({ page }) => {
+  test("renders page heading", async ({ page, checkAccessibility }) => {
     await expect(
       page.getByRole("heading", {
         level: 1,
         name: "What is your total claim cost?",
       }),
     ).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("renders continue button", async ({ page }) => {

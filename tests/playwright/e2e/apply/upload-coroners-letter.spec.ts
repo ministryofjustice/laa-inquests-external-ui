@@ -15,7 +15,10 @@ test.describe("Provider can", () => {
     form = page.getByTestId("upload-coroners-letter-form");
   });
 
-  test("view the upload coroners letter evidence form", async ({ page }) => {
+  test("view the upload coroners letter evidence form", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await validateHeader(page, "Upload coroner's letter", 1);
     await validateBackButton(page, "/apply/public-authority");
     await validateFormAttributes(form, "/apply/upload-coroners-letter");
@@ -24,5 +27,6 @@ test.describe("Provider can", () => {
 
     const uploadFormButton = form.getByLabel("Attach a file");
     await expect(uploadFormButton).toBeVisible();
+    await checkAccessibility();
   });
 });

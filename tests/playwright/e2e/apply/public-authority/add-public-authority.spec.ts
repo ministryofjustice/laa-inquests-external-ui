@@ -3,6 +3,7 @@ import { test, expect } from "#tests/playwright/fixtures/index.js";
 test.describe("Add public authority", () => {
   test("renders public authority page with checkboxes and continue button", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/apply/public-authority");
 
@@ -17,6 +18,8 @@ test.describe("Add public authority", () => {
 
     const checkboxCount = await checkboxes.count();
     expect(checkboxCount).toBeGreaterThan(0);
+
+    await checkAccessibility();
   });
 
   test("redirects to upload coroner's letter after selecting a single public authority", async ({

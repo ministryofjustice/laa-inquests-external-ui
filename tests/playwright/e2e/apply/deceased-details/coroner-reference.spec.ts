@@ -17,7 +17,10 @@ test.describe("Provider can", () => {
     form = await page.getByTestId("deceased-coroner-reference-form");
   });
 
-  test("view the deceased coroner reference page", async ({ page }) => {
+  test("view the deceased coroner reference page", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await validateHeader(page, "What is the coroner's reference?", 2);
     await validateBackButton(
       page,
@@ -34,6 +37,8 @@ test.describe("Provider can", () => {
       "Please enter your reference number",
     );
     await expect(inputField).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("continue to the deceased further information page", async ({

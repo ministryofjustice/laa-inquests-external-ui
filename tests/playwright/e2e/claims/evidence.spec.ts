@@ -5,11 +5,15 @@ test.describe("Claim - evidence", () => {
     await page.goto("/claim/evidence");
   });
 
-  test("renders back link to total cost", async ({ page }) => {
+  test("renders back link to total cost", async ({
+    page,
+    checkAccessibility,
+  }) => {
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
     await expect(backLink).toBeVisible();
     await expect(backLink).toHaveAttribute("href", "/claim/total-cost");
+    await checkAccessibility();
   });
 
   test("renders page heading", async ({ page }) => {

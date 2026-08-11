@@ -3,8 +3,9 @@ import { validateMojHeader } from "#tests/playwright/utils/govuk-validators.js";
 import { PROVIDER_DISPLAY_NAME } from "#tests/playwright/constants/Provider.js";
 
 test.describe("Home page", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, checkAccessibility }) => {
     await page.goto("/");
+    await checkAccessibility();
   });
 
   test("should have the correct title", async ({ page }) => {

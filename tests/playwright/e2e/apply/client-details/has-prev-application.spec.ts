@@ -4,6 +4,7 @@ import { test, expect } from "../../../fixtures/index.js";
 test.describe("Previous application", () => {
   test("renders basic heading, back link, and expected copy text", async ({
     page,
+    checkAccessibility,
   }) => {
     page.goto("/apply/client-details/has-prev-application");
     const clientDetailsHeading = await page.getByRole("heading", {
@@ -23,6 +24,8 @@ test.describe("Previous application", () => {
       "By this, we mean certificated and licensed work. You do not need to tell us about controlled work and family mediation. \n We\'ll find any previous records to make sure any contributions we calculate are correct.",
     );
     await expect(descriptionText).toBeVisible();
+
+    await checkAccessibility();
   });
   test("renders expected input fields and labels in form", async ({ page }) => {
     page.goto("/apply/client-details/has-prev-application");

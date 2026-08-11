@@ -2,6 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 
 test("renders declaration subheader, copy text and back button", async ({
   page,
+  checkAccessibility,
 }) => {
   page.goto("/apply");
   const declarationHeading = await page.getByRole("heading", {
@@ -32,6 +33,8 @@ test("renders declaration subheader, copy text and back button", async ({
 
   await expect(backButton).toBeVisible();
   await expect(backButton).toHaveAttribute("href", "/");
+
+  await checkAccessibility();
 });
 
 test("renders button to start application journey ", async ({ page }) => {

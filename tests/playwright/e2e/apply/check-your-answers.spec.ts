@@ -3,6 +3,7 @@ import { test, expect } from "../../fixtures/index.js";
 test.describe("Apply - check your answers", () => {
   test("renders linked case details summary list when details are provided", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/apply/deceased-details/further-information");
 
@@ -36,6 +37,8 @@ test.describe("Apply - check your answers", () => {
       "href",
       "/apply/deceased-details/further-information",
     );
+
+    await checkAccessibility();
   });
 
   test("does not render linked case details summary list when no is selected", async ({

@@ -33,6 +33,7 @@ const expectedCorrespondenceAddressErrors = {
 test.describe("Client details - correspondence address", () => {
   test("renders correspondence address form with expected title and fields", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/apply/client-details/correspondence-address");
 
@@ -60,6 +61,8 @@ test.describe("Client details - correspondence address", () => {
     await expect(postcode).toBeVisible();
     await expect(form.getByLabel("Client has no fixed abode")).toHaveCount(0);
     await expect(continueButton).toHaveText("Continue");
+
+    await checkAccessibility();
   });
 
   test("continues to correspondence recipient page with valid correspondence address", async ({

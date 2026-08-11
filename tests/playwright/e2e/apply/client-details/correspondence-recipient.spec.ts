@@ -4,6 +4,7 @@ import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 test.describe("Client details - correspondence recipient", () => {
   test("renders recipient form with expected title, options and hint", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/apply/client-details/correspondence-recipient");
 
@@ -28,6 +29,8 @@ test.describe("Client details - correspondence recipient", () => {
     await expect(organisationOption).toBeVisible();
     await expect(noOption).toBeVisible();
     await expect(noHint).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("shows validation error when no option is selected", async ({
