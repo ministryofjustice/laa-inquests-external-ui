@@ -56,131 +56,134 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull API image from GHCR
-        run: docker pull ghcr.io/ministryofjustice/laa-inquests-api:latest
+      # NOTE: The live Inquests API is not currently required for the E2E tests to run as all requests are mocked
+      # via MSW. The steps below are kept (commented out) so the
+      # real-API setup can be restored if we refactor to test against it later.
 
-      - name: Run API database migrations
-        run: |
-          docker run --rm --network host \
-            -e DB_USER=postgres \
-            -e DB_PASSWORD=postgres \
-            -e DB_NAME=api \
-            -e DB_HOST=127.0.0.1 \
-            -e DB_PORT=5432 \
-            ghcr.io/ministryofjustice/laa-inquests-api:latest \
-            alembic upgrade head
+      # - name: Pull API image from GHCR
+      #   run: docker pull ghcr.io/ministryofjustice/laa-inquests-api:latest
 
-      - name: Run API database seeding
-        run: |
-          docker run --rm --network host \
-            -e DB_USER=postgres \
-            -e DB_PASSWORD=postgres \
-            -e DB_NAME=api \
-            -e DB_HOST=127.0.0.1 \
-            -e DB_PORT=5432 \
-            ghcr.io/ministryofjustice/laa-inquests-api:latest \
-            python bin/seed.py
+      # - name: Run API database migrations
+      #   run: |
+      #     docker run --rm --network host \
+      #       -e DB_USER=postgres \
+      #       -e DB_PASSWORD=postgres \
+      #       -e DB_NAME=api \
+      #       -e DB_HOST=127.0.0.1 \
+      #       -e DB_PORT=5432 \
+      #       ghcr.io/ministryofjustice/laa-inquests-api:latest \
+      #       alembic upgrade head
 
-      # Without these seeds POST /applications fails with a FK violation and
-      # the submit E2E test hangs on the client-declaration page.
-      - name: Add coroner's letter seed
-        env:
-          PGHOST: 127.0.0.1
-          PGPORT: "5432"
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGDATABASE: api
-          MSW_CORONERS_LETTER_ID: 1c84c788-23c4-49e7-a07e-6b391f09c116
-        run: |
-          set -euo pipefail
+      # - name: Run API database seeding
+      #   run: |
+      #     docker run --rm --network host \
+      #       -e DB_USER=postgres \
+      #       -e DB_PASSWORD=postgres \
+      #       -e DB_NAME=api \
+      #       -e DB_HOST=127.0.0.1 \
+      #       -e DB_PORT=5432 \
+      #       ghcr.io/ministryofjustice/laa-inquests-api:latest \
+      #       python bin/seed.py
 
-          psql -v ON_ERROR_STOP=1 \
-               -v msw_id="${MSW_CORONERS_LETTER_ID}" <<'SQL'
-          INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
-          VALUES (:'msw_id', 'e2e-seed.pdf', 'e2e-seed.pdf')
-          ON CONFLICT (coroners_letter_id) DO NOTHING;
-          SQL
+      # # Without these seeds POST /applications fails with a FK violation and
+      # # the submit E2E test hangs on the client-declaration page.
+      # - name: Add coroner's letter seed
+      #   env:
+      #     PGHOST: 127.0.0.1
+      #     PGPORT: "5432"
+      #     PGUSER: postgres
+      #     PGPASSWORD: postgres
+      #     PGDATABASE: api
+      #     MSW_CORONERS_LETTER_ID: 1c84c788-23c4-49e7-a07e-6b391f09c116
+      #   run: |
+      #     set -euo pipefail
 
-      - name: Install Postgres client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends postgresql-client
+      #     psql -v ON_ERROR_STOP=1 \
+      #          -v msw_id="${MSW_CORONERS_LETTER_ID}" <<'SQL'
+      #     INSERT INTO coroners_letter (coroners_letter_id, sds_file_name, file_name)
+      #     VALUES (:'msw_id', 'e2e-seed.pdf', 'e2e-seed.pdf')
+      #     ON CONFLICT (coroners_letter_id) DO NOTHING;
+      #     SQL
 
-      - name: Start API container
-        env:
-          PROVIDER_API_BASE_URL: ${{ secrets.TEST_PROVIDER_API_BASE_URL }}
-          PROVIDER_API_KEY: ${{ secrets.TEST_PROVIDER_API_KEY }}
-          GOV_NOTIFY_API_KEY: ${{ secrets.TEST_GOV_NOTIFY_API_KEY }}
-          GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID }}
-          GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID }}
-          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
-          INQUESTS_API_TENANT_ID: ${{ secrets.E2E_INQUESTS_API_TENANT_ID }}
-        run: |
-          docker run -d --name inquests-api --network host \
-            -e SECRET_KEY=TEST_KEY \
-            -e DB_USER=postgres \
-            -e DB_PASSWORD=postgres \
-            -e DB_NAME=api \
-            -e DB_HOST=127.0.0.1 \
-            -e DB_PORT=5432 \
-            -e PROVIDER_API_BASE_URL \
-            -e PROVIDER_API_KEY \
-            -e GOV_NOTIFY_API_KEY \
-            -e GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID \
-            -e GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID \
-            -e INQUESTS_API_TENANT_ID \
-            -e INQUESTS_API_CLIENT_ID \
-            ghcr.io/ministryofjustice/laa-inquests-api:latest
+      # - name: Install Postgres client
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y --no-install-recommends postgresql-client
 
-      - name: Wait for API to be ready
-        run: |
-          echo "Waiting for the API to become ready..."
-          for attempt in $(seq 1 60); do
-            if curl --fail --silent http://127.0.0.1:8027/ > /dev/null; then
-              echo "API is ready!"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "::error::API did not become ready within 120 seconds"
-          docker logs inquests-api
-          exit 1
+      # - name: Start API container
+      #   env:
+      #     PROVIDER_API_BASE_URL: ${{ secrets.TEST_PROVIDER_API_BASE_URL }}
+      #     PROVIDER_API_KEY: ${{ secrets.TEST_PROVIDER_API_KEY }}
+      #     GOV_NOTIFY_API_KEY: ${{ secrets.TEST_GOV_NOTIFY_API_KEY }}
+      #     GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID }}
+      #     GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID: ${{ secrets.TEST_GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID }}
+      #     INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+      #     INQUESTS_API_TENANT_ID: ${{ secrets.E2E_INQUESTS_API_TENANT_ID }}
+      #   run: |
+      #     docker run -d --name inquests-api --network host \
+      #       -e SECRET_KEY=TEST_KEY \
+      #       -e DB_USER=postgres \
+      #       -e DB_PASSWORD=postgres \
+      #       -e DB_NAME=api \
+      #       -e DB_HOST=127.0.0.1 \
+      #       -e DB_PORT=5432 \
+      #       -e PROVIDER_API_BASE_URL \
+      #       -e PROVIDER_API_KEY \
+      #       -e GOV_NOTIFY_API_KEY \
+      #       -e GOV_NOTIFY_APPLICATION_SUBMIT_TEMPLATE_ID \
+      #       -e GOV_NOTIFY_APPLICATION_REFUSE_TEMPLATE_ID \
+      #       -e INQUESTS_API_TENANT_ID \
+      #       -e INQUESTS_API_CLIENT_ID \
+      #       ghcr.io/ministryofjustice/laa-inquests-api:latest
 
-      - name: Create auth state directory
-        run: mkdir -p tests/playwright/.auth
+      # - name: Wait for API to be ready
+      #   run: |
+      #     echo "Waiting for the API to become ready..."
+      #     for attempt in $(seq 1 60); do
+      #       if curl --fail --silent http://127.0.0.1:8027/ > /dev/null; then
+      #         echo "API is ready!"
+      #         exit 0
+      #       fi
+      #       sleep 2
+      #     done
+      #     echo "::error::API did not become ready within 120 seconds"
+      #     docker logs inquests-api
+      #     exit 1
+
+      # - name: Create auth state directory
+      #   run: mkdir -p tests/playwright/.auth
+
+      # - name: Run Playwright tests
+      #   run: |
+      #     yarn seed-app
+      #   env:
+      #     CI: true
+      #     PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
+      #     # Add session-related environment variables
+      #     SESSION_SECRET: "playwright-test-secret"
+      #     SESSION_NAME: "sessionId"
+      #     NODE_ENV: "test"
+      #     # Add other required environment variables
+      #     SERVICE_NAME: "Inquests"
+      #     SERVICE_PHASE: "Alpha"
+      #     DEPARTMENT_NAME: "LAA Digital"
+      #     DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
+      #     CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
+      #     INQUESTS_API_URL: "http://127.0.0.1:8027"
+      #     SERVICE_URL: "https://www.gov.uk/legal-aid"
+      #     RATELIMIT_HEADERS_ENABLED: "true"
+      #     RATE_LIMIT_MAX: "10000"
+      #     RATE_WINDOW_MS: "900000"
+      #     AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+      #     AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+      #     AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+      #     INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+      #     E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
+      #     E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
+      #     E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
 
       - name: Run Playwright tests
         run: |
-          yarn seed-app
-        env:
-          CI: true
-          PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
-          # Add session-related environment variables
-          SESSION_SECRET: "playwright-test-secret"
-          SESSION_NAME: "sessionId"
-          NODE_ENV: "test"
-          # Add other required environment variables
-          SERVICE_NAME: "Inquests"
-          SERVICE_PHASE: "Alpha"
-          DEPARTMENT_NAME: "LAA Digital"
-          DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
-          CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
-          INQUESTS_API_URL: "http://127.0.0.1:8027"
-          SERVICE_URL: "https://www.gov.uk/legal-aid"
-          RATELIMIT_HEADERS_ENABLED: "true"
-          RATE_LIMIT_MAX: "10000"
-          RATE_WINDOW_MS: "900000"
-          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
-          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
-          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
-          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
-          E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
-          E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
-          E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
-
-      - name: Run Playwright tests
-        run: |
-          yarn seed-app
           yarn test:e2e
         env:
           CI: true
