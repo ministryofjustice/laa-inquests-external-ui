@@ -24,7 +24,14 @@ export const test = base.extend<TestFixtures>({
     // Checks current page
     const checkAccessibility = async (): Promise<void> => {
       const accessibilityScanResults = await new AxeBuilder({ page })
-        .withTags(["wcag22a"])
+        .withTags([
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22a",
+          "wcag22aa",
+        ])
         .analyze();
 
       const { violations } = accessibilityScanResults;
