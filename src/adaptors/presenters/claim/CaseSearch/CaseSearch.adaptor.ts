@@ -84,14 +84,17 @@ export class CaseSearchAdaptor {
     }
 
     const cases = result.data ?? [];
+    const eligibleCases = cases.filter((c) =>
+      this.#isEligibleForClaim(c.overallDecision),
+    );
     session.claim = {
       ...session.claim,
-      searchResults: this.formatter.formatClientDetails(cases),
+      searchResults: this.formatter.formatClientDetails(eligibleCases),
     };
 
     res.render("claim/case-search-results", {
       csrfToken,
-      cases: this.formatter.formatCases(cases),
+      cases: this.formatter.formatCases(eligibleCases),
     });
   }
 
@@ -106,6 +109,11 @@ export class CaseSearchAdaptor {
       (c) => c.reference === selectedReference,
     );
 
+    if (!selectedClient) {
+      res.redirect("/claim/results");
+      return;
+    }
+
     req.session.claim = {
       ...claim,
       caseReference: selectedReference,
@@ -113,5 +121,9 @@ export class CaseSearchAdaptor {
     };
 
     res.redirect("/claim/type");
+  }
+
+  #isEligibleForClaim(overallDecision: string): boolean {
+    return overallDecision.trim().toUpperCase() === "GRANTED";
   }
 }

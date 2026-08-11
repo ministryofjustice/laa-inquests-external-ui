@@ -185,6 +185,125 @@ describe("CaseSearch adaptor", () => {
       ]);
     });
 
+    it("filters out non-granted cases before rendering", async () => {
+      const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
+      searchCasesUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: [
+          {
+            laaReference: 10,
+            clientFirstName: "Granted",
+            clientLastName: "Case",
+            clientDateOfBirth: "2000-01-01",
+            dateSubmitted: "2026-06-30T15:59:32.622897",
+            firmName: "Firm A",
+            firmNumber: "A1",
+            overallDecision: "GRANTED",
+          },
+          {
+            laaReference: 20,
+            clientFirstName: "Pending",
+            clientLastName: "Case",
+            clientDateOfBirth: "2000-01-01",
+            dateSubmitted: "2026-06-30T15:59:32.622897",
+            firmName: "Firm B",
+            firmNumber: "B1",
+            overallDecision: "PENDING",
+          },
+          {
+            laaReference: 30,
+            clientFirstName: "Refused",
+            clientLastName: "Case",
+            clientDateOfBirth: "2000-01-01",
+            dateSubmitted: "2026-06-30T15:59:32.622897",
+            firmName: "Firm C",
+            firmNumber: "C1",
+            overallDecision: "REFUSED",
+          },
+        ],
+      });
+
+      const adaptor = new CaseSearchAdaptor(
+        new CaseSearchValidator(),
+        stubInterface<SearchCasesPort>(),
+        new CaseSearchFormatter(),
+        searchCasesUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = { caseReference: "10" };
+      requestStub.session.accessToken = "access-token-123";
+
+      await adaptor.renderResults(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const rows = (
+        renderArgs[1] as unknown as { cases: { reference: string }[] }
+      ).cases;
+
+      assert.equal(rows.length, 1);
+      assert.equal(rows[0].reference, "10");
+      assert.deepEqual(requestStub.session.claim?.searchResults, [
+        {
+          reference: "10",
+          clientName: "Granted Case",
+          clientFirstName: "Granted",
+          clientLastName: "Case",
+          dateOfBirth: "01/01/2000",
+        },
+      ]);
+    });
+
+    it("renders empty cases when only ineligible statuses are returned", async () => {
+      const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
+      searchCasesUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: [
+          {
+            laaReference: 20,
+            clientFirstName: "Pending",
+            clientLastName: "Case",
+            clientDateOfBirth: "2000-01-01",
+            dateSubmitted: "2026-06-30T15:59:32.622897",
+            firmName: "Firm B",
+            firmNumber: "B1",
+            overallDecision: "PENDING",
+          },
+          {
+            laaReference: 30,
+            clientFirstName: "Refused",
+            clientLastName: "Case",
+            clientDateOfBirth: "2000-01-01",
+            dateSubmitted: "2026-06-30T15:59:32.622897",
+            firmName: "Firm C",
+            firmNumber: "C1",
+            overallDecision: "REFUSED",
+          },
+        ],
+      });
+
+      const adaptor = new CaseSearchAdaptor(
+        new CaseSearchValidator(),
+        stubInterface<SearchCasesPort>(),
+        new CaseSearchFormatter(),
+        searchCasesUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = { caseReference: "20" };
+      requestStub.session.accessToken = "access-token-123";
+
+      await adaptor.renderResults(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const rows = (renderArgs[1] as unknown as { cases: unknown[] }).cases;
+
+      assert.deepEqual(rows, []);
+      assert.deepEqual(requestStub.session.claim?.searchResults, []);
+    });
+
     it("does not render when use case returns TECHNICAL_FAILURE", async () => {
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
       searchCasesUseCase.execute.resolves({
@@ -220,7 +339,7 @@ describe("CaseSearch adaptor", () => {
         dateSubmitted: "2026-06-30T10:00:00.000000",
         firmName: null,
         firmNumber: "0B456C",
-        overallDecision: "REFUSED",
+        overallDecision: "GRANTED",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
       searchCasesUseCase.execute.resolves({
@@ -332,7 +451,10 @@ describe("CaseSearch adaptor", () => {
       adaptor.selectCase(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.client, undefined);
+      assert.equal(requestStub.session.claim?.caseReference, undefined);
       assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/results");
     });
   });
 });
