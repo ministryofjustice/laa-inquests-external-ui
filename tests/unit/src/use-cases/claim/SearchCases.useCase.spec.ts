@@ -46,7 +46,21 @@ describe("SearchCasesUseCase", () => {
 
     assert.equal(
       searchCasesPort.searchCases.calledOnceWith(
-        { laaReference: "ABC-123" },
+        { laaReference: "ABC-123", meritsDecision: undefined },
+        "access-token-123",
+      ),
+      true,
+    );
+  });
+
+  it("calls searchCasesPort with meritsDecision when provided", async () => {
+    searchCasesPort.searchCases.resolves([]);
+
+    await useCase.execute("ABC-123", "access-token-123", "GRANTED");
+
+    assert.equal(
+      searchCasesPort.searchCases.calledOnceWith(
+        { laaReference: "ABC-123", meritsDecision: "GRANTED" },
         "access-token-123",
       ),
       true,

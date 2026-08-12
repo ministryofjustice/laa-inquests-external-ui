@@ -16,11 +16,20 @@ export class SearchCasesAdaptor implements SearchCasesPort {
     params: SearchCasesRequest,
     accessToken: string | undefined,
   ): Promise<SearchCasesResponse> {
+    const { laaReference, meritsDecision } = params;
+    const queryParams: Record<string, string> = {
+      laa_reference: laaReference,
+    };
+
+    if (meritsDecision !== undefined) {
+      queryParams.merits_decision = meritsDecision;
+    }
+
     const response = await getFromInquestsApi<SearchCasesResponse>({
       http: this.http,
       baseUrl: this.baseUrl,
       path: "/applications/search",
-      params: { laa_reference: params.laaReference },
+      params: queryParams,
       accessToken,
     });
     return response.data;

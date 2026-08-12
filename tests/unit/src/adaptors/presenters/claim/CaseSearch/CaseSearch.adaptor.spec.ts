@@ -135,7 +135,11 @@ describe("CaseSearch adaptor", () => {
       await adaptor.renderResults(requestStub, responseStub);
 
       assert.equal(
-        searchCasesUseCase.execute.calledOnceWith("1", "access-token-123"),
+        searchCasesUseCase.execute.calledOnceWith(
+          "1",
+          "access-token-123",
+          "GRANTED",
+        ),
         true,
       );
       assert.equal(responseStub.render.callCount, 1);

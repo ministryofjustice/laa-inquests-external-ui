@@ -77,6 +77,7 @@ export class CaseSearchAdaptor {
     const result = await this.searchCasesUseCase.execute(
       laaReference,
       accessToken,
+      "GRANTED",
     );
 
     if (result.status !== "SUCCESS") {

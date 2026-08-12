@@ -53,6 +53,21 @@ describe("SearchCasesAdaptor", () => {
     });
   });
 
+  it("includes merits_decision query param when provided", async () => {
+    await adaptor.searchCases(
+      { laaReference: "ABC-123", meritsDecision: "GRANTED" },
+      "access-token-123",
+    );
+
+    assert(axiosStub.get.calledOnce);
+
+    const getCall = axiosStub.get.getCall(0);
+    assert.deepEqual(getCall.args[1], {
+      params: { laa_reference: "ABC-123", merits_decision: "GRANTED" },
+      headers: { Authorization: "Bearer access-token-123" },
+    });
+  });
+
   it("throws when access token is missing", async () => {
     await assert.rejects(
       async () => adaptor.searchCases({ laaReference: "1" }, undefined),

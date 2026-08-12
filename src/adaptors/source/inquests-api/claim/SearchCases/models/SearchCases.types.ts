@@ -6,6 +6,7 @@ import type {
 
 export interface SearchCasesRequest {
   laaReference: string;
+  meritsDecision?: string;
 }
 
 export type SearchCase = z.infer<typeof SearchCaseSchema>;
