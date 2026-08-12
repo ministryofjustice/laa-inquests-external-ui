@@ -1,7 +1,7 @@
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import {
-  CLAIM_EVIDENCE_SUBMIT_ERROR,
+  CLAIM_SUBMIT_ERROR,
   SUBMIT_CLAIM_FALLBACK_ERROR,
   TOTAL_CLAIM_ERROR,
 } from "#src/infrastructure/locales/constants.js";
@@ -74,10 +74,8 @@ export class SubmitClaimUseCase {
     if (errorCode in TOTAL_CLAIM_ERROR) {
       return TOTAL_CLAIM_ERROR[errorCode as keyof typeof TOTAL_CLAIM_ERROR];
     }
-    if (errorCode in CLAIM_EVIDENCE_SUBMIT_ERROR) {
-      return CLAIM_EVIDENCE_SUBMIT_ERROR[
-        errorCode as keyof typeof CLAIM_EVIDENCE_SUBMIT_ERROR
-      ];
+    if (errorCode in CLAIM_SUBMIT_ERROR) {
+      return CLAIM_SUBMIT_ERROR[errorCode as keyof typeof CLAIM_SUBMIT_ERROR];
     }
     return SUBMIT_CLAIM_FALLBACK_ERROR;
   }

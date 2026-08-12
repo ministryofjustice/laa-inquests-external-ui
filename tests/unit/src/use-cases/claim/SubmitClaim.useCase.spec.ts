@@ -3,7 +3,7 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import { SubmitClaimUseCase } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import {
-  CLAIM_EVIDENCE_SUBMIT_ERROR,
+  CLAIM_SUBMIT_ERROR,
   SUBMIT_CLAIM_FALLBACK_ERROR,
   TOTAL_CLAIM_ERROR,
 } from "#src/infrastructure/locales/constants.js";
@@ -202,7 +202,41 @@ describe("SubmitClaimUseCase", () => {
       ).errorSummaries,
       {
         submitError: {
-          text: CLAIM_EVIDENCE_SUBMIT_ERROR.MISSING_CLAIM_EVIDENCE,
+          text: CLAIM_SUBMIT_ERROR.MISSING_CLAIM_EVIDENCE,
+        },
+      },
+    );
+  });
+
+  it("returns VALIDATION_FAILED with mapped error text when the port returns UNPROCESSABLE with APPLICATION_NOT_GRANTED", async () => {
+    claimSubmitPort.submitClaim.resolves({
+      status: "UNPROCESSABLE",
+      errorCode: "APPLICATION_NOT_GRANTED",
+    });
+
+    const result = await useCase.execute({
+      laaReference: "1",
+      claimType: "PAYMENT_ON_ACCOUNT",
+      poaTypeId: "PROFIT_COST",
+      claimantId: "test@provider.co.uk",
+      accessToken: "access-token-123",
+      zeroVatTotal: 0,
+      netTotal: 1000,
+      grossTotal: 1200,
+      claimEvidenceIds: ["evidence-id-1"],
+    });
+
+    assert.equal(result.status, "VALIDATION_FAILED");
+    assert.deepEqual(
+      (
+        result as {
+          status: string;
+          errorSummaries: { submitError: { text: string } };
+        }
+      ).errorSummaries,
+      {
+        submitError: {
+          text: CLAIM_SUBMIT_ERROR.APPLICATION_NOT_GRANTED,
         },
       },
     );
