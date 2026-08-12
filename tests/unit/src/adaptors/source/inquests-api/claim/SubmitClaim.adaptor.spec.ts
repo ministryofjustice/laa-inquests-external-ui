@@ -169,6 +169,72 @@ describe("SubmitClaimAdaptor", () => {
     );
   });
 
+  it("returns an UNPROCESSABLE result with APPLICATION_NOT_GRANTED when the API responds with that 422 error code", async () => {
+    const axiosError = {
+      response: {
+        status: HTTP_UNPROCESSABLE_CONTENT,
+        data: { errorCode: "APPLICATION_NOT_GRANTED" },
+      },
+    };
+    axiosStub.post.rejects(axiosError);
+
+    const result = await adaptor.submitClaim(
+      "12345",
+      {
+        claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
+        totalProfitCostNet: 1000,
+        totalProfitCostGross: 1200,
+        poaTypeId: "PROFIT_COST",
+        claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+      },
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "UNPROCESSABLE");
+    assert.equal(
+      (result as { status: string; errorCode: string }).errorCode,
+      "APPLICATION_NOT_GRANTED",
+    );
+  });
+
+  it("returns an UNPROCESSABLE result when the API responds with nested detail.errorCode payload", async () => {
+    const axiosError = {
+      response: {
+        status: HTTP_UNPROCESSABLE_CONTENT,
+        data: {
+          detail: {
+            errorCode: "APPLICATION_NOT_GRANTED",
+            message:
+              "Claims can only be submitted against a granted application",
+          },
+        },
+      },
+    };
+    axiosStub.post.rejects(axiosError);
+
+    const result = await adaptor.submitClaim(
+      "12345",
+      {
+        claimType: "PAYMENT_ON_ACCOUNT",
+        totalProfitCostVatZero: 100,
+        totalProfitCostNet: 1000,
+        totalProfitCostGross: 1200,
+        poaTypeId: "PROFIT_COST",
+        claimantId: "test@provider.co.uk",
+        claimEvidenceIds: ["3fa85f64-5717-4562-b3fc-2c963f66afa6"],
+      },
+      "access-token-123",
+    );
+
+    assert.equal(result.status, "UNPROCESSABLE");
+    assert.equal(
+      (result as { status: string; errorCode: string }).errorCode,
+      "APPLICATION_NOT_GRANTED",
+    );
+  });
+
   it("returns a REJECTED result when the API responds with known rejection reasons", async () => {
     axiosStub.post.resolves({ status: 201, data: rejectedMockResponse });
 

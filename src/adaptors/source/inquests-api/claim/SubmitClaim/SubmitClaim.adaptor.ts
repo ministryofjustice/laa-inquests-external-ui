@@ -5,7 +5,7 @@ import type {
 } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { SubmitClaimRequest } from "./models/SubmitClaim.types.js";
 import {
-  SubmitClaimApiErrorSchema,
+  NormalisedSubmitClaimApiErrorSchema,
   SubmitClaimResponseAcceptedSchema,
   SubmitClaimResponseRejectedFallbackSchema,
   SubmitClaimResponseRejectedSchema,
@@ -13,6 +13,7 @@ import {
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { isAxiosErrorWithResponse } from "#src/infrastructure/express/middleware/axios/errors.js";
 import { HTTP_UNPROCESSABLE_CONTENT } from "#src/infrastructure/locales/constants.js";
+import { logger as appLogger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class SubmitClaimAdaptor implements ClaimSubmitPort {
   constructor(
@@ -71,7 +72,9 @@ export class SubmitClaimAdaptor implements ClaimSubmitPort {
         isAxiosErrorWithResponse(error) &&
         error.response.status === HTTP_UNPROCESSABLE_CONTENT
       ) {
-        const parsed = SubmitClaimApiErrorSchema.safeParse(error.response.data);
+        const parsed = NormalisedSubmitClaimApiErrorSchema.safeParse(
+          error.response.data,
+        );
         return {
           status: "UNPROCESSABLE",
           errorCode: parsed.success ? parsed.data.errorCode : "",

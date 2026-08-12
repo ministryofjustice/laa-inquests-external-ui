@@ -3,7 +3,16 @@ import { CLAIM_REJECTION_REASON_CODES } from "#src/infrastructure/locales/consta
 
 export const SubmitClaimApiErrorSchema = z.object({
   errorCode: z.string(),
+  message: z.string().optional(),
 });
+
+const SubmitClaimApiErrorNestedSchema = z.object({
+  detail: SubmitClaimApiErrorSchema,
+});
+
+export const NormalisedSubmitClaimApiErrorSchema = z
+  .union([SubmitClaimApiErrorSchema, SubmitClaimApiErrorNestedSchema])
+  .transform((value) => ("detail" in value ? value.detail : value));
 
 export const SubmitClaimRequestSchema = z.object({
   claimType: z.string(),

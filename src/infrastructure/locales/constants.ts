@@ -75,6 +75,11 @@ export const CLAIM_EVIDENCE_SUBMIT_ERROR = {
   MISSING_CLAIM_EVIDENCE: "Claim evidence is required",
 };
 
+export const CLAIM_SUBMIT_ERROR = {
+  APPLICATION_NOT_GRANTED:
+    "Claims may only be submitted for applications that have been granted.",
+};
+
 export const CLAIM_NET_TOTAL_VALUE = 1000;
 export const CLAIM_GROSS_TOTAL_VALUE = 1200;
 
