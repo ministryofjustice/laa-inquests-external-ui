@@ -13,7 +13,6 @@ import {
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { isAxiosErrorWithResponse } from "#src/infrastructure/express/middleware/axios/errors.js";
 import { HTTP_UNPROCESSABLE_CONTENT } from "#src/infrastructure/locales/constants.js";
-import { logger as appLogger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class SubmitClaimAdaptor implements ClaimSubmitPort {
   constructor(

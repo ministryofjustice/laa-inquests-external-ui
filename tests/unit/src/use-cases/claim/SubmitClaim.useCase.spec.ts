@@ -4,7 +4,6 @@ import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim
 import { SubmitClaimUseCase } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import {
   CLAIM_SUBMIT_ERROR,
-  CLAIM_EVIDENCE_SUBMIT_ERROR,
   SUBMIT_CLAIM_FALLBACK_ERROR,
   TOTAL_CLAIM_ERROR,
 } from "#src/infrastructure/locales/constants.js";
@@ -203,7 +202,7 @@ describe("SubmitClaimUseCase", () => {
       ).errorSummaries,
       {
         submitError: {
-          text: CLAIM_EVIDENCE_SUBMIT_ERROR.MISSING_CLAIM_EVIDENCE,
+          text: CLAIM_SUBMIT_ERROR.MISSING_CLAIM_EVIDENCE,
         },
       },
     );
