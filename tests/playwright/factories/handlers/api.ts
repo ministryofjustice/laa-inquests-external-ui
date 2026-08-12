@@ -33,18 +33,7 @@ export const apiHandlers = [
     const laaReference = url.searchParams.get("laa_reference");
 
     if (laaReference === "force-ineligible") {
-      return HttpResponse.json([
-        {
-          laaReference: 998,
-          clientFirstName: "Force",
-          clientLastName: "Ineligible",
-          clientDateOfBirth: "01/01/2000",
-          dateSubmitted: "2026-01-01T00:00:00",
-          firmName: "Test Firm",
-          firmNumber: "123",
-          overallDecision: "PENDING",
-        },
-      ]);
+      return HttpResponse.json([]);
     }
 
     if (laaReference === "force-rejected") {
