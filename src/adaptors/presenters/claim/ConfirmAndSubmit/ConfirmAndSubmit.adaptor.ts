@@ -109,7 +109,7 @@ export class ConfirmAndSubmitAdaptor {
     const {
       caseReference = "",
       type = "",
-      subtype = "",
+      subtype = null,
       zeroVatTotal,
       netTotal,
       grossTotal,
