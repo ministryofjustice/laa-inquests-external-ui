@@ -72,6 +72,7 @@ jobs:
           semgrep --config p/expressjs --config p/github-actions --sarif --sarif-output semgrep-results.sarif --strict .
       - name: Upload Semgrep SARIF as artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
         with:
           name: semgrep-results
           path: semgrep-results.sarif
