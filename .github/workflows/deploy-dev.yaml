@@ -91,7 +91,15 @@ jobs:
   e2e-tests:
     name: Playwright Tests
     uses: ./.github/workflows/e2e-tests.yaml
-    secrets: inherit
+    secrets:
+      E2E_AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+      E2E_AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+      E2E_AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+      E2E_INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+      E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
+      E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
+      E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     if: ${{ !contains(github.actor, '[bot]') }}
