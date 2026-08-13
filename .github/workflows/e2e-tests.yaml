@@ -17,8 +17,6 @@ on:
         required: true
       E2E_PROVIDER_MFA_TOTP_SECRET:
         required: true
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   playwright:

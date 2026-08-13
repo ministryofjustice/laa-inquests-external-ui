@@ -99,7 +99,6 @@ jobs:
       E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
       E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
       E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     if: ${{ !contains(github.actor, '[bot]') }}
