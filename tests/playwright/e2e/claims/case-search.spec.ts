@@ -63,6 +63,21 @@ test.describe("Claim - case search", () => {
     await expect(page).toHaveURL("/claim/results");
   });
 
+  test("shows no results when matched case has ineligible status", async ({
+    page,
+  }) => {
+    const form = page.getByTestId("case-search-form");
+
+    await form
+      .getByLabel("Enter the case reference number")
+      .fill("force-ineligible");
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/results");
+    await expect(page.getByTestId("no-results-message")).toBeVisible();
+    await expect(page.getByRole("table")).not.toBeVisible();
+  });
+
   test("clears claim session data so back link on total cost reverts to /claim/type", async ({
     page,
   }) => {

@@ -48,6 +48,10 @@ export const apiHandlers = [
     const url = new URL(request.url);
     const laaReference = url.searchParams.get("laa_reference");
 
+    if (laaReference === "force-ineligible") {
+      return HttpResponse.json([]);
+    }
+
     if (laaReference === "force-rejected") {
       return HttpResponse.json([
         {
@@ -58,7 +62,7 @@ export const apiHandlers = [
           dateSubmitted: "2026-01-01T00:00:00",
           firmName: "Test Firm",
           firmNumber: "123",
-          overallDecision: "PENDING",
+          overallDecision: "GRANTED",
         },
       ]);
     }
@@ -73,7 +77,7 @@ export const apiHandlers = [
           dateSubmitted: "2026-01-01T00:00:00",
           firmName: "Test Firm",
           firmNumber: "123",
-          overallDecision: "PENDING",
+          overallDecision: "GRANTED",
         },
       ]);
     }
@@ -88,7 +92,7 @@ export const apiHandlers = [
           dateSubmitted: "2026-08-06T13:41:38.089Z",
           firmName: "Seed",
           firmNumber: "Seed",
-          overallDecision: "PENDING",
+          overallDecision: "GRANTED",
         },
       ]);
     }

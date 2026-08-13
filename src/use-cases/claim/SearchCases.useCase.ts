@@ -8,10 +8,11 @@ export class SearchCasesUseCase {
   async execute(
     laaReference: string,
     accessToken: string | undefined,
+    meritsDecision?: string,
   ): Promise<UseCaseResult<SearchCasesResponse>> {
     try {
       const cases = await this.searchCasesPort.searchCases(
-        { laaReference },
+        { laaReference, meritsDecision },
         accessToken,
       );
       return { status: "SUCCESS", data: cases };

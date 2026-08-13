@@ -135,7 +135,11 @@ describe("CaseSearch adaptor", () => {
       await adaptor.renderResults(requestStub, responseStub);
 
       assert.equal(
-        searchCasesUseCase.execute.calledOnceWith("1", "access-token-123"),
+        searchCasesUseCase.execute.calledOnceWith(
+          "1",
+          "access-token-123",
+          "GRANTED",
+        ),
         true,
       );
       assert.equal(responseStub.render.callCount, 1);
@@ -220,7 +224,7 @@ describe("CaseSearch adaptor", () => {
         dateSubmitted: "2026-06-30T10:00:00.000000",
         firmName: null,
         firmNumber: "0B456C",
-        overallDecision: "REFUSED",
+        overallDecision: "GRANTED",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
       searchCasesUseCase.execute.resolves({
@@ -332,7 +336,10 @@ describe("CaseSearch adaptor", () => {
       adaptor.selectCase(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.client, undefined);
+      assert.equal(requestStub.session.claim?.caseReference, undefined);
       assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/results");
     });
   });
 });

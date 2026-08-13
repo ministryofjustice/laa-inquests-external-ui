@@ -77,6 +77,7 @@ export class CaseSearchAdaptor {
     const result = await this.searchCasesUseCase.execute(
       laaReference,
       accessToken,
+      "GRANTED",
     );
 
     if (result.status !== "SUCCESS") {
@@ -105,6 +106,11 @@ export class CaseSearchAdaptor {
     const selectedClient = (claim?.searchResults ?? []).find(
       (c) => c.reference === selectedReference,
     );
+
+    if (selectedClient === undefined) {
+      res.redirect("/claim/results");
+      return;
+    }
 
     req.session.claim = {
       ...claim,
