@@ -49,7 +49,19 @@ This project uses Yarn 4.10.3 managed by corepack (built into Node.js 16.10+). T
 
 ### Initialize pre-commit hooks
 
-Run `npx husky init`
+Husky hooks are installed via the existing `prepare` script during `yarn install` or `yarn prepare`.
+
+Install secret-scanning prerequisites:
+
+```shell
+brew install prek gitleaks
+```
+
+Then install prek hooks:
+
+```shell
+prek install
+```
 
 ### Start the application
 
