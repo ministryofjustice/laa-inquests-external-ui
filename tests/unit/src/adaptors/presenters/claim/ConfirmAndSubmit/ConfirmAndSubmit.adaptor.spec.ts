@@ -243,6 +243,30 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.deepEqual(input.claimEvidenceIds, []);
     });
 
+    it("defaults poaTypeId to null when no subtype is in session", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "PAYMENT_ON_ACCOUNT",
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      assert(submitClaimUseCase.execute.calledOnce);
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.equal(input.poaTypeId, null);
+    });
+
     it("stores the claimReferenceNumber in the session and redirects to the confirmation page on success", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",

@@ -9,7 +9,7 @@ import {
 export interface SubmitClaimInput {
   laaReference: string;
   claimType: string;
-  poaTypeId: string;
+  poaTypeId: string | null;
   claimantId: string;
   accessToken: string | undefined;
   zeroVatTotal: number | null;

@@ -19,7 +19,7 @@ export const SubmitClaimRequestSchema = z.object({
   totalProfitCostVatZero: z.number().optional().nullable(),
   totalProfitCostNet: z.number().optional().nullable(),
   totalProfitCostGross: z.number().nullable(),
-  poaTypeId: z.string(),
+  poaTypeId: z.string().nullable(),
   claimantId: z.string(),
   claimEvidenceIds: z.array(z.string()).nonempty(),
 });
