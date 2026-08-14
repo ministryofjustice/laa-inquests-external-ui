@@ -23,6 +23,7 @@ import { setupLocaleData } from "./infrastructure/express/middleware/nunjucks/se
 import { setupNunjucks } from "./infrastructure/express/middleware/nunjucks/setupNunjucks.js";
 import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsrf.js";
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
+import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
 import multer from "multer";
 
@@ -63,7 +64,7 @@ app.use(
 );
 
 app.disable("x-powered-by");
-app.use(session(config.session));
+app.use(session({ ...config.session, store: createSessionStore() }));
 
 app.use(setupRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {
