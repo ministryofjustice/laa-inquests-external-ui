@@ -30,3 +30,5 @@ public/
 # Code coverage
 coverage/
 .vscode/
+
+semgrep-results.sarif

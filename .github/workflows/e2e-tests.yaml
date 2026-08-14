@@ -2,6 +2,21 @@ name: Playwright Tests
 on:
   workflow_dispatch: # Allow manual triggering only
   workflow_call: # Allow this workflow to be called by other workflows
+    secrets:
+      E2E_AUTH_DIRECTORY_URL:
+        required: true
+      E2E_AUTH_CLIENT_ID:
+        required: true
+      E2E_AUTH_CLIENT_SECRET:
+        required: true
+      E2E_INQUESTS_API_CLIENT_ID:
+        required: true
+      E2E_PROVIDER_USERNAME:
+        required: true
+      E2E_PROVIDER_PASSWORD:
+        required: true
+      E2E_PROVIDER_MFA_TOTP_SECRET:
+        required: true
 
 jobs:
   playwright:
@@ -44,13 +59,13 @@ jobs:
         run: yarn playwright install chromium --with-deps
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')}}
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
