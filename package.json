@@ -23,7 +23,7 @@
     "build:ts": "tsc",
     "build:ts:prod": "tsc -p tsconfig.build.prod.json",
     "test": "yarn build && yarn test:unit && yarn test:e2e",
-    "test:unit": "mocha",
+    "test:unit": "NODE_ENV=test USE_REDIS=false mocha",
     "test:e2e": "yarn clean && yarn build:ts && node public/esbuild.js && yarn playwright test --config=tests/playwright/playwright.config.ts --reporter=list",
     "coverage": "c8 yarn test:unit --check-coverage"
   },
