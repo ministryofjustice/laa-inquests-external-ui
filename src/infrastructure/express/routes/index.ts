@@ -90,7 +90,7 @@ function createAuthSource(): EntraAuthAdaptor {
     entraClient,
     config.AUTH_TOKEN_DEBUG_ENABLED,
     (message) => {
-      logger.logInfo("EntraAuth", message);
+      logger.logInfo({ functionName: "EntraAuth", message });
     },
   );
 }
@@ -173,7 +173,7 @@ const submitApplicationSource = new SubmitApplicationAdaptor(
   config.INQUESTS_API_URL,
   config.SUBMIT_PAYLOAD_DEBUG_ENABLED,
   (message) => {
-    logger.logInfo("SubmitApplication", message);
+    logger.logInfo({ functionName: "SubmitApplication", message });
   },
 );
 

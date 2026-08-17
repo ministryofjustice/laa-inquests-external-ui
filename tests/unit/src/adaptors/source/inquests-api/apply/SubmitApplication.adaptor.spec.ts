@@ -130,8 +130,14 @@ describe("SubmitApplicationAdaptor", () => {
       assert.ok(logger.calledOnce);
       const logged = JSON.parse(logger.firstCall.args[0] as string) as {
         event: string;
+        has_access_token: boolean;
+        public_bodies_count: number;
+        includes_coroners_letter: boolean;
       };
-      assert.equal(logged.event, "submit.application.payload");
+      assert.equal(logged.event, "submit_application_payload_debug");
+      assert.equal(logged.has_access_token, true);
+      assert.equal(logged.public_bodies_count, 0);
+      assert.equal(logged.includes_coroners_letter, true);
     });
 
     it("does not log the payload when payloadDebugEnabled is false", async () => {

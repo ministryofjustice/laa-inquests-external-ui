@@ -5,6 +5,16 @@ import {
   HTTP_NOT_FOUND,
 } from "#src/infrastructure/locales/constants.js";
 
+// COPILOT TODO: Concerns me that this function exists in multiple places. It should only exist in one palce
+const getRequestRoutePath = (req: Request): string => {
+  const route = req.route as { path?: unknown } | undefined;
+  if (route !== undefined && typeof route.path === "string") {
+    return route.path;
+  }
+
+  return req.path;
+};
+
 const handleRouteNotFound = (_: Request, res: Response): void => {
   res.status(HTTP_NOT_FOUND).render("main/error", {
     status: HTTP_NOT_FOUND,
@@ -18,7 +28,18 @@ const handleServerErrors = (
   res: Response,
   _: NextFunction,
 ): void => {
-  logger.logError("Server Error Middleware", "Internal Server Error", err, req);
+  logger.logError({
+    functionName: "server_error_middleware",
+    message: "Internal Server Error",
+    err,
+    request: req,
+    extraContext: {
+      event: "http_request_failed",
+      route: getRequestRoutePath(req),
+      method: req.method,
+      status_code: HTTP_INTERNAL_SERVER_ERROR,
+    },
+  });
   res.render("main/error", {
     status: HTTP_INTERNAL_SERVER_ERROR,
     message: "Internal Server Error",

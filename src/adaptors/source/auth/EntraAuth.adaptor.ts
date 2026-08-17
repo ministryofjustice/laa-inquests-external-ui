@@ -102,6 +102,7 @@ export class EntraAuthAdaptor implements AuthPort {
       scopesCount: result.scopes.length,
     };
 
+    // COPILOT TODO: Make this a debug level log
     this.logger(JSON.stringify(tokenDetails));
   }
 }
