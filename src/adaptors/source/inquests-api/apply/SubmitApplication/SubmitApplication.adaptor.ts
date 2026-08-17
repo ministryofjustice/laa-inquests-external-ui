@@ -18,7 +18,7 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
     _body: SubmitApplicationRequest,
     accessToken: string | undefined,
   ): Promise<SubmitApplicationResponse> {
-    // COPILOT TODO: Move this to be a debug level log. And of the whole body again
+    // COPILOT TODO: Move this to be a debug level log and include some redacted body content.
     if (this.payloadDebugEnabled) {
       this.logger(
         JSON.stringify({

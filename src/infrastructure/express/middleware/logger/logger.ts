@@ -5,7 +5,6 @@ import type {
   LogLevel,
   OpenSearchLog,
 } from "#src/infrastructure/express/middleware/logger/opensearchlog.types.js";
-import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 
 export const LOG_LEVELS = ["debug", "info", "warn", "error", "fatal"] as const;
 
@@ -23,10 +22,9 @@ export const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
   fatal: FATAL_LEVEL_PRIORITY,
 };
 
-// COPILOT TODO: We should keep snake case to an absolute minimum. I believe here we could be using camel case.
 interface LogContext {
-  request_id: string;
-  correlation_id: string;
+  requestId: string;
+  correlationId: string;
 }
 
 type ExtraContext = Record<string, unknown>;
@@ -35,7 +33,7 @@ interface EmitInput {
   level: LogLevel;
   functionName: string;
   message: string;
-  request?: Request | TypedRequestBody<unknown>;
+  request?: Request;
   err?: unknown;
   extraContext?: ExtraContext;
 }
@@ -43,7 +41,7 @@ interface EmitInput {
 interface LogInput {
   functionName: string;
   message: string;
-  request?: Request | TypedRequestBody<unknown>;
+  request?: Request;
   extraContext?: ExtraContext;
 }
 
@@ -80,47 +78,29 @@ export function shouldLog(
 }
 
 function extractContext(
-  //   COPILOT TODO: Could this not be a simpler type?
-  request: Request | TypedRequestBody<unknown> | undefined,
+  request: Request | undefined,
 ): LogContext {
-  const requestIdHeader = getHeaderValue(request, "x-request-id");
-  const correlationIdHeader = getHeaderValue(request, "x-correlation-id");
-  const requestId = resolveHeaderValue(requestIdHeader) ?? randomUUID();
-  const correlationId = resolveHeaderValue(correlationIdHeader) ?? requestId;
+  const requestIdHeader = request?.headers["x-request-id"];
+  const correlationIdHeader = request?.headers["x-correlation-id"];
+  const requestId = headerValueToString(requestIdHeader) ?? randomUUID();
+  const correlationId = headerValueToString(correlationIdHeader) ?? requestId;
 
   return {
-    request_id: requestId,
-    correlation_id: correlationId,
+    requestId,
+    correlationId,
   };
 }
 
-// COPILOT TODO: This seems overly verbose. Surely there's a better way of doing this?
-function getHeaderValue(
-  request: Request | TypedRequestBody<unknown> | undefined,
-  headerName: string,
-): unknown {
-  if (request === undefined) {
-    return undefined;
-  }
-
-  const requestWithUnknownHeaders = request as { headers?: unknown };
-  const { headers: maybeHeaders } = requestWithUnknownHeaders;
-  if (typeof maybeHeaders !== "object" || maybeHeaders === null) {
-    return undefined;
-  }
-
-  return (maybeHeaders as Record<string, unknown>)[headerName];
-}
-
-// COPILOT TODO: This seems overly general for our needs
-function resolveHeaderValue(headerValue: unknown): string | undefined {
+function headerValueToString(
+  headerValue: string | string[] | undefined,
+): string | undefined {
   if (typeof headerValue === "string") {
     return headerValue;
   }
 
   if (Array.isArray(headerValue)) {
-    const [firstHeaderValue] = headerValue as unknown[];
-    return typeof firstHeaderValue === "string" ? firstHeaderValue : undefined;
+    const [firstHeaderValue] = headerValue;
+    return firstHeaderValue;
   }
 
   return undefined;
@@ -278,16 +258,16 @@ function buildMessage({
     config.app.environment === "development" ||
     config.app.environment === "test"
   ) {
-    return `[${new Date().toISOString()}] ${logLevel.toUpperCase()} ${functionName} ${context.correlation_id} ${context.request_id} ${message}`;
+    return `[${new Date().toISOString()}] ${logLevel.toUpperCase()} ${functionName} ${context.correlationId} ${context.requestId} ${message}`;
   }
 
   const logEntry: OpenSearchLog = {
     timestamp: new Date().toISOString(),
     level: logLevel,
-    service: config.SERVICE_NAME ?? "",
+    service: config.SERVICE_NAME ?? "laa-inquests-external-ui",
     environment: config.app.environment,
-    request_id: context.request_id,
-    correlation_id: context.correlation_id,
+    request_id: context.requestId,
+    correlation_id: context.correlationId,
     function_name: functionName,
     message,
     ...sharedFields,
@@ -299,7 +279,7 @@ function buildMessage({
 const configuredLogLevel = getConfiguredLogLevel();
 const logger = new Logger(configuredLogLevel);
 
-if (validLogLevel(config.LOG_LEVEL)) {
+if (!validLogLevel(config.LOG_LEVEL)) {
   logger.logWarn({
     functionName: "logger",
     message: "Invalid or missing LOG_LEVEL. Falling back to info.",
@@ -311,4 +291,4 @@ if (validLogLevel(config.LOG_LEVEL)) {
   });
 }
 
-export { logger };
+export { Logger, logger };
