@@ -5,7 +5,6 @@ import {
   HTTP_NOT_FOUND,
 } from "#src/infrastructure/locales/constants.js";
 
-// COPILOT TODO: Concerns me that this function exists in multiple places. It should only exist in one palce
 const getRequestRoutePath = (req: Request): string => {
   const route = req.route as { path?: unknown } | undefined;
   if (route !== undefined && typeof route.path === "string") {
