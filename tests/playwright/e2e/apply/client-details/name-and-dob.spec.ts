@@ -281,5 +281,27 @@ test.describe("Client details - name and dob", () => {
         CLIENT_DETAILS_ERROR.FUTURE_DATE,
       );
     });
+    test("renders error summary component summarising all errors", async ({ page }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const errorSummary = await page.getByRole("alert")
+      const continueButton = await basicDetailsForm.getByRole("button");
+      await continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible()
+      await expect(errorSummary).toContainText("There is a problem")
+      const firstNameError = errorSummary.getByText(CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME);
+
+      const lastNameError = errorSummary.getByText(CLIENT_DETAILS_ERROR.MISSING_LAST_NAME);
+      const noRadioSelectedError =
+      errorSummary.getByText(CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED);
+      const noDobError = errorSummary.getByText(CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT);
+
+      await expect(firstNameError).toBeVisible()
+      await expect(lastNameError).toBeVisible()
+      await expect(noRadioSelectedError).toBeVisible()
+      await expect(noDobError).toBeVisible()
+    })
   });
 });
