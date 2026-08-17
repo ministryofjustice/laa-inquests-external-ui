@@ -6,7 +6,7 @@ import {
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
+import { formatDateISOYYYYMMDD } from "#src/utils/dateFormatter.js";
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 import {
@@ -208,7 +208,7 @@ export class SubmitApplicationUseCase {
     return {
       clientFirstName: state.clientFirstName!,
       clientLastName: state.clientLastName!,
-      dateOfBirth: formatDateDDMMYYYY(
+      dateOfBirth: formatDateISOYYYYMMDD(
         state.clientDobYear,
         state.clientDobMonth,
         state.clientDobDay,
@@ -228,12 +228,12 @@ export class SubmitApplicationUseCase {
     return {
       deceasedFirstName: state.deceasedFirstName!,
       deceasedLastName: state.deceasedLastName!,
-      deceasedDateOfBirth: formatDateDDMMYYYY(
+      deceasedDateOfBirth: formatDateISOYYYYMMDD(
         state.deceasedDateOfBirthYear,
         state.deceasedDateOfBirthMonth,
         state.deceasedDateOfBirthDay,
       ),
-      deceasedDateOfDeath: formatDateDDMMYYYY(
+      deceasedDateOfDeath: formatDateISOYYYYMMDD(
         state.deceasedDateOfDeathYear,
         state.deceasedDateOfDeathMonth,
         state.deceasedDateOfDeathDay,

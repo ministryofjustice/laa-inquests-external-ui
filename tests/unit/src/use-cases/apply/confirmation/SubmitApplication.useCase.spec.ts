@@ -9,7 +9,7 @@ import {
   CORRESPONDENCE_RECIPIENT_TYPE,
   HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
-import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
+import { formatDateISOYYYYMMDD } from "#src/utils/dateFormatter.js";
 
 describe("SubmitApplicationUseCase", () => {
   let applySubmitPort: StubbedInstance<ApplySubmitPort>;
@@ -56,7 +56,7 @@ describe("SubmitApplicationUseCase", () => {
         clientFirstName: state.clientFirstName,
         clientLastName: state.clientLastName,
         clientLastNameAtBirth: state.clientLastNameAtBirth,
-        dateOfBirth: formatDateDDMMYYYY(
+        dateOfBirth: formatDateISOYYYYMMDD(
           state.clientDobYear,
           state.clientDobMonth,
           state.clientDobDay,
@@ -87,12 +87,12 @@ describe("SubmitApplicationUseCase", () => {
       deceased: {
         deceasedFirstName: state.deceasedFirstName,
         deceasedLastName: state.deceasedLastName,
-        deceasedDateOfBirth: formatDateDDMMYYYY(
+        deceasedDateOfBirth: formatDateISOYYYYMMDD(
           state.deceasedDateOfBirthYear,
           state.deceasedDateOfBirthMonth,
           state.deceasedDateOfBirthDay,
         ),
-        deceasedDateOfDeath: formatDateDDMMYYYY(
+        deceasedDateOfDeath: formatDateISOYYYYMMDD(
           state.deceasedDateOfDeathYear,
           state.deceasedDateOfDeathMonth,
           state.deceasedDateOfDeathDay,
