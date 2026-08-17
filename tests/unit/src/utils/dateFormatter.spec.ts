@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import {
   formatDateDDMMYYYY,
+  formatDateISOYYYYMMDD,
   formatISODateDDMMYYYY,
 } from "#src/utils/dateFormatter.js";
 
@@ -20,6 +21,14 @@ describe("formatDateDDMMYYYY()", () => {
   });
 });
 
+describe("formatDateISOYYYYMMDD()", () => {
+  it("formats year, month, and day into YYYY-MM-DD ISO format", () => {
+    expect(formatDateISOYYYYMMDD("1989", "10", "05")).to.equal("1989-10-05");
+    expect(formatDateISOYYYYMMDD("1975", "02", "01")).to.equal("1975-02-01");
+    expect(formatDateISOYYYYMMDD("2024", "3", "9")).to.equal("2024-03-09");
+  });
+});
+
 describe("formatISODateDDMMYYYY()", () => {
   it("formats a YYYY-MM-DD ISO date string into dd/mm/yyyy", () => {
     expect(formatISODateDDMMYYYY("2000-01-01")).to.equal("01/01/2000");
@@ -34,5 +43,12 @@ describe("formatISODateDDMMYYYY()", () => {
     expect(formatISODateDDMMYYYY("2026-01-01T00:00:00.000000")).to.equal(
       "01/01/2026",
     );
+  });
+
+  it("returns empty string for non-ISO date formats", () => {
+    expect(formatISODateDDMMYYYY("23-09-1977")).to.equal("");
+    expect(formatISODateDDMMYYYY("09/23/1977")).to.equal("");
+    expect(formatISODateDDMMYYYY("not-a-date")).to.equal("");
+    expect(formatISODateDDMMYYYY("")).to.equal("");
   });
 });
