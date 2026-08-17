@@ -45,10 +45,10 @@ describe("formatISODateDDMMYYYY()", () => {
     );
   });
 
-  it("returns empty string for non-ISO date formats", () => {
-    expect(formatISODateDDMMYYYY("23-09-1977")).to.equal("");
-    expect(formatISODateDDMMYYYY("09/23/1977")).to.equal("");
-    expect(formatISODateDDMMYYYY("not-a-date")).to.equal("");
+  it("returns the raw string for non-ISO date formats", () => {
+    expect(formatISODateDDMMYYYY("23-09-1977")).to.equal("23-09-1977");
+    expect(formatISODateDDMMYYYY("09/23/1977")).to.equal("09/23/1977");
+    expect(formatISODateDDMMYYYY("not-a-date")).to.equal("not-a-date");
     expect(formatISODateDDMMYYYY("")).to.equal("");
   });
 });

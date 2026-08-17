@@ -36,11 +36,11 @@ const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}/v;
 
 export function formatISODateDDMMYYYY(isoDate: string): string {
   if (!ISO_DATE_PATTERN.test(isoDate)) {
-    return "";
+    return isoDate;
   }
   const date = new Date(isoDate);
   if (isNaN(date.getTime())) {
-    return "";
+    return isoDate;
   }
   const day = String(date.getUTCDate()).padStart(DATE_PADDING, "0");
   const month = String(date.getUTCMonth() + MONTH_INDEX_OFFSET).padStart(
