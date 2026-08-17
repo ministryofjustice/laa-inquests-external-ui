@@ -6,6 +6,7 @@ import type {
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {logger} from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class EntraAuthAdaptor implements AuthPort {
   constructor(
@@ -77,10 +78,6 @@ export class EntraAuthAdaptor implements AuthPort {
 
   // eslint-disable-next-line complexity -- debug method intentionally captures many fields
   #logTokenDetails(result: AuthenticationResult): void {
-    if (!this.tokenDebugEnabled) {
-      return;
-    }
-
     const claims = result.account?.idTokenClaims;
     const tokenDetails = {
       event: "auth.token.details",
@@ -102,7 +99,15 @@ export class EntraAuthAdaptor implements AuthPort {
       scopesCount: result.scopes.length,
     };
 
-    // COPILOT TODO: Make this a debug level log and think about what we could log from the payload
-    this.logger(JSON.stringify(tokenDetails));
+    if (this.tokenDebugEnabled) {
+      logger.logDebug({
+        functionName: "submitApplication",
+        message: "DEBUG TOKEN NOT SUITABLE FOR PRODUCTION",
+        extraContext: {
+          event: "token_debug",
+          tokenDetails,
+        },
+      });
+    }
   }
 }

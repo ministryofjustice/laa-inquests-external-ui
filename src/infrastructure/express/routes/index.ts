@@ -172,9 +172,6 @@ const submitApplicationSource = new SubmitApplicationAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
   config.SUBMIT_PAYLOAD_DEBUG_ENABLED,
-  (message) => {
-    logger.logInfo({ functionName: "SubmitApplication", message });
-  },
 );
 
 const confirmationFormatter = new Formatter();

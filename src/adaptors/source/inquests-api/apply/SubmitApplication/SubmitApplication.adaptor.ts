@@ -5,30 +5,28 @@ import type {
   SubmitApplicationResponse,
 } from "./models/SubmitApplication.types.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class SubmitApplicationAdaptor implements ApplySubmitPort {
   constructor(
     private readonly http: AxiosInstance,
     private readonly baseUrl: string,
     private readonly payloadDebugEnabled = false,
-    private readonly logger: (message: string) => void = () => undefined,
   ) {}
 
   async submitApplication(
     _body: SubmitApplicationRequest,
     accessToken: string | undefined,
   ): Promise<SubmitApplicationResponse> {
-    // COPILOT TODO: Move this to be a debug level log and include some redacted body content.
     if (this.payloadDebugEnabled) {
-      this.logger(
-        JSON.stringify({
+      logger.logDebug({
+        functionName: "submitApplication",
+        message: "DEBUG APPLICATION BODY NOT SUITABLE FOR PRODUCTION",
+        extraContext: {
           event: "submit_application_payload_debug",
-          has_access_token:
-            typeof accessToken === "string" && accessToken !== "",
-          public_bodies_count: _body.publicBodies.length,
-          includes_coroners_letter: _body.coronersLetterId !== "",
-        }),
-      );
+          application: _body,
+        },
+      });
     }
 
     const response: AxiosResponse<SubmitApplicationResponse> =

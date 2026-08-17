@@ -77,9 +77,7 @@ export function shouldLog(
   return LOG_LEVEL_PRIORITY[eventLevel] >= LOG_LEVEL_PRIORITY[configuredLevel];
 }
 
-function extractContext(
-  request: Request | undefined,
-): LogContext {
+function extractContext(request: Request | undefined): LogContext {
   const requestIdHeader = request?.headers["x-request-id"];
   const correlationIdHeader = request?.headers["x-correlation-id"];
   const requestId = headerValueToString(requestIdHeader) ?? randomUUID();
