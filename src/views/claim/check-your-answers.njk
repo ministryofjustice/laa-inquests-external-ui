@@ -3,6 +3,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Check your answers" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -20,7 +22,7 @@
             errorList: [{ text: errorSummaries.submitError.text }]
           }) }}
         {% endif %}
-        <h1 class="govuk-heading-l">Check your answers</h1>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
         <h2 class="govuk-heading-m">Case details</h2>
         <div data-testid="case-details-summary-list">

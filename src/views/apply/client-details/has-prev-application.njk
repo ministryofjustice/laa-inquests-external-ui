@@ -4,6 +4,8 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% set pageHeading = "Has your client applied for Inquest legal aid before?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -15,7 +17,7 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        <h2 class="govuk-heading-l">Has your client applied for Inquest legal aid before?</h2>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         <p class="govuk-body">By this, we mean certificated and licensed work. You do not need to tell us about controlled work and family mediation.
           We'll find any previous records to make sure any contributions we calculate are correct.</p>
         <form data-testid="has-prev-application-form" action="/apply/client-details/has-prev-application" method="post">

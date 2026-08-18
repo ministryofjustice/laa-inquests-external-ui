@@ -3,6 +3,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% set pageHeading = "Do you want to add a 'care of' recipient for your client's mail?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -20,7 +22,7 @@
             name: "correspondence-recipient",
             fieldset: {
               legend: {
-                text: "Do you want to add a 'care of' recipient for your client's mail?",
+                text: pageHeading,
                 isPageHeading: true,
                 classes: "govuk-fieldset__legend--l"
               }

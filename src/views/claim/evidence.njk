@@ -4,6 +4,8 @@
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "moj/components/multi-file-upload/macro.njk" import mojMultiFileUpload %}
 {%- from "govuk/components/error-summary/macro.njk" import govukErrorSummary -%}
+{% set pageHeading = "Upload evidence" %}
+{% set pageTitle = pageHeading %}
 
 
 {% block content %}
@@ -16,7 +18,7 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">Upload evidence</h1>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
           {% if errorSummaries and errorSummaries.evidenceError %}
             {{ govukErrorSummary({

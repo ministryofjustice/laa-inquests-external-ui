@@ -3,6 +3,8 @@
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "What was their date of death?" %}
+{% set pageTitle = pageHeading %}
 {% block content %}
 
 <div class="govuk-width-container">
@@ -24,7 +26,7 @@
                 ]
             }) }}
             {% endif %}
-            <h2 class="govuk-heading-l">What was their date of death?</h2>
+            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
             <form data-testid="deceased-date-of-death-form" action="/apply/deceased-details/dod" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />
                 {{ govukDateInput({
