@@ -138,7 +138,7 @@ test.describe("Client details - home address", () => {
     await expect(page.getByLabel("Postcode")).toHaveValue("SW1A 1AA");
   });
 
-  test.describe.only("render validation errors", () => {
+  test.describe("render validation errors", () => {
     test("if address line 1 is missing", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
