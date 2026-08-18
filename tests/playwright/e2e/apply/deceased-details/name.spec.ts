@@ -21,7 +21,7 @@ test.describe("Provider can", () => {
   });
 
   test("view deceased name page", async ({ page, checkAccessibility }) => {
-    await validateHeader(page, DECEASED_NAME_PAGE.HEADING, 2);
+    await validateHeader(page, DECEASED_NAME_PAGE.HEADING, 1);
     await validateBackButton(page, DECEASED_NAME_PAGE.BACK_PATH);
     await validateFormAttributes(form, DECEASED_NAME_PAGE.FORM_PATH);
     await validateCSRFToken(form);
