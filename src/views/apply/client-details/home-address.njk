@@ -4,6 +4,8 @@
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
 
 {% block content %}
 
@@ -15,6 +17,34 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries %}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.addressLine1InputError.text,
+                href: "#home-address-line-1"
+              },
+              {
+                text: errorSummaries.addressLine2InputError.text,
+                href: "#home-address-line-2"
+              },
+              {
+                text: errorSummaries.townOrCityInputError.text,
+                href: "#home-town-or-city"
+              },
+              {
+                text: errorSummaries.countyInputError.text,
+                href: "#home-county"
+              },
+              {
+                text: errorSummaries.postcodeInputError.text,
+                href: "#home-postcode"
+              }
+            ]
+          })
+        }}
+        {% endif %}
         <h1 class="govuk-heading-l">What is your client's home address?</h1>
         <form data-testid="home-address-form" action="/apply/client-details/home-address" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />

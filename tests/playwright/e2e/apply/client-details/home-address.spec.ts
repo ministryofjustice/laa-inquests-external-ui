@@ -138,10 +138,12 @@ test.describe("Client details - home address", () => {
     await expect(page.getByLabel("Postcode")).toHaveValue("SW1A 1AA");
   });
 
-  test.describe("render validation errors", () => {
+  test.describe.only("render validation errors", () => {
     test("if address line 1 is missing", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         "Town or city": "London",
@@ -150,6 +152,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-1-error",
@@ -163,6 +171,8 @@ test.describe("Client details - home address", () => {
     test("if address line 1 is less than 2 characters", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -171,6 +181,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.addressLine1MinMax,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-1-error",
@@ -184,6 +200,8 @@ test.describe("Client details - home address", () => {
     test("if address line 1 exceeds max character length", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -192,6 +210,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.addressLine1MinMax,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-1-error",
@@ -207,6 +231,8 @@ test.describe("Client details - home address", () => {
     }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -215,6 +241,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.addressLine1RequiresAlphanumeric,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-1-error",
@@ -228,6 +260,8 @@ test.describe("Client details - home address", () => {
     test("if address line 1 contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -236,6 +270,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.addressLine1InvalidCharacters,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-1-error",
@@ -251,6 +291,8 @@ test.describe("Client details - home address", () => {
     }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -259,6 +301,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.addressLine2MinMax,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-2-error",
@@ -272,6 +320,8 @@ test.describe("Client details - home address", () => {
     test("if address line 2 exceeds max character length", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -280,6 +330,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.addressLine2MinMax,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-2-error",
@@ -293,6 +349,8 @@ test.describe("Client details - home address", () => {
     test("if address line 2 contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -301,6 +359,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.addressLine2InvalidCharacters,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-address-line-2-error",
@@ -314,6 +378,8 @@ test.describe("Client details - home address", () => {
     test("if town or city is missing", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         "Address line 1": "4 Privet Drive",
@@ -322,6 +388,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-town-or-city-error",
@@ -335,6 +407,8 @@ test.describe("Client details - home address", () => {
     test("if town or city is less than 2 characters", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -343,6 +417,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.townOrCityMinMax,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-town-or-city-error",
@@ -356,6 +436,8 @@ test.describe("Client details - home address", () => {
     test("if town or city exceeds max character length", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -364,6 +446,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.townOrCityMinMax,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-town-or-city-error",
@@ -377,6 +465,8 @@ test.describe("Client details - home address", () => {
     test("if town or city contains numbers", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -385,6 +475,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.townOrCityInvalidCharacters,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-town-or-city-error",
@@ -398,6 +494,8 @@ test.describe("Client details - home address", () => {
     test("if town or city contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -406,6 +504,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.townOrCityInvalidCharacters,
+      );
 
       const errorMessageElement = addressForm.locator(
         "#home-town-or-city-error",
@@ -421,6 +525,8 @@ test.describe("Client details - home address", () => {
     }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -429,6 +535,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.countyMinMax,
+      );
 
       const errorMessageElement = addressForm.locator("#home-county-error");
       await expect(errorMessageElement).toBeVisible();
@@ -440,6 +552,8 @@ test.describe("Client details - home address", () => {
     test("if county exceeds max character length", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -448,6 +562,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.countyMinMax,
+      );
 
       const errorMessageElement = addressForm.locator("#home-county-error");
       await expect(errorMessageElement).toBeVisible();
@@ -459,6 +579,8 @@ test.describe("Client details - home address", () => {
     test("if county contains numbers", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -467,6 +589,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.countyInvalidCharacters,
+      );
 
       const errorMessageElement = addressForm.locator("#home-county-error");
       await expect(errorMessageElement).toBeVisible();
@@ -478,6 +606,8 @@ test.describe("Client details - home address", () => {
     test("if county contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -486,6 +616,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.countyInvalidCharacters,
+      );
 
       const errorMessageElement = addressForm.locator("#home-county-error");
       await expect(errorMessageElement).toBeVisible();
@@ -497,6 +633,8 @@ test.describe("Client details - home address", () => {
     test("if postcode is missing", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         "Address line 1": "4 Privet Drive",
@@ -505,6 +643,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_HOME_POSTCODE,
+      );
 
       const errorMessageElement = addressForm.locator("#home-postcode-error");
       await expect(errorMessageElement).toBeVisible();
@@ -516,6 +660,8 @@ test.describe("Client details - home address", () => {
     test("if postcode is less than 5 characters", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -524,6 +670,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.postcodeMinMax,
+      );
 
       const errorMessageElement = addressForm.locator("#home-postcode-error");
       await expect(errorMessageElement).toBeVisible();
@@ -535,6 +687,8 @@ test.describe("Client details - home address", () => {
     test("if postcode exceeds max character length", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -543,6 +697,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.postcodeMinMax,
+      );
 
       const errorMessageElement = addressForm.locator("#home-postcode-error");
       await expect(errorMessageElement).toBeVisible();
@@ -554,6 +714,8 @@ test.describe("Client details - home address", () => {
     test("if postcode contains punctuation", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validHomeAddress,
@@ -562,6 +724,12 @@ test.describe("Client details - home address", () => {
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedHomeAddressErrors.postcodeInvalidCharacters,
+      );
 
       const errorMessageElement = addressForm.locator("#home-postcode-error");
       await expect(errorMessageElement).toBeVisible();
