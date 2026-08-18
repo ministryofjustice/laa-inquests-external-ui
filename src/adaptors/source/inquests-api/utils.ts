@@ -7,18 +7,21 @@ interface PostToInquestsApiParams<TBody> {
   body: TBody;
   accessToken: string | undefined;
   headers?: Record<string, string>;
+  validateStatus?: (status: number) => boolean;
 }
 
 export async function postToInquestsApi<TResponse, TBody>(
   params: PostToInquestsApiParams<TBody>,
 ): Promise<AxiosResponse<TResponse>> {
-  const { http, baseUrl, path, body, accessToken, headers } = params;
+  const { http, baseUrl, path, body, accessToken, headers, validateStatus } =
+    params;
 
   if (typeof accessToken !== "string" || accessToken === "") {
     throw new Error("Missing access token for Inquests API request");
   }
 
   return await http.post<TResponse>(`${baseUrl}${path}`, body, {
+    ...(validateStatus === undefined ? {} : { validateStatus }),
     headers: {
       ...headers,
       Authorization: `Bearer ${accessToken}`,
