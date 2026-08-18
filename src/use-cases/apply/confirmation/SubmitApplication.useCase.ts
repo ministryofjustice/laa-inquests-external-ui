@@ -69,7 +69,7 @@ export class SubmitApplicationUseCase {
           extraContext: {
             event: "apply_submission_failed",
             reason: "INVALID_RESPONSE",
-            issues: parseResponseResult.error.issues
+            issues: parseResponseResult.error.issues,
           },
         });
         return {
@@ -157,7 +157,8 @@ export class SubmitApplicationUseCase {
       if (!parseRequestResult.success) {
         logger.logWarn({
           functionName: "submitApplicationUseCase_generateSubmitBody",
-          message: "Submit application request payload failed schema validation",
+          message:
+            "Submit application request payload failed schema validation",
           extraContext: {
             event: "apply_submission_failed",
             reason: "INVALID_INPUT_STATE",

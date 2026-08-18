@@ -58,7 +58,7 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
               event: "claim_evidence_upload_failed",
               reason: "FILE_SCAN_FOUND_VIRUS",
               status_code: response.status,
-              file_size_bytes: body.buffer.length
+              file_size_bytes: body.buffer.length,
             },
           });
           return {
@@ -97,7 +97,7 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
           extraContext: {
             event: "claim_evidence_upload_failed",
             reason: "UNEXPECTED_EXCEPTION",
-            issues: parsedResponse.error.issues
+            issues: parsedResponse.error.issues,
           },
         });
         return {

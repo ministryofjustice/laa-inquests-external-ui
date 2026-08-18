@@ -51,7 +51,7 @@ export class DeleteEvidenceUseCase {
         extraContext: {
           event: "claim_evidence_delete_failed",
           reason: responseRaw.reason,
-          file_id: evidenceFileId
+          file_id: evidenceFileId,
         },
       });
 
@@ -67,7 +67,7 @@ export class DeleteEvidenceUseCase {
         extraContext: {
           event: "claim_evidence_delete_failed",
           reason: "UNEXPECTED_EXCEPTION",
-          file_id: evidenceFileId
+          file_id: evidenceFileId,
         },
       });
       return {

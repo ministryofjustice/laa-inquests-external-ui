@@ -60,7 +60,7 @@ export class CaseSearchAdaptor {
         message: "Case search form validation failed",
         extraContext: {
           event: "claim_case_search_validation_failed",
-          laa_reference: caseReference
+          laa_reference: caseReference,
         },
       });
       res.render("claim/case-search", {
@@ -96,7 +96,7 @@ export class CaseSearchAdaptor {
         request: req,
         extraContext: {
           event: "claim_case_search_failed",
-          laa_reference: laaReference
+          laa_reference: laaReference,
         },
       });
       return;
@@ -128,7 +128,8 @@ export class CaseSearchAdaptor {
     if (selectedClient === undefined) {
       logger.logWarn({
         functionName: "caseSearchAdaptor_selectCase",
-        message: "Case selection failed because reference was not in cached results",
+        message:
+          "Case selection failed because reference was not in cached results",
         request: req,
         extraContext: {
           event: "claim_case_selection_failed",

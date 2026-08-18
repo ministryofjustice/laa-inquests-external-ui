@@ -103,7 +103,7 @@ export class SubmitClaimUseCase {
         extraContext: {
           event: "claim_submission_failed",
           reason: "UNEXPECTED_EXCEPTION",
-          laa_reference: input.laaReference
+          laa_reference: input.laaReference,
         },
       });
       return { status: "TECHNICAL_FAILURE", reason: "UNEXPECTED_EXCEPTION" };

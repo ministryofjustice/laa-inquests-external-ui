@@ -78,7 +78,7 @@ export class EvidenceAdaptor {
         extraContext: {
           event: "claim_evidence_upload_validation_failed",
           no_js_upload: isNoJsUpload,
-          errors
+          errors,
         },
       });
       this.#handleValidationFailure(req, res, errors, isNoJsUpload);

@@ -46,7 +46,6 @@ import config from "#src/infrastructure/config/config.js";
 import { SessionHelper } from "../session/sessionHelpers.js";
 import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
 import { UploadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/UploadEvidence.adaptor.js";
@@ -86,10 +85,7 @@ function createAuthSource(): EntraAuthAdaptor {
       clientSecret: config.AUTH_CLIENT_SECRET,
     },
   });
-  return new EntraAuthAdaptor(
-    entraClient,
-    config.AUTH_TOKEN_DEBUG_ENABLED,
-  );
+  return new EntraAuthAdaptor(entraClient, config.AUTH_TOKEN_DEBUG_ENABLED);
 }
 
 const authAdaptor = new AuthAdaptor(

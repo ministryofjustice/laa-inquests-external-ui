@@ -107,7 +107,9 @@ export class EntraAuthAdaptor implements AuthPort {
       subject: this.#getClaim(claims, "sub"),
       expiresOn: result.expiresOn?.toISOString(),
       hasAccessToken: result.accessToken !== "",
-      scopesCount: result.scopes.length,
+      scopesCount: Array.isArray(result.scopes)
+        ? result.scopes.length
+        : EMPTY_ARR_LENGTH,
     };
 
     if (this.tokenDebugEnabled) {
