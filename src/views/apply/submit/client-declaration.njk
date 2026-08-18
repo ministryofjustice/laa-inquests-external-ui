@@ -2,6 +2,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Confirm the following" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -20,7 +22,7 @@
         {% endif %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-l">Confirm the following</h2>
+                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
                 <form data-testid="client-declaration-form" action="/apply/confirmation/client-declaration" method="post">
                     <input type="hidden" name="_csrf" value="{{csrfToken}}" />
                     <p class="govuk-body">{{clientDetails.firstName}} {{clientDetails.lastName}} agrees that:</p>

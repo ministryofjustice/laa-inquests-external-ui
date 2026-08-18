@@ -4,6 +4,8 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {%- from "moj/components/search/macro.njk" import mojSearch -%}
+{% set pageHeading = t("pages.apply.proceedings.title") %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -21,7 +23,7 @@
                 name: "proceeding-option",
                 fieldset: {
                   legend: {
-                    text: t("pages.apply.proceedings.title"),
+                    text: pageHeading,
                     isPageHeading: true,
                     classes: "govuk-fieldset__legend--l"
                   }

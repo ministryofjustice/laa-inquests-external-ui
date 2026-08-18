@@ -4,6 +4,8 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% set pageHeading = "Does your client have a National Insurance number?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -21,7 +23,7 @@
             name: "has-nino",
             fieldset: {
               legend: {
-                text: "Does your client have a National Insurance number?",
+                text: pageHeading,
                 isPageHeading: true,
                 classes: "govuk-fieldset__legend--l"
               }

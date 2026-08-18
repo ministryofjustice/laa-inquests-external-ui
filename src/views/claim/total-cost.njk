@@ -2,6 +2,8 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% set pageHeading = "What is your total claim cost?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -41,7 +43,7 @@
         </div>
         {% endif %}
 
-        <h1 class="govuk-heading-l">What is your total claim cost?</h1>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
         <form data-testid="total-cost-form" action="/claim/total-cost" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
