@@ -12,6 +12,7 @@ import {
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 const HTTP_SUCCESS = 200;
 
 export class EvidenceAdaptor {
@@ -70,6 +71,16 @@ export class EvidenceAdaptor {
 
     const errors = this.formValidator.validateEvidenceUploadFile(file);
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
+      logger.logWarn({
+        functionName: "evidenceAdaptor_processEvidenceUpload",
+        message: "Evidence upload validation failed",
+        request: req,
+        extraContext: {
+          event: "claim_evidence_upload_validation_failed",
+          no_js_upload: isNoJsUpload,
+          errors
+        },
+      });
       this.#handleValidationFailure(req, res, errors, isNoJsUpload);
     } else {
       const result = await this.uploadEvidenceUseCase.execute({
@@ -93,6 +104,15 @@ export class EvidenceAdaptor {
           isNoJsUpload,
         });
       } else {
+        logger.logWarn({
+          functionName: "evidenceAdaptor_processEvidenceUpload",
+          message: "Evidence upload did not complete successfully",
+          request: req,
+          extraContext: {
+            event: "claim_evidence_upload_failed",
+            no_js_upload: isNoJsUpload,
+          },
+        });
         this.#handleUploadFailure({ req, res, result, isNoJsUpload });
       }
     }
@@ -101,6 +121,14 @@ export class EvidenceAdaptor {
   async processEvidenceDelete(req: Request, res: Response): Promise<void> {
     const evidenceFileId = this.#extractEvidenceFileId(req);
     if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
+      logger.logWarn({
+        functionName: "evidenceAdaptor_processEvidenceDelete",
+        message: "Evidence delete request missing file identifier",
+        request: req,
+        extraContext: {
+          event: "claim_evidence_delete_failed",
+        },
+      });
       res.status(HTTP_BAD_REQUEST).json({
         error: { message: CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN },
       });
@@ -113,6 +141,14 @@ export class EvidenceAdaptor {
     });
 
     if (result.status !== "SUCCESS") {
+      logger.logWarn({
+        functionName: "evidenceAdaptor_processEvidenceDelete",
+        message: "Evidence delete failed",
+        request: req,
+        extraContext: {
+          event: "claim_evidence_delete_failed",
+        },
+      });
       res.status(HTTP_INTERNAL_SERVER_ERROR).json({
         error: { message: SERVICE_UNAVAILABLE_MESSAGE },
       });
@@ -126,6 +162,15 @@ export class EvidenceAdaptor {
   async processEvidenceDeleteNoJs(req: Request, res: Response): Promise<void> {
     const evidenceFileId = this.#extractEvidenceFileId(req);
     if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
+      logger.logWarn({
+        functionName: "evidenceAdaptor_processEvidenceDeleteNoJs",
+        message: "No-js evidence delete request missing file identifier",
+        request: req,
+        extraContext: {
+          event: "claim_evidence_delete_failed",
+          no_js_upload: true,
+        },
+      });
       this.#renderNoJsError(
         req,
         res,
@@ -141,6 +186,15 @@ export class EvidenceAdaptor {
     });
 
     if (result.status !== "SUCCESS") {
+      logger.logWarn({
+        functionName: "evidenceAdaptor_processEvidenceDeleteNoJs",
+        message: "No-js evidence delete failed",
+        request: req,
+        extraContext: {
+          event: "claim_evidence_delete_failed",
+          no_js_upload: true,
+        },
+      });
       this.#renderNoJsError(
         req,
         res,
@@ -310,6 +364,16 @@ export class EvidenceAdaptor {
         },
       });
     }
+
+    logger.logInfo({
+      functionName: "evidenceAdaptor_handleUploadSuccess",
+      message: "Evidence upload completed successfully",
+      request: req,
+      extraContext: {
+        event: "claim_evidence_upload_completed",
+        no_js_upload: isNoJsUpload,
+      },
+    });
   }
 
   #storeUploadedFile(

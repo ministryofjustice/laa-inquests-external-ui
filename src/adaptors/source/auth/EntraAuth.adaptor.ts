@@ -6,13 +6,12 @@ import type {
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
-import {logger} from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class EntraAuthAdaptor implements AuthPort {
   constructor(
     private readonly msalClient: ConfidentialClientApplication,
     private readonly tokenDebugEnabled = false,
-    private readonly logger: (message: string) => void = () => undefined,
   ) {}
 
   async getAuthCodeUrl(scopes: string[], redirectUri: string): Promise<string> {
@@ -24,22 +23,34 @@ export class EntraAuthAdaptor implements AuthPort {
     scopes: string[],
     redirectUri: string,
   ): Promise<AuthTokenResult> {
-    const request: AuthorizationCodeRequest = { code, scopes, redirectUri };
+    try {
+      const request: AuthorizationCodeRequest = { code, scopes, redirectUri };
 
-    const result = await this.msalClient.acquireTokenByCode(request);
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- MSAL can return null at runtime despite the type signature
-    if (result === null) {
-      throw new Error("MSAL returned null token result");
+      const result = await this.msalClient.acquireTokenByCode(request);
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- MSAL can return null at runtime despite the type signature
+      if (result === null) {
+        throw new Error("MSAL returned null token result");
+      }
+
+      this.#logTokenDetails(result);
+      return {
+        userId: result.account?.homeAccountId ?? result.uniqueId,
+        userName: result.account?.name ?? undefined,
+        officeId: this.#extractOfficeId(result.account?.idTokenClaims),
+        providerEmail: result.account?.username ?? undefined,
+        ...this.#getAccessTokenField(result),
+      };
+    } catch (err) {
+      logger.logError({
+        functionName: "entraAuthAdaptor_acquireTokenByCode",
+        message: "Token exchange failed with exception",
+        err,
+        extraContext: {
+          event: "auth_token_exchange_failed",
+        },
+      });
+      throw err;
     }
-
-    this.#logTokenDetails(result);
-    return {
-      userId: result.account?.homeAccountId ?? result.uniqueId,
-      userName: result.account?.name ?? undefined,
-      officeId: this.#extractOfficeId(result.account?.idTokenClaims),
-      providerEmail: result.account?.username ?? undefined,
-      ...this.#getAccessTokenField(result),
-    };
   }
 
   #getAccessTokenField(

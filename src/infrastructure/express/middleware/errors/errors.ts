@@ -14,7 +14,19 @@ const getRequestRoutePath = (req: Request): string => {
   return req.path;
 };
 
-const handleRouteNotFound = (_: Request, res: Response): void => {
+const handleRouteNotFound = (req: Request, res: Response): void => {
+  logger.logWarn({
+    functionName: "route_not_found_middleware",
+    message: "Route not found",
+    request: req,
+    extraContext: {
+      event: "route_not_found",
+      route: getRequestRoutePath(req),
+      method: req.method,
+      status_code: HTTP_NOT_FOUND,
+    },
+  });
+
   res.status(HTTP_NOT_FOUND).render("main/error", {
     status: HTTP_NOT_FOUND,
     message: "Page not found",

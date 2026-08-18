@@ -89,9 +89,6 @@ function createAuthSource(): EntraAuthAdaptor {
   return new EntraAuthAdaptor(
     entraClient,
     config.AUTH_TOKEN_DEBUG_ENABLED,
-    (message) => {
-      logger.logInfo({ functionName: "EntraAuth", message });
-    },
   );
 }
 
