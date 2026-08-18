@@ -4,6 +4,8 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
 
 {% block content %}
 
@@ -13,12 +15,29 @@
     href: "/apply/client-details/name-and-dob"
   }) }}
   <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">      
+    <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries %}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.ninoInputError.text,
+                href: "#nino-input"
+              },
+              {
+                text: errorSummaries.noRadioSelected.text,
+                href: "#has-nino"
+              }
+            ]
+          })
+        }}
+        {% endif %}
         <form data-testid="nino-form" action="/apply/client-details/nino" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukRadios({
             name: "has-nino",
+            id: "has-nino",
             fieldset: {
               legend: {
                 text: "Does your client have a National Insurance number?",
@@ -44,7 +63,7 @@
                     },
                     errorMessage: errorSummaries.ninoInputError,
                     value: client.clientNino
-                  }) 
+                  })
                 }
               },
               {
