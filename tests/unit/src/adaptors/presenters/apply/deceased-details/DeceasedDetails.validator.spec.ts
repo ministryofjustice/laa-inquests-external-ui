@@ -337,17 +337,13 @@ describe("DeceasedDetails.validator", () => {
   });
 
   describe("validateCoronerReference", () => {
-    it("returns error when coroner reference is empty", () => {
+    it("returns no error when coroner reference is empty", () => {
       const errorSummaries = formValidator.validateCoronerReference({
         _csrf: "abcdefg",
         "deceased-coroner-reference": "",
       });
 
-      assert.deepEqual(errorSummaries, {
-        coronerReferenceInputError: {
-          text: DECEASED_DETAILS_ERROR.MISSING_CORONER_REFERENCE,
-        },
-      });
+      assert.deepEqual(errorSummaries, {});
     });
 
     it("returns an error when coroner reference exceeds 50 characters", () => {
