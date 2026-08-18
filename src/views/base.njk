@@ -2,7 +2,12 @@
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 
-{% block pageTitle %}{{config.SERVICE_NAME}} – GOV.UK{% endblock %}
+{% block pageTitle %}
+  {% if errorSummaries %}
+    Error:
+  {% endif %}
+{{config.SERVICE_NAME}} – GOV.UK
+{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="/css/{{getAsset('main','css')}}">
