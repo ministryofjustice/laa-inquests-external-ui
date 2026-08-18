@@ -27,6 +27,7 @@ test.describe("Client details - name and dob", () => {
     page.goto("/apply/client-details/name-and-dob");
 
     const basicDetailsForm = await page.getByTestId("client-details-form");
+    const errorSummary = await page.getByRole("alert")
     const firstNameLabel = basicDetailsForm.getByLabel("First name");
     const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
       exact: true,
@@ -52,6 +53,7 @@ test.describe("Client details - name and dob", () => {
     await expect(yesNameChangedInputLabel).toBeHidden();
     yesNameChangedLabel.click();
     await expect(yesNameChangedInputLabel).toBeVisible();
+    await expect(errorSummary).not.toBeVisible();
 
     await expect(dobLabel).toBeVisible();
     await expect(continueButton).toHaveText("Continue");
@@ -72,6 +74,7 @@ test.describe("Client details - name and dob", () => {
 
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
+    await expect(errorSummary).not.toBeVisible();
     await expect(page.url()).toContain("apply/client-details/nino");
   });
 
