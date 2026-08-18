@@ -44,6 +44,8 @@ test.describe("Provider can", () => {
   test("continue to the deceased further information page", async ({
     page,
   }) => {
+    const inputField = form.getByLabel("Please enter your reference number");
+    await inputField.fill("test reference");
     await continueToNextPage(form, page);
     await expect(page.url()).toContain(
       "apply/deceased-details/further-information",
@@ -68,14 +70,30 @@ test.describe("Provider can", () => {
     ).toBeVisible();
   });
 
+  test("renders error when coroners reference not supplied", async ({
+    page,
+  }) => {
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
+
+    await continueToNextPage(form, page);
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      DECEASED_DETAILS_ERROR.MISSING_CORONER_REFERENCE,
+    );
+  });
+
   test("fill in details, continue and navigate back with deceased details coroner reference automatically filled in", async ({
     page,
   }) => {
-    const yesInput = form.getByLabel("Please enter your reference number");
-    await yesInput.fill("Test");
+    const referenceInput = form.getByLabel(
+      "Please enter your reference number",
+    );
+    await referenceInput.fill("Test");
 
     await continueToNextPage(form, page);
     await page.goto("/apply/deceased-details/coroner-reference");
-    await expect(yesInput).toHaveValue("Test");
+    await expect(referenceInput).toHaveValue("Test");
   });
 });

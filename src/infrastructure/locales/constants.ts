@@ -93,6 +93,8 @@ export const DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH = 70;
 
 export const DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH = 50;
 
+export const DECEASED_CORONER_REFERENCE_EMPTY = 0;
+
 export const DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH = 2;
 
 export const DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH = 500;
@@ -254,6 +256,7 @@ export const DECEASED_DETAILS_ERROR = {
     "Relationship must be 70 characters or less",
   CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Coroner reference must be 50 characters or less",
+  MISSING_CORONER_REFERENCE: "Coroner reference must be provided",
   FURTHER_INFORMATION_SELECTION_REQUIRED: "Please select an option",
   FURTHER_INFORMATION_MIN_MAX:
     "Linked case details must be between 2 and 500 characters",

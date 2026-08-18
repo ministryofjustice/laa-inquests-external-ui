@@ -1,4 +1,5 @@
 import {
+  DECEASED_CORONER_REFERENCE_EMPTY,
   DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH,
   DECEASED_DETAILS_ERROR,
   DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH,
@@ -160,6 +161,15 @@ export class DeceasedDetailsValidator extends FormValidator {
   ): Partial<DeceasedCoronerReferenceError> {
     const errorSummaries: Partial<DeceasedCoronerReferenceError> = {};
     const { "deceased-coroner-reference": coronerReference } = formBody;
+
+    if (
+      typeof coronerReference === "string" &&
+      coronerReference.trim().length === DECEASED_CORONER_REFERENCE_EMPTY
+    ) {
+      errorSummaries.coronerReferenceInputError = {
+        text: DECEASED_DETAILS_ERROR.MISSING_CORONER_REFERENCE,
+      };
+    }
 
     if (
       this.exceedsMaxLength(
