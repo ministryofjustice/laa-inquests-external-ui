@@ -25,7 +25,7 @@ test.describe("Provider can", () => {
     await validateHeader(
       page,
       "Does your client meet the definition of a family member?",
-      2,
+      1,
     );
     await validateBackButton(page, "/apply/deceased-details/dob");
     await validateFormAttributes(
