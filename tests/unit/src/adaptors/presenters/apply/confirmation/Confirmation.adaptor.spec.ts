@@ -77,13 +77,13 @@ describe("Confirmation adaptor", () => {
     const publicAuthorities = [
       {
         publicAuthorityId: "12345",
-        publicAuthorityDescription: "Test public authority",
+        publicAuthorityDescription: "Test interested party",
       },
     ];
 
     const expectedFormattedPublicAuthorities = [
       {
-        key: { text: "Test public authority" },
+        key: { text: "Test interested party" },
       },
     ];
 

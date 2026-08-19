@@ -6,7 +6,7 @@ import { assert } from "chai";
 
 describe("PublicAuthorityValidator", () => {
   describe("validatePublicAuthorityInput", () => {
-    it("returns expected error message when no public authority is selected", () => {
+    it("returns expected error message when no interested party (public authority) is selected", () => {
       const formValidator = new PublicAuthorityValidator();
 
       const formBody: Record<string, string> = {
