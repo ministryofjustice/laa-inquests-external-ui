@@ -34,7 +34,9 @@ test.describe("Claim - total cost", () => {
       ),
     ).toBeVisible();
     await expect(
-      page.getByLabel("Gross total of claim including VAT"),
+      page.getByLabel(
+        "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)",
+      ),
     ).toBeVisible();
   });
 
@@ -119,7 +121,11 @@ test.describe("Claim - total cost", () => {
     await page
       .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
       .fill("100");
-    await page.getByLabel("Gross total of claim including VAT").fill("99.99");
+    await page
+      .getByLabel(
+        "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)",
+      )
+      .fill("99.99");
 
     await page.getByRole("button", { name: "Continue" }).click();
 
@@ -149,7 +155,11 @@ test.describe("Claim - total cost", () => {
     await page
       .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
       .fill("200");
-    await page.getByLabel("Gross total of claim including VAT").fill("440");
+    await page
+      .getByLabel(
+        "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)",
+      )
+      .fill("440");
 
     await page.getByRole("button", { name: "Continue" }).click();
 
@@ -177,7 +187,11 @@ test.describe("Claim - total cost", () => {
     await page
       .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
       .fill("200.00");
-    await page.getByLabel("Gross total of claim including VAT").fill("340.00");
+    await page
+      .getByLabel(
+        "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)",
+      )
+      .fill("340.00");
 
     await page.getByRole("button", { name: "Continue" }).click();
 
@@ -207,7 +221,11 @@ test.describe("Claim - total cost", () => {
     await page
       .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
       .fill("250.25");
-    await page.getByLabel("Gross total of claim including VAT").fill("400.30");
+    await page
+      .getByLabel(
+        "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)",
+      )
+      .fill("400.30");
 
     await page.getByRole("button", { name: "Continue" }).click();
 
