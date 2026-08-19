@@ -106,7 +106,11 @@ test.describe("Claim - confirm and submit", () => {
     await page
       .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
       .fill("111.11");
-    await page.getByLabel("Gross total of claim including VAT").fill("133.33");
+    await page
+      .getByLabel(
+        "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)",
+      )
+      .fill("133.33");
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/evidence");
 

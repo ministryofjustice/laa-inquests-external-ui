@@ -77,13 +77,13 @@ describe("Confirmation adaptor", () => {
     const publicAuthorities = [
       {
         publicAuthorityId: "12345",
-        publicAuthorityDescription: "Test public authority",
+        publicAuthorityDescription: "Test interested party",
       },
     ];
 
     const expectedFormattedPublicAuthorities = [
       {
-        key: { text: "Test public authority" },
+        key: { text: "Test interested party" },
       },
     ];
 
@@ -431,7 +431,6 @@ describe("Confirmation adaptor", () => {
         submitBody.client.correspondenceAddressSource,
         "USE_PROVIDER_ADDRESS",
       );
-      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
       assert.equal(
         Object.prototype.hasOwnProperty.call(
           submitBody.client,
@@ -660,7 +659,6 @@ describe("Confirmation adaptor", () => {
       const submitBody = applySubmitPortStub.submitApplication.getCall(0)
         .args[0] as SubmitApplicationRequest;
 
-      assert.equal(submitBody.client.isClientCorrespondenceRecipient, false);
       assert.deepEqual(submitBody.client.correspondenceRecipient, {
         recipientType: "PERSON",
         recipientName: "Jane Doe",
@@ -716,7 +714,6 @@ describe("Confirmation adaptor", () => {
       const submitBody = applySubmitPortStub.submitApplication.getCall(0)
         .args[0] as SubmitApplicationRequest;
 
-      assert.equal(submitBody.client.isClientCorrespondenceRecipient, true);
       assert.equal(
         Object.prototype.hasOwnProperty.call(
           submitBody.client,

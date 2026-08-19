@@ -5,6 +5,8 @@
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "What is the name of the deceased?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -31,7 +33,7 @@
               ]
           }) }}
         {% endif %}
-        <h2 class="govuk-heading-l">What is the name of the deceased?</h2>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         <form data-testid="deceased-details-form" action="/apply/deceased-details/name" method="post">
           <input type="hidden" name="_csrf" value={{csrfToken}} />
           {{

@@ -3,6 +3,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = t("pages.apply.publicAuthority.title") %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -12,26 +14,30 @@
     href: "/apply/client-details/has-prev-application"
   }) }}
   {% if errorSummaries.noPublicAuthoritySelected %}
-  {{ govukErrorSummary({
-    titleText: "There is a problem",
-    errorList: [
-      { text: errorSummaries.noPublicAuthoritySelected.text }
-    ]
-  }) }}
-{% endif %}
- 
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: [
+        {
+          text: errorSummaries.noPublicAuthoritySelected.text,
+          href: '#publicAuthorityOption'
+        }
+      ]
+    })
+  }}
+  {% endif %}
+
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
 
          <form data-testid="add-proceeding-form" action="/apply/public-authority" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-              
+
             {{ govukCheckboxes({
             name: "publicAuthorityOption",
             fieldset: {
                 legend: {
-                   text: t("pages.apply.publicAuthority.title"),
+                   text: pageHeading,
                     isPageHeading: true,
                     classes: "govuk-fieldset__legend--l"
                 }

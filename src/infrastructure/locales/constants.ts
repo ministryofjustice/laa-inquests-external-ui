@@ -345,7 +345,7 @@ export const PROCEEDING_OPTIONS = [
 ];
 
 export const PUBLIC_AUTHORITY_ERROR = {
-  NO_SELECTION: "Please select a public authority",
+  NO_SELECTION: "Please select an interested party",
 };
 
 export const CORONERS_LETTER_ERROR = {

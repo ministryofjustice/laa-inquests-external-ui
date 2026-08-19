@@ -3,6 +3,10 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set pageHeading = "Do you want to add a 'care of' recipient for your client's mail?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -14,13 +18,33 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries %}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.recipientPersonNameInputError.text,
+                href: "#correspondence-recipient-person-name"
+              },
+              {
+                text: errorSummaries.recipientOrganisationNameInputError.text,
+                href: "#correspondence-recipient-organisation-name"
+              },
+              {
+                text: errorSummaries.noRadioSelected.text,
+                href: "#correspondence-recipient"
+              }
+            ]
+          })
+        }}
+        {% endif %}
         <form data-testid="correspondence-recipient-form" action="/apply/client-details/correspondence-recipient" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukRadios({
             name: "correspondence-recipient",
             fieldset: {
               legend: {
-                text: "Do you want to add a 'care of' recipient for your client's mail?",
+                text: pageHeading,
                 isPageHeading: true,
                 classes: "govuk-fieldset__legend--l"
               }
