@@ -41,7 +41,7 @@ test.describe("Provider can", () => {
     await checkAccessibility();
   });
 
-  test("continue to the deceased further information page", async ({
+  test("continue to the deceased further information page when no coroners reference provided", async ({
     page,
   }) => {
     await continueToNextPage(form, page);
@@ -67,15 +67,16 @@ test.describe("Provider can", () => {
       ),
     ).toBeVisible();
   });
-
   test("fill in details, continue and navigate back with deceased details coroner reference automatically filled in", async ({
     page,
   }) => {
-    const yesInput = form.getByLabel("Please enter your reference number");
-    await yesInput.fill("Test");
+    const referenceInput = form.getByLabel(
+      "Please enter your reference number",
+    );
+    await referenceInput.fill("Test");
 
     await continueToNextPage(form, page);
     await page.goto("/apply/deceased-details/coroner-reference");
-    await expect(yesInput).toHaveValue("Test");
+    await expect(referenceInput).toHaveValue("Test");
   });
 });

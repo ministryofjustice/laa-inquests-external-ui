@@ -2,6 +2,8 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
 {% set pageHeading = "Where should we send your client's correspondence?" %}
 {% set pageTitle = pageHeading %}
 
@@ -15,6 +17,18 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries %}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.noRadioSelected.text,
+                href: "#correspondence-address-source"
+              }
+            ]
+          })
+        }}
+        {% endif %}
         <form data-testid="correspondence-address-source-form" action="/apply/client-details/correspondence-address-source" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukRadios({
