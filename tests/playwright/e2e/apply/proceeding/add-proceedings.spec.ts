@@ -32,7 +32,18 @@ test.describe("Add proceedings", () => {
 
     await checkAccessibility();
   });
-  test("renders error message and summary on clicking continue without selecting a proceeding", async ({
+
+  test("sets the browser tab title from the translated page heading", async ({
+    page,
+  }) => {
+    await page.goto("/apply/proceeding");
+
+    await expect(page).toHaveTitle(
+      /What does your client want legal aid for\? – Inquests – GOV\.UK/,
+    );
+  });
+
+  test("renders error message on clicking continue without selecting a proceeding", async ({
     page,
   }) => {
     await page.goto("/apply/proceeding");

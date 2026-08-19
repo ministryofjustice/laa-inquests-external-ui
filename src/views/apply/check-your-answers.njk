@@ -3,6 +3,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% set pageHeading = "Check your answers" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -14,7 +16,7 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">Check your answers</h1>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         {{ govukInsetText({
           text: "You cannot change the answers on this page once you  continue"
         }) }}

@@ -40,6 +40,12 @@ test.describe("Claim - confirm success", () => {
     ).toBeVisible();
   });
 
+  test("sets the browser tab title from the page heading", async ({ page }) => {
+    await expect(page).toHaveTitle(
+      /Payment on account claim has been submitted – Inquests – GOV\.UK/,
+    );
+  });
+
   test("renders the claim reference number returned from the API", async ({
     page,
   }) => {

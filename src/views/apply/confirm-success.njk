@@ -1,6 +1,8 @@
 {% extends "base.njk" %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% set pageHeading = "Application complete" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -8,7 +10,7 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       {{ govukPanel({
-        titleText: "Application complete",
+        titleText: pageHeading,
         html: "Your case reference number is <br><strong>" ~ (applicationReferenceNumber | escape) ~ "</strong>"
       }) }}
       <div class="govuk-grid-column-two-thirds">

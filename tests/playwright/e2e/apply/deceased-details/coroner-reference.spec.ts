@@ -21,7 +21,7 @@ test.describe("Provider can", () => {
     page,
     checkAccessibility,
   }) => {
-    await validateHeader(page, "What is the coroner's reference?", 2);
+    await validateHeader(page, "What is the coroner's reference?", 1);
     await validateBackButton(
       page,
       "/apply/deceased-details/client-relationship",

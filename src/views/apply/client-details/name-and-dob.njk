@@ -5,6 +5,8 @@
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Enter your client's details" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -44,7 +46,7 @@
           })
         }}
         {% endif %}
-        <h2 class="govuk-heading-l">Enter your client's details</h2>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         <form data-testid="client-details-form" action="/apply/client-details/name-and-dob" method="post">
           <input type="hidden" name="_csrf" value={{csrfToken}} />
           {{

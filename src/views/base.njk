@@ -6,7 +6,11 @@
   {% if errorSummaries %}
     Error:
   {% endif %}
-{{config.SERVICE_NAME}} – GOV.UK
+  {% if pageTitle %}
+    {{ pageTitle }} – {{ config.SERVICE_NAME }} – GOV.UK
+  {% else %}
+    {{ config.SERVICE_NAME }} – GOV.UK
+  {% endif %}
 {% endblock %}
 
 {% block head %}

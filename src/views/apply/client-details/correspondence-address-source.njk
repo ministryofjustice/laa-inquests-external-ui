@@ -4,6 +4,8 @@
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
+{% set pageHeading = "Where should we send your client's correspondence?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -36,7 +38,7 @@
             errorMessage: errorSummaries.noRadioSelected,
             fieldset: {
               legend: {
-                text: "Where should we send your client's correspondence?",
+                text: pageHeading,
                 isPageHeading: true,
                 classes: "govuk-fieldset__legend--l"
               }
