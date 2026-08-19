@@ -2,6 +2,10 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set pageHeading = "Upload coroner's letter" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -10,7 +14,19 @@
       href: "/apply/public-authority"
   }) }}
   <main class="govuk-main-wrapper">
-    <h1 class="govuk-heading-l">Upload coroner's letter</h1>
+  {% if errorSummaries %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.coronersLetterError.text,
+              href: "#coroners-letter-upload"
+            }
+          ]
+        })
+      }}
+    {% endif %}
+    <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
     <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post" enctype="multipart/form-data">
       <input type="hidden" name="_csrf" value="{{csrfToken}}" />
       {{ govukFileUpload({

@@ -1,5 +1,6 @@
 import { test, expect } from "../../../fixtures/index.js";
 import { getAndUpdateFormFields } from "#tests/playwright/fixtures/pages/Apply.js";
+import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 test.describe("Client details - correspondence address source", () => {
   test("renders source page with title, guidance, options and hint", async ({
@@ -43,11 +44,17 @@ test.describe("Client details - correspondence address source", () => {
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-address-source");
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
 
     const form = page.getByTestId("correspondence-address-source-form");
     await form.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+    );
     await expect(
       form.locator("#correspondence-address-source-error"),
     ).toBeVisible();
@@ -85,6 +92,8 @@ test.describe("Client details - correspondence address source", () => {
     page,
   }) => {
     await page.goto("/apply/client-details/home-address");
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
 
     await page.getByLabel("Client has no fixed abode").check();
     await page.getByRole("button", { name: "Continue" }).click();
@@ -101,12 +110,18 @@ test.describe("Client details - correspondence address source", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE,
+    );
+
     const form = page.getByTestId("correspondence-address-source-form");
     await expect(
       form.locator("#correspondence-address-source-error"),
     ).toBeVisible();
     await expect(form).toContainText(
-      "You cannot select your client's UK home address when they have no fixed abode",
+      CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE,
     );
   });
   // TODO: add test that when client home address is selected and client has a home address, navigate to proceedings page

@@ -10,7 +10,7 @@ test.describe("Client details - name and dob", () => {
   }) => {
     page.goto("/apply/client-details/name-and-dob");
     const clientDetailsHeading = await page.getByRole("heading", {
-      level: 2,
+      level: 1,
       name: "Enter your client's details",
     });
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -23,10 +23,19 @@ test.describe("Client details - name and dob", () => {
     await checkAccessibility();
   });
 
+  test("sets the browser tab title from the page heading", async ({ page }) => {
+    page.goto("/apply/client-details/name-and-dob");
+
+    await expect(page).toHaveTitle(
+      /Enter your client's details – Inquests – GOV\.UK/,
+    );
+  });
+
   test("renders basic client details form", async ({ page }) => {
     page.goto("/apply/client-details/name-and-dob");
 
     const basicDetailsForm = await page.getByTestId("client-details-form");
+    const errorSummary = await page.getByRole("alert");
     const firstNameLabel = basicDetailsForm.getByLabel("First name");
     const lastNameLabel = basicDetailsForm.getByLabel("Last name", {
       exact: true,
@@ -52,6 +61,7 @@ test.describe("Client details - name and dob", () => {
     await expect(yesNameChangedInputLabel).toBeHidden();
     yesNameChangedLabel.click();
     await expect(yesNameChangedInputLabel).toBeVisible();
+    await expect(errorSummary).not.toBeVisible();
 
     await expect(dobLabel).toBeVisible();
     await expect(continueButton).toHaveText("Continue");
@@ -72,6 +82,7 @@ test.describe("Client details - name and dob", () => {
 
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
+    await expect(errorSummary).not.toBeVisible();
     await expect(page.url()).toContain("apply/client-details/nino");
   });
 
@@ -280,6 +291,37 @@ test.describe("Client details - name and dob", () => {
       await expect(errorMessageElement).toContainText(
         CLIENT_DETAILS_ERROR.FUTURE_DATE,
       );
+    });
+    test("renders error summary component summarising all errors", async ({
+      page,
+    }) => {
+      page.goto("/apply/client-details/name-and-dob");
+      const basicDetailsForm = await page.getByTestId("client-details-form");
+      const errorSummary = await page.getByRole("alert");
+      const continueButton = await basicDetailsForm.getByRole("button");
+      await continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      const firstNameError = errorSummary.getByText(
+        CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
+      );
+
+      const lastNameError = errorSummary.getByText(
+        CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
+      );
+      const noRadioSelectedError = errorSummary.getByText(
+        CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      );
+      const noDobError = errorSummary.getByText(
+        CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT,
+      );
+
+      await expect(firstNameError).toBeVisible();
+      await expect(lastNameError).toBeVisible();
+      await expect(noRadioSelectedError).toBeVisible();
+      await expect(noDobError).toBeVisible();
     });
   });
 });

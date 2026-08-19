@@ -20,6 +20,7 @@ test.describe("Client details - NINO page", () => {
     const yesInputLabel = ninoForm.getByLabel(
       "Enter your client's National Insurance number",
     );
+    const errorSummary = await page.getByRole("alert");
     const continueButton = ninoForm.getByRole("button");
 
     await expect(ninoHeading).toBeVisible();
@@ -43,6 +44,7 @@ test.describe("Client details - NINO page", () => {
     await expect(continueButton).toHaveAttribute("type", "submit");
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
+    await expect(errorSummary).not.toBeVisible();
     await expect(page.url()).toContain(
       "apply/client-details/has-prev-application",
     );
@@ -106,6 +108,26 @@ test.describe("Client details - NINO page", () => {
       await expect(errorMessageElement).toContainText(
         CLIENT_DETAILS_ERROR.INVALID_NINO,
       );
+    });
+    test("renders error summary component summarising errors", async ({
+      page,
+    }) => {
+      page.goto("/apply/client-details/nino");
+      const ninoForm = await page.getByTestId("nino-form");
+      const errorSummary = await page.getByRole("alert");
+      const continueButton = await ninoForm.getByRole("button");
+
+      await expect(errorSummary).not.toBeVisible();
+      await continueButton.click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+
+      const noInputError = errorSummary.getByText(
+        CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      );
+      await expect(noInputError).toBeVisible();
     });
   });
 });

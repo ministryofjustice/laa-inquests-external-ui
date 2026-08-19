@@ -4,6 +4,9 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Enter your client's details" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -15,7 +18,35 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-one-half">
-        <h2 class="govuk-heading-l">Enter your client's details</h2>
+        {% if errorSummaries %}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.firstNameInputError.text,
+                href: "#first-name"
+              },
+              {
+                text: errorSummaries.lastNameInputError.text,
+                href: "#last-name"
+              },
+              {
+                text: errorSummaries.noRadioSelected.text,
+                href: "#name-change"
+              },
+              {
+                text: errorSummaries.noBirthNameSpecified.text,
+                href: "#last-name-at-birth"
+              },
+              {
+                text: errorSummaries.dobInputError.text,
+                href: "#dob"
+              }
+            ]
+          })
+        }}
+        {% endif %}
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         <form data-testid="client-details-form" action="/apply/client-details/name-and-dob" method="post">
           <input type="hidden" name="_csrf" value={{csrfToken}} />
           {{

@@ -38,7 +38,7 @@ test.describe("Provider can", () => {
     await page.goto(currentPage);
     const form = await page.getByTestId("client-declaration-form");
 
-    await validateHeader(page, headerText, 2);
+    await validateHeader(page, headerText, 1);
     await validateBackButton(page, previousPage);
     await validateFormAttributes(form, currentPage);
     await validateCSRFToken(form);

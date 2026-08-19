@@ -71,7 +71,6 @@ describe("SubmitApplicationUseCase", () => {
           county: state.clientCorrespondenceAddress?.county,
           postcode: state.clientCorrespondenceAddress?.postcode,
         },
-        isClientCorrespondenceRecipient: false,
         correspondenceRecipient: {
           recipientType: state.clientCorrespondenceRecipient?.recipientType,
           recipientName: state.clientCorrespondenceRecipient?.recipientName,

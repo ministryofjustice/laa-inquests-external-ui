@@ -25,7 +25,7 @@ test.describe("Provider can", () => {
     await validateHeader(
       page,
       "Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?",
-      2,
+      1,
     );
     await validateBackButton(page, "/apply/deceased-details/coroner-reference");
     await validateFormAttributes(
