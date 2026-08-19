@@ -26,6 +26,7 @@ const bypassCreateApplicationMocks =
 // The GET search handler returns a mock case with this numeric laaReference when the search term is "force-422".
 const FORCE_422_LAA_REFERENCE = "422";
 const FORCE_REJECTED_LAA_REFERENCE = "299";
+const VIRUS_FILE_NAME = "virus.pdf";
 
 export const apiHandlers = [
   http.get("*/applications/public-bodies", () =>
@@ -101,15 +102,27 @@ export const apiHandlers = [
   }),
   http.post(
     `${process.env.INQUESTS_API_URL}/applications/upload-coroners-letter`,
-    () =>
-      HttpResponse.json(
-        {
-          coronersLetterId: coronersLetterId,
-          coronersLetterFileName: coronersLetterFileName,
-        },
-        { status: 201 },
-      ),
+    async ({ request }) => {
+      const formData = await request.formData();
+      const uploaded = formData.get("file");
+
+      if (uploaded instanceof File && uploaded.name === VIRUS_FILE_NAME) {
+        return HttpResponse.json(
+          { errorCode: "FILE_SCAN_FOUND_VIRUS" },
+          { status: 422 },
+        );
+      } else {
+        return HttpResponse.json(
+          {
+            coronersLetterId,
+            coronersLetterFileName,
+          },
+          { status: 201 },
+        );
+      }
+    },
   ),
+
   http.post(`${process.env.INQUESTS_API_URL}/claims/evidence`, () =>
     HttpResponse.json(
       {

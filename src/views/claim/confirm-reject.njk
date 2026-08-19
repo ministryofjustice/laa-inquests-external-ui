@@ -1,6 +1,8 @@
 {% extends "base.njk" %}
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% set pageHeading = "Payment on account claim has been rejected" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -8,7 +10,7 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       {{ govukPanel({
-        titleText: "Payment on account claim has been rejected",
+        titleText: pageHeading,
         classes: "app-panel--rejected"
       }) }}
       <div class="govuk-grid-column-two-thirds">

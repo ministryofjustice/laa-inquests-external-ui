@@ -125,6 +125,8 @@ test.describe("Client details - correspondence address", () => {
     test("if address line 1 is missing", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         "Town or city": "London",
@@ -133,6 +135,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-address-line-1-error",
@@ -146,6 +154,8 @@ test.describe("Client details - correspondence address", () => {
     test("if address line 1 is less than 2 characters", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -154,6 +164,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.addressLine1MinMax,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-address-line-1-error",
@@ -169,6 +185,8 @@ test.describe("Client details - correspondence address", () => {
     }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -177,6 +195,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.addressLine1RequiresAlphanumeric,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-address-line-1-error",
@@ -190,6 +214,8 @@ test.describe("Client details - correspondence address", () => {
     test("if address line 1 contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -198,6 +224,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.addressLine1InvalidCharacters,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-address-line-1-error",
@@ -213,6 +245,8 @@ test.describe("Client details - correspondence address", () => {
     }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -221,6 +255,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.addressLine2MinMax,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-address-line-2-error",
@@ -234,6 +274,8 @@ test.describe("Client details - correspondence address", () => {
     test("if address line 2 contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -242,6 +284,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.addressLine2InvalidCharacters,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-address-line-2-error",
@@ -255,6 +303,8 @@ test.describe("Client details - correspondence address", () => {
     test("if town or city is missing", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         "Address line 1": "1 Acacia Avenue",
@@ -263,6 +313,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-town-or-city-error",
@@ -276,6 +332,8 @@ test.describe("Client details - correspondence address", () => {
     test("if town or city contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -284,6 +342,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.townOrCityInvalidCharacters,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-town-or-city-error",
@@ -297,6 +361,8 @@ test.describe("Client details - correspondence address", () => {
     test("if town or city exceeds max character length", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -305,6 +371,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.townOrCityMinMax,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-town-or-city-error",
@@ -320,6 +392,8 @@ test.describe("Client details - correspondence address", () => {
     }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -328,6 +402,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.countyMinMax,
+      );
 
       const errorMessageElement = form.locator("#correspondence-county-error");
       await expect(errorMessageElement).toBeVisible();
@@ -339,6 +419,8 @@ test.describe("Client details - correspondence address", () => {
     test("if county contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -358,6 +440,8 @@ test.describe("Client details - correspondence address", () => {
     test("if postcode is missing", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         "Address line 1": "1 Acacia Avenue",
@@ -366,6 +450,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.MISSING_HOME_POSTCODE,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-postcode-error",
@@ -379,6 +469,8 @@ test.describe("Client details - correspondence address", () => {
     test("if postcode contains invalid characters", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
 
       await getAndUpdateFormFields(page, {
         ...validCorrespondenceAddress,
@@ -387,6 +479,12 @@ test.describe("Client details - correspondence address", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
+
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        expectedCorrespondenceAddressErrors.postcodeInvalidCharacters,
+      );
 
       const errorMessageElement = form.locator(
         "#correspondence-postcode-error",

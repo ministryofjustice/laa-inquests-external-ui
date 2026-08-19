@@ -1,8 +1,10 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% set pageHeading = "Inquests" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
-    <h1 class="govuk-heading-xl">Inquests</h1>
+    <h1 class="govuk-heading-xl">{{ pageHeading }}</h1>
 
     <p class="govuk-body">{{ t('pages.home.defaultTemplate') }}</p>
 

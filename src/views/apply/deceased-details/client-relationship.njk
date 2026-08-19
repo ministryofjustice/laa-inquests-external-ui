@@ -5,6 +5,8 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Does your client meet the definition of a family member?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -30,7 +32,7 @@
                     ]
                 }) }}
                 {% endif %}
-                <h2 class="govuk-heading-l">Does your client meet the definition of a family member?</h2>
+                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
                 <form data-testid="deceased-client-relationship-form" action="/apply/deceased-details/client-relationship" method="post">
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
                     <p class="govuk-body">Definition of a family member according to the bill:</p>

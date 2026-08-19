@@ -8,7 +8,7 @@ test.describe("Previous application", () => {
   }) => {
     page.goto("/apply/client-details/has-prev-application");
     const clientDetailsHeading = await page.getByRole("heading", {
-      level: 2,
+      level: 1,
       name: "Has your client applied for Inquest legal aid before?",
     });
     await expect(clientDetailsHeading).toBeVisible();
@@ -51,6 +51,9 @@ test.describe("Previous application", () => {
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
+
     const continueButton = prevApplicationStatusForm.getByRole("button");
     const noRadio = prevApplicationStatusForm.getByLabel("No");
     await noRadio.click();
@@ -61,17 +64,30 @@ test.describe("Previous application", () => {
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
 
+    await expect(errorSummary).not.toBeVisible();
     await expect(page.url()).toContain("apply/client-details/home-address");
   });
-  test("renders error message when no input selected", async ({ page }) => {
+  test("renders error message and summary when no input selected", async ({
+    page,
+  }) => {
     page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
+
     const continueButton = prevApplicationStatusForm.getByRole("button");
 
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
+
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+    );
+
     const errorMessageElement = prevApplicationStatusForm.locator(
       "#has-prev-application-error",
     );
@@ -80,19 +96,28 @@ test.describe("Previous application", () => {
       CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
     );
   });
-  test("renders error message when input selected but no reference provided", async ({
+  test("renders error message and summary when input selected but no reference provided", async ({
     page,
   }) => {
     page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
+
     const yesRadio = prevApplicationStatusForm.getByLabel("Yes");
     const continueButton = prevApplicationStatusForm.getByRole("button");
 
     await yesRadio.click();
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
+
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
+    );
 
     const errorMessageElement = prevApplicationStatusForm.locator(
       "#prev-laa-reference-input-error",
@@ -102,13 +127,16 @@ test.describe("Previous application", () => {
       CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
     );
   });
-  test("renders error message when reference provided exceeds max character length", async ({
+  test("renders error message and summary when reference provided exceeds max character length", async ({
     page,
   }) => {
     page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
+
     const yesRadio = prevApplicationStatusForm.getByLabel("Yes");
     const continueButton = prevApplicationStatusForm.getByRole("button");
 
@@ -120,6 +148,12 @@ test.describe("Previous application", () => {
     await prevApplicationRefInput.fill("a".repeat(36));
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
+
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+    );
 
     const errorMessageElement = prevApplicationStatusForm.locator(
       "#prev-laa-reference-input-error",

@@ -19,6 +19,12 @@ test.describe("Apply - confirm success", () => {
     await checkAccessibility();
   });
 
+  test("sets the browser tab title from the page heading", async ({ page }) => {
+    page.goto("/apply/confirmation/success");
+
+    await expect(page).toHaveTitle(/Application complete – Inquests – GOV\.UK/);
+  });
+
   test("renders confirm success page content", async ({ page }) => {
     page.goto("/apply/confirmation/success");
 
