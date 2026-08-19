@@ -10,7 +10,7 @@ test.describe("Client details - name and dob", () => {
   }) => {
     page.goto("/apply/client-details/name-and-dob");
     const clientDetailsHeading = await page.getByRole("heading", {
-      level: 2,
+      level: 1,
       name: "Enter your client's details",
     });
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -21,6 +21,14 @@ test.describe("Client details - name and dob", () => {
     await expect(backButton).toHaveAttribute("href", "/apply");
 
     await checkAccessibility();
+  });
+
+  test("sets the browser tab title from the page heading", async ({ page }) => {
+    page.goto("/apply/client-details/name-and-dob");
+
+    await expect(page).toHaveTitle(
+      /Enter your client's details – Inquests – GOV\.UK/,
+    );
   });
 
   test("renders basic client details form", async ({ page }) => {

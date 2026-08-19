@@ -3,6 +3,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = t("pages.apply.publicAuthority.title") %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -31,7 +33,7 @@
             name: "publicAuthorityOption",
             fieldset: {
                 legend: {
-                   text: t("pages.apply.publicAuthority.title"),
+                   text: pageHeading,
                     isPageHeading: true,
                     classes: "govuk-fieldset__legend--l"
                 }

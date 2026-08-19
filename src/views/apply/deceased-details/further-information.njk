@@ -4,6 +4,8 @@
 {% from "govuk/components/textarea/macro.njk" import govukTextarea %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 <div class="govuk-width-container">
@@ -29,7 +31,7 @@
                     ]
                 }) }}
                 {% endif %}
-                <h2 class="govuk-heading-l">Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?</h2>
+                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
                 <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
                     <input type="hidden" name="_csrf" value={{csrfToken}} />
                     {{ govukRadios({

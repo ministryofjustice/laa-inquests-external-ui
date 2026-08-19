@@ -21,7 +21,7 @@ test.describe("Provider can", () => {
     page,
     checkAccessibility,
   }) => {
-    await validateHeader(page, "What was their date of death?", 2);
+    await validateHeader(page, "What was their date of death?", 1);
     await validateBackButton(page, "/apply/deceased-details/name");
     await validateFormAttributes(form, "/apply/deceased-details/dod");
     await validateCSRFToken(form);

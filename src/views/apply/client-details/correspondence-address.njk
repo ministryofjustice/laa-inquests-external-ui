@@ -2,6 +2,8 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% set pageHeading = "What is the address you want to send the correspondence to?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -13,7 +15,7 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">What is the address you want to send the correspondence to?</h1>
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         <form data-testid="correspondence-address-form" action="/apply/client-details/correspondence-address" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukInput({
