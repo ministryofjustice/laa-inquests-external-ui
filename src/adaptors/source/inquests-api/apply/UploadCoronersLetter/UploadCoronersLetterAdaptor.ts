@@ -42,6 +42,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
           path: "/applications/upload-coroners-letter",
           body: formData,
           accessToken,
+          validateStatus: () => true,
         });
 
       if (response.status !== HTTP_CREATED) {

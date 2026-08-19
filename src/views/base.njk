@@ -3,6 +3,9 @@
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
 
 {% block pageTitle %}
+  {% if errorSummaries %}
+    Error:
+  {% endif %}
   {% if pageTitle %}
     {{ pageTitle }} – {{ config.SERVICE_NAME }} – GOV.UK
   {% else %}

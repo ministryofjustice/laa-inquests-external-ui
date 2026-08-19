@@ -48,11 +48,18 @@ test.describe("Add proceedings", () => {
   }) => {
     await page.goto("/apply/proceeding");
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
+    const errorSummary = await page.getByRole("alert");
 
     const continueButton = selectProceedingForm.getByRole("button");
+    await expect(errorSummary).not.toBeVisible();
+
     await continueButton.click();
     const errorMessageElement = selectProceedingForm.locator(
       "#proceeding-option-error",
+    );
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(
+      PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
     );
 
     await expect(errorMessageElement).toBeVisible();
@@ -60,7 +67,6 @@ test.describe("Add proceedings", () => {
       PROCEEDING_ERROR.NO_PROCEEDING_SPECIFIED,
     );
   });
-
   test("pre-selects proceeding radio when navigating back from check-your-answers", async ({
     page,
   }) => {
