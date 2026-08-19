@@ -269,7 +269,7 @@ describe("PublicAuthority adaptor", () => {
         selectedPublicAuthorityIds: [],
         errorSummaries: {
           noPublicAuthoritySelected: {
-            text: "Please select at least one interested party (public authority)",
+            text: "Please select at least one interested party",
           },
         },
       });
