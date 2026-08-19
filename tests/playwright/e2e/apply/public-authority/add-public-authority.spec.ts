@@ -7,7 +7,10 @@ test.describe("Add interested party (public authority)", () => {
     checkAccessibility,
   }) => {
     await page.goto("/apply/public-authority");
-    await validateBackButton(page, "/apply/deceased-details/further-information");
+    await validateBackButton(
+      page,
+      "/apply/deceased-details/further-information",
+    );
 
     const heading = page.getByRole("heading", {
       name: "Who are the listed interested parties on this application?",

@@ -11,7 +11,10 @@ test.describe("Add proceedings", () => {
     checkAccessibility,
   }) => {
     await page.goto("/apply/proceeding");
-    await validateBackButton(page, "/apply/client-details/correspondence-recipient");
+    await validateBackButton(
+      page,
+      "/apply/client-details/correspondence-recipient",
+    );
 
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
     const heading = selectProceedingForm.getByText(
