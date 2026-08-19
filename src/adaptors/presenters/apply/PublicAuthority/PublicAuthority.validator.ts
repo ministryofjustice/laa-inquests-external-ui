@@ -10,7 +10,7 @@ export interface PublicAuthorityFormData {
 }
 
 export const PUBLIC_AUTHORITY_ERROR = {
-  NO_SELECTION: "Please select at least one public authority",
+  NO_SELECTION: "Please select at least one interested party",
 };
 
 export class PublicAuthorityValidator extends FormValidator {

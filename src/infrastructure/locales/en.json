@@ -53,14 +53,14 @@
         }
       },
       "publicAuthority": {
-        "title": "Who are the listed public authorities on this application?",
+        "title": "Who are the listed interested parties on this application?",
         "search": {
-          "label": "Search for public authorities",
+          "label": "Search for interested parties",
           "hint": "Select all that apply"
         }
       },
       "RemovePublicAuthority": {
-        "title": "Are you sure you want to remove this public authority?"
+        "title": "Are you sure you want to remove this interested party?"
       }
     },
     "claim": {

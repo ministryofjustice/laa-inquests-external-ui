@@ -33,7 +33,7 @@ describe("PublicAuthority adaptor", () => {
   }
 
   describe("renderPublicAuthoritySelectForm", () => {
-    it("renders public authority selection form with options from API", async () => {
+    it("renders interested party (public authority) selection form with options from API", async () => {
       const getPublicAuthoritiesPort =
         stubInterface<GetPublicAuthoritiesPort>();
       getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
@@ -75,7 +75,7 @@ describe("PublicAuthority adaptor", () => {
       assert.deepEqual(renderArgs[1], expectedRenderOptions);
     });
 
-    it("does not call API when public authorities are already in session", async () => {
+    it("does not call API when interested parties(public authorities)are already in session", async () => {
       const getPublicAuthoritiesPort =
         stubInterface<GetPublicAuthoritiesPort>();
       const adaptor = buildAdaptor(getPublicAuthoritiesPort);
@@ -269,7 +269,7 @@ describe("PublicAuthority adaptor", () => {
         selectedPublicAuthorityIds: [],
         errorSummaries: {
           noPublicAuthoritySelected: {
-            text: "Please select at least one public authority",
+            text: "Please select at least one interested party (public authority)",
           },
         },
       });
