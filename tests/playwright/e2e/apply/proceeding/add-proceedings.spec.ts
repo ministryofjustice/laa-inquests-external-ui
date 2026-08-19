@@ -3,6 +3,7 @@ import {
   PROCEEDING_OPTIONS,
 } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "#tests/playwright/fixtures/index.js";
+import { validateBackButton } from "#tests/playwright/utils/govuk-validators.js";
 
 test.describe("Add proceedings", () => {
   test("renders expected proceeding page heading, proceeding options and continue button", async ({
@@ -10,6 +11,7 @@ test.describe("Add proceedings", () => {
     checkAccessibility,
   }) => {
     await page.goto("/apply/proceeding");
+    await validateBackButton(page, "/apply/client-details/correspondence-recipient");
 
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
     const heading = selectProceedingForm.getByText(
