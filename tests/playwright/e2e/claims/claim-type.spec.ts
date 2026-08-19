@@ -26,6 +26,12 @@ test.describe("Claim - claim type", () => {
     ).toBeVisible();
   });
 
+  test("sets the browser tab title from the page heading", async ({ page }) => {
+    await expect(page).toHaveTitle(
+      /What type of claim are you making\? – Inquests – GOV\.UK/,
+    );
+  });
+
   test("renders the three claim type options", async ({ page }) => {
     const form = page.getByTestId("claim-type-form");
 

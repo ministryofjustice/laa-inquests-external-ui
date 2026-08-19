@@ -37,10 +37,18 @@ test.describe("Client details - correspondence recipient", () => {
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-recipient");
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
 
     const form = page.getByTestId("correspondence-recipient-form");
     await form.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
+
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+    );
 
     await expect(form.locator("#correspondence-recipient-error")).toBeVisible();
   });
@@ -49,10 +57,19 @@ test.describe("Client details - correspondence recipient", () => {
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-recipient");
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
 
     await page.getByLabel("Yes, a person").check();
     await page.getByRole("button", { name: "Continue" }).click();
+
     await page.waitForLoadState("domcontentloaded");
+
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
+    );
 
     const form = page.getByTestId("correspondence-recipient-form");
     await expect(
@@ -64,6 +81,8 @@ test.describe("Client details - correspondence recipient", () => {
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-recipient");
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
 
     const form = page.getByTestId("correspondence-recipient-form");
     await page.getByLabel("Yes, a person").check();
@@ -72,6 +91,12 @@ test.describe("Client details - correspondence recipient", () => {
       .fill("a".repeat(101));
     await form.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
+
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    );
 
     const errorMessageElement = form.locator(
       "#correspondence-recipient-person-name-error",
@@ -89,12 +114,21 @@ test.describe("Client details - correspondence recipient", () => {
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-recipient");
+    const errorSummary = await page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
 
     const form = page.getByTestId("correspondence-recipient-form");
     await page.getByLabel("Yes, a person").check();
     await page.locator("#correspondence-recipient-person-name").fill("John@");
     await form.getByRole("button", { name: "Continue" }).click();
+
     await page.waitForLoadState("domcontentloaded");
+
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText("There is a problem");
+    await expect(errorSummary).toContainText(
+      CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS,
+    );
 
     const errorMessageElement = form.locator(
       "#correspondence-recipient-person-name-error",
@@ -139,6 +173,7 @@ test.describe("Client details - correspondence recipient", () => {
     page,
   }) => {
     await page.goto("/apply/client-details/correspondence-recipient");
+    const errorSummary = await page.getByRole("alert");
 
     const form = page.getByTestId("correspondence-recipient-form");
 
