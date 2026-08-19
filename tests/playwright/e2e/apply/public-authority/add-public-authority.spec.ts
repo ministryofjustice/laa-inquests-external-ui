@@ -8,7 +8,7 @@ test.describe("Add interested party (public authority)", () => {
     await page.goto("/apply/public-authority");
 
     const heading = page.getByRole("heading", {
-      name: "Who are the listed interested parties(public authority) on this application?",
+      name: "Who are the listed interested parties on this application?",
     });
     const continueButton = page.getByRole("button");
     const checkboxes = page.getByRole("checkbox");
@@ -55,7 +55,7 @@ test.describe("Add interested party (public authority)", () => {
     await page.getByRole("button").click();
 
     const errorMessage = page.getByText(
-      "Please select at least one interested party (public authority)",
+      "Please select at least one interested party",
       {
         exact: true,
       },
