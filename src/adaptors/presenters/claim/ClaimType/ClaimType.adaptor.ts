@@ -34,6 +34,10 @@ export class ClaimTypeAdaptor {
     res.render("claim/claim-type", {
       csrfToken,
       claimType: req.session.claim?.type,
+      backHref:
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : "/claim/results",
     });
   }
 
@@ -94,6 +98,10 @@ export class ClaimTypeAdaptor {
     res.render("claim/claim-subtype", {
       csrfToken,
       claimSubtype: req.session.claim?.subtype,
+      backHref:
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : "/claim/type",
     });
   }
 
