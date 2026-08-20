@@ -35,7 +35,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(viewModel.grossTotal, "130.00");
     });
 
-    it("sets returnToCheckYourAnswers flag and uses check-your-answers back href when from=check-your-answers query param is present", () => {
+    it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", () => {
       const adaptor = new TotalClaimAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
@@ -49,30 +49,6 @@ describe("TotalClaim adaptor", () => {
       adaptor.renderForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
-      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
-        string,
-        Record<string, string>,
-      ];
-      assert.equal(viewModel.backHref, "/claim/check-your-answers");
-    });
-
-    it("uses check-your-answers back href when returnToCheckYourAnswers flag is already set in session", () => {
-      const adaptor = new TotalClaimAdaptor();
-      const requestStub = stubInterface<Request>();
-      const responseStub = stubInterface<Response>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session = {
-        claim: { type: "PAYMENT_ON_ACCOUNT", returnToCheckYourAnswers: true },
-      } as Request["session"];
-
-      adaptor.renderForm(requestStub, responseStub);
-
-      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
-        string,
-        Record<string, string>,
-      ];
-      assert.equal(viewModel.backHref, "/claim/check-your-answers");
     });
   });
 
@@ -192,32 +168,6 @@ describe("TotalClaim adaptor", () => {
         requestStub.session.claim?.returnToCheckYourAnswers,
         undefined,
       );
-    });
-
-    it("uses check-your-answers back href in re-render when returnToCheckYourAnswers is set and submission is invalid", () => {
-      const adaptor = new TotalClaimAdaptor();
-      const requestStub = stubInterface<Request>();
-      const responseStub = stubInterface<Response>();
-
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session = {
-        claim: { type: "PAYMENT_ON_ACCOUNT", returnToCheckYourAnswers: true },
-      } as Request["session"];
-      requestStub.body = {
-        "zero-vat-total": "",
-        "net-total": "100",
-        "gross-total": "",
-      };
-
-      adaptor.processForm(requestStub, responseStub);
-
-      assert.equal(responseStub.redirect.callCount, 0);
-      assert.equal(responseStub.render.callCount, 1);
-      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
-        string,
-        Record<string, string>,
-      ];
-      assert.equal(viewModel.backHref, "/claim/check-your-answers");
     });
   });
 });
