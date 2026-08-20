@@ -61,6 +61,7 @@ describe("PublicAuthority adaptor", () => {
           },
         ],
         selectedPublicAuthorityIds: [],
+        backHref: "/apply/deceased-details/further-information",
       };
 
       await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
@@ -162,6 +163,29 @@ describe("PublicAuthority adaptor", () => {
           adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub),
         { message: "UNEXPECTED_EXCEPTION" },
       );
+    });
+
+    it("captures check-your-answers origin and sets check-your-answers backHref", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.query = { from: "check-your-answers" };
+      requestStub.session.accessToken = "access-token-123";
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(renderModel.backHref, "/apply/check-your-answers");
     });
   });
 
@@ -267,6 +291,7 @@ describe("PublicAuthority adaptor", () => {
           },
         ],
         selectedPublicAuthorityIds: [],
+        backHref: "/apply/deceased-details/further-information",
         errorSummaries: {
           noPublicAuthoritySelected: {
             text: "Please select at least one interested party",
@@ -289,6 +314,36 @@ describe("PublicAuthority adaptor", () => {
       await assert.rejects(
         () => adaptor.processPublicAuthorityForm(requestStub, responseStub),
         { message: "UNEXPECTED_EXCEPTION" },
+      );
+    });
+
+    it("redirects back to check-your-answers when return flag is set", async () => {
+      const adaptor = buildAdaptor();
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+      requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
+        (body) => ({
+          publicAuthorityId: body.publicBodyId,
+          publicAuthorityDescription: body.publicBodyDescription,
+        }),
+      );
+
+      requestStub.body = {
+        publicAuthorityOption: ["Cabinet Office"],
+      };
+
+      await adaptor.processPublicAuthorityForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/apply/check-your-answers",
+      );
+      assert.equal(
+        requestStub.session.returnToApplyCheckYourAnswers,
+        undefined,
       );
     });
   });

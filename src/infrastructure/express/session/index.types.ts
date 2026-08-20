@@ -28,6 +28,7 @@ declare module "express-session" {
     claimReferenceNumber?: string;
     claimRejectionReasons?: ClaimRejectionReasonCode[] | string[];
     claim?: ClaimSession;
+    returnToApplyCheckYourAnswers?: boolean;
   }
 }
 

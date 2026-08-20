@@ -69,6 +69,9 @@ describe("Confirmation adaptor", () => {
     requestStub.session.deceasedDateOfDeathDay = "6";
     requestStub.session.deceasedDateOfDeathMonth = "8";
     requestStub.session.deceasedDateOfDeathYear = "2001";
+    requestStub.session.deceasedDateOfBirthDay = "7";
+    requestStub.session.deceasedDateOfBirthMonth = "9";
+    requestStub.session.deceasedDateOfBirthYear = "1978";
     requestStub.session.deceasedClientRelationship = "brother";
     requestStub.session.deceasedCoronerReference = "12345678910";
     requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
@@ -116,6 +119,7 @@ describe("Confirmation adaptor", () => {
       deceasedDetails: {
         deceasedFirstName: "deceased first name",
         deceasedLastName: "deceased last name",
+        dateOfBirth: "7/9/1978",
         dateOfDeath: "6/8/2001",
         deceasedClientRelationship: "brother",
         deceasedCoronerReference: "12345678910",
@@ -160,6 +164,7 @@ describe("Confirmation adaptor", () => {
     const renderModel = renderArgs[1] as unknown as {
       deceasedDetails: {
         deceasedFurtherInformation?: string;
+        dateOfBirth?: string;
       };
     };
 
@@ -167,6 +172,7 @@ describe("Confirmation adaptor", () => {
       renderModel.deceasedDetails.deceasedFurtherInformation,
       "Linked details text",
     );
+    assert.equal(renderModel.deceasedDetails.dateOfBirth, "");
   });
 
   it("renders care of recipient as client when correspondence recipient is null", () => {

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- This adaptor orchestrates the full multi-page deceased-details journey. */
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type { Proceeding } from "#src/infrastructure/express/session/index.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
@@ -26,12 +27,15 @@ export class DeceasedDetailsAdaptor {
   }
 
   renderNameForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
 
-    const backButtonUrl = this.#getNameBackButtonUrl(
-      req.session.selectedProceeding,
+    const backButtonUrl = this.#resolveBackHref(
+      req,
+      this.#getNameBackButtonUrl(req.session.selectedProceeding),
     );
     const nameView = this.#buildDeceasedDetailsView("name", {
       deceasedFirstName: getStringValue(req.session.deceasedFirstName),
@@ -80,11 +84,13 @@ export class DeceasedDetailsAdaptor {
         deceasedDetails: nameView.deceasedDetails,
       });
     } else {
-      res.redirect("/apply/deceased-details/dod");
+      this.#redirectAfterSuccess(req, res, "/apply/deceased-details/dod");
     }
   }
 
   renderDateOfDeathForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -103,6 +109,7 @@ export class DeceasedDetailsAdaptor {
 
     res.render("apply/deceased-details/date-of-death", {
       csrfToken,
+      backHref: this.#resolveBackHref(req, "/apply/deceased-details/name"),
       deceasedDetails: dateOfDeathView.deceasedDetails,
     });
   }
@@ -139,15 +146,18 @@ export class DeceasedDetailsAdaptor {
 
       res.render("apply/deceased-details/date-of-death", {
         csrfToken,
+        backHref: this.#resolveBackHref(req, "/apply/deceased-details/name"),
         errorSummaries,
         deceasedDetails: dateOfDeathView.deceasedDetails,
       });
     } else {
-      res.redirect("/apply/deceased-details/dob");
+      this.#redirectAfterSuccess(req, res, "/apply/deceased-details/dob");
     }
   }
 
   renderDateOfBirthForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -166,6 +176,7 @@ export class DeceasedDetailsAdaptor {
 
     res.render("apply/deceased-details/dob", {
       csrfToken,
+      backHref: this.#resolveBackHref(req, "/apply/deceased-details/dod"),
       deceasedDetails: dateOfBirthView.deceasedDetails,
     });
   }
@@ -203,15 +214,22 @@ export class DeceasedDetailsAdaptor {
 
       res.render("apply/deceased-details/dob", {
         csrfToken,
+        backHref: this.#resolveBackHref(req, "/apply/deceased-details/dod"),
         errorSummaries,
         deceasedDetails: dateOfBirthView.deceasedDetails,
       });
     } else {
-      res.redirect("/apply/deceased-details/client-relationship");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/deceased-details/client-relationship",
+      );
     }
   }
 
   renderClientRelationshipForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -230,6 +248,7 @@ export class DeceasedDetailsAdaptor {
 
     res.render("apply/deceased-details/client-relationship", {
       csrfToken,
+      backHref: this.#resolveBackHref(req, "/apply/deceased-details/dob"),
       deceasedDetails: clientRelationshipView.deceasedDetails,
     });
   }
@@ -267,15 +286,22 @@ export class DeceasedDetailsAdaptor {
 
       res.render("apply/deceased-details/client-relationship", {
         csrfToken,
+        backHref: this.#resolveBackHref(req, "/apply/deceased-details/dob"),
         errorSummaries,
         deceasedDetails: clientRelationshipView.deceasedDetails,
       });
     } else {
-      res.redirect("/apply/deceased-details/coroner-reference");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/deceased-details/coroner-reference",
+      );
     }
   }
 
   renderCoronerReferenceForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -291,6 +317,10 @@ export class DeceasedDetailsAdaptor {
 
     res.render("apply/deceased-details/coroner-reference", {
       csrfToken,
+      backHref: this.#resolveBackHref(
+        req,
+        "/apply/deceased-details/client-relationship",
+      ),
       deceasedDetails: coronerReferenceView.deceasedDetails,
     });
   }
@@ -323,15 +353,25 @@ export class DeceasedDetailsAdaptor {
 
       res.render("apply/deceased-details/coroner-reference", {
         csrfToken,
+        backHref: this.#resolveBackHref(
+          req,
+          "/apply/deceased-details/client-relationship",
+        ),
         errorSummaries,
         deceasedDetails: coronerReferenceView.deceasedDetails,
       });
     } else {
-      res.redirect("/apply/deceased-details/further-information");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/deceased-details/further-information",
+      );
     }
   }
 
   renderFurtherInfomationForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -350,6 +390,10 @@ export class DeceasedDetailsAdaptor {
 
     res.render("apply/deceased-details/further-information", {
       csrfToken,
+      backHref: this.#resolveBackHref(
+        req,
+        "/apply/deceased-details/coroner-reference",
+      ),
       deceasedDetails: furtherInformationView.deceasedDetails,
     });
   }
@@ -390,11 +434,48 @@ export class DeceasedDetailsAdaptor {
 
       res.render("apply/deceased-details/further-information", {
         csrfToken,
+        backHref: this.#resolveBackHref(
+          req,
+          "/apply/deceased-details/coroner-reference",
+        ),
         errorSummaries,
         deceasedDetails: furtherInformationView.deceasedDetails,
       });
     } else {
-      res.redirect("/apply/public-authority");
+      this.#redirectAfterSuccess(req, res, "/apply/public-authority");
+    }
+  }
+
+  #captureCheckYourAnswersEntry(req: {
+    query: Request["query"];
+    session: Request["session"];
+  }): void {
+    if (req.query.from === "check-your-answers") {
+      req.session.returnToApplyCheckYourAnswers = true;
+    }
+  }
+
+  #resolveBackHref(
+    req: { session: Request["session"] },
+    defaultHref: string,
+  ): string {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      return "/apply/check-your-answers";
+    }
+
+    return defaultHref;
+  }
+
+  #redirectAfterSuccess(
+    req: { session: Request["session"] },
+    res: Response,
+    defaultHref: string,
+  ): void {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      req.session.returnToApplyCheckYourAnswers = undefined;
+      res.redirect("/apply/check-your-answers");
+    } else {
+      res.redirect(defaultHref);
     }
   }
 

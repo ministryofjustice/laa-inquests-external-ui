@@ -224,6 +224,17 @@ describe("Deceased details adaptor", () => {
       assert.equal(dateOfBirthMonth, month);
       assert.equal(dateOfBirthYear, year);
     });
+
+    it("captures check-your-answers origin and sets check-your-answers backHref", () => {
+      requestStub.query = { from: "check-your-answers" };
+
+      deceasedDetailsAdaptor.renderDateOfBirthForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(renderModel.backHref, "/apply/check-your-answers");
+    });
   });
 
   describe("processDateOfBirthForm", () => {
@@ -282,6 +293,26 @@ describe("Deceased details adaptor", () => {
       assert.equal(
         requestStub.session.deceasedDateOfBirthYear,
         dateOfBirthYear,
+      );
+    });
+
+    it("redirects to check-your-answers when return flag is set", () => {
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-date-of-birth-day": "1",
+        "deceased-date-of-birth-month": "1",
+        "deceased-date-of-birth-year": "1990",
+      };
+
+      deceasedDetailsAdaptor.processDateOfBirthForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirect = responseStub.redirect.getCall(0).args;
+      assert.equal(redirect[0], "/apply/check-your-answers");
+      assert.equal(
+        requestStub.session.returnToApplyCheckYourAnswers,
+        undefined,
       );
     });
   });

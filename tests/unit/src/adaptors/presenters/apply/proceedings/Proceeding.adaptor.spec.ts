@@ -135,6 +135,33 @@ describe("Proceedings adaptor", () => {
 
       assert.propertyVal(renderArgs[1], "proceedingOption", "");
     });
+
+    it("captures check-your-answers origin and sets backHref to check-your-answers", () => {
+      const formValidator = new ProceedingValidator();
+      const formatter = new Formatter();
+      const proceedingsAdaptor = new ProceedingsAdaptor(
+        formValidator,
+        formatter,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.query = { from: "check-your-answers" };
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      proceedingsAdaptor.renderProceedingSelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.propertyVal(
+        renderArgs[1],
+        "backHref",
+        "/apply/check-your-answers",
+      );
+    });
   });
   describe("processProceedingsForm", () => {
     it("adds selected proceedings to the session object", () => {
@@ -211,6 +238,34 @@ describe("Proceedings adaptor", () => {
 
       // Should also pass proceedingOption as empty string when no session data
       assert.propertyVal(renderArgs[1], "proceedingOption", "");
+    });
+
+    it("redirects back to check-your-answers when return flag is set", () => {
+      const formValidator = new ProceedingValidator();
+      const formatter = new Formatter();
+      const proceedingsAdaptor = new ProceedingsAdaptor(
+        formValidator,
+        formatter,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+      requestStub.body = {
+        "proceeding-option": "IQPC",
+      };
+
+      proceedingsAdaptor.processProceedingsForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        String(responseStub.redirect.getCall(0).args[0]),
+        "/apply/check-your-answers",
+      );
+      assert.equal(
+        requestStub.session.returnToApplyCheckYourAnswers,
+        undefined,
+      );
     });
   });
 });

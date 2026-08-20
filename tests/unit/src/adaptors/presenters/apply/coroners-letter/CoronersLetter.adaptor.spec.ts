@@ -65,6 +65,24 @@ describe("Coroners Letter adaptor", () => {
     assert.deepEqual(renderArgs[1], {
       csrfToken: responseStub.locals.csrfToken,
       uploadedFile: "test-file",
+      backHref: "/apply/public-authority",
+    });
+  });
+
+  it("captures check-your-answers origin and sets check-your-answers back link", () => {
+    requestStub.query = { from: "check-your-answers" };
+
+    coronersLetterAdaptor.renderUploadCoronersLetterForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.deepEqual(renderArgs[1], {
+      csrfToken: responseStub.locals.csrfToken,
+      uploadedFile: undefined,
+      backHref: "/apply/check-your-answers",
     });
   });
 
@@ -91,6 +109,7 @@ describe("Coroners Letter adaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
     assert.equal(redirectArgs[0], "/apply/check-your-answers");
+    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, undefined);
   });
 
   it("saves the letter id and a file name to session on successful upload", async () => {
@@ -141,6 +160,7 @@ describe("Coroners Letter adaptor", () => {
         errorSummaries: {
           coronersLetterError: { text: "Select a file" },
         },
+        backHref: "/apply/public-authority",
       });
     });
 
@@ -164,6 +184,7 @@ describe("Coroners Letter adaptor", () => {
             text: "The selected file must be a JPG, PNG, BMP or PDF",
           },
         },
+        backHref: "/apply/public-authority",
       });
     });
 
@@ -187,6 +208,7 @@ describe("Coroners Letter adaptor", () => {
             text: "The selected file must be smaller than 10MB",
           },
         },
+        backHref: "/apply/public-authority",
       });
     });
 
@@ -208,6 +230,7 @@ describe("Coroners Letter adaptor", () => {
         errorSummaries: {
           coronersLetterError: { text: "The selected file is empty" },
         },
+        backHref: "/apply/public-authority",
       });
     });
   });
@@ -260,6 +283,7 @@ describe("Coroners Letter adaptor", () => {
           text: CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
         },
       },
+      backHref: "/apply/public-authority",
     });
   });
 });

@@ -24,9 +24,12 @@ export class CoronersLetterAdaptor {
       locals: { csrfToken },
     } = res;
 
+    this.#captureCheckYourAnswersEntry(req);
+
     res.render("apply/upload-coroners-letter", {
       csrfToken,
       uploadedFile: req.session.coronersLetterFile,
+      backHref: this.#resolveBackHref(req),
     });
   }
 
@@ -42,6 +45,7 @@ export class CoronersLetterAdaptor {
       res.render("apply/upload-coroners-letter", {
         csrfToken: res.locals.csrfToken,
         errorSummaries: errors,
+        backHref: this.#resolveBackHref(req),
       });
       return;
     }
@@ -70,6 +74,7 @@ export class CoronersLetterAdaptor {
               text: CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
             },
           },
+          backHref: this.#resolveBackHref(req),
         });
         return;
       }
@@ -81,6 +86,21 @@ export class CoronersLetterAdaptor {
       return;
     }
 
+    req.session.returnToApplyCheckYourAnswers = undefined;
     res.redirect("/apply/check-your-answers");
+  }
+
+  #captureCheckYourAnswersEntry(req: Request): void {
+    if (req.query.from === "check-your-answers") {
+      req.session.returnToApplyCheckYourAnswers = true;
+    }
+  }
+
+  #resolveBackHref(req: Request): string {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      return "/apply/check-your-answers";
+    }
+
+    return "/apply/public-authority";
   }
 }
