@@ -24,6 +24,8 @@ describe("error middleware", () => {
     it("logs and renders the fallback 500 page", () => {
       const err = new Error("plain error");
       const logSpy = sinon.spy(logger, "logError");
+      req.route = { path: "/test-path" } as Request["route"];
+      req.method = "POST";
 
       handleServerErrors(
         err,
@@ -33,6 +35,20 @@ describe("error middleware", () => {
       );
 
       assert.equal(logSpy.callCount, 1);
+      assert.deepEqual(logSpy.firstCall.args, [
+        {
+          functionName: "server_error_middleware",
+          message: "Internal Server Error",
+          err,
+          request: req,
+          extraContext: {
+            event: "http_request_failed",
+            route: "/test-path",
+            method: "POST",
+            status_code: 500,
+          },
+        },
+      ]);
       assert.equal(res.render.callCount, 1);
       assert.deepEqual(res.render.firstCall.args, [
         "main/error",

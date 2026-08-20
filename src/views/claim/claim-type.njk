@@ -3,6 +3,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "What type of claim are you making?" %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -34,7 +36,7 @@
             errorMessage: errorSummaries.claimTypeInputError,
             fieldset: {
               legend: {
-                text: "What type of claim are you making?",
+                text: pageHeading,
                 isPageHeading: true,
                 classes: "govuk-fieldset__legend--l"
               }

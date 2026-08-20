@@ -123,10 +123,14 @@ describe("UploadCoronersLetterAdaptor", () => {
       "http://localhost/applications/upload-coroners-letter",
     );
     assert.instanceOf(actualBody, FormData);
-    assert.deepEqual(postCall.args[2], {
-      headers: {
-        Authorization: "Bearer access-token-123",
-      },
+    const actualOptions = postCall.args[2] as {
+      headers: Record<string, string>;
+      validateStatus: (status: number) => boolean;
+    };
+    assert.deepEqual(actualOptions.headers, {
+      Authorization: "Bearer access-token-123",
     });
+    assert.isFunction(actualOptions.validateStatus);
+    assert.isTrue(actualOptions.validateStatus(422));
   });
 });

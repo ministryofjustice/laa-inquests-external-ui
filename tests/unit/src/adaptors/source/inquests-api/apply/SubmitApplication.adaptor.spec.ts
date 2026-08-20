@@ -3,10 +3,15 @@ import sinon from "sinon";
 import { AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import { v4 as uuidv4 } from "uuid";
 
 describe("SubmitApplicationAdaptor", () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+
   describe("submitApplication", () => {
     it("submits an application", async () => {
       let axiosStub = stubInterface<AxiosInstance>();
@@ -45,7 +50,6 @@ describe("SubmitApplicationAdaptor", () => {
           dateOfBirth: formatDateDDMMYYYY(1990, "01", "01"),
           hasNoFixedAbode: false,
           correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-          isClientCorrespondenceRecipient: true,
           nationalInsuranceNumber: "AB123456C",
         },
         deceased: {
@@ -90,13 +94,12 @@ describe("SubmitApplicationAdaptor", () => {
     it("logs the payload when payloadDebugEnabled is true", async () => {
       const axiosStub = stubInterface<AxiosInstance>();
       axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
-      const logger = sinon.spy();
+      const logDebugSpy = sinon.spy(logger, "logDebug");
 
       const adaptor = new SubmitApplicationAdaptor(
         axiosStub,
         "http://localhost",
         true,
-        logger,
       );
 
       const minimalBody = {
@@ -107,7 +110,6 @@ describe("SubmitApplicationAdaptor", () => {
           dateOfBirth: "01/01/1990",
           hasNoFixedAbode: false,
           correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-          isClientCorrespondenceRecipient: true,
         },
         deceased: {
           deceasedFirstName: "D",
@@ -127,23 +129,28 @@ describe("SubmitApplicationAdaptor", () => {
 
       await adaptor.submitApplication(minimalBody, "access-token-123");
 
-      assert.ok(logger.calledOnce);
-      const logged = JSON.parse(logger.firstCall.args[0] as string) as {
-        event: string;
-      };
-      assert.equal(logged.event, "submit.application.payload");
+      assert.ok(logDebugSpy.calledOnce);
+      assert.deepEqual(logDebugSpy.firstCall.args, [
+        {
+          functionName: "submitApplication",
+          message: "DEBUG APPLICATION BODY NOT SUITABLE FOR PRODUCTION",
+          extraContext: {
+            event: "submit_application_payload_debug",
+            application: minimalBody,
+          },
+        },
+      ]);
     });
 
     it("does not log the payload when payloadDebugEnabled is false", async () => {
       const axiosStub = stubInterface<AxiosInstance>();
       axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
-      const logger = sinon.spy();
+      const logDebugSpy = sinon.spy(logger, "logDebug");
 
       const adaptor = new SubmitApplicationAdaptor(
         axiosStub,
         "http://localhost",
         false,
-        logger,
       );
 
       await adaptor.submitApplication(
@@ -155,7 +162,6 @@ describe("SubmitApplicationAdaptor", () => {
             dateOfBirth: "01/01/1990",
             hasNoFixedAbode: false,
             correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-            isClientCorrespondenceRecipient: true,
           },
           deceased: {
             deceasedFirstName: "D",
@@ -175,7 +181,7 @@ describe("SubmitApplicationAdaptor", () => {
         "access-token-123",
       );
 
-      assert.ok(logger.notCalled);
+      assert.ok(logDebugSpy.notCalled);
     });
   });
 });

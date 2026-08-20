@@ -5,6 +5,7 @@ import {
   SUBMIT_CLAIM_FALLBACK_ERROR,
   TOTAL_CLAIM_ERROR,
 } from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export interface SubmitClaimInput {
   laaReference: string;
@@ -50,11 +51,31 @@ export class SubmitClaimUseCase {
 
       if (result.status === "UNPROCESSABLE") {
         const text = this.#resolveErrorText(result.errorCode);
+        logger.logWarn({
+          functionName: "submitClaimUseCase_execute",
+          message: "Claim submission failed validation",
+          extraContext: {
+            event: "claim_submission_failed",
+            reason: "VALIDATION_FAILED",
+            error_code: result.errorCode,
+            laa_reference: input.laaReference,
+          },
+        });
         return {
           status: "VALIDATION_FAILED",
           errorSummaries: { submitError: { text } },
         };
       } else if (result.status === "REJECTED") {
+        logger.logInfo({
+          functionName: "submitClaimUseCase_execute",
+          message: "Claim submission completed with rejection reasons",
+          extraContext: {
+            event: "claim_submission_completed",
+            outcome: "REJECTED",
+            laa_reference: input.laaReference,
+            rejection_reason_count: result.data.rejectionReasons.length,
+          },
+        });
         return {
           status: "SUCCESS",
           data: {
@@ -63,9 +84,28 @@ export class SubmitClaimUseCase {
           },
         };
       } else {
+        logger.logInfo({
+          functionName: "submitClaimUseCase_execute",
+          message: "Claim submission completed successfully",
+          extraContext: {
+            event: "claim_submission_completed",
+            laa_reference: input.laaReference,
+            outcome: "SUCCESS",
+          },
+        });
         return { status: "SUCCESS", data: { claimId: result.data.claimId } };
       }
-    } catch {
+    } catch (err) {
+      logger.logError({
+        functionName: "submitClaimUseCase_execute",
+        message: "Claim submission failed with exception",
+        err,
+        extraContext: {
+          event: "claim_submission_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+          laa_reference: input.laaReference,
+        },
+      });
       return { status: "TECHNICAL_FAILURE", reason: "UNEXPECTED_EXCEPTION" };
     }
   }

@@ -9,6 +9,7 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { SearchCasesPort } from "#src/ports/source/inquests-api/SearchCases.port.js";
 import { CaseSearchFormatter } from "./CaseSearch.formatter.js";
 import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
@@ -54,6 +55,14 @@ export class CaseSearchAdaptor {
       this.formValidator.validateCaseSearch(req.body);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      logger.logWarn({
+        functionName: "caseSearchAdaptor_processForm",
+        message: "Case search form validation failed",
+        extraContext: {
+          event: "claim_case_search_validation_failed",
+          laa_reference: caseReference,
+        },
+      });
       res.render("claim/case-search", {
         csrfToken,
         caseReference,
@@ -81,6 +90,15 @@ export class CaseSearchAdaptor {
     );
 
     if (result.status !== "SUCCESS") {
+      logger.logWarn({
+        functionName: "caseSearchAdaptor_renderResults",
+        message: "Case search results not available",
+        request: req,
+        extraContext: {
+          event: "claim_case_search_failed",
+          laa_reference: laaReference,
+        },
+      });
       return;
     }
 
@@ -108,6 +126,16 @@ export class CaseSearchAdaptor {
     );
 
     if (selectedClient === undefined) {
+      logger.logWarn({
+        functionName: "caseSearchAdaptor_selectCase",
+        message:
+          "Case selection failed because reference was not in cached results",
+        request: req,
+        extraContext: {
+          event: "claim_case_selection_failed",
+          reason: "INVALID_INPUT_STATE",
+        },
+      });
       res.redirect("/claim/results");
       return;
     }

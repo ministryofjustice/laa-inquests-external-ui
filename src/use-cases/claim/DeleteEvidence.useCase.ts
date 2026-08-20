@@ -3,6 +3,7 @@ import type {
   TechnicalFailureReason,
   UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface DeleteEvidenceInput {
   evidenceFileId: string;
@@ -20,6 +21,14 @@ export class DeleteEvidenceUseCase {
     const { evidenceFileId, accessToken } = input;
 
     if (evidenceFileId === "") {
+      logger.logWarn({
+        functionName: "deleteEvidenceUseCase_execute",
+        message: "Evidence delete received invalid input",
+        extraContext: {
+          event: "claim_evidence_delete_failed",
+          reason: "INVALID_INPUT_STATE",
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: "INVALID_INPUT_STATE",
@@ -36,11 +45,31 @@ export class DeleteEvidenceUseCase {
         return { status: "SUCCESS" };
       }
 
+      logger.logWarn({
+        functionName: "deleteEvidenceUseCase_execute",
+        message: "Evidence delete rejected by downstream component",
+        extraContext: {
+          event: "claim_evidence_delete_failed",
+          reason: responseRaw.reason,
+          file_id: evidenceFileId,
+        },
+      });
+
       return {
         status: "TECHNICAL_FAILURE",
         reason: responseRaw.reason as TechnicalFailureReason,
       };
-    } catch {
+    } catch (err) {
+      logger.logError({
+        functionName: "deleteEvidenceUseCase_execute",
+        message: "Evidence delete failed with exception",
+        err,
+        extraContext: {
+          event: "claim_evidence_delete_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+          file_id: evidenceFileId,
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",

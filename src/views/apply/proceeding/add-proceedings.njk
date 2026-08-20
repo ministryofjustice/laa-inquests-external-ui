@@ -4,6 +4,10 @@
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {%- from "moj/components/search/macro.njk" import mojSearch -%}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set pageHeading = t("pages.apply.proceedings.title") %}
+{% set pageTitle = pageHeading %}
 
 {% block content %}
 
@@ -15,13 +19,25 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries %}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.noProceedingSelected.text,
+                href: "#proceeding-option"
+              }
+            ]
+          })
+        }}
+        {% endif %}
          <form data-testid="add-proceeding-form" action="/apply/proceeding" method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}" />
               {{ govukRadios({
                 name: "proceeding-option",
                 fieldset: {
                   legend: {
-                    text: t("pages.apply.proceedings.title"),
+                    text: pageHeading,
                     isPageHeading: true,
                     classes: "govuk-fieldset__legend--l"
                   }

@@ -9,6 +9,7 @@ import {
   HTTP_UNPROCESSABLE_CONTENT,
 } from "#src/infrastructure/locales/constants.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface UploadCoronersLetterApiResponse {
   coronersLetterId: string;
@@ -42,15 +43,34 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
           path: "/applications/upload-coroners-letter",
           body: formData,
           accessToken,
+          validateStatus: () => true,
         });
 
       if (response.status !== HTTP_CREATED) {
         if (response.status === HTTP_UNPROCESSABLE_CONTENT) {
+          logger.logWarn({
+            functionName: "uploadCoronersLetterAdaptor_uploadCoronersLetter",
+            message: "Coroners letter upload rejected due to failed file scan",
+            extraContext: {
+              event: "apply_coroners_letter_upload_failed",
+              reason: "FILE_SCAN_FOUND_VIRUS",
+              status_code: response.status,
+            },
+          });
           return {
             status: "TECHNICAL_FAILURE",
             reason: "FILE_SCAN_FOUND_VIRUS",
           };
         } else {
+          logger.logWarn({
+            functionName: "uploadCoronersLetterAdaptor_uploadCoronersLetter",
+            message: "Coroners letter upload rejected by upstream service",
+            extraContext: {
+              event: "apply_coroners_letter_upload_failed",
+              reason: "UPSTREAM_REJECTED",
+              status_code: response.status,
+            },
+          });
           return {
             status: "TECHNICAL_FAILURE",
             reason: "UPSTREAM_REJECTED",
@@ -58,12 +78,31 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
         }
       }
 
+      logger.logInfo({
+        functionName: "uploadCoronersLetterAdaptor_uploadCoronersLetter",
+        message: "Coroners letter upload completed successfully",
+        extraContext: {
+          event: "apply_coroners_letter_upload_completed",
+          outcome: "SUCCESS",
+          file_id: response.data.coronersLetterId,
+        },
+      });
+
       return {
         status: "SUCCESS",
         coronersLetterId: response.data.coronersLetterId,
         coronersLetterFileName: response.data.coronersLetterFileName,
       };
-    } catch (error) {
+    } catch (err) {
+      logger.logError({
+        functionName: "uploadCoronersLetterAdaptor_uploadCoronersLetter",
+        message: "Coroners letter upload failed with exception",
+        err,
+        extraContext: {
+          event: "apply_coroners_letter_upload_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",

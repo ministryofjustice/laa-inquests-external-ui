@@ -6,7 +6,7 @@ test("renders declaration subheader, copy text and back button", async ({
 }) => {
   page.goto("/apply");
   const declarationHeading = await page.getByRole("heading", {
-    level: 2,
+    level: 1,
     name: "Declaration",
   });
 
