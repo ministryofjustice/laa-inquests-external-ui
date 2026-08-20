@@ -1,4 +1,5 @@
 import type { AxiosInstance, AxiosResponse, ResponseType } from "axios";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface PostToInquestsApiParams<TBody> {
   http: AxiosInstance;
@@ -17,6 +18,16 @@ export async function postToInquestsApi<TResponse, TBody>(
     params;
 
   if (typeof accessToken !== "string" || accessToken === "") {
+    logger.logError({
+      functionName: "postToInquestsApi",
+      message: "Inquests API POST request missing access token",
+      extraContext: {
+        event: "inquests_api_request_failed",
+        reason: "INVALID_INPUT_STATE",
+        method: "POST",
+        path,
+      },
+    });
     throw new Error("Missing access token for Inquests API request");
   }
 
@@ -53,6 +64,16 @@ export async function getFromInquestsApi<TResponse>(
   } = options;
 
   if (typeof accessToken !== "string" || accessToken === "") {
+    logger.logError({
+      functionName: "getFromInquestsApi",
+      message: "Inquests API GET request missing access token",
+      extraContext: {
+        event: "inquests_api_request_failed",
+        reason: "INVALID_INPUT_STATE",
+        method: "GET",
+        path,
+      },
+    });
     throw new Error("Missing access token for Inquests API request");
   }
 
@@ -79,6 +100,16 @@ export async function deleteFromInquestsApi(
   const { http, baseUrl, path, accessToken } = options;
 
   if (typeof accessToken !== "string" || accessToken === "") {
+    logger.logError({
+      functionName: "deleteFromInquestsApi",
+      message: "Inquests API DELETE request missing access token",
+      extraContext: {
+        event: "inquests_api_request_failed",
+        reason: "INVALID_INPUT_STATE",
+        method: "DELETE",
+        path,
+      },
+    });
     throw new Error("Missing access token for Inquests API request");
   }
 

@@ -5,6 +5,7 @@ import type {
   SearchCasesResponse,
 } from "./models/SearchCases.types.js";
 import { getFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class SearchCasesAdaptor implements SearchCasesPort {
   constructor(
@@ -25,13 +26,38 @@ export class SearchCasesAdaptor implements SearchCasesPort {
       queryParams.merits_decision = meritsDecision;
     }
 
-    const response = await getFromInquestsApi<SearchCasesResponse>({
-      http: this.http,
-      baseUrl: this.baseUrl,
-      path: "/applications/search",
-      params: queryParams,
-      accessToken,
-    });
-    return response.data;
+    try {
+      const response = await getFromInquestsApi<SearchCasesResponse>({
+        http: this.http,
+        baseUrl: this.baseUrl,
+        path: "/applications/search",
+        params: queryParams,
+        accessToken,
+      });
+      logger.logInfo({
+        functionName: "searchCasesAdaptor_searchCases",
+        message: "Case search returned response payload",
+        extraContext: {
+          event: "claim_case_search_completed",
+          outcome: "SUCCESS",
+          merits_decision_supplied: meritsDecision !== undefined,
+          params: queryParams,
+        },
+      });
+      return response.data;
+    } catch (err) {
+      logger.logError({
+        functionName: "searchCasesAdaptor_searchCases",
+        message: "Case search request failed with exception",
+        err,
+        extraContext: {
+          event: "claim_case_search_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+          merits_decision_supplied: meritsDecision !== undefined,
+          params: queryParams,
+        },
+      });
+      throw err;
+    }
   }
 }
