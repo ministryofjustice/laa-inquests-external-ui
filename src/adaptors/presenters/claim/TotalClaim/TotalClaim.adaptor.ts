@@ -25,9 +25,17 @@ export class TotalClaimAdaptor {
       session: { claim },
     } = req;
 
+    if (req.query.from === "check-your-answers") {
+      req.session.claim = { ...req.session.claim, returnToCheckYourAnswers: true };
+    }
+
+    const backHref = req.session.claim?.returnToCheckYourAnswers
+      ? "/claim/check-your-answers"
+      : this.#getBackHref(claim?.type);
+
     res.render("claim/total-cost", {
       csrfToken,
-      backHref: this.#getBackHref(claim?.type),
+      backHref,
       zeroVatTotal: claim?.zeroVatTotal,
       netTotal: claim?.netTotal,
       grossTotal: claim?.grossTotal,
@@ -53,9 +61,12 @@ export class TotalClaimAdaptor {
     const grossTotal = this.#normaliseForSession(req.body["gross-total"]);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      const backHref = req.session.claim?.returnToCheckYourAnswers
+        ? "/claim/check-your-answers"
+        : this.#getBackHref(req.session.claim?.type);
       res.render("claim/total-cost", {
         csrfToken,
-        backHref: this.#getBackHref(req.session.claim?.type),
+        backHref,
         zeroVatTotal,
         netTotal,
         grossTotal,
@@ -64,14 +75,16 @@ export class TotalClaimAdaptor {
       return;
     }
 
+    const returnToCheckYourAnswers = req.session.claim?.returnToCheckYourAnswers;
     req.session.claim = {
       ...req.session.claim,
       zeroVatTotal,
       netTotal,
       grossTotal,
+      returnToCheckYourAnswers: undefined,
     };
 
-    res.redirect("/claim/evidence");
+    res.redirect(returnToCheckYourAnswers ? "/claim/check-your-answers" : "/claim/evidence");
   }
 
   #getBackHref(claimType: string | undefined): string {
