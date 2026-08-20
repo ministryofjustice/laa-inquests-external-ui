@@ -35,7 +35,7 @@ test.describe("Apply - check your answers", () => {
     ).toBeVisible();
     await expect(linkedCaseDetailsSummary.getByRole("link")).toHaveAttribute(
       "href",
-      "/apply/deceased-details/further-information",
+      "/apply/deceased-details/further-information?from=check-your-answers",
     );
 
     await checkAccessibility();
@@ -114,21 +114,75 @@ test.describe("Apply - check your answers", () => {
     );
     await expect(clientDetailsTableHeading).toBeVisible();
 
-    const clientDetailsChangeLink = clientDetailsSummaryList.getByRole("link");
-    await expect(clientDetailsChangeLink).toBeVisible();
-
-    await expect(clientDetailsChangeLink).toHaveAttribute(
+    await expect(
+      clientDetailsSummaryList.getByRole("link", {
+        name: "Change first name",
+      }),
+    ).toHaveAttribute(
       "href",
-      "/apply/client-details/name-and-dob",
+      "/apply/client-details/name-and-dob?from=check-your-answers",
+    );
+    await expect(
+      clientDetailsSummaryList.getByRole("link", {
+        name: "Change last name",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/client-details/name-and-dob?from=check-your-answers",
+    );
+    await expect(
+      clientDetailsSummaryList.getByRole("link", {
+        name: "Change date of birth",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/client-details/name-and-dob?from=check-your-answers",
+    );
+    await expect(
+      clientDetailsSummaryList.getByRole("link", {
+        name: "Change home address",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/client-details/home-address?from=check-your-answers",
+    );
+    await expect(
+      clientDetailsSummaryList.getByRole("link", {
+        name: "Change correspondence address",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/client-details/correspondence-address-source?from=check-your-answers",
+    );
+    await expect(
+      clientDetailsSummaryList.getByRole("link", {
+        name: "Change care of recipient",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/client-details/correspondence-recipient?from=check-your-answers",
     );
 
-    const firstNameRowTitle = clientDetailsSummaryList.getByText("First name");
-    const lastNameRowTitle = clientDetailsSummaryList.getByText("Last name");
-    const dobRowTitle = clientDetailsSummaryList.getByText("Date of birth");
-    const homeAddressRowTitle =
-      clientDetailsSummaryList.getByText("Home address");
+    const firstNameRowTitle = clientDetailsSummaryList.getByText("First name", {
+      exact: true,
+    });
+    const lastNameRowTitle = clientDetailsSummaryList.getByText("Last name", {
+      exact: true,
+    });
+    const dobRowTitle = clientDetailsSummaryList.getByText("Date of birth", {
+      exact: true,
+    });
+    const homeAddressRowTitle = clientDetailsSummaryList.getByText(
+      "Home address",
+      {
+        exact: true,
+      },
+    );
     const correspondenceAddressRowTitle = clientDetailsSummaryList.getByText(
       "Correspondence address",
+      {
+        exact: true,
+      },
     );
 
     await expect(firstNameRowTitle).toBeVisible();
@@ -159,28 +213,86 @@ test.describe("Apply - check your answers", () => {
       });
     await expect(deceasedDetailsTableHeading).toBeVisible();
 
-    const deceasedDetailsChangeLink =
-      deceasedDetailsSummaryList.getByRole("link");
-    await expect(deceasedDetailsChangeLink).toBeVisible();
-
-    await expect(deceasedDetailsChangeLink).toHaveAttribute(
+    await expect(
+      deceasedDetailsSummaryList.getByRole("link", {
+        name: "Change deceased first name",
+      }),
+    ).toHaveAttribute(
       "href",
-      "/apply/deceased-details/name",
+      "/apply/deceased-details/name?from=check-your-answers",
+    );
+    await expect(
+      deceasedDetailsSummaryList.getByRole("link", {
+        name: "Change deceased last name",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/name?from=check-your-answers",
+    );
+    await expect(
+      deceasedDetailsSummaryList.getByRole("link", {
+        name: "Change deceased date of birth",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/dob?from=check-your-answers",
+    );
+    await expect(
+      deceasedDetailsSummaryList.getByRole("link", {
+        name: "Change deceased date of death",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/dod?from=check-your-answers",
+    );
+    await expect(
+      deceasedDetailsSummaryList.getByRole("link", {
+        name: "Change client relationship",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/client-relationship?from=check-your-answers",
+    );
+    await expect(
+      deceasedDetailsSummaryList.getByRole("link", {
+        name: "Change coroner’s reference",
+      }),
+    ).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/coroner-reference?from=check-your-answers",
     );
 
-    const firstNameRowTitle =
-      deceasedDetailsSummaryList.getByText("First name");
-    const lastNameRowTitle = deceasedDetailsSummaryList.getByText("Last name");
-    const dodTitle = deceasedDetailsSummaryList.getByText("Date of death");
+    const firstNameRowTitle = deceasedDetailsSummaryList.getByText(
+      "First name",
+      {
+        exact: true,
+      },
+    );
+    const lastNameRowTitle = deceasedDetailsSummaryList.getByText("Last name", {
+      exact: true,
+    });
+    const dodTitle = deceasedDetailsSummaryList.getByText("Date of death", {
+      exact: true,
+    });
+    const dobTitle = deceasedDetailsSummaryList.getByText("Date of birth", {
+      exact: true,
+    });
     const clientRelationshipTitle = deceasedDetailsSummaryList.getByText(
       "Client relationship",
+      {
+        exact: true,
+      },
     );
     const inquestIdTitle = deceasedDetailsSummaryList.getByText(
       "Coroner’s reference",
+      {
+        exact: true,
+      },
     );
 
     await expect(firstNameRowTitle).toBeVisible();
     await expect(lastNameRowTitle).toBeVisible();
+    await expect(dobTitle).toBeVisible();
     await expect(dodTitle).toBeVisible();
     await expect(clientRelationshipTitle).toBeVisible();
     await expect(inquestIdTitle).toBeVisible();
@@ -200,13 +312,7 @@ test.describe("Apply - check your answers", () => {
     );
     await expect(proceedingsTableHeading).toBeVisible();
 
-    const proceedingsChangeLink = proceedingsSummaryList.getByRole("link");
-    await expect(proceedingsChangeLink).toBeVisible();
-
-    await expect(proceedingsChangeLink).toHaveAttribute(
-      "href",
-      "/apply/proceeding",
-    );
+    await expect(proceedingsSummaryList.getByRole("link")).toHaveCount(0);
   });
 
   test("renders interested parties summary list", async ({ page }) => {
@@ -224,14 +330,7 @@ test.describe("Apply - check your answers", () => {
       });
     await expect(interestedPartiesTableHeading).toBeVisible();
 
-    const interestedPartiesChangeLink =
-      interestedPartiesSummaryList.getByRole("link");
-    await expect(interestedPartiesChangeLink).toBeVisible();
-
-    await expect(interestedPartiesChangeLink).toHaveAttribute(
-      "href",
-      "/apply/public-authority",
-    );
+    await expect(interestedPartiesSummaryList.getByRole("link")).toHaveCount(0);
   });
 
   test("renders coroner's letter summary list", async ({ page }) => {
@@ -255,7 +354,7 @@ test.describe("Apply - check your answers", () => {
 
     await expect(coronersLetterChangeLink).toHaveAttribute(
       "href",
-      "/apply/upload-coroners-letter",
+      "/apply/upload-coroners-letter?from=check-your-answers",
     );
 
     const fileNameRowTitle = coronersLetterSummaryList.getByText("File name");

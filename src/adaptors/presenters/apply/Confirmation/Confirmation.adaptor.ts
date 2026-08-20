@@ -186,6 +186,7 @@ export class ConfirmationAdaptor {
     deceasedDetails: {
       deceasedFirstName: string;
       deceasedLastName: string;
+      dateOfBirth: string;
       dateOfDeath: string;
       deceasedClientRelationship: string;
       deceasedCoronerReference: string;
@@ -246,6 +247,7 @@ export class ConfirmationAdaptor {
   #buildDeceasedDetailsViewModel(data: BuildCheckYourAnswersOutput): {
     deceasedFirstName: string;
     deceasedLastName: string;
+    dateOfBirth: string;
     dateOfDeath: string;
     deceasedClientRelationship: string;
     deceasedCoronerReference: string;
@@ -254,6 +256,11 @@ export class ConfirmationAdaptor {
     return {
       deceasedFirstName: data.deceasedDetails.deceasedFirstName ?? "",
       deceasedLastName: data.deceasedDetails.deceasedLastName ?? "",
+      dateOfBirth: this.#createDateString(
+        data.deceasedDetails.dateOfBirthDay,
+        data.deceasedDetails.dateOfBirthMonth,
+        data.deceasedDetails.dateOfBirthYear,
+      ),
       dateOfDeath: this.#createDateString(
         data.deceasedDetails.dateOfDeathDay,
         data.deceasedDetails.dateOfDeathMonth,

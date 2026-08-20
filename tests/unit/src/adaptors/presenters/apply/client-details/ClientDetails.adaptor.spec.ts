@@ -20,6 +20,22 @@ describe("Client details adaptor", () => {
     assert.equal(renderArgs[0], "apply/client-details/name-and-dob");
   });
 
+  it("render name and dob form captures check-your-answers origin", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+    requestStub.query = { from: "check-your-answers" };
+
+    clientDetailsAdaptor.renderNameForm(requestStub, responseStub);
+
+    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+    const renderArgs = responseStub.render.getCall(0).args;
+    const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+    assert.equal(renderModel.backHref, "/apply/check-your-answers");
+  });
+
   it("process name and dob form redirects to nino", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
@@ -41,6 +57,32 @@ describe("Client details adaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     const renderArgs = responseStub.redirect.getCall(0).args;
     assert.equal(renderArgs[0], "/apply/client-details/nino");
+  });
+
+  it("process name and dob form redirects to check-your-answers when return flag is set", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+    requestStub.session.returnToApplyCheckYourAnswers = true;
+    requestStub.body = {
+      _csrf: "abcdefg",
+      "first-name": "hev",
+      "last-name": "iscool",
+      "last-name-at-birth": "",
+      "dob-day": "1",
+      "dob-month": "1",
+      "dob-year": "1900",
+      "name-change": "false",
+    };
+
+    clientDetailsAdaptor.processNameForm(requestStub, responseStub);
+
+    assert.equal(responseStub.redirect.callCount, 1);
+    const renderArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(renderArgs[0], "/apply/check-your-answers");
+    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, undefined);
   });
 
   it("process name and dob form adds client name details to session", () => {
@@ -279,6 +321,55 @@ describe("Client details adaptor", () => {
       redirectArgs[0],
       "/apply/client-details/correspondence-recipient",
     );
+  });
+
+  it("process correspondence source redirects to check-your-answers when provider address is selected and return flag is set", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+    requestStub.session.returnToApplyCheckYourAnswers = true;
+
+    requestStub.body = {
+      "correspondence-address-source": "USE_PROVIDER_ADDRESS",
+    };
+
+    clientDetailsAdaptor.processCorrespondenceAddressSourceForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(redirectArgs[0], "/apply/check-your-answers");
+    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, undefined);
+  });
+
+  it("process correspondence source keeps flow on address page when specified address is selected from check-your-answers", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+    requestStub.session.returnToApplyCheckYourAnswers = true;
+
+    requestStub.body = {
+      "correspondence-address-source": "USE_SPECIFIED_ADDRESS",
+    };
+
+    clientDetailsAdaptor.processCorrespondenceAddressSourceForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(responseStub.redirect.callCount, 1);
+    const redirectArgs = responseStub.redirect.getCall(0).args;
+    assert.equal(
+      redirectArgs[0],
+      "/apply/client-details/correspondence-address",
+    );
+    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
   });
 
   it("process correspondence address form stores structured correspondence address and redirects", () => {

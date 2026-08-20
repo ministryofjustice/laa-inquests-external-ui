@@ -26,14 +26,6 @@
               card: {
                 title: {
                   text: "Client details"
-                },
-                actions: {
-                  items: [
-                    {
-                      href: "/apply/client-details/name-and-dob",
-                      text: "Change"
-                    }
-                  ]
                 }
               },
               rows: [
@@ -43,6 +35,15 @@
                   },
                   value: {
                     html: client.clientFirstName
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "first name"
+                      }
+                    ]
                   }
                 },
                 {
@@ -51,6 +52,15 @@
                   },
                   value: {
                     html: client.clientLastName
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "last name"
+                      }
+                    ]
                   }
                 },
                 ({
@@ -59,6 +69,15 @@
                   },
                   value: {
                     html: client.clientLastNameAtBirth
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "last name at birth"
+                      }
+                    ]
                   }
                 } if client.clientLastNameAtBirth),
                 {
@@ -67,6 +86,15 @@
                   },
                   value: {
                     html: client.clientDob
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "date of birth"
+                      }
+                    ]
                   }
                 },
                 ({
@@ -75,6 +103,15 @@
                   },
                   value: {
                     html: client.clientNino
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/nino?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "National Insurance number"
+                      }
+                    ]
                   }
                 } if client.clientNino),
                 ({
@@ -83,6 +120,15 @@
                   },
                   value: {
                     html: client.prevLaaReferenceInput
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/has-prev-application?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "previous LAA reference"
+                      }
+                    ]
                   }
                 } if client.prevLaaReferenceInput),
                 {
@@ -91,6 +137,15 @@
                   },
                   value: {
                     html: client.clientAddress
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/home-address?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "home address"
+                      }
+                    ]
                   }
                 },
                 {
@@ -99,6 +154,15 @@
                   },
                   value: {
                     html: client.clientCorrespondenceAddress
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/correspondence-address-source?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "correspondence address"
+                      }
+                    ]
                   }
                 },
                 {
@@ -107,6 +171,15 @@
                   },
                   value: {
                     html: client.clientCorrespondenceRecipient
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/client-details/correspondence-recipient?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "care of recipient"
+                      }
+                    ]
                   }
                 }
               ]
@@ -118,17 +191,22 @@
               card: {
                 title: {
                   text: "Proceedings"
-                },
-                actions: {
-                  items: [
-                    {
-                      href: "/apply/proceeding",
-                      text: "Change"
-                    }
-                  ]
                 }
               },
-              rows: [proceeding] if proceeding else []
+              rows: [
+                {
+                  key: proceeding.key,
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/proceeding?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "proceeding"
+                      }
+                    ]
+                  }
+                }
+              ] if proceeding else []
             }) }}
           </div>
           <div data-testid="deceased-details-summary-list">
@@ -136,14 +214,6 @@
               card: {
                 title: {
                   text: "Deceased details"
-                },
-                actions: {
-                  items: [
-                    {
-                      href: "/apply/deceased-details/name",
-                      text: "Change"
-                    }
-                  ]
                 }
               },
               rows: [
@@ -153,6 +223,15 @@
                   },
                   value: {
                     html: deceasedDetails.deceasedFirstName
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/name?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "deceased first name"
+                      }
+                    ]
                   }
                 },
                 {
@@ -161,6 +240,32 @@
                   },
                   value: {
                     html: deceasedDetails.deceasedLastName
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/name?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "deceased last name"
+                      }
+                    ]
+                  }
+                },
+                {
+                  key: {
+                    text: "Date of birth"
+                  },
+                  value: {
+                    html: deceasedDetails.dateOfBirth
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/dob?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "deceased date of birth"
+                      }
+                    ]
                   }
                 },
                 {
@@ -169,6 +274,15 @@
                   },
                   value: {
                     html: deceasedDetails.dateOfDeath
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/dod?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "deceased date of death"
+                      }
+                    ]
                   }
                 },
                 {
@@ -177,6 +291,15 @@
                   },
                   value: {
                     html: deceasedDetails.deceasedClientRelationship
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/client-relationship?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "client relationship"
+                      }
+                    ]
                   }
                 },
                 {
@@ -185,6 +308,15 @@
                   },
                   value: {
                     html: deceasedDetails.deceasedCoronerReference
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/deceased-details/coroner-reference?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "coroner’s reference"
+                      }
+                    ]
                   }
                 }
               ]
@@ -196,14 +328,6 @@
                 card: {
                   title: {
                     text: "Linked case details"
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/deceased-details/further-information",
-                        text: "Change"
-                      }
-                    ]
                   }
                 },
                 rows: [
@@ -213,6 +337,15 @@
                     },
                     value: {
                       html: deceasedDetails.deceasedFurtherInformation
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: "/apply/deceased-details/further-information?from=check-your-answers",
+                          text: "Change",
+                          visuallyHiddenText: "linked case details"
+                        }
+                      ]
                     }
                   }
                 ]
@@ -220,21 +353,28 @@
             </div>
           {% endif %}
           <div data-testid="interested-parties-summary-list">
+            {% set interestedPartyRows = [] %}
+            {% for publicAuthority in publicAuthorities %}
+              {% set interestedPartyRows = (interestedPartyRows.push({
+                key: publicAuthority.key,
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/public-authority?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: publicAuthority.key.text
+                    }
+                  ]
+                }
+              }), interestedPartyRows) %}
+            {% endfor %}
             {{ govukSummaryList({
               card: {
                 title: {
                   text: "Interested parties"
-                },
-                actions: {
-                  items: [
-                    {
-                      href: "/apply/public-authority",
-                      text: "Change"
-                    }
-                  ]
                 }
               },
-              rows: publicAuthorities
+              rows: interestedPartyRows
             }) }}
           </div>
           <div data-testid="coroners-letter-summary-list">
@@ -242,14 +382,6 @@
               card: {
                 title: {
                   text: "Coroner's letter"
-                },
-                actions: {
-                  items: [
-                    {
-                      href: "/apply/upload-coroners-letter",
-                      text: "Change"
-                    }
-                  ]
                 }
               },
               rows: [
@@ -259,6 +391,15 @@
                   },
                   value: {
                     html: coronersLetterFileName
+                  },
+                  actions: {
+                    items: [
+                      {
+                        href: "/apply/upload-coroners-letter?from=check-your-answers",
+                        text: "Change",
+                        visuallyHiddenText: "coroner's letter"
+                      }
+                    ]
                   }
                 }
               ]

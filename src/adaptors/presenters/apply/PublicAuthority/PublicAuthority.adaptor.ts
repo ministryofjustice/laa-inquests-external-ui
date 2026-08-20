@@ -37,6 +37,8 @@ export class PublicAuthorityAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
+    this.#captureCheckYourAnswersEntry(req);
+
     const { session } = req;
     const {
       locals: { csrfToken },
@@ -57,6 +59,7 @@ export class PublicAuthorityAdaptor {
           availablePublicAuthorities,
         ),
       selectedPublicAuthorityIds,
+      backHref: this.#resolveBackHref(req),
     });
   }
 
@@ -92,6 +95,7 @@ export class PublicAuthorityAdaptor {
             availablePublicAuthorities,
           ),
         selectedPublicAuthorityIds,
+        backHref: this.#resolveBackHref(req),
         errorSummaries: errors,
       });
     } else {
@@ -101,8 +105,30 @@ export class PublicAuthorityAdaptor {
         )
         .filter((a): a is PublicAuthority => a !== undefined);
 
-      res.redirect("/apply/upload-coroners-letter");
+      if (session.returnToApplyCheckYourAnswers === true) {
+        session.returnToApplyCheckYourAnswers = undefined;
+        res.redirect("/apply/check-your-answers");
+      } else {
+        res.redirect("/apply/upload-coroners-letter");
+      }
     }
+  }
+
+  #captureCheckYourAnswersEntry(req: {
+    query: Request["query"];
+    session: Request["session"];
+  }): void {
+    if (req.query.from === "check-your-answers") {
+      req.session.returnToApplyCheckYourAnswers = true;
+    }
+  }
+
+  #resolveBackHref(req: { session: Request["session"] }): string {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      return "/apply/check-your-answers";
+    }
+
+    return "/apply/deceased-details/further-information";
   }
 
   async #getAvailablePublicAuthorities(

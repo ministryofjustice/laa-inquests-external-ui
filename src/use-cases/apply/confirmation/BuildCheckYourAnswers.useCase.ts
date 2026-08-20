@@ -26,6 +26,9 @@ export interface BuildCheckYourAnswersOutput {
   deceasedDetails: {
     deceasedFirstName?: string;
     deceasedLastName?: string;
+    dateOfBirthDay?: string;
+    dateOfBirthMonth?: string;
+    dateOfBirthYear?: string;
     dateOfDeathDay?: string;
     dateOfDeathMonth?: string;
     dateOfDeathYear?: string;
@@ -60,6 +63,9 @@ export class BuildCheckYourAnswersUseCase {
       deceasedDetails: {
         deceasedFirstName: state.deceasedFirstName,
         deceasedLastName: state.deceasedLastName,
+        dateOfBirthDay: state.deceasedDateOfBirthDay,
+        dateOfBirthMonth: state.deceasedDateOfBirthMonth,
+        dateOfBirthYear: state.deceasedDateOfBirthYear,
         dateOfDeathDay: state.deceasedDateOfDeathDay,
         dateOfDeathMonth: state.deceasedDateOfDeathMonth,
         dateOfDeathYear: state.deceasedDateOfDeathYear,

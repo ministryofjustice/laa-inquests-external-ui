@@ -21,11 +21,14 @@ export class ProceedingsAdaptor {
       locals: { csrfToken },
     } = res;
 
+    this.#captureCheckYourAnswersEntry(req);
+
     res.render("apply/proceeding/add-proceedings", {
       csrfToken,
       proceedingOptions:
         this.formatter.formatOptionsIntoList(PROCEEDING_OPTIONS),
       proceedingOption: req.session.proceedingOption?.proceedingId ?? "",
+      backHref: this.#resolveBackHref(req),
     });
   }
 
@@ -62,7 +65,26 @@ export class ProceedingsAdaptor {
     } else {
       req.session.proceedingOption = { ...selectedProceeding };
       req.session.selectedProceeding = selectedProceeding;
-      res.redirect("/apply/deceased-details/name");
+      if (req.session.returnToApplyCheckYourAnswers === true) {
+        req.session.returnToApplyCheckYourAnswers = undefined;
+        res.redirect("/apply/check-your-answers");
+      } else {
+        res.redirect("/apply/deceased-details/name");
+      }
     }
+  }
+
+  #captureCheckYourAnswersEntry(req: Request): void {
+    if (req.query.from === "check-your-answers") {
+      req.session.returnToApplyCheckYourAnswers = true;
+    }
+  }
+
+  #resolveBackHref(req: Request): string {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      return "/apply/check-your-answers";
+    }
+
+    return "/apply/client-details/correspondence-recipient";
   }
 }

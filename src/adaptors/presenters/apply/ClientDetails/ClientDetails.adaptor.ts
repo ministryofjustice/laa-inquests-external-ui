@@ -65,6 +65,8 @@ export class ClientDetailsAdaptor {
   }
 
   renderNameForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -82,6 +84,7 @@ export class ClientDetailsAdaptor {
     res.render("apply/client-details/name-and-dob", {
       csrfToken,
       client: nameDobView.client,
+      backHref: this.#resolveBackHref(req, "/apply"),
     });
   }
 
@@ -135,13 +138,16 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorSummaries,
         client: nameDobView.client,
+        backHref: this.#resolveBackHref(req, "/apply"),
       });
     } else {
-      res.redirect("/apply/client-details/nino");
+      this.#redirectAfterSuccess(req, res, "/apply/client-details/nino");
     }
   }
 
   renderNinoForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -151,6 +157,10 @@ export class ClientDetailsAdaptor {
         hasNino: req.session.clientHasNino,
         clientNino: req.session.clientNino,
       },
+      backHref: this.#resolveBackHref(
+        req,
+        "/apply/client-details/name-and-dob",
+      ),
     });
   }
 
@@ -182,13 +192,23 @@ export class ClientDetailsAdaptor {
           hasNino: req.session.clientHasNino,
           clientNino: req.session.clientNino,
         },
+        backHref: this.#resolveBackHref(
+          req,
+          "/apply/client-details/name-and-dob",
+        ),
       });
     } else {
-      res.redirect("/apply/client-details/has-prev-application");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/client-details/has-prev-application",
+      );
     }
   }
 
   renderHomeAddressForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -207,6 +227,10 @@ export class ClientDetailsAdaptor {
     res.render("apply/client-details/home-address", {
       csrfToken,
       client: homeAddressClient,
+      backHref: this.#resolveBackHref(
+        req,
+        "/apply/client-details/has-prev-application",
+      ),
     });
   }
 
@@ -234,7 +258,11 @@ export class ClientDetailsAdaptor {
 
     if (hasNoFixedAbode) {
       req.session.clientHomeAddress = undefined;
-      res.redirect("/apply/client-details/correspondence-address-source");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/client-details/correspondence-address-source",
+      );
       return;
     }
 
@@ -269,13 +297,23 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorSummaries: homeAddressErrors,
         client: homeAddressClient,
+        backHref: this.#resolveBackHref(
+          req,
+          "/apply/client-details/has-prev-application",
+        ),
       });
     } else {
-      res.redirect("/apply/client-details/correspondence-address-source");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/client-details/correspondence-address-source",
+      );
     }
   }
 
   renderCorrespondenceAddressSourceForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -288,6 +326,10 @@ export class ClientDetailsAdaptor {
     res.render("apply/client-details/correspondence-address-source", {
       csrfToken,
       client: correspondenceAddressSourceView.client,
+      backHref: this.#resolveBackHref(
+        req,
+        "/apply/client-details/home-address",
+      ),
     });
   }
 
@@ -322,6 +364,10 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorSummaries: sourceErrors,
         client: correspondenceAddressSourceView.client,
+        backHref: this.#resolveBackHref(
+          req,
+          "/apply/client-details/home-address",
+        ),
       });
     } else if (correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
       req.session.clientCorrespondenceAddressSource =
@@ -334,7 +380,11 @@ export class ClientDetailsAdaptor {
       req.session.clientCorrespondenceAddress = undefined;
       req.session.clientCorrespondenceAddressSource =
         correspondenceAddressSource;
-      res.redirect("/apply/client-details/correspondence-recipient");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/client-details/correspondence-recipient",
+      );
     } else {
       const correspondenceAddressSourceView =
         this.#buildCorrespondenceAddressSourceView({
@@ -345,11 +395,17 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorSummaries: sourceErrors,
         client: correspondenceAddressSourceView.client,
+        backHref: this.#resolveBackHref(
+          req,
+          "/apply/client-details/home-address",
+        ),
       });
     }
   }
 
   renderCorrespondenceAddressForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -361,6 +417,10 @@ export class ClientDetailsAdaptor {
       csrfToken,
       client: this.formatter.toCorrespondenceAddressViewModel(
         correspondenceAddressView.clientCorrespondenceAddress,
+      ),
+      backHref: this.#resolveBackHref(
+        req,
+        "/apply/client-details/correspondence-address-source",
       ),
     });
   }
@@ -392,14 +452,25 @@ export class ClientDetailsAdaptor {
         client: this.formatter.toCorrespondenceAddressViewModel(
           correspondenceAddressView.clientCorrespondenceAddress,
         ),
+        backHref: this.#resolveBackHref(
+          req,
+          "/apply/client-details/correspondence-address-source",
+        ),
       });
     } else {
-      res.redirect("/apply/client-details/correspondence-recipient");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/client-details/correspondence-recipient",
+      );
     }
   }
 
   renderCorrespondenceRecipientForm(
-    req: { session: Request["session"] },
+    req: {
+      session: Request["session"];
+      query?: Request["query"];
+    },
     res: Response,
     params?: {
       errorSummaries?: Record<string, unknown>;
@@ -408,6 +479,8 @@ export class ClientDetailsAdaptor {
       organisationName?: string | undefined;
     },
   ): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -442,6 +515,10 @@ export class ClientDetailsAdaptor {
       csrfToken,
       errorSummaries: params?.errorSummaries,
       client: correspondenceRecipientClient,
+      backHref: this.#resolveBackHref(
+        req,
+        "/apply/client-details/correspondence-address-source",
+      ),
     });
   }
 
@@ -496,10 +573,12 @@ export class ClientDetailsAdaptor {
     const { data } = updatedRecipientResult;
     const { clientCorrespondenceRecipient } = data;
     req.session.clientCorrespondenceRecipient = clientCorrespondenceRecipient;
-    res.redirect("/apply/proceeding");
+    this.#redirectAfterSuccess(req, res, "/apply/proceeding");
   }
 
   renderHasPrevApplicationForm(req: Request, res: Response): void {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -509,6 +588,7 @@ export class ClientDetailsAdaptor {
         hasPrevApplication: req.session.clientHasPrevApplication,
         prevLaaReference: req.session.prevLaaReferenceInput,
       },
+      backHref: this.#resolveBackHref(req, "/apply/client-details/nino"),
     });
   }
 
@@ -550,9 +630,47 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorSummaries: prevApplicationRefErrors,
         client: previousApplicationView.client,
+        backHref: this.#resolveBackHref(req, "/apply/client-details/nino"),
       });
     } else {
-      res.redirect("/apply/client-details/home-address");
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/client-details/home-address",
+      );
+    }
+  }
+
+  #captureCheckYourAnswersEntry(req: {
+    query?: Request["query"];
+    session: Request["session"];
+  }): void {
+    if (req.query?.from === "check-your-answers") {
+      req.session.returnToApplyCheckYourAnswers = true;
+    }
+  }
+
+  #resolveBackHref(
+    req: { session: Request["session"] },
+    defaultHref: string,
+  ): string {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      return "/apply/check-your-answers";
+    }
+
+    return defaultHref;
+  }
+
+  #redirectAfterSuccess(
+    req: { session: Request["session"] },
+    res: Response,
+    defaultHref: string,
+  ): void {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      req.session.returnToApplyCheckYourAnswers = undefined;
+      res.redirect("/apply/check-your-answers");
+    } else {
+      res.redirect(defaultHref);
     }
   }
 
