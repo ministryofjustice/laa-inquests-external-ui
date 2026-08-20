@@ -1,4 +1,5 @@
 import { test, expect } from "#tests/playwright/fixtures/index.js";
+import { validateBackButton } from "#tests/playwright/utils/govuk-validators.js";
 
 test.describe("Add interested party (public authority)", () => {
   test("renders interested party (public authority) page with checkboxes and continue button", async ({
@@ -6,6 +7,10 @@ test.describe("Add interested party (public authority)", () => {
     checkAccessibility,
   }) => {
     await page.goto("/apply/public-authority");
+    await validateBackButton(
+      page,
+      "/apply/deceased-details/further-information",
+    );
 
     const heading = page.getByRole("heading", {
       name: "Who are the listed interested parties on this application?",
