@@ -14,6 +14,7 @@ import {
   CORRESPONDENCE_RECIPIENT_TYPE,
   HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface SubmitApplicationSuccess {
   laaReference: number;
@@ -42,6 +43,14 @@ export class SubmitApplicationUseCase {
     const submitBodyResult = this.#generateSubmitBody(state);
 
     if (submitBodyResult.status === "TECHNICAL_FAILURE") {
+      logger.logWarn({
+        functionName: "submitApplicationUseCase_execute",
+        message: "Submit application failed to build request payload",
+        extraContext: {
+          event: "apply_submission_failed",
+          reason: submitBodyResult.reason,
+        },
+      });
       return submitBodyResult;
     }
 
@@ -54,6 +63,15 @@ export class SubmitApplicationUseCase {
         SubmitApplicationResponseSchema.safeParse(responseRaw);
 
       if (!parseResponseResult.success) {
+        logger.logWarn({
+          functionName: "submitApplicationUseCase_execute",
+          message: "Submit application returned invalid response payload",
+          extraContext: {
+            event: "apply_submission_failed",
+            reason: "INVALID_RESPONSE",
+            issues: parseResponseResult.error.issues,
+          },
+        });
         return {
           status: "TECHNICAL_FAILURE",
           reason: "INVALID_RESPONSE",
@@ -64,6 +82,15 @@ export class SubmitApplicationUseCase {
       const { statusCode, laaReference } = responseData;
 
       if (statusCode === HTTP_CREATED) {
+        logger.logInfo({
+          functionName: "submitApplicationUseCase_execute",
+          message: "Submit application completed successfully",
+          extraContext: {
+            event: "apply_submission_completed",
+            outcome: "SUCCESS",
+            laa_reference: laaReference,
+          },
+        });
         return {
           status: "SUCCESS",
           data: {
@@ -72,11 +99,30 @@ export class SubmitApplicationUseCase {
         };
       }
 
+      logger.logError({
+        functionName: "submitApplicationUseCase_execute",
+        message: "Submit application rejected by downstream component",
+        extraContext: {
+          event: "apply_submission_failed",
+          reason: "UPSTREAM_REJECTED",
+          status_code: statusCode,
+        },
+      });
+
       return {
         status: "TECHNICAL_FAILURE",
         reason: "UPSTREAM_REJECTED",
       };
-    } catch {
+    } catch (err) {
+      logger.logError({
+        functionName: "submitApplicationUseCase_execute",
+        message: "Submit application failed with exception",
+        err,
+        extraContext: {
+          event: "apply_submission_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",
@@ -109,6 +155,15 @@ export class SubmitApplicationUseCase {
       );
 
       if (!parseRequestResult.success) {
+        logger.logWarn({
+          functionName: "submitApplicationUseCase_generateSubmitBody",
+          message:
+            "Submit application request payload failed schema validation",
+          extraContext: {
+            event: "apply_submission_failed",
+            reason: "INVALID_INPUT_STATE",
+          },
+        });
         return {
           status: "TECHNICAL_FAILURE",
           reason: "INVALID_INPUT_STATE",
@@ -119,7 +174,16 @@ export class SubmitApplicationUseCase {
         status: "SUCCESS",
         data: parseRequestResult.data,
       };
-    } catch {
+    } catch (err) {
+      logger.logError({
+        functionName: "submitApplicationUseCase_generateSubmitBody",
+        message: "Submit application request payload generation failed",
+        err,
+        extraContext: {
+          event: "apply_submission_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",
