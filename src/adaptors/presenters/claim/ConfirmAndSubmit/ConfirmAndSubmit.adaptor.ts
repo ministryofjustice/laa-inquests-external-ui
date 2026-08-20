@@ -29,7 +29,7 @@ export class ConfirmAndSubmitAdaptor {
     claimSubmitPort: ClaimSubmitPort,
     useCases?: Partial<ConfirmAndSubmitUseCases>,
     logger: (message: string) => void = (message) => {
-      appLogger.logInfo("ConfirmAndSubmit", message);
+      appLogger.logInfo({ functionName: "ConfirmAndSubmit", message });
     },
   ) {
     this.formatter = formatter;

@@ -3,6 +3,7 @@ import type {
   TechnicalFailureReason,
   UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface UploadEvidenceInput {
   buffer: Buffer;
@@ -46,6 +47,14 @@ export class UploadEvidenceUseCase {
           typeof evidenceFileName !== "string" ||
           evidenceFileName === ""
         ) {
+          logger.logError({
+            functionName: "uploadEvidenceUseCase_execute",
+            message: "Upload evidence returned invalid success payload",
+            extraContext: {
+              event: "claim_evidence_upload_failed",
+              reason: "UNEXPECTED_EXCEPTION",
+            },
+          });
           return this.#technicalFailure("UNEXPECTED_EXCEPTION");
         } else {
           return {
@@ -57,11 +66,28 @@ export class UploadEvidenceUseCase {
           };
         }
       } else {
+        logger.logWarn({
+          functionName: "uploadEvidenceUseCase_execute",
+          message: "Upload evidence rejected by API",
+          extraContext: {
+            event: "claim_evidence_upload_failed",
+            reason: responseRaw.reason,
+          },
+        });
         return this.#technicalFailure(
           responseRaw.reason as TechnicalFailureReason,
         );
       }
-    } catch {
+    } catch (err) {
+      logger.logError({
+        functionName: "uploadEvidenceUseCase_execute",
+        message: "Upload evidence failed with exception",
+        err,
+        extraContext: {
+          event: "claim_evidence_upload_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+        },
+      });
       return this.#technicalFailure("UNEXPECTED_EXCEPTION");
     }
   }

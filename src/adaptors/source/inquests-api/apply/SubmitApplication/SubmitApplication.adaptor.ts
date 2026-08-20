@@ -5,13 +5,13 @@ import type {
   SubmitApplicationResponse,
 } from "./models/SubmitApplication.types.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 export class SubmitApplicationAdaptor implements ApplySubmitPort {
   constructor(
     private readonly http: AxiosInstance,
     private readonly baseUrl: string,
     private readonly payloadDebugEnabled = false,
-    private readonly logger: (message: string) => void = () => undefined,
   ) {}
 
   async submitApplication(
@@ -19,9 +19,14 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
     accessToken: string | undefined,
   ): Promise<SubmitApplicationResponse> {
     if (this.payloadDebugEnabled) {
-      this.logger(
-        JSON.stringify({ event: "submit.application.payload", payload: _body }),
-      );
+      logger.logDebug({
+        functionName: "submitApplication",
+        message: "DEBUG APPLICATION BODY NOT SUITABLE FOR PRODUCTION",
+        extraContext: {
+          event: "submit_application_payload_debug",
+          application: _body,
+        },
+      });
     }
 
     const response: AxiosResponse<SubmitApplicationResponse> =

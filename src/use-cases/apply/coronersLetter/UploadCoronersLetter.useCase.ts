@@ -3,6 +3,7 @@ import type {
   UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface UploadCoronersLetterInput {
   buffer: Buffer;
@@ -48,6 +49,15 @@ export class UploadCoronersLetterUseCase {
           typeof responseRaw.coronersLetterFileName === "string" &&
           responseRaw.coronersLetterFileName !== ""
         ) {
+          logger.logInfo({
+            functionName: "uploadCoronersLetterUseCase_execute",
+            message: "Coroners letter upload completed successfully",
+            extraContext: {
+              event: "apply_coroners_letter_upload_completed",
+              outcome: "SUCCESS",
+              file_id: responseRaw.coronersLetterId,
+            },
+          });
           return {
             status: "SUCCESS",
             data: {
@@ -56,6 +66,14 @@ export class UploadCoronersLetterUseCase {
             },
           };
         } else {
+          logger.logError({
+            functionName: "uploadCoronersLetterUseCase_execute",
+            message: "Coroners letter upload returned invalid success payload",
+            extraContext: {
+              event: "apply_coroners_letter_upload_failed",
+              reason: "UNEXPECTED_EXCEPTION",
+            },
+          });
           return {
             status: "TECHNICAL_FAILURE",
             reason: "UNEXPECTED_EXCEPTION",
@@ -63,11 +81,29 @@ export class UploadCoronersLetterUseCase {
         }
       }
 
+      logger.logError({
+        functionName: "uploadCoronersLetterUseCase_execute",
+        message: "Coroners letter upload rejected by downstream component",
+        extraContext: {
+          event: "apply_coroners_letter_upload_failed",
+          reason: responseRaw.reason,
+        },
+      });
+
       return {
         status: "TECHNICAL_FAILURE",
         reason: responseRaw.reason as TechnicalFailureReason,
       };
-    } catch {
+    } catch (err) {
+      logger.logError({
+        functionName: "uploadCoronersLetterUseCase_execute",
+        message: "Coroners letter upload failed with exception",
+        err,
+        extraContext: {
+          event: "apply_coroners_letter_upload_failed",
+          reason: "UNEXPECTED_EXCEPTION",
+        },
+      });
       return {
         status: "TECHNICAL_FAILURE",
         reason: "UNEXPECTED_EXCEPTION",
