@@ -738,4 +738,142 @@ test.describe("Client details - home address", () => {
       );
     });
   });
+
+  test.describe("conditional address fields behavior", () => {
+    test("all address fields are enabled by default when checkbox is not checked", async ({
+      page,
+    }) => {
+      await page.goto("/apply/client-details/home-address");
+
+      const addressLine1 = page.locator("#home-address-line-1");
+      const addressLine2 = page.locator("#home-address-line-2");
+      const townOrCity = page.locator("#home-town-or-city");
+      const county = page.locator("#home-county");
+      const postcode = page.locator("#home-postcode");
+      const checkbox = page.locator("#has-no-fixed-abode");
+
+      await expect(checkbox).not.toBeChecked();
+      await expect(addressLine1).toBeEnabled();
+      await expect(addressLine2).toBeEnabled();
+      await expect(townOrCity).toBeEnabled();
+      await expect(county).toBeEnabled();
+      await expect(postcode).toBeEnabled();
+    });
+
+    test("all address fields become disabled when no fixed abode checkbox is checked", async ({
+      page,
+    }) => {
+      await page.goto("/apply/client-details/home-address");
+
+      const addressLine1 = page.locator("#home-address-line-1");
+      const addressLine2 = page.locator("#home-address-line-2");
+      const townOrCity = page.locator("#home-town-or-city");
+      const county = page.locator("#home-county");
+      const postcode = page.locator("#home-postcode");
+      const checkbox = page.locator("#has-no-fixed-abode");
+
+      await checkbox.check();
+
+      await expect(addressLine1).toBeDisabled();
+      await expect(addressLine2).toBeDisabled();
+      await expect(townOrCity).toBeDisabled();
+      await expect(county).toBeDisabled();
+      await expect(postcode).toBeDisabled();
+    });
+
+    test("all address fields become enabled when no fixed abode checkbox is unchecked", async ({
+      page,
+    }) => {
+      await page.goto("/apply/client-details/home-address");
+
+      const addressLine1 = page.locator("#home-address-line-1");
+      const addressLine2 = page.locator("#home-address-line-2");
+      const townOrCity = page.locator("#home-town-or-city");
+      const county = page.locator("#home-county");
+      const postcode = page.locator("#home-postcode");
+      const checkbox = page.locator("#has-no-fixed-abode");
+
+      await checkbox.check();
+      await expect(addressLine1).toBeDisabled();
+
+      await checkbox.uncheck();
+
+      await expect(addressLine1).toBeEnabled();
+      await expect(addressLine2).toBeEnabled();
+      await expect(townOrCity).toBeEnabled();
+      await expect(county).toBeEnabled();
+      await expect(postcode).toBeEnabled();
+    });
+
+    test("field values are preserved when toggling checkbox on and off", async ({
+      page,
+    }) => {
+      await page.goto("/apply/client-details/home-address");
+
+      const addressLine1 = page.locator("#home-address-line-1");
+      const addressLine2 = page.locator("#home-address-line-2");
+      const townOrCity = page.locator("#home-town-or-city");
+      const county = page.locator("#home-county");
+      const postcode = page.locator("#home-postcode");
+      const checkbox = page.locator("#has-no-fixed-abode");
+
+      await getAndUpdateFormFields(page, validHomeAddress);
+
+      await expect(addressLine1).toHaveValue("4 Privet Drive");
+      await expect(addressLine2).toHaveValue("Little Whinging");
+      await expect(townOrCity).toHaveValue("Little Whinging");
+      await expect(county).toHaveValue("Surrey");
+      await expect(postcode).toHaveValue("SW1A 1AA");
+
+      await checkbox.check();
+      await expect(addressLine1).toBeDisabled();
+
+      await expect(addressLine1).toHaveValue("4 Privet Drive");
+      await expect(addressLine2).toHaveValue("Little Whinging");
+      await expect(townOrCity).toHaveValue("Little Whinging");
+      await expect(county).toHaveValue("Surrey");
+      await expect(postcode).toHaveValue("SW1A 1AA");
+
+      await checkbox.uncheck();
+      await expect(addressLine1).toBeEnabled();
+
+      await expect(addressLine1).toHaveValue("4 Privet Drive");
+      await expect(addressLine2).toHaveValue("Little Whinging");
+      await expect(townOrCity).toHaveValue("Little Whinging");
+      await expect(county).toHaveValue("Surrey");
+      await expect(postcode).toHaveValue("SW1A 1AA");
+    });
+
+    test("address fields are disabled on page load when checkbox was previously checked", async ({
+      page,
+    }) => {
+      await page.goto("/apply/client-details/home-address");
+
+      const checkbox = page.locator("#has-no-fixed-abode");
+      await checkbox.check();
+
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(page.url()).toContain(
+        "/apply/client-details/correspondence-address-source",
+      );
+
+      await page.goBack();
+      await page.waitForLoadState("domcontentloaded");
+
+      const addressLine1 = page.locator("#home-address-line-1");
+      const addressLine2 = page.locator("#home-address-line-2");
+      const townOrCity = page.locator("#home-town-or-city");
+      const county = page.locator("#home-county");
+      const postcode = page.locator("#home-postcode");
+
+      await expect(checkbox).toBeChecked();
+      await expect(addressLine1).toBeDisabled();
+      await expect(addressLine2).toBeDisabled();
+      await expect(townOrCity).toBeDisabled();
+      await expect(county).toBeDisabled();
+      await expect(postcode).toBeDisabled();
+    });
+  });
 });

@@ -17,6 +17,41 @@ function initialiseMultiFileUpload(): void {
   }
 }
 
+function handleConditionalAddressFields(): void {
+  const form = document.querySelector<HTMLFormElement>(
+    '[data-module="conditional-address-fields"]',
+  );
+
+  if (form === null) {
+    return;
+  }
+
+  const checkbox = form.querySelector<HTMLInputElement>("#has-no-fixed-abode");
+  const addressFields = [
+    form.querySelector<HTMLInputElement>("#home-address-line-1"),
+    form.querySelector<HTMLInputElement>("#home-address-line-2"),
+    form.querySelector<HTMLInputElement>("#home-town-or-city"),
+    form.querySelector<HTMLInputElement>("#home-county"),
+    form.querySelector<HTMLInputElement>("#home-postcode"),
+  ];
+
+  if (checkbox === null || addressFields.some((field) => field === null)) {
+    return;
+  }
+
+  const toggleAddressFields = (): void => {
+    const { checked: isChecked } = checkbox;
+    addressFields.forEach((field) => {
+      if (field !== null) {
+        field.disabled = isChecked;
+      }
+    });
+  };
+
+  checkbox.addEventListener("change", toggleAddressFields);
+  toggleAddressFields();
+}
+
 function copyText(
   textElementId: string,
   copyElementId: string,
@@ -58,6 +93,7 @@ const initialiseFrontendPackages = (): void => {
       initGOVUK();
       initMOJ();
       initialiseMultiFileUpload();
+      handleConditionalAddressFields();
       copyText(
         "#claim-reference-number",
         "#copy-claim-reference-number",
