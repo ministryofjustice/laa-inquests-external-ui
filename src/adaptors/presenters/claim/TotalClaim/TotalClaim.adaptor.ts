@@ -32,9 +32,10 @@ export class TotalClaimAdaptor {
       };
     }
 
-    const backHref = req.session.claim?.returnToCheckYourAnswers === true
-      ? "/claim/check-your-answers"
-      : this.#getBackHref(claim?.type);
+    const backHref =
+      req.session.claim?.returnToCheckYourAnswers === true
+        ? "/claim/check-your-answers"
+        : this.#getBackHref(claim?.type);
 
     res.render("claim/total-cost", {
       csrfToken,
@@ -64,9 +65,10 @@ export class TotalClaimAdaptor {
     const grossTotal = this.#normaliseForSession(req.body["gross-total"]);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      const backHref = req.session.claim?.returnToCheckYourAnswers === true
-        ? "/claim/check-your-answers"
-        : this.#getBackHref(req.session.claim?.type);
+      const backHref =
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : this.#getBackHref(req.session.claim?.type);
       res.render("claim/total-cost", {
         csrfToken,
         backHref,
