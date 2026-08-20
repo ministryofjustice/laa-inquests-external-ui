@@ -40,6 +40,38 @@ describe("ClaimType adaptor", () => {
 
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
     });
+
+    it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/check-your-answers");
+    });
+
+    it("sets the back link to the results page when not returning to check-your-answers", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "NIL_BILL" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/results");
+    });
   });
 
   describe("processForm", () => {
@@ -211,6 +243,38 @@ describe("ClaimType adaptor", () => {
       adaptor.renderSubtypeForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+    });
+
+    it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+
+      adaptor.renderSubtypeForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/check-your-answers");
+    });
+
+    it("sets the back link to the claim type page when not returning to check-your-answers", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { subtype: "EXPERT_COST" };
+
+      adaptor.renderSubtypeForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/type");
     });
   });
 

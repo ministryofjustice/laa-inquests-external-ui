@@ -50,6 +50,25 @@ describe("TotalClaim adaptor", () => {
 
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
     });
+
+    it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
+      const adaptor = new TotalClaimAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "PAYMENT_ON_ACCOUNT", returnToCheckYourAnswers: true },
+      } as Request["session"];
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
+        string,
+        Record<string, string>,
+      ];
+      assert.equal(viewModel.backHref, "/claim/check-your-answers");
+    });
   });
 
   describe("processForm", () => {

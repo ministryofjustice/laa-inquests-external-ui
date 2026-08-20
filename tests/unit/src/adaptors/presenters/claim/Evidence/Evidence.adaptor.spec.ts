@@ -101,6 +101,45 @@ describe("Evidence adaptor", () => {
 
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
     });
+
+    it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/check-your-answers");
+    });
+
+    it("sets the back link to the total cost page when not returning to check-your-answers", () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/total-cost");
+    });
   });
 
   describe("processForm", () => {

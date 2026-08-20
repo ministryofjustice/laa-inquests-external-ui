@@ -45,6 +45,10 @@ export class EvidenceAdaptor {
     res.render("claim/evidence", {
       csrfToken,
       uploadedFiles: this.#buildUploadedFiles(req),
+      backHref:
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : "/claim/total-cost",
     });
   }
 

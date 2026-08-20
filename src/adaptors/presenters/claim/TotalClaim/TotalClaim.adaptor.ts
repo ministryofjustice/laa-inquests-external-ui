@@ -34,7 +34,10 @@ export class TotalClaimAdaptor {
 
     res.render("claim/total-cost", {
       csrfToken,
-      backHref: this.#getBackHref(claim?.type),
+      backHref:
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : this.#getBackHref(claim?.type),
       zeroVatTotal: claim?.zeroVatTotal,
       netTotal: claim?.netTotal,
       grossTotal: claim?.grossTotal,
