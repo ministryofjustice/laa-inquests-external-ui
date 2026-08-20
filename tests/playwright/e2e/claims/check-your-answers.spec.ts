@@ -234,26 +234,26 @@ test.describe("Claim - confirm and submit", () => {
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(
       claimDetails.getByRole("link", { name: "Change type of claim" }),
-    ).toHaveAttribute("href", "/claim/type");
+    ).toHaveAttribute("href", "/claim/type?from=check-your-answers");
     await expect(
       claimDetails.getByRole("link", { name: "Change type of POA" }),
-    ).toHaveAttribute("href", "/claim/subtype");
+    ).toHaveAttribute("href", "/claim/subtype?from=check-your-answers");
 
     const cost = page.getByTestId("cost-summary-list");
     await expect(
       cost.getByRole("link", { name: "Change total at 0%" }),
-    ).toHaveAttribute("href", "/claim/total-cost");
+    ).toHaveAttribute("href", "/claim/total-cost?from=check-your-answers");
     await expect(
       cost.getByRole("link", { name: "Change net total at 20%" }),
-    ).toHaveAttribute("href", "/claim/total-cost");
+    ).toHaveAttribute("href", "/claim/total-cost?from=check-your-answers");
     await expect(
       cost.getByRole("link", { name: "Change gross total at 20%" }),
-    ).toHaveAttribute("href", "/claim/total-cost");
+    ).toHaveAttribute("href", "/claim/total-cost?from=check-your-answers");
 
     const evidence = page.getByTestId("evidence-summary-list");
     await expect(
       evidence.getByRole("link", { name: "Change evidence" }),
-    ).toHaveAttribute("href", "/claim/evidence");
+    ).toHaveAttribute("href", "/claim/evidence?from=check-your-answers");
   });
 
   test("renders the finish and submit button", async ({ page }) => {

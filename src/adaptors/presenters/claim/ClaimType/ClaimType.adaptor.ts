@@ -24,6 +24,13 @@ export class ClaimTypeAdaptor {
       locals: { csrfToken },
     } = res;
 
+    if (req.query.from === "check-your-answers") {
+      req.session.claim = {
+        ...req.session.claim,
+        returnToCheckYourAnswers: true,
+      };
+    }
+
     res.render("claim/claim-type", {
       csrfToken,
       claimType: req.session.claim?.type,
@@ -52,12 +59,23 @@ export class ClaimTypeAdaptor {
       });
     } else {
       const isPoa = claimType === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT;
+      const returnToCheckYourAnswers =
+        req.session.claim?.returnToCheckYourAnswers;
       req.session.claim = {
         ...req.session.claim,
         type: claimType,
         subtype: isPoa ? req.session.claim?.subtype : undefined,
+        returnToCheckYourAnswers: isPoa ? returnToCheckYourAnswers : undefined,
       };
-      res.redirect(isPoa ? "/claim/subtype" : "/claim/total-cost");
+      if (isPoa) {
+        res.redirect("/claim/subtype");
+      } else {
+        res.redirect(
+          returnToCheckYourAnswers === true
+            ? "/claim/check-your-answers"
+            : "/claim/total-cost",
+        );
+      }
     }
   }
 
@@ -65,6 +83,13 @@ export class ClaimTypeAdaptor {
     const {
       locals: { csrfToken },
     } = res;
+
+    if (req.query.from === "check-your-answers") {
+      req.session.claim = {
+        ...req.session.claim,
+        returnToCheckYourAnswers: true,
+      };
+    }
 
     res.render("claim/claim-subtype", {
       csrfToken,
@@ -93,8 +118,18 @@ export class ClaimTypeAdaptor {
         errorSummaries,
       });
     } else {
-      req.session.claim = { ...req.session.claim, subtype: claimSubtype };
-      res.redirect("/claim/total-cost");
+      const returnToCheckYourAnswers =
+        req.session.claim?.returnToCheckYourAnswers;
+      req.session.claim = {
+        ...req.session.claim,
+        subtype: claimSubtype,
+        returnToCheckYourAnswers: undefined,
+      };
+      res.redirect(
+        returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : "/claim/total-cost",
+      );
     }
   }
 }

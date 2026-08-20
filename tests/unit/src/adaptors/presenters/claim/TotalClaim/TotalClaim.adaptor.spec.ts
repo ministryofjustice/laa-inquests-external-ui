@@ -34,6 +34,22 @@ describe("TotalClaim adaptor", () => {
       assert.equal(viewModel.netTotal, "100.00");
       assert.equal(viewModel.grossTotal, "130.00");
     });
+
+    it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", () => {
+      const adaptor = new TotalClaimAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.query = { from: "check-your-answers" };
+      requestStub.session = {
+        claim: { type: "PAYMENT_ON_ACCOUNT" },
+      } as Request["session"];
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+    });
   });
 
   describe("processForm", () => {
@@ -126,6 +142,32 @@ describe("TotalClaim adaptor", () => {
       assert.equal(requestStub.session.claim?.zeroVatTotal, "100.00");
       assert.equal(requestStub.session.claim?.netTotal, "250.25");
       assert.equal(requestStub.session.claim?.grossTotal, "400.30");
+    });
+
+    it("redirects to check-your-answers and clears the flag when returnToCheckYourAnswers is set and submission is valid", () => {
+      const adaptor = new TotalClaimAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "PAYMENT_ON_ACCOUNT", returnToCheckYourAnswers: true },
+      } as Request["session"];
+      requestStub.body = {
+        "zero-vat-total": "100.00",
+        "net-total": "250.25",
+        "gross-total": "400.30",
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectPath] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectPath, "/claim/check-your-answers");
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
     });
   });
 });

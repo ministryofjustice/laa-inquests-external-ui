@@ -83,6 +83,24 @@ describe("Evidence adaptor", () => {
         },
       ]);
     });
+
+    it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.query = { from: "check-your-answers" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+    });
   });
 
   describe("processForm", () => {
