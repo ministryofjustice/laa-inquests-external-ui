@@ -49,8 +49,10 @@ describe("TotalClaim adaptor", () => {
       adaptor.renderForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
-      const [, viewModel] = responseStub.render.getCall(0)
-        .args as unknown as [string, Record<string, string>];
+      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
+        string,
+        Record<string, string>,
+      ];
       assert.equal(viewModel.backHref, "/claim/check-your-answers");
     });
 
@@ -66,8 +68,10 @@ describe("TotalClaim adaptor", () => {
 
       adaptor.renderForm(requestStub, responseStub);
 
-      const [, viewModel] = responseStub.render.getCall(0)
-        .args as unknown as [string, Record<string, string>];
+      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
+        string,
+        Record<string, string>,
+      ];
       assert.equal(viewModel.backHref, "/claim/check-your-answers");
     });
   });
@@ -184,7 +188,10 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, undefined);
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
     });
 
     it("uses check-your-answers back href in re-render when returnToCheckYourAnswers is set and submission is invalid", () => {
@@ -206,8 +213,10 @@ describe("TotalClaim adaptor", () => {
 
       assert.equal(responseStub.redirect.callCount, 0);
       assert.equal(responseStub.render.callCount, 1);
-      const [, viewModel] = responseStub.render.getCall(0)
-        .args as unknown as [string, Record<string, string>];
+      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
+        string,
+        Record<string, string>,
+      ];
       assert.equal(viewModel.backHref, "/claim/check-your-answers");
     });
   });
