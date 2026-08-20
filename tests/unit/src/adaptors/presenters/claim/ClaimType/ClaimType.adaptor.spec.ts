@@ -25,6 +25,21 @@ describe("ClaimType adaptor", () => {
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.claimType, "NIL_BILL");
     });
+
+    it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.query = { from: "check-your-answers" };
+      requestStub.session.claim = { type: "NIL_BILL" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+    });
   });
 
   describe("processForm", () => {
@@ -124,6 +139,43 @@ describe("ClaimType adaptor", () => {
 
       assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
     });
+
+    it("redirects to /claim/check-your-answers and clears the flag when a non-POA type is selected and flag is set", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "FINAL_BILL" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
+    });
+
+    it("redirects to /claim/subtype and preserves the flag when POA is selected and flag is set", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "PAYMENT_ON_ACCOUNT" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/subtype");
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+    });
   });
 
   describe("renderSubtypeForm", () => {
@@ -144,6 +196,21 @@ describe("ClaimType adaptor", () => {
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.claimSubtype, "EXPERT_COST");
+    });
+
+    it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.query = { from: "check-your-answers" };
+      requestStub.session.claim = { subtype: "EXPERT_COST" };
+
+      adaptor.renderSubtypeForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
     });
   });
 
@@ -189,6 +256,26 @@ describe("ClaimType adaptor", () => {
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
       assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("redirects to /claim/check-your-answers and clears the flag when flag is set and submission is valid", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-subtype": "PROFIT_COST" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+
+      adaptor.processSubtypeForm(requestStub, responseStub);
+
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
     });
   });
 });
