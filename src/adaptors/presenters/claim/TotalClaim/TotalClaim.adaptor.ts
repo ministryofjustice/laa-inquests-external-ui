@@ -25,9 +25,19 @@ export class TotalClaimAdaptor {
       session: { claim },
     } = req;
 
+    if (req.query.from === "check-your-answers") {
+      req.session.claim = {
+        ...req.session.claim,
+        returnToCheckYourAnswers: true,
+      };
+    }
+
     res.render("claim/total-cost", {
       csrfToken,
-      backHref: this.#getBackHref(claim?.type),
+      backHref:
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : this.#getBackHref(claim?.type),
       zeroVatTotal: claim?.zeroVatTotal,
       netTotal: claim?.netTotal,
       grossTotal: claim?.grossTotal,
@@ -64,14 +74,21 @@ export class TotalClaimAdaptor {
       return;
     }
 
+    const returnToCheckYourAnswers =
+      req.session.claim?.returnToCheckYourAnswers;
     req.session.claim = {
       ...req.session.claim,
       zeroVatTotal,
       netTotal,
       grossTotal,
+      returnToCheckYourAnswers: undefined,
     };
 
-    res.redirect("/claim/evidence");
+    res.redirect(
+      returnToCheckYourAnswers === true
+        ? "/claim/check-your-answers"
+        : "/claim/evidence",
+    );
   }
 
   #getBackHref(claimType: string | undefined): string {

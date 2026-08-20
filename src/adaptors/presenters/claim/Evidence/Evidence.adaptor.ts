@@ -35,9 +35,20 @@ export class EvidenceAdaptor {
       locals: { csrfToken },
     } = res;
 
+    if (req.query.from === "check-your-answers") {
+      req.session.claim = {
+        ...req.session.claim,
+        returnToCheckYourAnswers: true,
+      };
+    }
+
     res.render("claim/evidence", {
       csrfToken,
       uploadedFiles: this.#buildUploadedFiles(req),
+      backHref:
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : "/claim/total-cost",
     });
   }
 
