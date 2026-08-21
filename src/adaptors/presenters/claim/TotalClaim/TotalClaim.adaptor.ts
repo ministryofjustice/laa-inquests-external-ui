@@ -52,50 +52,50 @@ export class TotalClaimAdaptor {
   ): void {
     if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
       this.#processFinalBill(req, res);
-      return;
-    }
+    } else {
+      const {
+        locals: { csrfToken },
+      } = res;
 
-    const {
-      locals: { csrfToken },
-    } = res;
+      const errorSummaries: Partial<TotalClaimError> =
+        this.formValidator.validateTotalClaim(
+          req.body,
+          req.session.claim?.subtype,
+        );
 
-    const errorSummaries: Partial<TotalClaimError> =
-      this.formValidator.validateTotalClaim(
-        req.body,
-        req.session.claim?.subtype,
+      const zeroVatTotal = this.#normaliseForSession(
+        req.body["zero-vat-total"],
       );
+      const netTotal = this.#normaliseForSession(req.body["net-total"]);
+      const grossTotal = this.#normaliseForSession(req.body["gross-total"]);
 
-    const zeroVatTotal = this.#normaliseForSession(req.body["zero-vat-total"]);
-    const netTotal = this.#normaliseForSession(req.body["net-total"]);
-    const grossTotal = this.#normaliseForSession(req.body["gross-total"]);
+      if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+        res.render("claim/total-cost", {
+          csrfToken,
+          backHref: this.#getBackHref(req.session.claim?.type),
+          zeroVatTotal,
+          netTotal,
+          grossTotal,
+          errorSummaries,
+        });
+      } else {
+        const returnToCheckYourAnswers =
+          req.session.claim?.returnToCheckYourAnswers;
+        req.session.claim = {
+          ...req.session.claim,
+          zeroVatTotal,
+          netTotal,
+          grossTotal,
+          returnToCheckYourAnswers: undefined,
+        };
 
-    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      res.render("claim/total-cost", {
-        csrfToken,
-        backHref: this.#getBackHref(req.session.claim?.type),
-        zeroVatTotal,
-        netTotal,
-        grossTotal,
-        errorSummaries,
-      });
-      return;
+        res.redirect(
+          returnToCheckYourAnswers === true
+            ? "/claim/check-your-answers"
+            : "/claim/evidence",
+        );
+      }
     }
-
-    const returnToCheckYourAnswers =
-      req.session.claim?.returnToCheckYourAnswers;
-    req.session.claim = {
-      ...req.session.claim,
-      zeroVatTotal,
-      netTotal,
-      grossTotal,
-      returnToCheckYourAnswers: undefined,
-    };
-
-    res.redirect(
-      returnToCheckYourAnswers === true
-        ? "/claim/check-your-answers"
-        : "/claim/evidence",
-    );
   }
 
   #processFinalBill(
