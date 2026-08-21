@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import {
   CLAIM_EVIDENCE_ERROR,
+  CLAIM_TYPE_VALUE,
   EMPTY_ARR_LENGTH,
   HTTP_BAD_REQUEST,
   HTTP_CREATED,
@@ -63,6 +64,8 @@ export class EvidenceAdaptor {
         errorSummaries: errors,
         uploadedFiles: this.#buildUploadedFiles(req),
       });
+    } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
+      res.redirect("/claim/counsel-number");
     } else {
       res.redirect("/claim/check-your-answers");
     }
