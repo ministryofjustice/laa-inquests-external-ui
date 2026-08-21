@@ -63,16 +63,20 @@ export class ClaimTypeAdaptor {
       });
     } else {
       const isPoa = claimType === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT;
+      const isFinalBill = claimType === CLAIM_TYPE_VALUE.FINAL_BILL;
       const returnToCheckYourAnswers =
         req.session.claim?.returnToCheckYourAnswers;
       req.session.claim = {
         ...req.session.claim,
         type: claimType,
         subtype: isPoa ? req.session.claim?.subtype : undefined,
-        returnToCheckYourAnswers: isPoa ? returnToCheckYourAnswers : undefined,
+        returnToCheckYourAnswers:
+          isPoa || isFinalBill ? returnToCheckYourAnswers : undefined,
       };
       if (isPoa) {
         res.redirect("/claim/subtype");
+      } else if (isFinalBill) {
+        res.redirect("/claim/total-cost");
       } else {
         res.redirect(
           returnToCheckYourAnswers === true

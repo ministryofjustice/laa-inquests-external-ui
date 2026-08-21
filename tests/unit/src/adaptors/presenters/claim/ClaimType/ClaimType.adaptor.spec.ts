@@ -118,7 +118,7 @@ describe("ClaimType adaptor", () => {
       assert.equal(responseStub.render.callCount, 0);
     });
 
-    it("saves the claim type to session and skips to /claim/total-cost when a non-POA type is selected", () => {
+    it("saves the claim type to session and redirects to /claim/total-cost when Final bill is selected", () => {
       const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
 
       const responseStub = stubInterface<Response>();
@@ -172,7 +172,27 @@ describe("ClaimType adaptor", () => {
       assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
     });
 
-    it("redirects to /claim/check-your-answers and clears the flag when a non-POA type is selected and flag is set", () => {
+    it("redirects to /claim/check-your-answers and clears the flag when NIL_BILL is posted manually and flag is set", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "NIL_BILL" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
+    });
+
+    it("redirects to /claim/total-cost and preserves the flag when Final bill is selected and flag is set", () => {
       const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
 
       const responseStub = stubInterface<Response>();
@@ -185,11 +205,8 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
-        undefined,
-      );
+      assert.equal(redirectUrl, "/claim/total-cost");
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
     });
 
     it("redirects to /claim/subtype and preserves the flag when POA is selected and flag is set", () => {

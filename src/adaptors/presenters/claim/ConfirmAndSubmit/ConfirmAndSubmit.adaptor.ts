@@ -221,11 +221,13 @@ export class ConfirmAndSubmitAdaptor {
     zeroVatTotal: string;
     netTotal: string;
     grossTotal: string;
+    changeHref: string;
   } {
     return {
       zeroVatTotal: this.#formatMoneyOrNone(claim?.zeroVatTotal),
       netTotal: this.#formatMoneyOrNone(claim?.netTotal),
       grossTotal: this.#formatMoneyOrNone(claim?.grossTotal),
+       changeHref: "/claim/total-cost?from=check-your-answers",
     };
   }
 

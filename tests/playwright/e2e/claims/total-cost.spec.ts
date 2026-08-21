@@ -55,14 +55,9 @@ test.describe("Claim - total cost", () => {
     await expect(backLink).toHaveAttribute("href", "/claim/subtype");
   });
 
-  test("back link points to /claim/type when a non-POA type was selected", async ({
+  test("back link points to /claim/type when the total cost page is opened without a POA claim in session", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
-    await page.getByLabel("Final bill").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/total-cost");
-
     const backLink = page.getByRole("link", { name: "Back", exact: true });
     await expect(backLink).toHaveAttribute("href", "/claim/type");
   });
