@@ -7,6 +7,7 @@ import type {
 import {
   CLAIM_TYPE_VALUE,
   EMPTY_ARR_LENGTH,
+  NIL_BILL_GROSS_TOTAL,
 } from "#src/infrastructure/locales/constants.js";
 import { TotalClaimValidator } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.validator.js";
 
@@ -34,6 +35,7 @@ export class TotalClaimAdaptor {
 
     res.render("claim/total-cost", {
       csrfToken,
+      isFinalBill: claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL,
       backHref:
         req.session.claim?.returnToCheckYourAnswers === true
           ? "/claim/check-your-answers"
@@ -48,6 +50,11 @@ export class TotalClaimAdaptor {
     req: TypedRequestBody<Partial<TotalClaimFormData>>,
     res: Response,
   ): void {
+    if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
+      this.#processFinalBill(req, res);
+      return;
+    }
+
     const {
       locals: { csrfToken },
     } = res;
@@ -89,6 +96,44 @@ export class TotalClaimAdaptor {
         ? "/claim/check-your-answers"
         : "/claim/evidence",
     );
+  }
+
+  #processFinalBill(
+    req: TypedRequestBody<Partial<TotalClaimFormData>>,
+    res: Response,
+  ): void {
+    const {
+      locals: { csrfToken },
+    } = res;
+
+    const errorSummaries: Partial<TotalClaimError> =
+      this.formValidator.validateFinalBillTotal(req.body);
+
+    const grossTotal = this.#normaliseForSession(req.body["gross-total"]);
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("claim/total-cost", {
+        csrfToken,
+        isFinalBill: true,
+        backHref: this.#getBackHref(req.session.claim?.type),
+        grossTotal,
+        errorSummaries,
+      });
+      return;
+    }
+
+    const isNilBill = Number(grossTotal) === NIL_BILL_GROSS_TOTAL;
+    req.session.claim = {
+      ...req.session.claim,
+      grossTotal,
+      subtype: isNilBill ? CLAIM_TYPE_VALUE.NIL_BILL : undefined,
+    };
+
+    if (isNilBill) {
+      res.redirect("/claim/inquest-outcome");
+    } else {
+      res.redirect("/claim/final-bill-template");
+    }
   }
 
   #getBackHref(claimType: string | undefined): string {

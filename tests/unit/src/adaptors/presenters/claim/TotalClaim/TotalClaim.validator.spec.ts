@@ -1,6 +1,10 @@
 import { strict as assert } from "assert";
 import { TotalClaimValidator } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.validator.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
+import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
+import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+
+const finalBillErrors = en.pages.claim.totalCost.finalBill.validationError;
 
 describe("TotalClaimValidator", () => {
   describe("validateTotalClaim", () => {
@@ -168,6 +172,56 @@ describe("TotalClaimValidator", () => {
         "zero-vat-total": " 100 ",
         "net-total": " 250.25 ",
         "gross-total": " 400.30 ",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
+  });
+
+  describe("validateFinalBillTotal", () => {
+    before(() => {
+      initializeI18nextSync();
+    });
+
+    it("returns an error when the gross amount is missing", () => {
+      const validator = new TotalClaimValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "",
+      });
+
+      assert.deepEqual(errorSummaries, {
+        grossTotalInputError: { text: finalBillErrors.notEmpty },
+      });
+    });
+
+    it("returns an error when the gross amount is not a number", () => {
+      const validator = new TotalClaimValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "abc",
+      });
+
+      assert.deepEqual(errorSummaries, {
+        grossTotalInputError: { text: finalBillErrors.notNumber },
+      });
+    });
+
+    it("returns no errors when the gross amount is 0", () => {
+      const validator = new TotalClaimValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "0",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
+
+    it("returns no errors when the gross amount is greater than 0", () => {
+      const validator = new TotalClaimValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "1250.50",
       });
 
       assert.deepEqual(errorSummaries, {});
