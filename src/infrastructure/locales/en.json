@@ -73,11 +73,7 @@
           "heading": "What is your total claim cost?",
           "paragraph": "A complete breakdown of your costs will be validated during your claim assessment. This includes disbursement, VAT, and other costs.",
           "grossAmountLabel": "Enter the total gross amount",
-          "grossAmountHint": "Enter '0' if there is no claim cost (nil bill).",
-          "validationError": {
-            "notEmpty": "Enter the total gross amount",
-            "notNumber": "Total gross amount must be a number"
-          }
+          "grossAmountHint": "Enter '0' if there is no claim cost (nil bill)."
         }
       }
     },

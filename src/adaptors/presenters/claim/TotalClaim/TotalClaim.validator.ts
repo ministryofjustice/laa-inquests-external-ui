@@ -1,6 +1,5 @@
 import { FormValidator } from "#src/utils/FormValidator.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
-import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 const VALID_MONETARY_INPUT_REGEX = /^(?:[0-9]+(?:\.[0-9]{1,2})?)$/v;
 const PENCE_DIVISOR = 100;
@@ -94,7 +93,7 @@ export class TotalClaimValidator extends FormValidator {
     if (grossTotal === undefined) {
       return {
         grossTotalInputError: {
-          text: t("pages.claim.totalCost.finalBill.validationError.notEmpty"),
+          text: TOTAL_CLAIM_ERROR.MISSING_FINAL_BILL_GROSS_TOTAL,
         },
       };
     }
@@ -102,7 +101,7 @@ export class TotalClaimValidator extends FormValidator {
     if (!this.#hasValidMonetaryValue(grossTotal)) {
       return {
         grossTotalInputError: {
-          text: t("pages.claim.totalCost.finalBill.validationError.notNumber"),
+          text: TOTAL_CLAIM_ERROR.INVALID_FINAL_BILL_GROSS_TOTAL,
         },
       };
     }

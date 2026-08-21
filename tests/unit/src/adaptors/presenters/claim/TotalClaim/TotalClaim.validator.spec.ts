@@ -1,10 +1,6 @@
 import { strict as assert } from "assert";
 import { TotalClaimValidator } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.validator.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
-import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
-
-const finalBillErrors = en.pages.claim.totalCost.finalBill.validationError;
 
 describe("TotalClaimValidator", () => {
   describe("validateTotalClaim", () => {
@@ -179,10 +175,6 @@ describe("TotalClaimValidator", () => {
   });
 
   describe("validateFinalBillTotal", () => {
-    before(() => {
-      initializeI18nextSync();
-    });
-
     it("returns an error when the gross amount is missing", () => {
       const validator = new TotalClaimValidator();
 
@@ -191,7 +183,9 @@ describe("TotalClaimValidator", () => {
       });
 
       assert.deepEqual(errorSummaries, {
-        grossTotalInputError: { text: finalBillErrors.notEmpty },
+        grossTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.MISSING_FINAL_BILL_GROSS_TOTAL,
+        },
       });
     });
 
@@ -203,7 +197,9 @@ describe("TotalClaimValidator", () => {
       });
 
       assert.deepEqual(errorSummaries, {
-        grossTotalInputError: { text: finalBillErrors.notNumber },
+        grossTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.INVALID_FINAL_BILL_GROSS_TOTAL,
+        },
       });
     });
 

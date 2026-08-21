@@ -27,6 +27,8 @@ export const TOTAL_CLAIM_ERROR = {
     "You cannot submit a profit cost claim with both 0% and 20% VAT",
   NET_TOTAL_HIGHER_THAN_GROSS_TOTAL:
     "Net total cannot be higher than the gross total value",
+  MISSING_FINAL_BILL_GROSS_TOTAL: "Enter the total gross amount",
+  INVALID_FINAL_BILL_GROSS_TOTAL: "Total gross amount must be a number",
 };
 
 export const CLAIM_TYPE_VALUE = {

@@ -3,10 +3,6 @@ import type { Request, Response } from "express";
 import { stubInterface } from "ts-sinon";
 import { TotalClaimAdaptor } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.adaptor.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
-import { initializeI18nextSync } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
-import en from "#src/infrastructure/locales/en.json" with { type: "json" };
-
-const finalBillErrors = en.pages.claim.totalCost.finalBill.validationError;
 
 describe("TotalClaim adaptor", () => {
   describe("renderForm", () => {
@@ -195,10 +191,6 @@ describe("TotalClaim adaptor", () => {
   });
 
   describe("FINAL_BILL", () => {
-    before(() => {
-      initializeI18nextSync();
-    });
-
     it("renders the total cost view with isFinalBill and back link to /claim/type", () => {
       const adaptor = new TotalClaimAdaptor();
       const requestStub = stubInterface<Request>();
@@ -304,7 +296,9 @@ describe("TotalClaim adaptor", () => {
       assert.equal(viewName, "claim/total-cost");
       assert.equal(viewModel.isFinalBill, true);
       assert.deepEqual(viewModel.errorSummaries, {
-        grossTotalInputError: { text: finalBillErrors.notNumber },
+        grossTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.INVALID_FINAL_BILL_GROSS_TOTAL,
+        },
       });
     });
   });

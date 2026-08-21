@@ -1,6 +1,7 @@
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
+import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
 
 const finalBillCopy = en.pages.claim.totalCost.finalBill;
 const finalBillHeading = finalBillCopy.heading;
@@ -8,8 +9,8 @@ const finalBillParagraph = finalBillCopy.paragraph;
 const grossAmountLabel = finalBillCopy.grossAmountLabel;
 const grossAmountHint = finalBillCopy.grossAmountHint;
 
-const missingAmountError = finalBillCopy.validationError.notEmpty;
-const invalidAmountError = finalBillCopy.validationError.notNumber;
+const missingAmountError = TOTAL_CLAIM_ERROR.MISSING_FINAL_BILL_GROSS_TOTAL;
+const invalidAmountError = TOTAL_CLAIM_ERROR.INVALID_FINAL_BILL_GROSS_TOTAL;
 
 async function goToFinalBillTotalCost(page: Page): Promise<void> {
   await page.goto("/claim/type");
