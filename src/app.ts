@@ -166,7 +166,6 @@ app.post("/claim/evidence/delete", csrfProtection, (req, res) => {
   });
 });
 
-
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
 } else {
