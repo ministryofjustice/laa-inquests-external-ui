@@ -4,29 +4,29 @@ import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
 const VALID_MONETARY_INPUT_REGEX = /^(?:[0-9]+(?:\.[0-9]{1,2})?)$/v;
 const PENCE_DIVISOR = 100;
 
-export interface TotalClaimFormData {
+export interface TotalClaimCostFormData {
   "zero-vat-total"?: string;
   "net-total"?: string;
   "gross-total"?: string;
 }
 
-export interface TotalClaimError {
+export interface TotalClaimCostError {
   zeroVatTotalInputError?: { text: string };
   netTotalInputError?: { text: string };
   grossTotalInputError?: { text: string };
 }
 
-interface NormalisedTotalClaimFormData {
+interface NormalisedTotalClaimCostFormData {
   zeroVatTotal?: string;
   netTotal?: string;
   grossTotal?: string;
 }
 
-export class TotalClaimValidator extends FormValidator {
-  validateTotalClaim(
-    formBody: Partial<TotalClaimFormData>,
+export class TotalClaimCostValidator extends FormValidator {
+  validateTotalClaimCost(
+    formBody: Partial<TotalClaimCostFormData>,
     claimSubtype?: string,
-  ): Partial<TotalClaimError> {
+  ): Partial<TotalClaimCostError> {
     const normalisedForm = this.#normaliseFormData(formBody);
 
     if (this.#isAllFieldsBlank(normalisedForm)) {
@@ -86,8 +86,8 @@ export class TotalClaimValidator extends FormValidator {
   }
 
   validateFinalBillTotal(
-    formBody: Partial<TotalClaimFormData>,
-  ): Partial<TotalClaimError> {
+    formBody: Partial<TotalClaimCostFormData>,
+  ): Partial<TotalClaimCostError> {
     const grossTotal = this.#normaliseInput(formBody["gross-total"]);
 
     if (grossTotal === undefined) {
@@ -110,8 +110,8 @@ export class TotalClaimValidator extends FormValidator {
   }
 
   #normaliseFormData(
-    formBody: Partial<TotalClaimFormData>,
-  ): NormalisedTotalClaimFormData {
+    formBody: Partial<TotalClaimCostFormData>,
+  ): NormalisedTotalClaimCostFormData {
     return {
       zeroVatTotal: this.#normaliseInput(formBody["zero-vat-total"]),
       netTotal: this.#normaliseInput(formBody["net-total"]),
@@ -120,9 +120,9 @@ export class TotalClaimValidator extends FormValidator {
   }
 
   #buildFieldFormatErrors(
-    formData: NormalisedTotalClaimFormData,
-  ): Partial<TotalClaimError> {
-    const errorSummaries: Partial<TotalClaimError> = {};
+    formData: NormalisedTotalClaimCostFormData,
+  ): Partial<TotalClaimCostError> {
+    const errorSummaries: Partial<TotalClaimCostError> = {};
 
     if (
       formData.zeroVatTotal !== undefined &&
@@ -155,8 +155,8 @@ export class TotalClaimValidator extends FormValidator {
   }
 
   #validateGrossTotalIsPresentWhenNetTotalEntered(
-    formData: NormalisedTotalClaimFormData,
-    errorSummaries: Partial<TotalClaimError>,
+    formData: NormalisedTotalClaimCostFormData,
+    errorSummaries: Partial<TotalClaimCostError>,
   ): string | undefined {
     if (
       formData.netTotal !== undefined &&
@@ -170,7 +170,7 @@ export class TotalClaimValidator extends FormValidator {
   }
 
   #checkProfitCostMixedVat(
-    formData: NormalisedTotalClaimFormData,
+    formData: NormalisedTotalClaimCostFormData,
     claimSubtype: string | undefined,
   ): string | undefined {
     if (
@@ -184,7 +184,7 @@ export class TotalClaimValidator extends FormValidator {
   }
 
   #checkNetNotHigherThanGross(
-    formData: NormalisedTotalClaimFormData,
+    formData: NormalisedTotalClaimCostFormData,
   ): string | undefined {
     const netTotalValue = this.#parseMonetaryValue(formData.netTotal);
     const grossTotalValue = this.#parseMonetaryValue(formData.grossTotal);
@@ -199,7 +199,7 @@ export class TotalClaimValidator extends FormValidator {
     return undefined;
   }
 
-  #isAllFieldsBlank(formData: NormalisedTotalClaimFormData): boolean {
+  #isAllFieldsBlank(formData: NormalisedTotalClaimCostFormData): boolean {
     return (
       formData.zeroVatTotal === undefined &&
       formData.netTotal === undefined &&

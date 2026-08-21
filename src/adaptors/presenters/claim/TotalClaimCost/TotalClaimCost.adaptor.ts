@@ -1,20 +1,20 @@
 import type { Request, Response } from "express";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
-  TotalClaimError,
-  TotalClaimFormData,
-} from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.validator.js";
+  TotalClaimCostError,
+  TotalClaimCostFormData,
+} from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.validator.js";
 import {
   CLAIM_TYPE_VALUE,
   EMPTY_ARR_LENGTH,
   NIL_BILL_GROSS_TOTAL,
 } from "#src/infrastructure/locales/constants.js";
-import { TotalClaimValidator } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.validator.js";
+import { TotalClaimCostValidator } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.validator.js";
 
-export class TotalClaimAdaptor {
-  formValidator: TotalClaimValidator;
+export class TotalClaimCostAdaptor {
+  formValidator: TotalClaimCostValidator;
 
-  constructor(formValidator: TotalClaimValidator = new TotalClaimValidator()) {
+  constructor(formValidator: TotalClaimCostValidator = new TotalClaimCostValidator()) {
     this.formValidator = formValidator;
   }
 
@@ -47,7 +47,7 @@ export class TotalClaimAdaptor {
   }
 
   processForm(
-    req: TypedRequestBody<Partial<TotalClaimFormData>>,
+    req: TypedRequestBody<Partial<TotalClaimCostFormData>>,
     res: Response,
   ): void {
     if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
@@ -57,8 +57,8 @@ export class TotalClaimAdaptor {
         locals: { csrfToken },
       } = res;
 
-      const errorSummaries: Partial<TotalClaimError> =
-        this.formValidator.validateTotalClaim(
+      const errorSummaries: Partial<TotalClaimCostError> =
+        this.formValidator.validateTotalClaimCost(
           req.body,
           req.session.claim?.subtype,
         );
@@ -99,14 +99,14 @@ export class TotalClaimAdaptor {
   }
 
   #processFinalBill(
-    req: TypedRequestBody<Partial<TotalClaimFormData>>,
+    req: TypedRequestBody<Partial<TotalClaimCostFormData>>,
     res: Response,
   ): void {
     const {
       locals: { csrfToken },
     } = res;
 
-    const errorSummaries: Partial<TotalClaimError> =
+    const errorSummaries: Partial<TotalClaimCostError> =
       this.formValidator.validateFinalBillTotal(req.body);
 
     const grossTotal = this.#normaliseForSession(req.body["gross-total"]);
