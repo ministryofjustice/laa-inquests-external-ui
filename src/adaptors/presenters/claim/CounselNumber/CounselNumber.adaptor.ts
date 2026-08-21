@@ -62,16 +62,31 @@ export class CounselNumberAdaptor {
     } else {
       const returnToCheckYourAnswers =
         req.session.claim?.returnToCheckYourAnswers;
-      req.session.claim = {
-        ...req.session.claim,
-        counselNumber,
-        returnToCheckYourAnswers: undefined,
-      };
-      if (returnToCheckYourAnswers === true) {
+      const counselBillsPaid = req.session.claim?.counselBillsPaid;
+
+      if (counselNumber === COUNSEL_NUMBER_ZERO) {
+        req.session.claim = {
+          ...req.session.claim,
+          counselNumber,
+          counselBillsPaid: undefined,
+          returnToCheckYourAnswers: undefined,
+        };
         res.redirect("/claim/check-your-answers");
-      } else if (counselNumber === COUNSEL_NUMBER_ZERO) {
+      } else if (
+        returnToCheckYourAnswers === true &&
+        counselBillsPaid === true
+      ) {
+        req.session.claim = {
+          ...req.session.claim,
+          counselNumber,
+          returnToCheckYourAnswers: undefined,
+        };
         res.redirect("/claim/check-your-answers");
       } else {
+        req.session.claim = {
+          ...req.session.claim,
+          counselNumber,
+        };
         res.redirect("/claim/counsel-pay-confirmation");
       }
     }
