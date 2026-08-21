@@ -1,13 +1,13 @@
 import { strict as assert } from "assert";
-import { TotalClaimValidator } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.validator.js";
+import { TotalClaimCostValidator } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.validator.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("TotalClaimValidator", () => {
   describe("validateTotalClaim", () => {
     it("returns error when all inputs are empty", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim(
+      const errorSummaries = validator.validateTotalClaimCost(
         {
           "zero-vat-total": "",
           "net-total": "",
@@ -24,9 +24,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns shared empty-input error for profit subtype when all inputs are empty", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim(
+      const errorSummaries = validator.validateTotalClaimCost(
         {
           "zero-vat-total": "",
           "net-total": "",
@@ -43,9 +43,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns error when zero VAT total is not numeric", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
+      const errorSummaries = validator.validateTotalClaimCost({
         "zero-vat-total": "abc",
       });
 
@@ -57,9 +57,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns error when net total has more than two decimal places", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
+      const errorSummaries = validator.validateTotalClaimCost({
         "net-total": "100.123",
       });
 
@@ -71,9 +71,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns error when gross total contains a currency symbol", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
+      const errorSummaries = validator.validateTotalClaimCost({
         "gross-total": "£100.00",
       });
 
@@ -85,9 +85,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns error when net total is entered but gross total is missing", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
+      const errorSummaries = validator.validateTotalClaimCost({
         "net-total": "100",
         "gross-total": "",
       });
@@ -100,9 +100,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns error on net total field when net total is higher than gross total", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
+      const errorSummaries = validator.validateTotalClaimCost({
         "net-total": "100",
         "gross-total": "99.99",
       });
@@ -115,9 +115,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns error when profit cost claim has both 0% and 20% VAT entered", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim(
+      const errorSummaries = validator.validateTotalClaimCost(
         {
           "zero-vat-total": "150",
           "net-total": "200",
@@ -134,9 +134,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns empty errors when zero VAT total is entered alone with a valid value", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim(
+      const errorSummaries = validator.validateTotalClaimCost(
         {
           "zero-vat-total": "25.50",
         },
@@ -147,9 +147,9 @@ describe("TotalClaimValidator", () => {
     });
 
     it("returns empty errors for non-profit subtype when values are valid and gross total matches calculation", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim(
+      const errorSummaries = validator.validateTotalClaimCost(
         {
           "zero-vat-total": "100",
           "net-total": "250.25",
@@ -162,12 +162,62 @@ describe("TotalClaimValidator", () => {
     });
 
     it("trims input values before validating", () => {
-      const validator = new TotalClaimValidator();
+      const validator = new TotalClaimCostValidator();
 
-      const errorSummaries = validator.validateTotalClaim({
+      const errorSummaries = validator.validateTotalClaimCost({
         "zero-vat-total": " 100 ",
         "net-total": " 250.25 ",
         "gross-total": " 400.30 ",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
+  });
+
+  describe("validateFinalBillTotal", () => {
+    it("returns an error when the gross amount is missing", () => {
+      const validator = new TotalClaimCostValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "",
+      });
+
+      assert.deepEqual(errorSummaries, {
+        grossTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.MISSING_FINAL_BILL_GROSS_TOTAL,
+        },
+      });
+    });
+
+    it("returns an error when the gross amount is not a number", () => {
+      const validator = new TotalClaimCostValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "abc",
+      });
+
+      assert.deepEqual(errorSummaries, {
+        grossTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.INVALID_FINAL_BILL_GROSS_TOTAL,
+        },
+      });
+    });
+
+    it("returns no errors when the gross amount is 0", () => {
+      const validator = new TotalClaimCostValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "0",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
+
+    it("returns no errors when the gross amount is greater than 0", () => {
+      const validator = new TotalClaimCostValidator();
+
+      const errorSummaries = validator.validateFinalBillTotal({
+        "gross-total": "1250.50",
       });
 
       assert.deepEqual(errorSummaries, {});

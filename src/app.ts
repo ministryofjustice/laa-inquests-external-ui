@@ -21,7 +21,10 @@ import helmet from "helmet";
 import { helmetConfig } from "./infrastructure/config/helmet.js";
 import { setupLocaleData } from "./infrastructure/express/middleware/nunjucks/setupLocaleData.js";
 import { setupNunjucks } from "./infrastructure/express/middleware/nunjucks/setupNunjucks.js";
-import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsrf.js";
+import {
+  setupCsrf,
+  csrfProtection,
+} from "./infrastructure/express/middleware/security/setupCsrf.js";
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
@@ -128,7 +131,6 @@ app.use(
     },
   }),
 );
-
 app.use(setupRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;
@@ -138,6 +140,7 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 app.use(setupLocaleData);
 app.use(nonceMiddleware);
 app.use(helmet(helmetConfig));
+setupCsrf(app);
 setupNunjucks(app);
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -146,19 +149,22 @@ app.post(
   upload.single("coroners-letter-file-upload"),
 );
 
-app.post("/claim/evidence/upload", upload.single("documents"), (req, res) => {
+app.post(
+  "/claim/evidence/upload",
+  upload.single("documents"),
+  csrfProtection,
+  (req, res) => {
+    indexRouter(req, res, () => {
+      res.status(HTTP_NOT_FOUND).end();
+    });
+  },
+);
+
+app.post("/claim/evidence/delete", csrfProtection, (req, res) => {
   indexRouter(req, res, () => {
     res.status(HTTP_NOT_FOUND).end();
   });
 });
-
-app.post("/claim/evidence/delete", (req, res) => {
-  indexRouter(req, res, () => {
-    res.status(HTTP_NOT_FOUND).end();
-  });
-});
-
-setupCsrf(app);
 
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));

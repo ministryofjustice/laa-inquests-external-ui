@@ -1,0 +1,45 @@
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% if errors.grossTotalInputError %}
+{{ govukErrorSummary({
+  titleText: "There is a problem",
+  errorList: [
+    {
+      text: errors.grossTotalInputError.text,
+      href: "#gross-total"
+    }
+  ]
+}) }}
+{% endif %}
+
+<h1 class="govuk-heading-l">{{ t("pages.claim.totalCost.finalBill.heading") }}</h1>
+
+<p class="govuk-body">{{ t("pages.claim.totalCost.finalBill.paragraph") }}</p>
+
+<form data-testid="total-cost-form" action="/claim/total-cost" method="post">
+  <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+  {{ govukInput({
+    label: {
+      text: t("pages.claim.totalCost.finalBill.grossAmountLabel"),
+      classes: "govuk-label--s"
+    },
+    hint: {
+      text: t("pages.claim.totalCost.finalBill.grossAmountHint")
+    },
+    id: "gross-total",
+    name: "gross-total",
+    value: grossTotal,
+    classes: "govuk-input--width-10",
+    prefix: { text: "£" },
+    inputmode: "decimal",
+    errorMessage: errors.grossTotalInputError
+  }) }}
+
+  {{ govukButton({
+    text: "Continue",
+    type: "submit"
+  }) }}
+</form>

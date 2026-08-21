@@ -43,8 +43,9 @@
           <p class="govuk-body">for help and guidance, read <a class="govuk-link" href="#">How to complete the LAA cost claim template and submit evidence</a></p>
 
           <p class="govuk-body">You can upload all your files at once, or one at a time.</p>
-          
+
           <form action="/claim/evidence/upload" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
             <input type="hidden" name="uploadMode" value="html" />
             {% set uploadHtml %}
               {% set errorMessage = errorSummaries.evidenceError if errorSummaries and errorSummaries.evidenceError %}

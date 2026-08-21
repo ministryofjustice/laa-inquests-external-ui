@@ -67,6 +67,14 @@
       "caseSearch": {
         "title": "Which case do you want to make a claim for?",
         "caseReferenceLabel": "Enter the case reference number"
+      },
+      "totalCost": {
+        "finalBill": {
+          "heading": "What is your total claim cost?",
+          "paragraph": "A complete breakdown of your costs will be validated during your claim assessment. This includes disbursement, VAT, and other costs.",
+          "grossAmountLabel": "Enter the total gross amount",
+          "grossAmountHint": "Enter '0' if there is no claim cost (nil bill)."
+        }
       }
     },
     "error": {
