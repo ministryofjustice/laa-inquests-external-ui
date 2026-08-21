@@ -1,0 +1,67 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "How many counsel were instructed on this case?" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/claim/evidence"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.counselNumberInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.counselNumberInputError.text,
+              href: "#counsel-number"
+            }
+          ]
+        }) }}
+        {% endif %}
+        <form data-testid="counsel-number-form" action="/claim/counsel-number" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "counsel-number",
+            id: "counsel-number",
+            value: counselNumber,
+            errorMessage: errorSummaries.counselNumberInputError,
+            fieldset: {
+              legend: {
+                text: pageHeading,
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            hint: {
+              text: "Select an option"
+            },
+            items: [
+              { value: "0", text: "0" },
+              { value: "1", text: "1" },
+              { value: "2", text: "2" },
+              { value: "3", text: "3" },
+              { value: "4", text: "4" },
+              { value: "5", text: "5" },
+              { value: "6_OR_MORE", text: "6 or more" }
+            ]
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

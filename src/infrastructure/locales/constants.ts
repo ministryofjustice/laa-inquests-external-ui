@@ -12,6 +12,17 @@ export const CLAIM_TYPE_ERROR = {
   MISSING_CLAIM_SUBTYPE: "Please select a Payment on Account claim type",
 };
 
+export const COUNSEL_NUMBER_ERROR = {
+  MISSING_COUNSEL_NUMBER:
+    "Select how many counsel were instructed on this case",
+};
+
+export const COUNSEL_PAY_CONFIRMATION_ERROR = {
+  MISSING_CONFIRMATION: "Confirm that all counsel bills have been paid",
+};
+
+export const COUNSEL_NUMBER_ZERO = "0";
+
 export const TOTAL_CLAIM_ERROR = {
   MISSING_TOTAL_CLAIM_COST:
     "Please complete the total value of your claim to continue",
