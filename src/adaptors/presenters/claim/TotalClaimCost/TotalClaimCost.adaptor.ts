@@ -14,7 +14,9 @@ import { TotalClaimCostValidator } from "#src/adaptors/presenters/claim/TotalCla
 export class TotalClaimCostAdaptor {
   formValidator: TotalClaimCostValidator;
 
-  constructor(formValidator: TotalClaimCostValidator = new TotalClaimCostValidator()) {
+  constructor(
+    formValidator: TotalClaimCostValidator = new TotalClaimCostValidator(),
+  ) {
     this.formValidator = formValidator;
   }
 
