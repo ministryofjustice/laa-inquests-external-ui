@@ -32,12 +32,12 @@ test.describe("Claim - claim type", () => {
     );
   });
 
-  test("renders the three claim type options", async ({ page }) => {
+  test("renders the two in-scope claim type options", async ({ page }) => {
     const form = page.getByTestId("claim-type-form");
 
     await expect(form).toBeVisible();
     await expect(form.getByLabel("Payment on account (POA)")).toBeVisible();
-    await expect(form.getByLabel("Nil bill")).toBeVisible();
+    await expect(form.getByLabel("Nil bill")).toHaveCount(0);
     await expect(form.getByLabel("Final bill")).toBeVisible();
   });
 
@@ -78,7 +78,7 @@ test.describe("Claim - claim type", () => {
     await expect(page).toHaveURL("/claim/subtype");
   });
 
-  test("skips to total cost page when a non-POA option is selected", async ({
+  test("redirects to the total cost page when Final bill is selected", async ({
     page,
   }) => {
     const form = page.getByTestId("claim-type-form");
@@ -94,14 +94,14 @@ test.describe("Claim - claim type", () => {
   }) => {
     const form = page.getByTestId("claim-type-form");
 
-    await form.getByLabel("Nil bill").check();
+    await form.getByLabel("Final bill").check();
     await form.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL("/claim/total-cost");
 
     await page.goto("/claim/type");
 
     await expect(
-      page.getByTestId("claim-type-form").getByLabel("Nil bill"),
+      page.getByTestId("claim-type-form").getByLabel("Final bill"),
     ).toBeChecked();
   });
 });
