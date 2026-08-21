@@ -23,6 +23,16 @@ export const COUNSEL_PAY_CONFIRMATION_ERROR = {
 
 export const COUNSEL_NUMBER_ZERO = "0";
 
+export const COUNSEL_NUMBER_OPTIONS = [
+  { value: "0", text: "0" },
+  { value: "1", text: "1" },
+  { value: "2", text: "2" },
+  { value: "3", text: "3" },
+  { value: "4", text: "4" },
+  { value: "5", text: "5" },
+  { value: "6_OR_MORE", text: "6 or more" },
+] as const;
+
 export const TOTAL_CLAIM_ERROR = {
   MISSING_TOTAL_CLAIM_COST:
     "Please complete the total value of your claim to continue",

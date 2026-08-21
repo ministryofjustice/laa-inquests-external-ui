@@ -6,6 +6,7 @@ import type {
   CounselNumberValidator,
 } from "./CounselNumber.validator.js";
 import {
+  COUNSEL_NUMBER_OPTIONS,
   COUNSEL_NUMBER_ZERO,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
@@ -32,6 +33,7 @@ export class CounselNumberAdaptor {
     res.render("claim/counsel-number", {
       csrfToken,
       counselNumber: req.session.claim?.counselNumber,
+      counselOptions: COUNSEL_NUMBER_OPTIONS,
       backHref:
         req.session.claim?.returnToCheckYourAnswers === true
           ? "/claim/check-your-answers"
@@ -57,6 +59,7 @@ export class CounselNumberAdaptor {
       res.render("claim/counsel-number", {
         csrfToken,
         counselNumber,
+        counselOptions: COUNSEL_NUMBER_OPTIONS,
         errorSummaries,
       });
     } else {
