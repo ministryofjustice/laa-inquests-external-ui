@@ -6,6 +6,7 @@ import {
   CLAIM_SUBTYPE_LABEL,
   CLAIM_TYPE_LABEL,
   CLAIM_TYPE_VALUE,
+  COUNSEL_NUMBER_OPTIONS,
   COUNSEL_NUMBER_ZERO,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
@@ -179,10 +180,10 @@ export class ConfirmAndSubmitAdaptor {
   }
 
   #counselNumberLabel(value?: string): string {
-    if (value === "6_OR_MORE") {
-      return "6 or more";
-    }
-    return value ?? "";
+    return (
+      COUNSEL_NUMBER_OPTIONS.find((option) => option.value === value)?.text ??
+      ""
+    );
   }
 
   #fileType(fileName: string): string {
