@@ -105,4 +105,22 @@ test.describe("Claim - counsel number", () => {
       page.getByTestId("counsel-number-form").getByLabel("2", { exact: true }),
     ).toBeChecked();
   });
+
+  test("routes to the pay confirmation page when changing from zero to a non-zero value via check your answers", async ({
+    page,
+  }) => {
+    const form = page.getByTestId("counsel-number-form");
+
+    await form.getByLabel("0", { exact: true }).check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/claim/check-your-answers");
+
+    await page.goto("/claim/counsel-number?from=check-your-answers");
+
+    const changeForm = page.getByTestId("counsel-number-form");
+    await changeForm.getByLabel("2", { exact: true }).check();
+    await changeForm.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/counsel-pay-confirmation");
+  });
 });

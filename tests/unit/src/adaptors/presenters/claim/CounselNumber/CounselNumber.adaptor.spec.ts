@@ -108,7 +108,7 @@ describe("CounselNumber adaptor", () => {
       assert.equal(responseStub.render.callCount, 0);
     });
 
-    it("redirects back to /claim/check-your-answers and clears the flag when returning from check your answers", () => {
+    it("routes to /claim/counsel-pay-confirmation and preserves the flag when changing from zero to a non-zero value that has no paid confirmation yet", () => {
       const adaptor = new CounselNumberAdaptor(new CounselNumberValidator());
 
       const responseStub = stubInterface<Response>();
@@ -116,11 +116,62 @@ describe("CounselNumber adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "counsel-number": "3" };
-      requestStub.session.claim = { returnToCheckYourAnswers: true };
+      requestStub.session.claim = {
+        counselNumber: "0",
+        returnToCheckYourAnswers: true,
+      };
 
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.counselNumber, "3");
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/counsel-pay-confirmation");
+    });
+
+    it("redirects back to /claim/check-your-answers and clears the flag when a non-zero value already has a paid confirmation", () => {
+      const adaptor = new CounselNumberAdaptor(new CounselNumberValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "counsel-number": "3" };
+      requestStub.session.claim = {
+        counselNumber: "2",
+        counselBillsPaid: true,
+        returnToCheckYourAnswers: true,
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.counselNumber, "3");
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/check-your-answers");
+    });
+
+    it("clears any paid confirmation and returns to check your answers when changing to zero counsel", () => {
+      const adaptor = new CounselNumberAdaptor(new CounselNumberValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "counsel-number": "0" };
+      requestStub.session.claim = {
+        counselNumber: "2",
+        counselBillsPaid: true,
+        returnToCheckYourAnswers: true,
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.counselNumber, "0");
+      assert.equal(requestStub.session.claim?.counselBillsPaid, undefined);
       assert.equal(
         requestStub.session.claim?.returnToCheckYourAnswers,
         undefined,
