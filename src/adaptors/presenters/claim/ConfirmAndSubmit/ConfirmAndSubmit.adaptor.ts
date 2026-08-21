@@ -227,7 +227,7 @@ export class ConfirmAndSubmitAdaptor {
       zeroVatTotal: this.#formatMoneyOrNone(claim?.zeroVatTotal),
       netTotal: this.#formatMoneyOrNone(claim?.netTotal),
       grossTotal: this.#formatMoneyOrNone(claim?.grossTotal),
-       changeHref: "/claim/total-cost?from=check-your-answers",
+      changeHref: "/claim/total-cost?from=check-your-answers",
     };
   }
 
