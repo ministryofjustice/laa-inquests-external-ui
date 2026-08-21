@@ -21,7 +21,10 @@ import helmet from "helmet";
 import { helmetConfig } from "./infrastructure/config/helmet.js";
 import { setupLocaleData } from "./infrastructure/express/middleware/nunjucks/setupLocaleData.js";
 import { setupNunjucks } from "./infrastructure/express/middleware/nunjucks/setupNunjucks.js";
-import { setupCsrf } from "./infrastructure/express/middleware/security/setupCsrf.js";
+import {
+  setupCsrf,
+  csrfProtection,
+} from "./infrastructure/express/middleware/security/setupCsrf.js";
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
@@ -146,13 +149,18 @@ app.post(
   upload.single("coroners-letter-file-upload"),
 );
 
-app.post("/claim/evidence/upload", upload.single("documents"), (req, res) => {
-  indexRouter(req, res, () => {
-    res.status(HTTP_NOT_FOUND).end();
-  });
-});
+app.post(
+  "/claim/evidence/upload",
+  upload.single("documents"),
+  csrfProtection,
+  (req, res) => {
+    indexRouter(req, res, () => {
+      res.status(HTTP_NOT_FOUND).end();
+    });
+  },
+);
 
-app.post("/claim/evidence/delete", (req, res) => {
+app.post("/claim/evidence/delete", csrfProtection, (req, res) => {
   indexRouter(req, res, () => {
     res.status(HTTP_NOT_FOUND).end();
   });

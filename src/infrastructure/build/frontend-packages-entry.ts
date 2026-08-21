@@ -10,9 +10,19 @@ function initialiseMultiFileUpload(): void {
   );
 
   if (multiFileUploadElement !== null) {
+    // The widget uploads via XHR and cannot add fields to the request body,
+    // so the CSRF token is passed in the query string instead.
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      ?.getAttribute("content");
+    const csrfQuery =
+      csrfToken !== null && csrfToken !== undefined && csrfToken !== ""
+        ? `?_csrf=${encodeURIComponent(csrfToken)}`
+        : "";
+
     void new MultiFileUpload(multiFileUploadElement, {
-      uploadUrl: "/claim/evidence/upload",
-      deleteUrl: "/claim/evidence/delete",
+      uploadUrl: `/claim/evidence/upload${csrfQuery}`,
+      deleteUrl: `/claim/evidence/delete${csrfQuery}`,
     });
   }
 }
