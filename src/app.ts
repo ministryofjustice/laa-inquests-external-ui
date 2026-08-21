@@ -131,7 +131,6 @@ app.use(
     },
   }),
 );
-
 app.use(setupRateLimiter(config));
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;
@@ -141,6 +140,7 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 app.use(setupLocaleData);
 app.use(nonceMiddleware);
 app.use(helmet(helmetConfig));
+setupCsrf(app);
 setupNunjucks(app);
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -166,7 +166,6 @@ app.post("/claim/evidence/delete", csrfProtection, (req, res) => {
   });
 });
 
-setupCsrf(app);
 
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
