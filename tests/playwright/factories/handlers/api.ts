@@ -123,14 +123,22 @@ export const apiHandlers = [
     },
   ),
 
-  http.post(`${process.env.INQUESTS_API_URL}/claims/evidence`, () =>
-    HttpResponse.json(
-      {
-        claimEvidenceId: evidenceFileId,
-        claimEvidenceFileName: evidenceFileName,
-      },
-      { status: 201 },
-    ),
+  http.post(
+    `${process.env.INQUESTS_API_URL}/claims/evidence`,
+    async ({ request }) => {
+      const formData = await request.formData();
+      const uploaded = formData.get("file");
+      const claimEvidenceFileName =
+        uploaded instanceof File ? uploaded.name : evidenceFileName;
+
+      return HttpResponse.json(
+        {
+          claimEvidenceId: evidenceFileId,
+          claimEvidenceFileName,
+        },
+        { status: 201 },
+      );
+    },
   ),
   http.delete(
     `${process.env.INQUESTS_API_URL}/claims/:claimEvidenceId`,

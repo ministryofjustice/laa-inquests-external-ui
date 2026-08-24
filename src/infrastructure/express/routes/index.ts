@@ -32,6 +32,9 @@ import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaim
 import { createEvidenceRouter } from "./claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
+import { createFinalBillTemplateRouter } from "./claim/finalBillTemplate.router.js";
+import { FinalBillTemplateAdaptor } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.adaptor.js";
+import { FinalBillTemplateValidator } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.validator.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -73,6 +76,7 @@ const claimTypeRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
 const evidenceRouter = express.Router();
+const finalBillTemplateRouter = express.Router();
 const errorRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
@@ -229,6 +233,13 @@ const evidenceAdaptor = new EvidenceAdaptor(
   deleteEvidenceUseCase,
 );
 
+const finalBillTemplateValidator = new FinalBillTemplateValidator();
+const finalBillTemplateAdaptor = new FinalBillTemplateAdaptor(
+  finalBillTemplateValidator,
+  uploadEvidenceUseCase,
+  deleteEvidenceUseCase,
+);
+
 const downloadEvidenceSource = new DownloadEvidenceSource(
   axios.create(),
   config.INQUESTS_API_URL,
@@ -245,6 +256,10 @@ indexRouter.use(
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
   createTotalClaimCostRouter(totalClaimRouter, totalClaimCostAdaptor),
+  createFinalBillTemplateRouter(
+    finalBillTemplateRouter,
+    finalBillTemplateAdaptor,
+  ),
   createEvidenceRouter(
     evidenceRouter,
     evidenceAdaptor,

@@ -166,6 +166,23 @@ app.post("/claim/evidence/delete", csrfProtection, (req, res) => {
   });
 });
 
+app.post(
+  "/claim/final-bill-template/upload",
+  upload.single("documents"),
+  csrfProtection,
+  (req, res) => {
+    indexRouter(req, res, () => {
+      res.status(HTTP_NOT_FOUND).end();
+    });
+  },
+);
+
+app.post("/claim/final-bill-template/delete", csrfProtection, (req, res) => {
+  indexRouter(req, res, () => {
+    res.status(HTTP_NOT_FOUND).end();
+  });
+});
+
 // Registered after the multipart upload routes so multer parses the request
 // body (containing the _csrf field) before CSRF validation runs.
 setupCsrf(app);

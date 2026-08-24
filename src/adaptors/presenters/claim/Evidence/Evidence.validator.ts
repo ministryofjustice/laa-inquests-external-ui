@@ -6,6 +6,7 @@ import {
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { validateUploadedFile } from "#src/adaptors/presenters/claim/common/fileUploadValidator.utils.js";
 
 export interface UploadEvidenceError {
   evidenceError?: { text: string };
@@ -38,21 +39,16 @@ export class UploadEvidenceValidator extends FormValidator {
       };
     }
 
-    const errorText = this.#validateFile(fileInput);
+    const errorText = validateUploadedFile(fileInput, {
+      allowedFileTypes: CLAIM_EVIDENCE_ALLOWED_FILE_TYPES,
+      maxFileSizeBytes: CLAIM_EVIDENCE_MAX_FILE_SIZE_BYTES,
+      emptyFileSizeBytes: CLAIM_EVIDENCE_TOO_SMALL_FILE_SIZE_BYTES,
+      invalidFileTypeMessage: CLAIM_EVIDENCE_ERROR.INVALID_FILE_TYPE,
+      fileTooLargeMessage: CLAIM_EVIDENCE_ERROR.FILE_TOO_LARGE,
+      fileIsEmptyMessage: CLAIM_EVIDENCE_ERROR.FILE_IS_EMPTY,
+    });
     return errorText === undefined
       ? {}
       : { evidenceError: { text: errorText } };
-  }
-
-  #validateFile(fileInput: Express.Multer.File): string | undefined {
-    if (!CLAIM_EVIDENCE_ALLOWED_FILE_TYPES.includes(fileInput.mimetype)) {
-      return CLAIM_EVIDENCE_ERROR.INVALID_FILE_TYPE;
-    }
-    if (fileInput.size > CLAIM_EVIDENCE_MAX_FILE_SIZE_BYTES) {
-      return CLAIM_EVIDENCE_ERROR.FILE_TOO_LARGE;
-    }
-    if (fileInput.size === CLAIM_EVIDENCE_TOO_SMALL_FILE_SIZE_BYTES) {
-      return CLAIM_EVIDENCE_ERROR.FILE_IS_EMPTY;
-    }
   }
 }

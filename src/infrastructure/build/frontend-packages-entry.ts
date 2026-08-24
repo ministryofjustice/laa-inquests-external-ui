@@ -20,9 +20,16 @@ function initialiseMultiFileUpload(): void {
         ? `?_csrf=${encodeURIComponent(csrfToken)}`
         : "";
 
+    const isFinalBillTemplatePage = window.location.pathname.startsWith(
+      "/claim/final-bill-template",
+    );
+    const uploadRouteBase = isFinalBillTemplatePage
+      ? "/claim/final-bill-template"
+      : "/claim/evidence";
+
     void new MultiFileUpload(multiFileUploadElement, {
-      uploadUrl: `/claim/evidence/upload${csrfQuery}`,
-      deleteUrl: `/claim/evidence/delete${csrfQuery}`,
+      uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
+      deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
     });
   }
 }
