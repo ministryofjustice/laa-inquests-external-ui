@@ -192,12 +192,12 @@ export class ConfirmAndSubmitAdaptor {
     );
   }
 
-  #formatEndDate(
-    day?: string,
-    month?: string,
-    year?: string,
-  ): string {
-    if (!day || !month || !year) {
+  #formatEndDate(day?: string, month?: string, year?: string): string {
+    if (
+      typeof day !== "string" ||
+      typeof month !== "string" ||
+      typeof year !== "string"
+    ) {
       return "";
     }
     return `${day}/${month}/${year}`;

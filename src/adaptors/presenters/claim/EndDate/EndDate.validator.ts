@@ -1,7 +1,9 @@
 import moment from "moment";
-import { END_DATE_ERROR } from "#src/infrastructure/locales/constants.js";
+import {
+  END_DATE_ERROR,
+  DATE_MONTH_INDEX_OFFSET,
+} from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
-import { DATE_MONTH_INDEX_OFFSET } from "#src/infrastructure/locales/constants.js";
 
 export interface EndDateFormData {
   "end-date-day": string;
@@ -14,9 +16,7 @@ export interface EndDateError {
 }
 
 export class EndDateValidator extends FormValidator {
-  validateEndDate(
-    formBody: Partial<EndDateFormData>,
-  ): Partial<EndDateError> {
+  validateEndDate(formBody: Partial<EndDateFormData>): Partial<EndDateError> {
     const errorSummaries: Partial<EndDateError> = {};
 
     const {

@@ -280,4 +280,3 @@ describe("EndDate adaptor", () => {
     });
   });
 });
-

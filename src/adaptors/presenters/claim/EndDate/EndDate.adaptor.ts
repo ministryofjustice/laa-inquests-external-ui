@@ -7,7 +7,7 @@ import type {
 } from "#src/adaptors/presenters/claim/EndDate/EndDate.validator.js";
 
 export class EndDateAdaptor {
-  #formValidator: EndDateValidator;
+  readonly #formValidator: EndDateValidator;
 
   constructor(formValidator: EndDateValidator) {
     this.#formValidator = formValidator;
@@ -81,11 +81,10 @@ export class EndDateAdaptor {
       endDateYear: year,
     };
 
-    if (req.session.claim?.returnToCheckYourAnswers === true) {
+    if (req.session.claim.returnToCheckYourAnswers === true) {
       res.redirect("/claim/check-your-answers");
     } else {
       res.redirect("/claim/inquest-outcome");
     }
   }
 }
-
