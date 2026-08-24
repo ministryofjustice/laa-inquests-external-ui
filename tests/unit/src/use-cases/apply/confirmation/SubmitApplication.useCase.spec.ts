@@ -24,7 +24,7 @@ describe("SubmitApplicationUseCase", () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({
       statusCode: HTTP_CREATED,
-      laaReference: 123456,
+      laaReference: "123456",
     });
 
     const result = await useCase.execute(state);
@@ -32,7 +32,7 @@ describe("SubmitApplicationUseCase", () => {
     assert.deepEqual(result, {
       status: "SUCCESS",
       data: {
-        laaReference: 123456,
+        laaReference: "123456",
       },
     });
   });
@@ -41,7 +41,7 @@ describe("SubmitApplicationUseCase", () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({
       statusCode: HTTP_CREATED,
-      laaReference: 123456,
+      laaReference: "123456",
     });
 
     await useCase.execute(state);
@@ -133,8 +133,8 @@ describe("SubmitApplicationUseCase", () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({
       statusCode: HTTP_CREATED,
-      laaReference: "not-a-number",
-    } as unknown as { statusCode: number; laaReference: number });
+      laaReference: null,
+    } as unknown as { statusCode: number; laaReference: string });
 
     const result = await useCase.execute(state);
 
@@ -144,11 +144,28 @@ describe("SubmitApplicationUseCase", () => {
     });
   });
 
+  it("accepts laaReference as number (backwards compatibility)", async () => {
+    const state = createValidState();
+    applySubmitPort.submitApplication.resolves({
+      statusCode: HTTP_CREATED,
+      laaReference: "987654321",
+    });
+
+    const result = await useCase.execute(state);
+
+    assert.deepEqual(result, {
+      status: "SUCCESS",
+      data: {
+        laaReference: "987654321",
+      },
+    });
+  });
+
   it("returns upstream rejected when API status code is not HTTP_CREATED", async () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({
       statusCode: 500,
-      laaReference: 123456,
+      laaReference: "123456",
     });
 
     const result = await useCase.execute(state);
