@@ -114,6 +114,7 @@ export class ConfirmAndSubmitAdaptor {
       netTotal,
       grossTotal,
       evidenceFiles,
+      finalBillCostTemplate,
     } = claim;
     return {
       laaReference: caseReference,
@@ -124,7 +125,12 @@ export class ConfirmAndSubmitAdaptor {
       zeroVatTotal: this.#parseAmount(zeroVatTotal),
       netTotal: this.#parseAmount(netTotal),
       grossTotal: this.#parseAmount(grossTotal),
-      claimEvidenceIds: (evidenceFiles ?? []).map((file) => file.id),
+      claimEvidenceIds: [
+        ...(evidenceFiles ?? []).map((file) => file.id),
+        ...(finalBillCostTemplate === undefined
+          ? []
+          : [finalBillCostTemplate.costTemplateId]),
+      ],
     };
   }
 
@@ -152,6 +158,23 @@ export class ConfirmAndSubmitAdaptor {
           fileSize: this.formatter.formatFileSize(file.fileSize),
         })),
       },
+      costTemplateFile: this.#buildCostTemplateFile(claim),
+    };
+  }
+
+  #buildCostTemplateFile(
+    claim?: ClaimSession,
+  ): { id: string; name: string; type: string; fileSize: string } | undefined {
+    const template = claim?.finalBillCostTemplate;
+    if (template === undefined) {
+      return undefined;
+    }
+
+    return {
+      id: template.costTemplateId,
+      name: template.costTemplateFilename,
+      type: this.#fileType(template.costTemplateFilename),
+      fileSize: this.formatter.formatFileSize(template.costTemplateFileSize),
     };
   }
 
