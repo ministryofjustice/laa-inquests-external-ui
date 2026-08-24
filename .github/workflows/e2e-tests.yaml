@@ -222,17 +222,17 @@ jobs:
           AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
           AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
           INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
-          E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
-          E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
-          E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
+          # E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
+          # E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
+          # E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
 
-      - name: Show API logs on failure
-        if: failure()
-        run: docker logs inquests-api
+      # - name: Show API logs on failure
+      #   if: failure()
+      #   run: docker logs inquests-api
 
-      - name: Stop API container
-        if: always()
-        run: docker rm -f inquests-api || true
+      # - name: Stop API container
+      #   if: always()
+      #   run: docker rm -f inquests-api || true
 
       - name: Upload trace artifacts
         if: always()

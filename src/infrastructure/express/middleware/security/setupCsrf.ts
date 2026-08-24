@@ -8,23 +8,41 @@ const hasCSRFToken = (body: unknown): body is { _csrf: unknown } =>
   typeof body === "object" &&
   "_csrf" in body;
 
+const { csrfSynchronisedProtection } = csrfSync({
+  // Extracts the CSRF token from the request body, a header, or the query
+  // string. The query string is required for the multi-file-upload widget,
+  // which uploads via XHR and cannot add fields to the request body.
+  getTokenFromRequest: (req: Request): string | undefined => {
+    if (hasCSRFToken(req.body) && typeof req.body._csrf === "string") {
+      return req.body._csrf;
+    }
+
+    const { headers, query } = req;
+
+    if (typeof headers["x-csrf-token"] === "string") {
+      return headers["x-csrf-token"];
+    }
+
+    if (typeof query._csrf === "string") {
+      return query._csrf;
+    }
+
+    return undefined;
+  },
+});
+
 /*
  - Protects against CSRF attacks using `csrfSync`.
+ - Exported so routes mounted before `setupCsrf` (e.g. file uploads) can opt in.
+*/
+export const csrfProtection = csrfSynchronisedProtection;
+
+/*
+ - Applies CSRF protection globally.
  - Ensures CSRF tokens are available in views for forms.
 */
 export const setupCsrf = (app: Application): void => {
-  const { csrfSynchronisedProtection } = csrfSync({
-    // Extracts the CSRF token from the request body.
-    getTokenFromRequest: (req: Request): string | undefined => {
-      // Type guard to ensure req.body exists and has _csrf property
-      if (hasCSRFToken(req.body)) {
-        return typeof req.body._csrf === "string" ? req.body._csrf : undefined;
-      }
-      return undefined;
-    },
-  });
-
-  app.use(csrfSynchronisedProtection);
+  app.use(csrfProtection);
 
   // Middleware to make CSRF token available in views
   app.use((req: Request, res: Response, next: NextFunction): void => {

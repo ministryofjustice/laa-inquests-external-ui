@@ -27,8 +27,8 @@ import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/Cla
 import { createConfirmAndSubmitClaimRouter } from "./claim/confirmAndSubmitClaim.router.js";
 import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
-import { createTotalClaimRouter } from "./claim/totalClaim.router.js";
-import { TotalClaimAdaptor } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.adaptor.js";
+import { createTotalClaimCostRouter } from "./claim/totalClaimCost.router.js";
+import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
 import { createEvidenceRouter } from "./claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
@@ -210,7 +210,7 @@ const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor(
   submitClaimSource,
 );
 
-const totalClaimAdaptor = new TotalClaimAdaptor();
+const totalClaimCostAdaptor = new TotalClaimCostAdaptor();
 
 const uploadEvidenceSource = new UploadEvidenceAdaptor(
   axios.create(),
@@ -244,7 +244,7 @@ indexRouter.use(
   "/claim",
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
-  createTotalClaimRouter(totalClaimRouter, totalClaimAdaptor),
+  createTotalClaimCostRouter(totalClaimRouter, totalClaimCostAdaptor),
   createEvidenceRouter(
     evidenceRouter,
     evidenceAdaptor,

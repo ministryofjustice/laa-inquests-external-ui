@@ -1,13 +1,13 @@
 import { strict as assert } from "assert";
 import type { Request, Response } from "express";
 import { stubInterface } from "ts-sinon";
-import { TotalClaimAdaptor } from "#src/adaptors/presenters/claim/TotalClaim/TotalClaim.adaptor.js";
+import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("TotalClaim adaptor", () => {
   describe("renderForm", () => {
     it("renders the total claim view with csrf token and back link", () => {
-      const adaptor = new TotalClaimAdaptor();
+      const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
@@ -36,7 +36,7 @@ describe("TotalClaim adaptor", () => {
     });
 
     it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", () => {
-      const adaptor = new TotalClaimAdaptor();
+      const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
@@ -52,7 +52,7 @@ describe("TotalClaim adaptor", () => {
     });
 
     it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
-      const adaptor = new TotalClaimAdaptor();
+      const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
@@ -73,7 +73,7 @@ describe("TotalClaim adaptor", () => {
 
   describe("processForm", () => {
     it("re-renders with validation errors and does not redirect when submission is invalid", () => {
-      const adaptor = new TotalClaimAdaptor();
+      const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
@@ -106,7 +106,7 @@ describe("TotalClaim adaptor", () => {
     });
 
     it("re-renders with combination error when profit cost subtype has both 0% and 20% VAT fields", () => {
-      const adaptor = new TotalClaimAdaptor();
+      const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
@@ -137,7 +137,7 @@ describe("TotalClaim adaptor", () => {
     });
 
     it("saves values to session and redirects when submission is valid", () => {
-      const adaptor = new TotalClaimAdaptor();
+      const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
@@ -164,7 +164,7 @@ describe("TotalClaim adaptor", () => {
     });
 
     it("redirects to check-your-answers and clears the flag when returnToCheckYourAnswers is set and submission is valid", () => {
-      const adaptor = new TotalClaimAdaptor();
+      const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
@@ -187,6 +187,119 @@ describe("TotalClaim adaptor", () => {
         requestStub.session.claim?.returnToCheckYourAnswers,
         undefined,
       );
+    });
+  });
+
+  describe("FINAL_BILL", () => {
+    it("renders the total cost view with isFinalBill and back link to /claim/type", () => {
+      const adaptor = new TotalClaimCostAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "FINAL_BILL", grossTotal: "500.00" },
+      } as Request["session"];
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const [viewName, viewModel] = responseStub.render.getCall(0)
+        .args as unknown as [string, Record<string, unknown>];
+
+      assert.equal(viewName, "claim/total-cost");
+      assert.equal(viewModel.isFinalBill, true);
+      assert.equal(viewModel.backHref, "/claim/type");
+      assert.equal(viewModel.grossTotal, "500.00");
+    });
+
+    it("saves NIL_BILL subtype and redirects to /claim/inquest-outcome when the gross amount is 0", () => {
+      const adaptor = new TotalClaimCostAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "FINAL_BILL" },
+      } as Request["session"];
+      requestStub.body = { "gross-total": "0" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectPath] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectPath, "/claim/inquest-outcome");
+      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim?.subtype, "NIL_BILL");
+      assert.equal(requestStub.session.claim?.grossTotal, "0");
+    });
+
+    it("treats 0.00 as a nil bill and redirects to /claim/inquest-outcome", () => {
+      const adaptor = new TotalClaimCostAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "FINAL_BILL" },
+      } as Request["session"];
+      requestStub.body = { "gross-total": "0.00" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectPath] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectPath, "/claim/inquest-outcome");
+      assert.equal(requestStub.session.claim?.subtype, "NIL_BILL");
+    });
+
+    it("clears the subtype and redirects to /claim/final-bill-template when the gross amount is greater than 0", () => {
+      const adaptor = new TotalClaimCostAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "FINAL_BILL", subtype: "NIL_BILL" },
+      } as Request["session"];
+      requestStub.body = { "gross-total": "1250.50" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectPath] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectPath, "/claim/final-bill-template");
+      assert.equal(requestStub.session.claim?.grossTotal, "1250.50");
+      assert.equal(requestStub.session.claim?.subtype, undefined);
+    });
+
+    it("re-renders with an error and does not redirect when the gross amount is invalid", () => {
+      const adaptor = new TotalClaimCostAdaptor();
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session = {
+        claim: { type: "FINAL_BILL" },
+      } as Request["session"];
+      requestStub.body = { "gross-total": "abc" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
+
+      const [viewName, viewModel] = responseStub.render.getCall(0)
+        .args as unknown as [string, Record<string, unknown>];
+
+      assert.equal(viewName, "claim/total-cost");
+      assert.equal(viewModel.isFinalBill, true);
+      assert.deepEqual(viewModel.errorSummaries, {
+        grossTotalInputError: {
+          text: TOTAL_CLAIM_ERROR.INVALID_FINAL_BILL_GROSS_TOTAL,
+        },
+      });
     });
   });
 });

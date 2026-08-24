@@ -27,6 +27,8 @@ export const TOTAL_CLAIM_ERROR = {
     "You cannot submit a profit cost claim with both 0% and 20% VAT",
   NET_TOTAL_HIGHER_THAN_GROSS_TOTAL:
     "Net total cannot be higher than the gross total value",
+  MISSING_FINAL_BILL_GROSS_TOTAL: "Enter the total gross amount",
+  INVALID_FINAL_BILL_GROSS_TOTAL: "Total gross amount must be a number",
 };
 
 export const CLAIM_TYPE_VALUE = {
@@ -128,6 +130,8 @@ export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
 export const EMPTY_ARR_LENGTH = 0;
+
+export const NIL_BILL_GROSS_TOTAL = 0;
 
 export const CLIENT_DETAILS_ERROR = {
   INVALID_DATE: "Please enter a valid date",
