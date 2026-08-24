@@ -214,6 +214,19 @@
                 ]
               }
             }), counselRows) %}
+            {% set counselRows = (counselRows.push({
+              key: { text: "Last working date" },
+              value: { text: counsel.endDate },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/end-date?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "last working date"
+                  }
+                ]
+              }
+            }), counselRows) %}
           {% endif %}
           {{ govukSummaryList({
             card: {

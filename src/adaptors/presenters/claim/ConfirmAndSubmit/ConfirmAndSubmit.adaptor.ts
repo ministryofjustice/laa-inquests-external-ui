@@ -164,6 +164,7 @@ export class ConfirmAndSubmitAdaptor {
     hasCounsel: boolean;
     counselNumber: string;
     counselPaid: string;
+    endDate: string;
   } {
     const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
     const counselNumber = claim?.counselNumber;
@@ -176,6 +177,11 @@ export class ConfirmAndSubmitAdaptor {
       hasCounsel,
       counselNumber: this.#counselNumberLabel(counselNumber),
       counselPaid: claim?.counselBillsPaid === true ? "Yes" : "No",
+      endDate: this.#formatEndDate(
+        claim?.endDateDay,
+        claim?.endDateMonth,
+        claim?.endDateYear,
+      ),
     };
   }
 
@@ -184,6 +190,17 @@ export class ConfirmAndSubmitAdaptor {
       COUNSEL_NUMBER_OPTIONS.find((option) => option.value === value)?.text ??
       ""
     );
+  }
+
+  #formatEndDate(
+    day?: string,
+    month?: string,
+    year?: string,
+  ): string {
+    if (!day || !month || !year) {
+      return "";
+    }
+    return `${day}/${month}/${year}`;
   }
 
   #fileType(fileName: string): string {

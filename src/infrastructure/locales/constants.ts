@@ -287,6 +287,13 @@ export const DECEASED_DETAILS_ERROR = {
     "Linked case details must be between 2 and 500 characters",
 };
 
+export const END_DATE_ERROR = {
+  MISSING_END_DATE: "Enter the last working date",
+  NON_NUMERIC_END_DATE: "Enter the last working date in the format expected",
+  INVALID_END_DATE: "Enter a valid last working date",
+  FUTURE_OR_TODAY_END_DATE: "Last working date must be in the past",
+};
+
 export const DECEASED_NAME_PAGE = {
   HEADING: "What is the name of the deceased?",
   FORM_PATH: "/apply/deceased-details/name",

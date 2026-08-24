@@ -49,6 +49,9 @@ export interface ClaimSession {
   counselNumber?: string;
   counselBillsPaid?: boolean;
   returnToCheckYourAnswers?: boolean;
+  endDateDay?: string;
+  endDateMonth?: string;
+  endDateYear?: string;
 }
 
 export interface ClaimEvidenceFile {

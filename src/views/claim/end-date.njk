@@ -1,0 +1,71 @@
+{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "What was the last working date?" %}
+{% set pageTitle = pageHeading %}
+{% block content %}
+
+<div class="govuk-width-container">
+    {{ govukBackLink({
+        text: "Back",
+        href: backHref
+    }) }}
+    <main class="govuk-main-wrapper">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                {% if errorSummaries.endDateInputError %}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.endDateInputError.text,
+                            href: "#end-date"
+                        }
+                    ]
+                }) }}
+                {% endif %}
+                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+                <form data-testid="end-date-form" action="/claim/end-date" method="post">
+                    <input type="hidden" name="_csrf" value={{csrfToken}} />
+                    {{ govukDateInput({
+                        id: "end-date",
+                        namePrefix: "end-date",
+                        fieldset: {
+                            legend: {
+                                text: "Last working date",
+                                classes: "govuk-fieldset__legend--s"
+                            }
+                        },
+                        hint: {
+                            text: "For example, 21 3 2026"
+                        },
+                        errorMessage: errorSummaries.endDateInputError,
+                        items: [
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "day",
+                                value: endDate.day
+                            },
+                            {
+                                classes: "govuk-input--width-2",
+                                name: "month",
+                                value: endDate.month
+                            },
+                            {
+                                classes: "govuk-input--width-4",
+                                name: "year",
+                                value: endDate.year
+                            }
+                        ]
+                    }) }}
+                    {{ govukButton({
+                        text: "Continue"
+                    }) }}
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
