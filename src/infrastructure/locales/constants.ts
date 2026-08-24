@@ -23,6 +23,9 @@ export const COUNSEL_PAY_CONFIRMATION_ERROR = {
 
 export const COUNSEL_NUMBER_ZERO = "0";
 
+export const CHECK_YOUR_ANSWERS_ORIGIN = "check-your-answers";
+export const CLAIM_CHECK_YOUR_ANSWERS_PATH = "/claim/check-your-answers";
+
 export const COUNSEL_NUMBER_OPTIONS = [
   { value: "0", text: "0" },
   { value: "1", text: "1" },

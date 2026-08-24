@@ -5,13 +5,22 @@ import type {
   CounselPayConfirmationFormData,
   CounselPayConfirmationValidator,
 } from "./CounselPayConfirmation.validator.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  CLAIM_CHECK_YOUR_ANSWERS_PATH,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
+import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
 export class CounselPayConfirmationAdaptor {
   formValidator: CounselPayConfirmationValidator;
+  navigationHelper: ClaimNavigationHelper;
 
-  constructor(formValidator: CounselPayConfirmationValidator) {
+  constructor(
+    formValidator: CounselPayConfirmationValidator,
+    navigationHelper: ClaimNavigationHelper = new ClaimNavigationHelper(),
+  ) {
     this.formValidator = formValidator;
+    this.navigationHelper = navigationHelper;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -19,20 +28,15 @@ export class CounselPayConfirmationAdaptor {
       locals: { csrfToken },
     } = res;
 
-    if (req.query.from === "check-your-answers") {
-      req.session.claim = {
-        ...req.session.claim,
-        returnToCheckYourAnswers: true,
-      };
-    }
+    this.navigationHelper.captureCheckYourAnswersEntry(req);
 
     res.render("claim/counsel-pay-confirmation", {
       csrfToken,
       counselBillsPaid: req.session.claim?.counselBillsPaid === true,
-      backHref:
-        req.session.claim?.returnToCheckYourAnswers === true
-          ? "/claim/check-your-answers"
-          : "/claim/counsel-number",
+      backHref: this.navigationHelper.resolveBackHref(
+        req,
+        "/claim/counsel-number",
+      ),
     });
   }
 
@@ -57,9 +61,9 @@ export class CounselPayConfirmationAdaptor {
       req.session.claim = {
         ...req.session.claim,
         counselBillsPaid: true,
-        returnToCheckYourAnswers: undefined,
       };
-      res.redirect("/claim/check-your-answers");
+      this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+      res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
     }
   }
 }

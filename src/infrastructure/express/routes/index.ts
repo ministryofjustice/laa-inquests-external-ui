@@ -29,6 +29,7 @@ import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmA
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
 import { createTotalClaimCostRouter } from "./claim/totalClaimCost.router.js";
 import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
+import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { createEvidenceRouter } from "./claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
@@ -203,8 +204,13 @@ const caseSearchAdaptor = new CaseSearchAdaptor(
   searchCasesSource,
 );
 
+const claimNavigationHelper = new ClaimNavigationHelper();
+
 const claimTypeValidator = new ClaimTypeValidator();
-const claimTypeAdaptor = new ClaimTypeAdaptor(claimTypeValidator);
+const claimTypeAdaptor = new ClaimTypeAdaptor(
+  claimTypeValidator,
+  claimNavigationHelper,
+);
 
 const submitClaimSource = new SubmitClaimAdaptor(
   axios.create(),
@@ -233,6 +239,7 @@ const evidenceAdaptor = new EvidenceAdaptor(
   uploadEvidenceValidator,
   uploadEvidenceUseCase,
   deleteEvidenceUseCase,
+  claimNavigationHelper,
 );
 
 const downloadEvidenceSource = new DownloadEvidenceSource(
@@ -248,9 +255,11 @@ const downloadEvidenceAdaptor = new DownloadEvidenceAdaptor(
 
 const counselNumberAdaptor = new CounselNumberAdaptor(
   new CounselNumberValidator(),
+  claimNavigationHelper,
 );
 const counselPayConfirmationAdaptor = new CounselPayConfirmationAdaptor(
   new CounselPayConfirmationValidator(),
+  claimNavigationHelper,
 );
 
 indexRouter.use(

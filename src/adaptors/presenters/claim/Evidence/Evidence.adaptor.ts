@@ -13,6 +13,7 @@ import {
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
+import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 const HTTP_SUCCESS = 200;
 
@@ -20,15 +21,18 @@ export class EvidenceAdaptor {
   formValidator: UploadEvidenceValidator;
   uploadEvidenceUseCase: UploadEvidenceUseCase;
   deleteEvidenceUseCase: DeleteEvidenceUseCase;
+  navigationHelper: ClaimNavigationHelper;
 
   constructor(
     formValidator: UploadEvidenceValidator,
     uploadEvidenceUseCase: UploadEvidenceUseCase,
     deleteEvidenceUseCase: DeleteEvidenceUseCase,
+    navigationHelper: ClaimNavigationHelper = new ClaimNavigationHelper(),
   ) {
     this.formValidator = formValidator;
     this.uploadEvidenceUseCase = uploadEvidenceUseCase;
     this.deleteEvidenceUseCase = deleteEvidenceUseCase;
+    this.navigationHelper = navigationHelper;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -36,20 +40,12 @@ export class EvidenceAdaptor {
       locals: { csrfToken },
     } = res;
 
-    if (req.query.from === "check-your-answers") {
-      req.session.claim = {
-        ...req.session.claim,
-        returnToCheckYourAnswers: true,
-      };
-    }
+    this.navigationHelper.captureCheckYourAnswersEntry(req);
 
     res.render("claim/evidence", {
       csrfToken,
       uploadedFiles: this.#buildUploadedFiles(req),
-      backHref:
-        req.session.claim?.returnToCheckYourAnswers === true
-          ? "/claim/check-your-answers"
-          : "/claim/total-cost",
+      backHref: this.navigationHelper.resolveBackHref(req, "/claim/total-cost"),
     });
   }
 

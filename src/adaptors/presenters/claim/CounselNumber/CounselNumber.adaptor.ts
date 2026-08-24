@@ -6,16 +6,23 @@ import type {
   CounselNumberValidator,
 } from "./CounselNumber.validator.js";
 import {
+  CLAIM_CHECK_YOUR_ANSWERS_PATH,
   COUNSEL_NUMBER_OPTIONS,
   COUNSEL_NUMBER_ZERO,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
+import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
 export class CounselNumberAdaptor {
   formValidator: CounselNumberValidator;
+  navigationHelper: ClaimNavigationHelper;
 
-  constructor(formValidator: CounselNumberValidator) {
+  constructor(
+    formValidator: CounselNumberValidator,
+    navigationHelper: ClaimNavigationHelper = new ClaimNavigationHelper(),
+  ) {
     this.formValidator = formValidator;
+    this.navigationHelper = navigationHelper;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -23,21 +30,13 @@ export class CounselNumberAdaptor {
       locals: { csrfToken },
     } = res;
 
-    if (req.query.from === "check-your-answers") {
-      req.session.claim = {
-        ...req.session.claim,
-        returnToCheckYourAnswers: true,
-      };
-    }
+    this.navigationHelper.captureCheckYourAnswersEntry(req);
 
     res.render("claim/counsel-number", {
       csrfToken,
       counselNumber: req.session.claim?.counselNumber,
       counselOptions: COUNSEL_NUMBER_OPTIONS,
-      backHref:
-        req.session.claim?.returnToCheckYourAnswers === true
-          ? "/claim/check-your-answers"
-          : "/claim/evidence",
+      backHref: this.navigationHelper.resolveBackHref(req, "/claim/evidence"),
     });
   }
 
@@ -64,7 +63,7 @@ export class CounselNumberAdaptor {
       });
     } else {
       const returnToCheckYourAnswers =
-        req.session.claim?.returnToCheckYourAnswers;
+        this.navigationHelper.isReturningToCheckYourAnswers(req);
       const counselBillsPaid = req.session.claim?.counselBillsPaid;
 
       if (counselNumber === COUNSEL_NUMBER_ZERO) {
@@ -72,19 +71,16 @@ export class CounselNumberAdaptor {
           ...req.session.claim,
           counselNumber,
           counselBillsPaid: undefined,
-          returnToCheckYourAnswers: undefined,
         };
-        res.redirect("/claim/check-your-answers");
-      } else if (
-        returnToCheckYourAnswers === true &&
-        counselBillsPaid === true
-      ) {
+        this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+      } else if (returnToCheckYourAnswers && counselBillsPaid === true) {
         req.session.claim = {
           ...req.session.claim,
           counselNumber,
-          returnToCheckYourAnswers: undefined,
         };
-        res.redirect("/claim/check-your-answers");
+        this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
       } else {
         req.session.claim = {
           ...req.session.claim,
