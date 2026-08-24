@@ -140,10 +140,10 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
 app.use(setupLocaleData);
 app.use(nonceMiddleware);
 app.use(helmet(helmetConfig));
-setupCsrf(app);
 setupNunjucks(app);
 
 const upload = multer({ storage: multer.memoryStorage() });
+
 app.post(
   "/apply/upload-coroners-letter",
   upload.single("coroners-letter-file-upload"),
@@ -165,6 +165,10 @@ app.post("/claim/evidence/delete", csrfProtection, (req, res) => {
     res.status(HTTP_NOT_FOUND).end();
   });
 });
+
+// Registered after the multipart upload routes so multer parses the request
+// body (containing the _csrf field) before CSRF validation runs.
+setupCsrf(app);
 
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
