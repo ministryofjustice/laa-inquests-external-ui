@@ -29,6 +29,9 @@ import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmA
 import { createEndDateRouter } from "./claim/endDate.router.js";
 import { EndDateAdaptor } from "#src/adaptors/presenters/claim/EndDate/EndDate.adaptor.js";
 import { EndDateValidator } from "#src/adaptors/presenters/claim/EndDate/EndDate.validator.js";
+import { createInquestOutcomeRouter } from "./claim/inquestOutcome.router.js";
+import { InquestOutcomeAdaptor } from "#src/adaptors/presenters/claim/InquestOutcome/InquestOutcome.adaptor.js";
+import { InquestOutcomeValidator } from "#src/adaptors/presenters/claim/InquestOutcome/InquestOutcome.validator.js";
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
 import { createTotalClaimCostRouter } from "./claim/totalClaimCost.router.js";
 import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
@@ -82,6 +85,7 @@ const claimTypeRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
 const endDateRouter = express.Router();
+const inquestOutcomeRouter = express.Router();
 const evidenceRouter = express.Router();
 const counselRouter = express.Router();
 const errorRouter = express.Router();
@@ -230,6 +234,11 @@ const totalClaimCostAdaptor = new TotalClaimCostAdaptor();
 
 const endDateAdaptor = new EndDateAdaptor(new EndDateValidator());
 
+const inquestOutcomeAdaptor = new InquestOutcomeAdaptor(
+  new InquestOutcomeValidator(),
+  claimNavigationHelper,
+);
+
 const uploadEvidenceSource = new UploadEvidenceAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
@@ -288,6 +297,7 @@ indexRouter.use(
     confirmAndSubmitAdaptor,
   ),
   createEndDateRouter(endDateRouter, endDateAdaptor),
+  createInquestOutcomeRouter(inquestOutcomeRouter, inquestOutcomeAdaptor),
 );
 
 indexRouter.use(

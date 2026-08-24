@@ -294,6 +294,66 @@ export const END_DATE_ERROR = {
   FUTURE_OR_TODAY_END_DATE: "Last working date must be in the past",
 };
 
+export const INQUEST_OUTCOME_ERROR = {
+  MISSING_SELECTION: "You must select at least one inquest outcome",
+};
+
+export const INQUEST_OUTCOME_OPTIONS = [
+  {
+    value: "ACCIDENT_OR_MISADVENTURE",
+    text: "Accident or misadventure",
+    hint: "An unintended or unexpected outcome, with misadventure occasionally involving a deliberate risk that unfortunately turned fatal.",
+  },
+  {
+    value: "ALCOHOL_OR_DRUGS_RELATED",
+    text: "Alcohol or drugs related",
+    hint: "Alcohol, drugs or both has been the ultimate cause of death.",
+  },
+  {
+    value: "INDUSTRIAL_DISEASE",
+    text: "Industrial disease",
+    hint: "Death resulting from an illness contracted at work.",
+  },
+  {
+    value: "NARRATIVE_CONCLUSION",
+    text: "Narrative conclusion",
+    hint: "A number of words that make up a brief factual statement of how the deceased came by their death.",
+  },
+  {
+    value: "NATURAL_CAUSES",
+    text: "Natural causes",
+    hint: "Death without outside triggers or suspicious circumstances.",
+  },
+  {
+    value: "OPEN_CONCLUSION",
+    text: "Open conclusion",
+    hint: "Used when there is insufficient evidence to safely conclude any other specific outcome.",
+  },
+  {
+    value: "ROAD_TRAFFIC_COLLISION",
+    text: "Road traffic collision",
+    hint: "Deaths that arise from collisions involving vehicles on a public road from other accidental events involving vehicles.",
+  },
+  {
+    value: "STILLBIRTH",
+    text: "Stillbirth",
+    hint: "The death of a baby before or during birth after a defined number of weeks of pregnancy.",
+  },
+  {
+    value: "SUICIDE",
+    text: "Suicide",
+    hint: "A conclusion confirming an individual or their actions deliberately ended their own life.",
+  },
+  {
+    value: "UNLAWFUL_OR_LAWFUL_KILLING",
+    text: "Unlawful or lawful killing",
+    hint: "Findings of homicide (such as murder or manslaughter) or justifiable deaths (such as lawful self-defense).",
+  },
+] as const;
+
+export type InquestOutcomeValue =
+  (typeof INQUEST_OUTCOME_OPTIONS)[number]["value"];
+
 export const DECEASED_NAME_PAGE = {
   HEADING: "What is the name of the deceased?",
   FORM_PATH: "/apply/deceased-details/name",

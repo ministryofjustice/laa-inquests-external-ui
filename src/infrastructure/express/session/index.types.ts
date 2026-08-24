@@ -52,6 +52,7 @@ export interface ClaimSession {
   endDateDay?: string;
   endDateMonth?: string;
   endDateYear?: string;
+  inquestOutcomes?: string[];
 }
 
 export interface ClaimEvidenceFile {
