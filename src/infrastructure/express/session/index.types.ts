@@ -46,6 +46,8 @@ export interface ClaimSession {
   netTotal?: string;
   grossTotal?: string;
   evidenceFiles?: ClaimEvidenceFile[];
+  counselNumber?: string;
+  counselBillsPaid?: boolean;
   returnToCheckYourAnswers?: boolean;
 }
 
