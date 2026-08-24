@@ -58,10 +58,7 @@ export class InquestOutcomeAdaptor {
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       res.render("claim/inquest-outcome", {
         csrfToken,
-        backHref: this.navigationHelper.resolveBackHref(
-          req,
-          "/claim/end-date",
-        ),
+        backHref: this.navigationHelper.resolveBackHref(req, "/claim/end-date"),
         outcomeOptions: INQUEST_OUTCOME_OPTIONS.map((option) => ({
           value: option.value,
           text: option.text,
@@ -73,10 +70,10 @@ export class InquestOutcomeAdaptor {
       return;
     }
 
-    const selection = req.body["inquest-outcome"];
-    const inquestOutcomes = Array.isArray(selection)
-      ? selection
-      : [selection as string];
+    const {
+      body: { "inquest-outcome": selection },
+    } = req;
+    const inquestOutcomes = Array.isArray(selection) ? selection : [selection!];
 
     req.session.claim = {
       ...req.session.claim,
