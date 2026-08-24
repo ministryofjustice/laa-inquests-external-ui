@@ -13,6 +13,7 @@ import {
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
+import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import {
   buildJsonUploadErrorResponse,
@@ -27,15 +28,18 @@ export class EvidenceAdaptor {
   formValidator: UploadEvidenceValidator;
   uploadEvidenceUseCase: UploadEvidenceUseCase;
   deleteEvidenceUseCase: DeleteEvidenceUseCase;
+  navigationHelper: ClaimNavigationHelper;
 
   constructor(
     formValidator: UploadEvidenceValidator,
     uploadEvidenceUseCase: UploadEvidenceUseCase,
     deleteEvidenceUseCase: DeleteEvidenceUseCase,
+    navigationHelper: ClaimNavigationHelper = new ClaimNavigationHelper(),
   ) {
     this.formValidator = formValidator;
     this.uploadEvidenceUseCase = uploadEvidenceUseCase;
     this.deleteEvidenceUseCase = deleteEvidenceUseCase;
+    this.navigationHelper = navigationHelper;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -43,12 +47,7 @@ export class EvidenceAdaptor {
       locals: { csrfToken },
     } = res;
 
-    if (req.query.from === "check-your-answers") {
-      req.session.claim = {
-        ...req.session.claim,
-        returnToCheckYourAnswers: true,
-      };
-    }
+    this.navigationHelper.captureCheckYourAnswersEntry(req);
 
     res.render("claim/evidence", {
       csrfToken,
@@ -78,6 +77,8 @@ export class EvidenceAdaptor {
         errorSummaries: errors,
         uploadedFiles: this.#buildUploadedFiles(req),
       });
+    } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
+      res.redirect("/claim/counsel-number");
     } else {
       res.redirect("/claim/check-your-answers");
     }

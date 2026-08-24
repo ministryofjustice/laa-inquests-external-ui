@@ -225,6 +225,28 @@ describe("Evidence adaptor", () => {
       assert.equal(redirectUrl, "/claim/check-your-answers");
       assert.equal(responseStub.render.callCount, 0);
     });
+
+    it("redirects to /claim/counsel-number when the claim type is a final bill", () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        type: "FINAL_BILL",
+        evidenceFiles: [{ id: "file-id-123", fileName: "test-evidence.pdf" }],
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/counsel-number");
+      assert.equal(responseStub.render.callCount, 0);
+    });
   });
 
   describe("processEvidenceUpload", () => {

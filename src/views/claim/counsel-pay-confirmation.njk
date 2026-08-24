@@ -1,0 +1,62 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Confirm all instructed counsel has billed and been paid on all outstanding claims" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/claim/counsel-number"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.counselPayConfirmationInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.counselPayConfirmationInputError.text,
+              href: "#counsel-bills-paid"
+            }
+          ]
+        }) }}
+        {% endif %}
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+
+        {{ govukWarningText({
+          text: "Before submitting your bill you must check all counsel fees are paid. If they have not been paid, your bill could be rejected.",
+          iconFallbackText: "Warning"
+        }) }}
+
+        <form data-testid="counsel-pay-confirmation-form" action="/claim/counsel-pay-confirmation" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukCheckboxes({
+            name: "counsel-bills-paid",
+            idPrefix: "counsel-bills-paid",
+            errorMessage: errorSummaries.counselPayConfirmationInputError,
+            items: [
+              {
+                value: "true",
+                text: "Yes, all counsel bills have been paid.",
+                checked: counselBillsPaid
+              }
+            ]
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

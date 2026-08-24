@@ -136,6 +136,94 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.deepEqual(viewModel.evidence.uploadedFiles, []);
     });
 
+    it("does not show the counsel section when the claim is not a final bill", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "NIL_BILL",
+        counselNumber: "2",
+        counselBillsPaid: true,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.counsel.show, false);
+    });
+
+    it("shows the counsel section with paid details when the claim is a final bill with counsel", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "FINAL_BILL",
+        counselNumber: "2",
+        counselBillsPaid: true,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.counsel.show, true);
+      assert.equal(viewModel.counsel.hasCounsel, true);
+      assert.equal(viewModel.counsel.counselNumber, "2");
+      assert.equal(viewModel.counsel.counselPaid, "Yes");
+    });
+
+    it("shows the counsel section without a paid row when a final bill has zero counsel", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "FINAL_BILL",
+        counselNumber: "0",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.counsel.show, true);
+      assert.equal(viewModel.counsel.hasCounsel, false);
+      assert.equal(viewModel.counsel.counselNumber, "0");
+    });
+
+    it("maps the 6 or more counsel value to a friendly label", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "FINAL_BILL",
+        counselNumber: "6_OR_MORE",
+        counselBillsPaid: true,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.counsel.counselNumber, "6 or more");
+    });
+
     it("maps uploaded evidence files from the session to view model rows", () => {
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 

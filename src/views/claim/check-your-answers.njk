@@ -204,6 +204,48 @@
               </div>
             </dl>
           </div>
+        {% endif %}
+        {% if counsel.show %}
+        <h2 class="govuk-heading-m">Counsel</h2>
+        <div data-testid="counsel-summary-list">
+          {% set counselRows = [
+            {
+              key: { text: "Number of counsel instructed" },
+              value: { text: counsel.counselNumber },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/counsel-number?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "number of counsel instructed"
+                  }
+                ]
+              }
+            }
+          ] %}
+          {% if counsel.hasCounsel %}
+            {% set counselRows = (counselRows.push({
+              key: { text: "Counsel has been paid" },
+              value: { text: counsel.counselPaid },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/counsel-pay-confirmation?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "counsel has been paid"
+                  }
+                ]
+              }
+            }), counselRows) %}
+          {% endif %}
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Counsel"
+              }
+            },
+            rows: counselRows
+          }) }}
         </div>
         {% endif %}
 

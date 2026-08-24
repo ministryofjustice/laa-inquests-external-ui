@@ -5,6 +5,9 @@ import {
   CLAIM_REJECTION_REASON_LABEL,
   CLAIM_SUBTYPE_LABEL,
   CLAIM_TYPE_LABEL,
+  CLAIM_TYPE_VALUE,
+  COUNSEL_NUMBER_OPTIONS,
+  COUNSEL_NUMBER_ZERO,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { Formatter } from "#src/utils/Formatter.js";
@@ -158,6 +161,7 @@ export class ConfirmAndSubmitAdaptor {
           fileSize: this.formatter.formatFileSize(file.fileSize),
         })),
       },
+      counsel: this.#buildCounselDetails(claim),
       costTemplateFile: this.#buildCostTemplateFile(claim),
     };
   }
@@ -176,6 +180,33 @@ export class ConfirmAndSubmitAdaptor {
       type: this.#fileType(template.costTemplateFilename),
       fileSize: this.formatter.formatFileSize(template.costTemplateFileSize),
     };
+  }
+
+  #buildCounselDetails(claim?: ClaimSession): {
+    show: boolean;
+    hasCounsel: boolean;
+    counselNumber: string;
+    counselPaid: string;
+  } {
+    const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
+    const counselNumber = claim?.counselNumber;
+    const hasCounsel =
+      isFinalBill &&
+      typeof counselNumber === "string" &&
+      counselNumber !== COUNSEL_NUMBER_ZERO;
+    return {
+      show: isFinalBill,
+      hasCounsel,
+      counselNumber: this.#counselNumberLabel(counselNumber),
+      counselPaid: claim?.counselBillsPaid === true ? "Yes" : "No",
+    };
+  }
+
+  #counselNumberLabel(value?: string): string {
+    return (
+      COUNSEL_NUMBER_OPTIONS.find((option) => option.value === value)?.text ??
+      ""
+    );
   }
 
   #fileType(fileName: string): string {

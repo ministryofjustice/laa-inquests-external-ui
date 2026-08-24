@@ -29,12 +29,18 @@ import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmA
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
 import { createTotalClaimCostRouter } from "./claim/totalClaimCost.router.js";
 import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
+import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { createEvidenceRouter } from "./claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
 import { createFinalBillTemplateRouter } from "./claim/finalBillTemplate.router.js";
 import { FinalBillTemplateAdaptor } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.adaptor.js";
 import { FinalBillTemplateValidator } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.validator.js";
+import { createCounselRouter } from "./claim/counsel.router.js";
+import { CounselNumberAdaptor } from "#src/adaptors/presenters/claim/CounselNumber/CounselNumber.adaptor.js";
+import { CounselNumberValidator } from "#src/adaptors/presenters/claim/CounselNumber/CounselNumber.validator.js";
+import { CounselPayConfirmationAdaptor } from "#src/adaptors/presenters/claim/CounselPayConfirmation/CounselPayConfirmation.adaptor.js";
+import { CounselPayConfirmationValidator } from "#src/adaptors/presenters/claim/CounselPayConfirmation/CounselPayConfirmation.validator.js";
 import { createAuthRouter } from "./auth.router.js";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
@@ -77,6 +83,7 @@ const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
 const evidenceRouter = express.Router();
 const finalBillTemplateRouter = express.Router();
+const counselRouter = express.Router();
 const errorRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
@@ -201,8 +208,13 @@ const caseSearchAdaptor = new CaseSearchAdaptor(
   searchCasesSource,
 );
 
+const claimNavigationHelper = new ClaimNavigationHelper();
+
 const claimTypeValidator = new ClaimTypeValidator();
-const claimTypeAdaptor = new ClaimTypeAdaptor(claimTypeValidator);
+const claimTypeAdaptor = new ClaimTypeAdaptor(
+  claimTypeValidator,
+  claimNavigationHelper,
+);
 
 const submitClaimSource = new SubmitClaimAdaptor(
   axios.create(),
@@ -231,6 +243,7 @@ const evidenceAdaptor = new EvidenceAdaptor(
   uploadEvidenceValidator,
   uploadEvidenceUseCase,
   deleteEvidenceUseCase,
+  claimNavigationHelper,
 );
 
 const finalBillTemplateValidator = new FinalBillTemplateValidator();
@@ -251,6 +264,15 @@ const downloadEvidenceAdaptor = new DownloadEvidenceAdaptor(
   downloadEvidenceUseCase,
 );
 
+const counselNumberAdaptor = new CounselNumberAdaptor(
+  new CounselNumberValidator(),
+  claimNavigationHelper,
+);
+const counselPayConfirmationAdaptor = new CounselPayConfirmationAdaptor(
+  new CounselPayConfirmationValidator(),
+  claimNavigationHelper,
+);
+
 indexRouter.use(
   "/claim",
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
@@ -264,6 +286,11 @@ indexRouter.use(
     evidenceRouter,
     evidenceAdaptor,
     downloadEvidenceAdaptor,
+  ),
+  createCounselRouter(
+    counselRouter,
+    counselNumberAdaptor,
+    counselPayConfirmationAdaptor,
   ),
   createConfirmAndSubmitClaimRouter(
     confirmAndSubmitClaimRouter,
