@@ -239,6 +239,45 @@
         </div>
         {% endif %}
 
+        <h2 class="govuk-heading-m">Other claim details</h2>
+        <div data-testid="inquest-details-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Inquest details"
+              }
+            },
+            rows: [
+              {
+                key: { text: "Inquest outcome" },
+                value: { text: inquestDetails.inquestOutcomes },
+                actions: {
+                  items: [
+                    {
+                      href: "/claim/inquest-outcome?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "inquest outcome"
+                    }
+                  ]
+                }
+              },
+              {
+                key: { text: "Alternative funding post-inquest" },
+                value: { text: "" },
+                actions: {
+                  items: [
+                    {
+                      href: "",
+                      text: "Change",
+                      visuallyHiddenText: "alternative funding post-inquest"
+                    }
+                  ]
+                }
+              }
+            ]
+          }) }}
+        </div>
+
         <form data-testid="confirm-and-submit-form" action="/claim/check-your-answers" method="post">
           <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
           {{ govukButton({
