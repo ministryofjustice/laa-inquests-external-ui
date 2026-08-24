@@ -7,8 +7,13 @@ export interface FileValidationOptions {
   fileIsEmptyMessage: string;
 }
 
+export interface UploadedFileLike {
+  mimetype: string;
+  size: number;
+}
+
 export function validateUploadedFile(
-  fileInput: Express.Multer.File,
+  fileInput: UploadedFileLike,
   options: FileValidationOptions,
 ): string | undefined {
   if (!options.allowedFileTypes.includes(fileInput.mimetype)) {

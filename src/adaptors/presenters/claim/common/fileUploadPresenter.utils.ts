@@ -1,3 +1,5 @@
+import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
+
 export interface JsonUploadErrorResponse {
   error: { message: string };
   file: {
@@ -45,7 +47,7 @@ export function buildJsonUploadErrorResponse(
 }
 
 export function resolveUploadFailureMessage(
-  result: { status: string; reason?: string },
+  result: UseCaseResult<unknown, unknown>,
   virusErrorMessage: string,
   defaultMessage: string,
 ): string {

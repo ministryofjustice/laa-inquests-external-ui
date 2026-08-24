@@ -12,6 +12,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
+import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
@@ -312,7 +313,7 @@ export class EvidenceAdaptor {
   #handleUploadFailure(options: {
     req: Request;
     res: Response;
-    result: { status: string; reason?: string };
+    result: UseCaseResult<unknown, unknown>;
     isNoJsUpload: boolean;
   }): void {
     const { req, res, result, isNoJsUpload } = options;
