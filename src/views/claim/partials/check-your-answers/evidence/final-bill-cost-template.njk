@@ -9,13 +9,14 @@
   </div>
   <div class="govuk-summary-card__content">
     <dl class="govuk-summary-list">
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">{{ costTemplateFile.name }}</dt>
-      <dd class="govuk-summary-list__value">
-        <a class="govuk-link govuk-!-font-weight-bold" href="/claim/evidence/{{ costTemplateFile.id }}/view" target="_blank" rel="noopener noreferrer">View</a>
-        |
-        <a class="govuk-link" href="/claim/evidence/{{ costTemplateFile.id }}/download">Download ({{ costTemplateFile.type }} {{ costTemplateFile.fileSize }})</a>
-      </dd>
-    </div>
-  </dl>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">{{ costTemplateFile.name }}</dt>
+        <dd class="govuk-summary-list__value">
+          <a class="govuk-link govuk-!-font-weight-bold" href="/claim/evidence/{{ costTemplateFile.id }}/view" target="_blank" rel="noopener noreferrer">View</a>
+          |
+          <a class="govuk-link" href="/claim/evidence/{{ costTemplateFile.id }}/download">Download ({{ costTemplateFile.type }} {{ costTemplateFile.fileSize }})</a>
+        </dd>
+      </div>
+    </dl>
+  </div>
 </div>
