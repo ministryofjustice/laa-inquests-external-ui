@@ -60,7 +60,7 @@ test.describe("Claim - confirm and submit", () => {
       sectionHeadings.filter({ hasText: "Case details" }),
     ).toBeVisible();
     await expect(
-      sectionHeadings.filter({ hasText: "Claim details" }),
+      page.getByRole("heading", { name: "Claim details", exact: true }),
     ).toBeVisible();
     await expect(sectionHeadings.filter({ hasText: "Cost" })).toBeVisible();
     await expect(sectionHeadings.filter({ hasText: "Evidence" })).toBeVisible();
