@@ -132,7 +132,7 @@ test.describe("Claim - final bill template", () => {
     ).toBeVisible();
   });
 
-  test("hides the upload input once a file has been uploaded", async ({
+  test("keeps the upload input visible but rejects a second file after reloading", async ({
     page,
   }) => {
     await Promise.all([
@@ -151,10 +151,28 @@ test.describe("Claim - final bill template", () => {
 
     await page.reload();
 
-    await expect(page.locator("#documents")).toHaveCount(0);
+    await expect(page.locator("#documents")).toBeVisible();
     await expect(
       page.getByRole("button", { name: /Delete cost-template\.xlsx/i }),
     ).toBeVisible();
+
+    const [uploadResponse] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "second-cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("another fake spreadsheet content"),
+      }),
+    ]);
+
+    expect(uploadResponse.status()).not.toBe(201);
+    await expect(
+      page.locator(".moj-multi-file-upload__error").last(),
+    ).toContainText(CLAIM_FINAL_BILL_TEMPLATE_ERROR.ONLY_ONE_FILE_ALLOWED);
   });
 
   test("redirects to /claim/evidence when continue is clicked with an uploaded file", async ({
@@ -220,6 +238,83 @@ test.describe("Claim - final bill template", () => {
     ).toHaveCount(0);
     await expect(page.locator("#documents")).toBeVisible();
   });
+
+  test("deletes the uploaded template using AJAX after reloading the page", async ({
+    page,
+  }) => {
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+
+    await page.reload();
+
+    const deleteButton = page.getByRole("button", {
+      name: /Delete cost-template\.xlsx/i,
+    });
+
+    const [deleteResponse] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/delete") &&
+          r.request().method() === "POST",
+      ),
+      deleteButton.click(),
+    ]);
+
+    expect(deleteResponse.status()).toBe(200);
+    await expect(
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: "cost-template.xlsx" }),
+    ).toHaveCount(0);
+    await expect(page.locator("#documents")).toBeVisible();
+  });
+
+  test("shows an error when uploading a second file while one is already uploaded", async ({
+    page,
+  }) => {
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+
+    const [uploadResponse] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "second-cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("another fake spreadsheet content"),
+      }),
+    ]);
+
+    expect(uploadResponse.status()).not.toBe(201);
+    await expect(
+      page.locator(".moj-multi-file-upload__error").last(),
+    ).toContainText(CLAIM_FINAL_BILL_TEMPLATE_ERROR.ONLY_ONE_FILE_ALLOWED);
+  });
 });
 
 test.describe("Claim - final bill template (no javascript)", () => {
@@ -239,5 +334,27 @@ test.describe("Claim - final bill template (no javascript)", () => {
     await page.getByRole("button", { name: "Upload file" }).click();
 
     await expect(page).toHaveURL("/claim/final-bill-template");
+  });
+
+  test("deletes the uploaded template and redirects back to the final bill template page", async ({
+    page,
+  }) => {
+    await goToFinalBillTemplate(page);
+
+    await page.setInputFiles("#documents", {
+      name: "cost-template.xlsx",
+      mimeType: xlsxMimeType,
+      buffer: Buffer.from("fake spreadsheet content"),
+    });
+    await page.getByRole("button", { name: "Upload file" }).click();
+
+    await page
+      .getByRole("button", { name: /Delete cost-template\.xlsx/i })
+      .click();
+
+    await expect(page).toHaveURL("/claim/final-bill-template");
+    await expect(
+      page.getByRole("button", { name: /Delete cost-template\.xlsx/i }),
+    ).toHaveCount(0);
   });
 });

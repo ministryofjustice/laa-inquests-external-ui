@@ -489,6 +489,8 @@ export const CLAIM_FINAL_BILL_TEMPLATE_ERROR = {
   FILE_IS_EMPTY: "The selected file is empty",
   INVALID_FILE_TYPE: "The selected file must be an Excel spreadsheet",
   FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  ONLY_ONE_FILE_ALLOWED:
+    "You can only upload one file. Delete the existing file before uploading a new one",
 };
 
 export const CLAIM_FINAL_BILL_TEMPLATE_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)

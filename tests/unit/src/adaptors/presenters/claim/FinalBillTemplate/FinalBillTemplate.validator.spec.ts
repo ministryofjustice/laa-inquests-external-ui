@@ -106,5 +106,27 @@ describe("FinalBillTemplateValidator", () => {
 
       assert.deepEqual(result, {});
     });
+
+    it("returns error when a template has already been uploaded", () => {
+      const validator = new FinalBillTemplateValidator();
+
+      const result = validator.validateTemplateUploadFile(
+        {
+          mimetype:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          size: 100,
+        } as Express.Multer.File,
+        {
+          costTemplateId: "template-id-123",
+          costTemplateFilename: "cost-template.xlsx",
+        },
+      );
+
+      assert.deepEqual(result, {
+        templateError: {
+          text: CLAIM_FINAL_BILL_TEMPLATE_ERROR.ONLY_ONE_FILE_ALLOWED,
+        },
+      });
+    });
   });
 });

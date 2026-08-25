@@ -96,7 +96,10 @@ export class FinalBillTemplateAdaptor {
     const { file } = req;
     const isNoJs = isHtmlUploadMode(uploadMode);
 
-    const errors = this.formValidator.validateTemplateUploadFile(file);
+    const errors = this.formValidator.validateTemplateUploadFile(
+      file,
+      req.session.claim?.finalBillCostTemplate,
+    );
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
       logger.logWarn({
         functionName: "finalBillTemplateAdaptor_processTemplateUpload",
@@ -147,6 +150,7 @@ export class FinalBillTemplateAdaptor {
 
   async processTemplateDelete(req: Request, res: Response): Promise<void> {
     const fileId = extractFileId(req.body as Record<string, unknown>);
+
     if (typeof fileId !== "string" || fileId === "") {
       logger.logWarn({
         functionName: "finalBillTemplateAdaptor_processTemplateDelete",
