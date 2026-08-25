@@ -1,0 +1,59 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Has the matter progressed to alternate funding post-inquest?" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/claim/inquest-outcome"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.fundingPostInquestInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.fundingPostInquestInputError.text,
+              href: "#funding-post-inquest"
+            }
+          ]
+        }) }}
+        {% endif %}
+        <form data-testid="funding-post-inquest-form" action="/claim/funding-post-inquest" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "funding-post-inquest",
+            id: "funding-post-inquest",
+            value: fundingPostInquest,
+            errorMessage: errorSummaries.fundingPostInquestInputError,
+            fieldset: {
+              legend: {
+                text: pageHeading,
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            hint: {
+              text: "Only select 'Don't know' if you are waiting for confirmation on how this matter will progress, but still want to make a claim"
+            },
+            items: fundingOptions
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

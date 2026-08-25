@@ -1,0 +1,79 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% set pageHeading = "What are the financial recovery costs?" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/claim/inquest-outcome-recovery"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+        <form data-testid="recovery-costs-form" action="/claim/recovery-costs" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukInput({
+            label: {
+              text: "Costs",
+              classes: "govuk-label--s"
+            },
+            id: "costs",
+            name: "costs",
+            value: costs,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            inputmode: "decimal"
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Damages",
+              classes: "govuk-label--s"
+            },
+            id: "damages",
+            name: "damages",
+            value: damages,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            inputmode: "decimal"
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Interest",
+              classes: "govuk-label--s"
+            },
+            id: "interest",
+            name: "interest",
+            value: interest,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            inputmode: "decimal"
+          }) }}
+          {{ govukInput({
+            label: {
+              text: "Previous pre-certificate costs",
+              classes: "govuk-label--s"
+            },
+            id: "previous-pre-certificate-costs",
+            name: "previous-pre-certificate-costs",
+            value: previousPreCertificateCosts,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            inputmode: "decimal"
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

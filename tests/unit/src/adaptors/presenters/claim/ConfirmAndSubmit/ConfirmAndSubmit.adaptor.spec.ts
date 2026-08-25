@@ -304,6 +304,107 @@ describe("ConfirmAndSubmit adaptor", () => {
     });
   });
 
+  describe("inquest details", () => {
+    it("maps the inquest outcomes and funding label into the view model", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        inquestOutcomes: ["ACCIDENT_OR_MISADVENTURE"],
+        fundingPostInquest: "NO",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(
+        viewModel.inquestDetails.inquestOutcomes,
+        "Accident or misadventure",
+      );
+      assert.equal(viewModel.inquestDetails.funding, "No");
+      assert.equal(viewModel.inquestDetails.showRecovery, false);
+    });
+
+    it("shows the recovery details with labels and formatted amounts when funding is Yes", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        fundingPostInquest: "YES",
+        recoveryCostMade: "YES",
+        recoveryCosts: "100",
+        recoveryDamages: "200",
+        recoveryInterest: "300",
+        recoveryPreCertificateCosts: "400",
+        payingParty: "Acme Ltd",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.inquestDetails.showRecovery, true);
+      assert.equal(viewModel.inquestDetails.funding, "Yes");
+      assert.equal(viewModel.inquestDetails.recoveryCostMade, "Yes");
+      assert.equal(viewModel.inquestDetails.recoveryCosts, "£100.00");
+      assert.equal(viewModel.inquestDetails.recoveryDamages, "£200.00");
+      assert.equal(viewModel.inquestDetails.recoveryInterest, "£300.00");
+      assert.equal(
+        viewModel.inquestDetails.recoveryPreCertificateCosts,
+        "£400.00",
+      );
+      assert.equal(viewModel.inquestDetails.payingParty, "Acme Ltd");
+    });
+
+    it("shows the recovery details when funding is Don't know", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        fundingPostInquest: "DONT_KNOW",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.inquestDetails.showRecovery, true);
+      assert.equal(viewModel.inquestDetails.funding, "Don't know");
+    });
+
+    it("falls back to empty strings when the inquest answers are not in the session", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.inquestDetails.funding, "");
+      assert.equal(viewModel.inquestDetails.recoveryCostMade, "");
+      assert.equal(viewModel.inquestDetails.payingParty, "");
+      assert.equal(viewModel.inquestDetails.showRecovery, false);
+    });
+  });
+
   describe("processForm", () => {
     it("calls the submit claim use case with session data", async () => {
       submitClaimUseCase.execute.resolves({
