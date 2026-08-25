@@ -27,10 +27,19 @@ export class FinalBillTemplateValidator extends FormValidator {
 
   validateTemplateUploadFile(
     fileInput: Express.Multer.File | undefined,
+    existingTemplate?: ClaimFinalBillCostTemplate,
   ): Partial<FinalBillTemplateError> {
     if (fileInput === undefined) {
       return {
         templateError: { text: CLAIM_FINAL_BILL_TEMPLATE_ERROR.NO_FILE_CHOSEN },
+      };
+    }
+
+    if (existingTemplate !== undefined) {
+      return {
+        templateError: {
+          text: CLAIM_FINAL_BILL_TEMPLATE_ERROR.ONLY_ONE_FILE_ALLOWED,
+        },
       };
     }
 
