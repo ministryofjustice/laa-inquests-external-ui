@@ -140,6 +140,26 @@ describe("Evidence adaptor", () => {
         .args[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.backHref, "/claim/total-cost");
     });
+
+    it("sets the back link to the final bill template page for final bill claims", () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "FINAL_BILL" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/final-bill-template");
+    });
   });
 
   describe("processForm", () => {

@@ -46,6 +46,7 @@ export interface ClaimSession {
   netTotal?: string;
   grossTotal?: string;
   evidenceFiles?: ClaimEvidenceFile[];
+  finalBillCostTemplate?: ClaimFinalBillCostTemplate;
   counselNumber?: string;
   counselBillsPaid?: boolean;
   returnToCheckYourAnswers?: boolean;
@@ -59,6 +60,12 @@ export interface ClaimEvidenceFile {
   id: string;
   fileName: string;
   fileSize?: number;
+}
+
+export interface ClaimFinalBillCostTemplate {
+  costTemplateId: string;
+  costTemplateFilename: string;
+  costTemplateFileSize?: number;
 }
 
 export interface ClaimClientDetails {

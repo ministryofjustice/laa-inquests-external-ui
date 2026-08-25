@@ -1,3 +1,5 @@
+/* eslint-disable max-lines -- Want to keep constants in singular location. */
+
 export const MAX_CHARACTER_LENGTH = 100;
 export const SERVICE_UNAVAILABLE_MESSAGE =
   "Service unavailable. Please try again later.";
@@ -478,6 +480,23 @@ export const CLAIM_EVIDENCE_ALLOWED_FILE_TYPES = [
   "image/png",
   "image/bmp",
   "application/pdf",
+];
+
+export const CLAIM_FINAL_BILL_TEMPLATE_ERROR = {
+  NO_FILE_CHOSEN: "Select a file",
+  FILE_REQUIRED: "Upload the LAA cost claim evidence template",
+  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
+  FILE_IS_EMPTY: "The selected file is empty",
+  INVALID_FILE_TYPE: "The selected file must be an Excel spreadsheet",
+  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+};
+
+export const CLAIM_FINAL_BILL_TEMPLATE_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
+export const CLAIM_FINAL_BILL_TEMPLATE_TOO_SMALL_FILE_SIZE_BYTES = 0;
+
+export const CLAIM_FINAL_BILL_TEMPLATE_ALLOWED_FILE_TYPES = [
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
 ];
 
 export const CLIENT_DECLARATION_ERROR = {

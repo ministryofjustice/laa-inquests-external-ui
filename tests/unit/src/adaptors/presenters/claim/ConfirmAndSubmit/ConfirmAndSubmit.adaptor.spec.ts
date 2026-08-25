@@ -258,6 +258,50 @@ describe("ConfirmAndSubmit adaptor", () => {
         },
       ]);
     });
+
+    it("returns undefined costTemplateFile when no final bill template is in session", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.costTemplateFile, undefined);
+    });
+
+    it("maps the uploaded final bill template from session to a view model row", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        finalBillCostTemplate: {
+          costTemplateId: "template-id-1",
+          costTemplateFilename: "cost-template.xlsx",
+          costTemplateFileSize: 4096,
+        },
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.deepEqual(viewModel.costTemplateFile, {
+        id: "template-id-1",
+        name: "cost-template.xlsx",
+        type: "XLSX",
+        fileSize: "4KB",
+      });
+    });
   });
 
   describe("processForm", () => {
@@ -303,6 +347,37 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.deepEqual(input.claimEvidenceIds, [
         "evidence-id-1",
         "evidence-id-2",
+      ]);
+    });
+
+    it("includes the final bill template id in claimEvidenceIds when present", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "FINAL_BILL",
+        evidenceFiles: [{ id: "evidence-id-1", fileName: "a.pdf" }],
+        finalBillCostTemplate: {
+          costTemplateId: "template-id-1",
+          costTemplateFilename: "cost-template.xlsx",
+        },
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.deepEqual(input.claimEvidenceIds, [
+        "evidence-id-1",
+        "template-id-1",
       ]);
     });
 

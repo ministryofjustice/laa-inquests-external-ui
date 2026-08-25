@@ -39,6 +39,9 @@ import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavig
 import { createEvidenceRouter } from "./claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
+import { createFinalBillTemplateRouter } from "./claim/finalBillTemplate.router.js";
+import { FinalBillTemplateAdaptor } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.adaptor.js";
+import { FinalBillTemplateValidator } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.validator.js";
 import { createCounselRouter } from "./claim/counsel.router.js";
 import { CounselNumberAdaptor } from "#src/adaptors/presenters/claim/CounselNumber/CounselNumber.adaptor.js";
 import { CounselNumberValidator } from "#src/adaptors/presenters/claim/CounselNumber/CounselNumber.validator.js";
@@ -87,6 +90,7 @@ const totalClaimRouter = express.Router();
 const endDateRouter = express.Router();
 const inquestOutcomeRouter = express.Router();
 const evidenceRouter = express.Router();
+const finalBillTemplateRouter = express.Router();
 const counselRouter = express.Router();
 const errorRouter = express.Router();
 
@@ -257,6 +261,13 @@ const evidenceAdaptor = new EvidenceAdaptor(
   claimNavigationHelper,
 );
 
+const finalBillTemplateValidator = new FinalBillTemplateValidator();
+const finalBillTemplateAdaptor = new FinalBillTemplateAdaptor(
+  finalBillTemplateValidator,
+  uploadEvidenceUseCase,
+  deleteEvidenceUseCase,
+);
+
 const downloadEvidenceSource = new DownloadEvidenceSource(
   axios.create(),
   config.INQUESTS_API_URL,
@@ -282,6 +293,10 @@ indexRouter.use(
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
   createTotalClaimCostRouter(totalClaimRouter, totalClaimCostAdaptor),
+  createFinalBillTemplateRouter(
+    finalBillTemplateRouter,
+    finalBillTemplateAdaptor,
+  ),
   createEvidenceRouter(
     evidenceRouter,
     evidenceAdaptor,

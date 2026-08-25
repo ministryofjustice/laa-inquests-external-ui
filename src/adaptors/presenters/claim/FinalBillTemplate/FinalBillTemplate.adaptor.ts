@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import {
-  CLAIM_EVIDENCE_ERROR,
-  CLAIM_TYPE_VALUE,
+  CLAIM_FINAL_BILL_TEMPLATE_ERROR,
   EMPTY_ARR_LENGTH,
   HTTP_BAD_REQUEST,
   HTTP_CREATED,
@@ -13,8 +12,7 @@ import {
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import type { UploadEvidenceValidator } from "./Evidence.validator.js";
-import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import type { FinalBillTemplateValidator } from "./FinalBillTemplate.validator.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 import {
   buildJsonUploadErrorResponse,
@@ -25,22 +23,19 @@ import {
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 const HTTP_SUCCESS = 200;
 
-export class EvidenceAdaptor {
-  formValidator: UploadEvidenceValidator;
+export class FinalBillTemplateAdaptor {
+  formValidator: FinalBillTemplateValidator;
   uploadEvidenceUseCase: UploadEvidenceUseCase;
   deleteEvidenceUseCase: DeleteEvidenceUseCase;
-  navigationHelper: ClaimNavigationHelper;
 
   constructor(
-    formValidator: UploadEvidenceValidator,
+    formValidator: FinalBillTemplateValidator,
     uploadEvidenceUseCase: UploadEvidenceUseCase,
     deleteEvidenceUseCase: DeleteEvidenceUseCase,
-    navigationHelper: ClaimNavigationHelper = new ClaimNavigationHelper(),
   ) {
     this.formValidator = formValidator;
     this.uploadEvidenceUseCase = uploadEvidenceUseCase;
     this.deleteEvidenceUseCase = deleteEvidenceUseCase;
-    this.navigationHelper = navigationHelper;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -48,44 +43,44 @@ export class EvidenceAdaptor {
       locals: { csrfToken },
     } = res;
 
-    this.navigationHelper.captureCheckYourAnswersEntry(req);
+    if (req.query.from === "check-your-answers") {
+      req.session.claim = {
+        ...req.session.claim,
+        returnToCheckYourAnswers: true,
+      };
+    }
 
-    res.render("claim/evidence", {
+    res.render("claim/final-bill-template", {
       csrfToken,
+      uploadedFile: req.session.claim?.finalBillCostTemplate,
       uploadedFiles: this.#buildUploadedFiles(req),
-      backHref: this.#buildBackHref(req),
+      backHref:
+        req.session.claim?.returnToCheckYourAnswers === true
+          ? "/claim/check-your-answers"
+          : "/claim/total-cost",
     });
   }
 
-  #buildBackHref(req: Request): string {
-    if (req.session.claim?.returnToCheckYourAnswers === true) {
-      return "/claim/check-your-answers";
-    } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
-      return "/claim/final-bill-template";
-    } else {
-      return "/claim/total-cost";
-    }
-  }
-
   processForm(req: Request, res: Response): void {
-    const errors = this.formValidator.validateEvidenceSelection(
-      req.session.claim?.evidenceFiles,
+    const errors = this.formValidator.validateTemplateSelection(
+      req.session.claim?.finalBillCostTemplate,
     );
 
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
-      res.render("claim/evidence", {
+      res.render("claim/final-bill-template", {
         csrfToken: res.locals.csrfToken,
         errorSummaries: errors,
+        uploadedFile: req.session.claim?.finalBillCostTemplate,
         uploadedFiles: this.#buildUploadedFiles(req),
       });
-    } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
-      res.redirect("/claim/counsel-number");
-    } else {
+    } else if (req.session.claim?.returnToCheckYourAnswers === true) {
       res.redirect("/claim/check-your-answers");
+    } else {
+      res.redirect("/claim/evidence");
     }
   }
 
-  async processEvidenceUpload(req: Request, res: Response): Promise<void> {
+  async processTemplateUpload(req: Request, res: Response): Promise<void> {
     const { uploadMode } = req.body as { uploadMode?: string | string[] };
     const body = req.body as {
       delete?: string | string[];
@@ -94,21 +89,21 @@ export class EvidenceAdaptor {
     };
 
     if (isHtmlUploadMode(uploadMode) && extractFileId(body) !== undefined) {
-      await this.processEvidenceDeleteNoJs(req, res);
+      await this.processTemplateDeleteNoJs(req, res);
       return;
     }
 
     const { file } = req;
     const isNoJs = isHtmlUploadMode(uploadMode);
 
-    const errors = this.formValidator.validateEvidenceUploadFile(file);
+    const errors = this.formValidator.validateTemplateUploadFile(file);
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
       logger.logWarn({
-        functionName: "evidenceAdaptor_processEvidenceUpload",
-        message: "Evidence upload validation failed",
+        functionName: "finalBillTemplateAdaptor_processTemplateUpload",
+        message: "Final bill template upload validation failed",
         request: req,
         extraContext: {
-          event: "claim_evidence_upload_validation_failed",
+          event: "claim_final_bill_template_upload_validation_failed",
           no_js_upload: isNoJs,
           errors,
         },
@@ -137,11 +132,11 @@ export class EvidenceAdaptor {
         });
       } else {
         logger.logWarn({
-          functionName: "evidenceAdaptor_processEvidenceUpload",
-          message: "Evidence upload did not complete successfully",
+          functionName: "finalBillTemplateAdaptor_processTemplateUpload",
+          message: "Final bill template upload did not complete successfully",
           request: req,
           extraContext: {
-            event: "claim_evidence_upload_failed",
+            event: "claim_final_bill_template_upload_failed",
             no_js_upload: isNoJs,
           },
         });
@@ -150,35 +145,35 @@ export class EvidenceAdaptor {
     }
   }
 
-  async processEvidenceDelete(req: Request, res: Response): Promise<void> {
-    const evidenceFileId = extractFileId(req.body as Record<string, unknown>);
-    if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
+  async processTemplateDelete(req: Request, res: Response): Promise<void> {
+    const fileId = extractFileId(req.body as Record<string, unknown>);
+    if (typeof fileId !== "string" || fileId === "") {
       logger.logWarn({
-        functionName: "evidenceAdaptor_processEvidenceDelete",
-        message: "Evidence delete request missing file identifier",
+        functionName: "finalBillTemplateAdaptor_processTemplateDelete",
+        message: "Final bill template delete request missing file identifier",
         request: req,
         extraContext: {
-          event: "claim_evidence_delete_failed",
+          event: "claim_final_bill_template_delete_failed",
         },
       });
       res.status(HTTP_BAD_REQUEST).json({
-        error: { message: CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN },
+        error: { message: CLAIM_FINAL_BILL_TEMPLATE_ERROR.NO_FILE_CHOSEN },
       });
       return;
     }
 
     const result = await this.deleteEvidenceUseCase.execute({
-      evidenceFileId,
+      evidenceFileId: fileId,
       accessToken: req.session.accessToken,
     });
 
     if (result.status !== "SUCCESS") {
       logger.logWarn({
-        functionName: "evidenceAdaptor_processEvidenceDelete",
-        message: "Evidence delete failed",
+        functionName: "finalBillTemplateAdaptor_processTemplateDelete",
+        message: "Final bill template delete failed",
         request: req,
         extraContext: {
-          event: "claim_evidence_delete_failed",
+          event: "claim_final_bill_template_delete_failed",
         },
       });
       res.status(HTTP_INTERNAL_SERVER_ERROR).json({
@@ -187,46 +182,28 @@ export class EvidenceAdaptor {
       return;
     }
 
-    this.#removeEvidenceFileFromSession(req, evidenceFileId);
+    this.#removeTemplateFromSession(req);
     res.status(HTTP_SUCCESS).json({ success: true });
   }
 
-  async processEvidenceDeleteNoJs(req: Request, res: Response): Promise<void> {
-    const evidenceFileId = extractFileId(req.body as Record<string, unknown>);
-    if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
-      logger.logWarn({
-        functionName: "evidenceAdaptor_processEvidenceDeleteNoJs",
-        message: "No-js evidence delete request missing file identifier",
-        request: req,
-        extraContext: {
-          event: "claim_evidence_delete_failed",
-          no_js_upload: true,
-        },
-      });
+  async processTemplateDeleteNoJs(req: Request, res: Response): Promise<void> {
+    const fileId = extractFileId(req.body as Record<string, unknown>);
+    if (typeof fileId !== "string" || fileId === "") {
       this.#renderNoJsError(
         req,
         res,
-        CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN,
+        CLAIM_FINAL_BILL_TEMPLATE_ERROR.NO_FILE_CHOSEN,
         HTTP_BAD_REQUEST,
       );
       return;
     }
 
     const result = await this.deleteEvidenceUseCase.execute({
-      evidenceFileId,
+      evidenceFileId: fileId,
       accessToken: req.session.accessToken,
     });
 
     if (result.status !== "SUCCESS") {
-      logger.logWarn({
-        functionName: "evidenceAdaptor_processEvidenceDeleteNoJs",
-        message: "No-js evidence delete failed",
-        request: req,
-        extraContext: {
-          event: "claim_evidence_delete_failed",
-          no_js_upload: true,
-        },
-      });
       this.#renderNoJsError(
         req,
         res,
@@ -236,31 +213,8 @@ export class EvidenceAdaptor {
       return;
     }
 
-    this.#removeEvidenceFileFromSession(req, evidenceFileId);
-    res.redirect("/claim/evidence");
-  }
-
-  #buildUploadedFiles(req: Request): Array<{
-    message: { text: string };
-    fileName: string;
-    originalFileName: string;
-    deleteButton: { text: string };
-  }> {
-    const uploadedFiles = req.session.claim?.evidenceFiles;
-
-    if (
-      Array.isArray(uploadedFiles) &&
-      uploadedFiles.length > EMPTY_ARR_LENGTH
-    ) {
-      return uploadedFiles.map((file) => ({
-        message: { text: file.fileName },
-        fileName: file.id,
-        originalFileName: file.fileName,
-        deleteButton: { text: "Delete" },
-      }));
-    } else {
-      return [];
-    }
+    this.#removeTemplateFromSession(req);
+    res.redirect("/claim/final-bill-template");
   }
 
   #renderNoJsError(
@@ -269,13 +223,34 @@ export class EvidenceAdaptor {
     errorText: string,
     statusCode: number,
   ): void {
-    res.status(statusCode).render("claim/evidence", {
+    res.status(statusCode).render("claim/final-bill-template", {
       csrfToken: res.locals.csrfToken,
       errorSummaries: {
-        evidenceError: { text: errorText },
+        templateError: { text: errorText },
       },
+      uploadedFile: req.session.claim?.finalBillCostTemplate,
       uploadedFiles: this.#buildUploadedFiles(req),
     });
+  }
+
+  #buildUploadedFiles(req: Request): Array<{
+    message: { text: string };
+    fileName: string;
+    originalFileName: string;
+    deleteButton: { text: string };
+  }> {
+    const template = req.session.claim?.finalBillCostTemplate;
+
+    return template === undefined
+      ? []
+      : [
+          {
+            message: { text: template.costTemplateFilename },
+            fileName: template.costTemplateId,
+            originalFileName: template.costTemplateFilename,
+            deleteButton: { text: "Delete" },
+          },
+        ];
   }
 
   #renderJsonUploadError(
@@ -292,11 +267,12 @@ export class EvidenceAdaptor {
   #handleValidationFailure(
     req: Request,
     res: Response,
-    errors: { evidenceError?: { text: string } },
+    errors: { templateError?: { text: string } },
     isNoJsUpload: boolean,
   ): void {
     const message =
-      errors.evidenceError?.text ?? CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN;
+      errors.templateError?.text ??
+      CLAIM_FINAL_BILL_TEMPLATE_ERROR.NO_FILE_CHOSEN;
 
     if (isNoJsUpload) {
       this.#renderNoJsError(req, res, message, HTTP_BAD_REQUEST);
@@ -319,7 +295,7 @@ export class EvidenceAdaptor {
     const { req, res, result, isNoJsUpload } = options;
     const message = resolveUploadFailureMessage(
       result,
-      CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS,
+      CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_SCAN_FOUND_VIRUS,
       SERVICE_UNAVAILABLE_MESSAGE,
     );
 
@@ -344,7 +320,7 @@ export class EvidenceAdaptor {
   }): void {
     const { req, res, data, file, isNoJsUpload } = options;
 
-    this.#storeUploadedFile(
+    this.#storeUploadedTemplate(
       req,
       data.evidenceFileId,
       data.evidenceFileName,
@@ -352,7 +328,7 @@ export class EvidenceAdaptor {
     );
 
     if (isNoJsUpload) {
-      res.redirect("/claim/evidence");
+      res.redirect("/claim/final-bill-template");
     } else {
       res.status(HTTP_CREATED).json({
         success: {
@@ -367,46 +343,41 @@ export class EvidenceAdaptor {
     }
 
     logger.logInfo({
-      functionName: "evidenceAdaptor_handleUploadSuccess",
-      message: "Evidence upload completed successfully",
+      functionName: "finalBillTemplateAdaptor_handleUploadSuccess",
+      message: "Final bill template upload completed successfully",
       request: req,
       extraContext: {
-        event: "claim_evidence_upload_completed",
+        event: "claim_final_bill_template_upload_completed",
         no_js_upload: isNoJsUpload,
       },
     });
   }
 
-  #storeUploadedFile(
+  #storeUploadedTemplate(
     req: Request,
-    evidenceFileId: string,
-    evidenceFileName: string,
-    fileSize: number | undefined,
+    costTemplateId: string,
+    costTemplateFilename: string,
+    costTemplateFileSize: number | undefined,
   ): void {
     if (
-      isNonEmptyString(evidenceFileId) &&
-      isNonEmptyString(evidenceFileName)
+      isNonEmptyString(costTemplateId) &&
+      isNonEmptyString(costTemplateFilename)
     ) {
-      const existingFiles = req.session.claim?.evidenceFiles ?? [];
       req.session.claim = {
         ...req.session.claim,
-        evidenceFiles: [
-          ...existingFiles,
-          {
-            id: evidenceFileId,
-            fileName: evidenceFileName,
-            fileSize,
-          },
-        ],
+        finalBillCostTemplate: {
+          costTemplateId,
+          costTemplateFilename,
+          costTemplateFileSize,
+        },
       };
     }
   }
 
-  #removeEvidenceFileFromSession(req: Request, evidenceFileId: string): void {
-    const existingFiles = req.session.claim?.evidenceFiles ?? [];
+  #removeTemplateFromSession(req: Request): void {
     req.session.claim = {
       ...req.session.claim,
-      evidenceFiles: existingFiles.filter((file) => file.id !== evidenceFileId),
+      finalBillCostTemplate: undefined,
     };
   }
 }
