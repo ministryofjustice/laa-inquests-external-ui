@@ -1,3 +1,5 @@
+/* eslint-disable max-lines -- Want to keep constants in singular location. */
+
 export const MAX_CHARACTER_LENGTH = 100;
 export const SERVICE_UNAVAILABLE_MESSAGE =
   "Service unavailable. Please try again later.";
