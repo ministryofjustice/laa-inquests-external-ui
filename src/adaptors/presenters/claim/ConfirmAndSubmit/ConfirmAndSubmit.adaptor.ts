@@ -8,6 +8,7 @@ import {
   CLAIM_TYPE_VALUE,
   COUNSEL_NUMBER_OPTIONS,
   COUNSEL_NUMBER_ZERO,
+  INQUEST_OUTCOME_OPTIONS,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { Formatter } from "#src/utils/Formatter.js";
@@ -156,6 +157,7 @@ export class ConfirmAndSubmitAdaptor {
         })),
       },
       counsel: this.#buildCounselDetails(claim),
+      inquestDetails: this.#buildInquestDetails(claim),
     };
   }
 
@@ -164,6 +166,7 @@ export class ConfirmAndSubmitAdaptor {
     hasCounsel: boolean;
     counselNumber: string;
     counselPaid: string;
+    endDate: string;
   } {
     const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
     const counselNumber = claim?.counselNumber;
@@ -176,6 +179,11 @@ export class ConfirmAndSubmitAdaptor {
       hasCounsel,
       counselNumber: this.#counselNumberLabel(counselNumber),
       counselPaid: claim?.counselBillsPaid === true ? "Yes" : "No",
+      endDate: this.#formatEndDate(
+        claim?.endDateDay,
+        claim?.endDateMonth,
+        claim?.endDateYear,
+      ),
     };
   }
 
@@ -184,6 +192,32 @@ export class ConfirmAndSubmitAdaptor {
       COUNSEL_NUMBER_OPTIONS.find((option) => option.value === value)?.text ??
       ""
     );
+  }
+
+  #buildInquestDetails(claim?: ClaimSession): {
+    inquestOutcomes: string;
+  } {
+    const outcomes = claim?.inquestOutcomes ?? [];
+    const labels = outcomes
+      .map(
+        (value) =>
+          INQUEST_OUTCOME_OPTIONS.find((o) => o.value === value)?.text ?? value,
+      )
+      .join(", ");
+    return {
+      inquestOutcomes: labels,
+    };
+  }
+
+  #formatEndDate(day?: string, month?: string, year?: string): string {
+    if (
+      typeof day !== "string" ||
+      typeof month !== "string" ||
+      typeof year !== "string"
+    ) {
+      return "";
+    }
+    return `${day}/${month}/${year}`;
   }
 
   #fileType(fileName: string): string {
