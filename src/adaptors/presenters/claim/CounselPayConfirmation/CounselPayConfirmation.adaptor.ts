@@ -7,7 +7,6 @@ import type {
 } from "./CounselPayConfirmation.validator.js";
 import {
   CLAIM_CHECK_YOUR_ANSWERS_PATH,
-  CLAIM_END_DATE_PATH,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
@@ -59,18 +58,12 @@ export class CounselPayConfirmationAdaptor {
         errorSummaries,
       });
     } else {
-      const returningToCheckYourAnswers =
-        this.navigationHelper.isReturningToCheckYourAnswers(req);
       req.session.claim = {
         ...req.session.claim,
         counselBillsPaid: true,
       };
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-      res.redirect(
-        returningToCheckYourAnswers
-          ? CLAIM_CHECK_YOUR_ANSWERS_PATH
-          : CLAIM_END_DATE_PATH,
-      );
+      res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
     }
   }
 }
