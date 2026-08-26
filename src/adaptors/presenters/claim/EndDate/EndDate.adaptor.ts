@@ -1,6 +1,9 @@
 import type { Request, Response } from "express";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  COUNSEL_NUMBER_ZERO,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import type {
   EndDateFormData,
   EndDateValidator,
@@ -25,10 +28,7 @@ export class EndDateAdaptor {
       };
     }
 
-    const backHref =
-      req.session.claim?.returnToCheckYourAnswers === true
-        ? "/claim/check-your-answers"
-        : "/claim/counsel-pay-confirmation";
+    const backHref = this.#resolveBackHref(req);
 
     res.render("claim/end-date", {
       csrfToken,
@@ -60,10 +60,7 @@ export class EndDateAdaptor {
     const errorSummaries = this.#formValidator.validateEndDate(req.body);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      const backHref =
-        req.session.claim?.returnToCheckYourAnswers === true
-          ? "/claim/check-your-answers"
-          : "/claim/counsel-pay-confirmation";
+      const backHref = this.#resolveBackHref(req);
 
       res.render("claim/end-date", {
         csrfToken,
@@ -86,5 +83,15 @@ export class EndDateAdaptor {
     } else {
       res.redirect("/claim/inquest-outcome");
     }
+  }
+
+  #resolveBackHref(req: Pick<Request, "session">): string {
+    if (req.session.claim?.returnToCheckYourAnswers === true) {
+      return "/claim/check-your-answers";
+    }
+    if (req.session.claim?.counselNumber === COUNSEL_NUMBER_ZERO) {
+      return "/claim/counsel-number";
+    }
+    return "/claim/counsel-pay-confirmation";
   }
 }

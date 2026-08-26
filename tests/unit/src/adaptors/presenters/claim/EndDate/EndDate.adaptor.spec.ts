@@ -42,6 +42,23 @@ describe("EndDate adaptor", () => {
       assert.equal(viewModel.backHref, "/claim/counsel-pay-confirmation");
     });
 
+    it("renders the form with the back link set to counsel-number when zero counsel was selected", () => {
+      const adaptor = new EndDateAdaptor(new EndDateValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { counselNumber: "0" };
+      requestStub.query = {};
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/counsel-number");
+    });
+
     it("renders the form with the back link set to check-your-answers when from=check-your-answers", () => {
       const adaptor = new EndDateAdaptor(new EndDateValidator());
 
