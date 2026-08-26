@@ -9,6 +9,10 @@ export const CASE_SEARCH_ERROR = {
   NO_RESULTS: "There are no results that match the search criteria",
 };
 
+export const PAYING_PARTY_ERROR = {
+  MISSING_PAYING_PARTY: "Enter the name of the paying party",
+};
+
 export const CLAIM_TYPE_ERROR = {
   MISSING_CLAIM_TYPE: "Please select a claim type",
   MISSING_CLAIM_SUBTYPE: "Please select a Payment on Account claim type",

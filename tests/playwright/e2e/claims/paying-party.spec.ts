@@ -39,6 +39,18 @@ test.describe("Claim - paying party", () => {
     await validateCSRFToken(page.getByTestId("paying-party-form"));
   });
 
+  test("shows validation error when submitted with empty paying party", async ({
+    page,
+  }) => {
+    const form = page.getByTestId("paying-party-form");
+
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page.locator(".govuk-error-summary")).toContainText(
+      "Enter the name of the paying party",
+    );
+  });
+
   test("renders continue button", async ({ page }) => {
     const form = page.getByTestId("paying-party-form");
     const continueButton = form.getByRole("button", { name: "Continue" });
