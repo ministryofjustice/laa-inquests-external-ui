@@ -32,6 +32,16 @@ import { EndDateValidator } from "#src/adaptors/presenters/claim/EndDate/EndDate
 import { createInquestOutcomeRouter } from "./claim/inquestOutcome.router.js";
 import { InquestOutcomeAdaptor } from "#src/adaptors/presenters/claim/InquestOutcome/InquestOutcome.adaptor.js";
 import { InquestOutcomeValidator } from "#src/adaptors/presenters/claim/InquestOutcome/InquestOutcome.validator.js";
+import { createFundingPostInquestRouter } from "./claim/fundingPostInquest.router.js";
+import { FundingPostInquestAdaptor } from "#src/adaptors/presenters/claim/FundingPostInquest/FundingPostInquest.adaptor.js";
+import { FundingPostInquestValidator } from "#src/adaptors/presenters/claim/FundingPostInquest/FundingPostInquest.validator.js";
+import { createInquestOutcomeRecoveryRouter } from "./claim/inquestOutcomeRecovery.router.js";
+import { RecoveryCostMadeAdaptor } from "#src/adaptors/presenters/claim/RecoveryCostMade/RecoveryCostMade.adaptor.js";
+import { RecoveryCostMadeValidator } from "#src/adaptors/presenters/claim/RecoveryCostMade/RecoveryCostMade.validator.js";
+import { createRecoveryCostsRouter } from "./claim/recoveryCosts.router.js";
+import { FinancialRecoveryCostsAdaptor } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.adaptor.js";
+import { createPayingPartyRouter } from "./claim/payingParty.router.js";
+import { PayingPartyAdaptor } from "#src/adaptors/presenters/claim/PayingParty/PayingParty.adaptor.js";
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
 import { createTotalClaimCostRouter } from "./claim/totalClaimCost.router.js";
 import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
@@ -89,6 +99,10 @@ const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
 const endDateRouter = express.Router();
 const inquestOutcomeRouter = express.Router();
+const fundingPostInquestRouter = express.Router();
+const inquestOutcomeRecoveryRouter = express.Router();
+const recoveryCostsRouter = express.Router();
+const payingPartyRouter = express.Router();
 const evidenceRouter = express.Router();
 const finalBillTemplateRouter = express.Router();
 const counselRouter = express.Router();
@@ -243,6 +257,22 @@ const inquestOutcomeAdaptor = new InquestOutcomeAdaptor(
   claimNavigationHelper,
 );
 
+const fundingPostInquestAdaptor = new FundingPostInquestAdaptor(
+  new FundingPostInquestValidator(),
+  claimNavigationHelper,
+);
+
+const recoveryCostMadeAdaptor = new RecoveryCostMadeAdaptor(
+  new RecoveryCostMadeValidator(),
+  claimNavigationHelper,
+);
+
+const financialRecoveryCostsAdaptor = new FinancialRecoveryCostsAdaptor(
+  claimNavigationHelper,
+);
+
+const payingPartyAdaptor = new PayingPartyAdaptor(claimNavigationHelper);
+
 const uploadEvidenceSource = new UploadEvidenceAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
@@ -313,6 +343,16 @@ indexRouter.use(
   ),
   createEndDateRouter(endDateRouter, endDateAdaptor),
   createInquestOutcomeRouter(inquestOutcomeRouter, inquestOutcomeAdaptor),
+  createFundingPostInquestRouter(
+    fundingPostInquestRouter,
+    fundingPostInquestAdaptor,
+  ),
+  createInquestOutcomeRecoveryRouter(
+    inquestOutcomeRecoveryRouter,
+    recoveryCostMadeAdaptor,
+  ),
+  createRecoveryCostsRouter(recoveryCostsRouter, financialRecoveryCostsAdaptor),
+  createPayingPartyRouter(payingPartyRouter, payingPartyAdaptor),
 );
 
 indexRouter.use(

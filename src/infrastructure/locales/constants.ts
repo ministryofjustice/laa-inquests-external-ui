@@ -300,6 +300,33 @@ export const INQUEST_OUTCOME_ERROR = {
   MISSING_SELECTION: "You must select at least one inquest outcome",
 };
 
+export const FUNDING_POST_INQUEST_ERROR = {
+  MISSING_SELECTION:
+    "Select whether the matter has progressed to alternate funding post-inquest",
+};
+
+export const RECOVERY_COST_ERROR = {
+  MISSING_SELECTION: "Select whether the recovery cost has been made",
+};
+
+export const FUNDING_POST_INQUEST_VALUE = {
+  YES: "YES",
+  NO: "NO",
+  DONT_KNOW: "DONT_KNOW",
+} as const;
+
+export const FUNDING_POST_INQUEST_OPTIONS = [
+  { value: "YES", text: "Yes" },
+  { value: "NO", text: "No" },
+  { value: "DONT_KNOW", text: "Don't know" },
+] as const;
+
+export const RECOVERY_COST_OPTIONS = [
+  { value: "YES", text: "Yes" },
+  { value: "NO", text: "No" },
+  { value: "DONT_KNOW", text: "Don't know" },
+] as const;
+
 export const INQUEST_OUTCOME_OPTIONS = [
   {
     value: "ACCIDENT_OR_MISADVENTURE",

@@ -8,7 +8,10 @@ import {
   CLAIM_TYPE_VALUE,
   COUNSEL_NUMBER_OPTIONS,
   COUNSEL_NUMBER_ZERO,
+  FUNDING_POST_INQUEST_OPTIONS,
+  FUNDING_POST_INQUEST_VALUE,
   INQUEST_OUTCOME_OPTIONS,
+  RECOVERY_COST_OPTIONS,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { Formatter } from "#src/utils/Formatter.js";
@@ -219,17 +222,62 @@ export class ConfirmAndSubmitAdaptor {
 
   #buildInquestDetails(claim?: ClaimSession): {
     inquestOutcomes: string;
+    funding: string;
+    recoveryCostMade: string;
+    recoveryCosts: string;
+    recoveryDamages: string;
+    recoveryInterest: string;
+    recoveryPreCertificateCosts: string;
+    payingParty: string;
+    showRecovery: boolean;
   } {
+    const fundingPostInquest = claim?.fundingPostInquest;
+    return {
+      inquestOutcomes: this.#buildInquestOutcomeLabels(claim),
+      funding: this.#optionLabel(
+        FUNDING_POST_INQUEST_OPTIONS,
+        fundingPostInquest,
+      ),
+      recoveryCostMade: this.#optionLabel(
+        RECOVERY_COST_OPTIONS,
+        claim?.recoveryCostMade,
+      ),
+      recoveryCosts: this.formatter.formatCurrency(claim?.recoveryCosts),
+      recoveryDamages: this.formatter.formatCurrency(claim?.recoveryDamages),
+      recoveryInterest: this.formatter.formatCurrency(claim?.recoveryInterest),
+      recoveryPreCertificateCosts: this.formatter.formatCurrency(
+        claim?.recoveryPreCertificateCosts,
+      ),
+      payingParty: claim?.payingParty ?? "",
+      showRecovery: this.#showRecovery(fundingPostInquest),
+    };
+  }
+
+  #buildInquestOutcomeLabels(claim?: ClaimSession): string {
     const outcomes = claim?.inquestOutcomes ?? [];
-    const labels = outcomes
+    return outcomes
       .map(
         (value) =>
           INQUEST_OUTCOME_OPTIONS.find((o) => o.value === value)?.text ?? value,
       )
       .join(", ");
-    return {
-      inquestOutcomes: labels,
-    };
+  }
+
+  #showRecovery(fundingPostInquest?: string): boolean {
+    return (
+      fundingPostInquest === FUNDING_POST_INQUEST_VALUE.YES ||
+      fundingPostInquest === FUNDING_POST_INQUEST_VALUE.DONT_KNOW
+    );
+  }
+
+  #optionLabel(
+    options: ReadonlyArray<{ value: string; text: string }>,
+    value?: string,
+  ): string {
+    if (typeof value !== "string") {
+      return "";
+    }
+    return options.find((option) => option.value === value)?.text ?? value;
   }
 
   #formatEndDate(day?: string, month?: string, year?: string): string {

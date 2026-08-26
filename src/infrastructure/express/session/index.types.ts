@@ -54,6 +54,13 @@ export interface ClaimSession {
   endDateMonth?: string;
   endDateYear?: string;
   inquestOutcomes?: string[];
+  fundingPostInquest?: string;
+  recoveryCostMade?: string;
+  recoveryCosts?: string;
+  recoveryDamages?: string;
+  recoveryInterest?: string;
+  recoveryPreCertificateCosts?: string;
+  payingParty?: string;
 }
 
 export interface ClaimEvidenceFile {
