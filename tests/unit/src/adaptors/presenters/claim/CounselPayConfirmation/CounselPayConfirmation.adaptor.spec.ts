@@ -78,7 +78,7 @@ describe("CounselPayConfirmation adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 0);
     });
 
-    it("saves the confirmation and redirects to /claim/check-your-answers when the checkbox is ticked", () => {
+    it("saves the confirmation and redirects to /claim/end-date when the checkbox is ticked", () => {
       const adaptor = new CounselPayConfirmationAdaptor(
         new CounselPayConfirmationValidator(),
       );
@@ -94,7 +94,7 @@ describe("CounselPayConfirmation adaptor", () => {
       assert.equal(requestStub.session.claim?.counselBillsPaid, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(redirectUrl, "/claim/end-date");
       assert.equal(responseStub.render.callCount, 0);
     });
 

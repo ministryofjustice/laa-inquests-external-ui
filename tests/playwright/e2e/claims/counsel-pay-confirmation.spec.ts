@@ -65,9 +65,22 @@ test.describe("Claim - counsel pay confirmation", () => {
     ).toBeVisible();
   });
 
-  test("continues to check your answers page when the checkbox is ticked", async ({
+  test("continues to end date page when the checkbox is ticked", async ({
     page,
   }) => {
+    const form = page.getByTestId("counsel-pay-confirmation-form");
+
+    await form.getByLabel("Yes, all counsel bills have been paid.").check();
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/end-date");
+  });
+
+  test("returns to check your answers when editing from check your answers", async ({
+    page,
+  }) => {
+    await page.goto("/claim/counsel-pay-confirmation?from=check-your-answers");
+
     const form = page.getByTestId("counsel-pay-confirmation-form");
 
     await form.getByLabel("Yes, all counsel bills have been paid.").check();
