@@ -475,6 +475,20 @@ test.describe("Claim - confirm and submit", () => {
       await page.waitForURL("**/claim/check-your-answers");
     }
 
+    async function completePreCertJourney(page: Page): Promise<void> {
+      await answerFunding(page, "Yes");
+      await page.waitForURL("**/claim/inquest-outcome-recovery");
+      await page.getByLabel("No", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/pre-cert-costs");
+      await page.getByLabel("Enter the total amount").fill("400");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/paying-party");
+      await page.getByLabel("Who is the paying party?").fill("Acme Ltd");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/check-your-answers");
+    }
+
     test("renders the Other claim details heading", async ({ page }) => {
       await expect(
         page
@@ -491,7 +505,7 @@ test.describe("Claim - confirm and submit", () => {
       await expect(card).toContainText("Alternative funding post-inquest");
     });
 
-    test("renders the recovery cards with their rows and values when funding is Yes", async ({
+    test("renders the recovery cards with their rows and values when the recovery cost was made", async ({
       page,
     }) => {
       await completeRecoveryJourney(page);
@@ -507,12 +521,11 @@ test.describe("Claim - confirm and submit", () => {
         "Alternative funding details",
       );
       await expect(alternativeFunding).toContainText("Recovery cost made");
-      await expect(alternativeFunding).toContainText(
+      await expect(alternativeFunding).not.toContainText(
         "Previous pre-certificate costs",
       );
       await expect(alternativeFunding).toContainText("The paying party");
       await expect(alternativeFunding).toContainText("Acme Ltd");
-      await expect(alternativeFunding).toContainText("£400.00");
 
       const financial = page.getByTestId(
         "financial-recovery-costs-summary-list",
@@ -523,6 +536,32 @@ test.describe("Claim - confirm and submit", () => {
       await expect(financial).toContainText("£200.00");
       await expect(financial).toContainText("£300.00");
       await expect(financial).toContainText("£400.00");
+    });
+
+    test("shows the pre-certificate costs row and hides the financial recovery costs card when the recovery cost was not made", async ({
+      page,
+    }) => {
+      await completePreCertJourney(page);
+
+      const alternativeFunding = page.getByTestId(
+        "alternative-funding-details-summary-list",
+      );
+      await expect(alternativeFunding).toContainText("Recovery cost made");
+      await expect(alternativeFunding).toContainText(
+        "Previous pre-certificate costs",
+      );
+      await expect(alternativeFunding).toContainText("£400.00");
+      await expect(alternativeFunding).toContainText("The paying party");
+      await expect(alternativeFunding).toContainText("Acme Ltd");
+
+      const changeLink = alternativeFunding.locator(
+        'a[href="/claim/pre-cert-costs?from=check-your-answers"]',
+      );
+      await expect(changeLink).toBeVisible();
+
+      await expect(
+        page.getByTestId("financial-recovery-costs-summary-list"),
+      ).toHaveCount(0);
     });
 
     test("renders a single panel-level Change link for financial recovery costs", async ({

@@ -1,0 +1,57 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "What is the amount for previous pre-certificate costs?" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/claim/inquest-outcome-recovery"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.preCertificateCostsInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.preCertificateCostsInputError.text,
+              href: "#pre-certificate-costs"
+            }
+          ]
+        }) }}
+        {% endif %}
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+        <p class="govuk-body">These costs are for any legal help claimed before a legal aid certificate was issued.</p>
+        <form data-testid="pre-certificate-costs-form" action="/claim/pre-cert-costs" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukInput({
+            label: {
+              text: "Enter the total amount",
+              classes: "govuk-label--s"
+            },
+            id: "pre-certificate-costs",
+            name: "pre-certificate-costs",
+            value: preCertificateCosts,
+            classes: "govuk-input--width-10",
+            prefix: { text: "£" },
+            inputmode: "decimal",
+            errorMessage: errorSummaries.preCertificateCostsInputError
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

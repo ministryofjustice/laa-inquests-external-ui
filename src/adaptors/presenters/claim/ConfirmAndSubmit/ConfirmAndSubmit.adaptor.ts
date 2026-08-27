@@ -12,6 +12,7 @@ import {
   FUNDING_POST_INQUEST_VALUE,
   INQUEST_OUTCOME_OPTIONS,
   RECOVERY_COST_OPTIONS,
+  RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import type { ClaimSubmitPort } from "#src/ports/source/inquests-api/SubmitClaim.port.js";
 import type { Formatter } from "#src/utils/Formatter.js";
@@ -228,6 +229,9 @@ export class ConfirmAndSubmitAdaptor {
     recoveryDamages: string;
     recoveryInterest: string;
     recoveryPreCertificateCosts: string;
+    preCertificateCosts: string;
+    showPreCertificateCosts: boolean;
+    showFinancialRecoveryCosts: boolean;
     payingParty: string;
     showRecovery: boolean;
   } {
@@ -248,9 +252,23 @@ export class ConfirmAndSubmitAdaptor {
       recoveryPreCertificateCosts: this.formatter.formatCurrency(
         claim?.recoveryPreCertificateCosts,
       ),
+      preCertificateCosts: this.formatter.formatCurrency(
+        claim?.preCertificateCosts,
+      ),
+      showPreCertificateCosts: this.#hasPreCertificateCosts(claim),
+      showFinancialRecoveryCosts: this.#recoveryCostWasMade(claim),
       payingParty: claim?.payingParty ?? "",
       showRecovery: this.#showRecovery(fundingPostInquest),
     };
+  }
+
+  #hasPreCertificateCosts(claim?: ClaimSession): boolean {
+    const value = claim?.preCertificateCosts;
+    return typeof value === "string" && value !== "";
+  }
+
+  #recoveryCostWasMade(claim?: ClaimSession): boolean {
+    return claim?.recoveryCostMade === RECOVERY_COST_VALUE.YES;
   }
 
   #buildInquestOutcomeLabels(claim?: ClaimSession): string {

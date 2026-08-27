@@ -8,6 +8,7 @@ import type {
 import {
   EMPTY_ARR_LENGTH,
   RECOVERY_COST_OPTIONS,
+  RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
@@ -70,6 +71,11 @@ export class RecoveryCostMadeAdaptor {
       recoveryCostMade,
     };
 
-    res.redirect("/claim/recovery-costs");
+    if (recoveryCostMade === RECOVERY_COST_VALUE.YES) {
+      res.redirect("/claim/recovery-costs");
+      return;
+    }
+
+    res.redirect("/claim/pre-cert-costs");
   }
 }

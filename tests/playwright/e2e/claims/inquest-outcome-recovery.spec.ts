@@ -76,16 +76,18 @@ test.describe("Claim - inquest outcome recovery", () => {
     await expect(page).toHaveURL("/claim/recovery-costs");
   });
 
-  test("continues to recovery costs when No is selected", async ({ page }) => {
+  test("continues to pre-certificate costs when No is selected", async ({
+    page,
+  }) => {
     const form = page.getByTestId("inquest-outcome-recovery-form");
 
     await form.getByLabel("No", { exact: true }).check();
     await form.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page).toHaveURL("/claim/recovery-costs");
+    await expect(page).toHaveURL("/claim/pre-cert-costs");
   });
 
-  test("continues to recovery costs when Don't know is selected", async ({
+  test("continues to pre-certificate costs when Don't know is selected", async ({
     page,
   }) => {
     const form = page.getByTestId("inquest-outcome-recovery-form");
@@ -93,6 +95,6 @@ test.describe("Claim - inquest outcome recovery", () => {
     await form.getByLabel("Don't know", { exact: true }).check();
     await form.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page).toHaveURL("/claim/recovery-costs");
+    await expect(page).toHaveURL("/claim/pre-cert-costs");
   });
 });

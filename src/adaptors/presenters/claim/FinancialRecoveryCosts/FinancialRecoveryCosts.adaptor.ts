@@ -73,10 +73,7 @@ export class FinancialRecoveryCostsAdaptor {
     } = req;
 
     const errorSummaries: Partial<FinancialRecoveryCostsError> =
-      this.formValidator.validateFinancialRecoveryCosts(
-        req.body,
-        req.session.claim?.recoveryCostMade,
-      );
+      this.formValidator.validateFinancialRecoveryCosts(req.body);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       res.render("claim/recovery-costs", {
@@ -106,9 +103,6 @@ export class FinancialRecoveryCostsAdaptor {
   }
 
   #hasAnsweredRecoveryCostMade(req: Pick<Request, "session">): boolean {
-    return Object.values(RECOVERY_COST_VALUE).includes(
-      req.session.claim
-        ?.recoveryCostMade as (typeof RECOVERY_COST_VALUE)[keyof typeof RECOVERY_COST_VALUE],
-    );
+    return req.session.claim?.recoveryCostMade === RECOVERY_COST_VALUE.YES;
   }
 }

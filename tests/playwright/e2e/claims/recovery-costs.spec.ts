@@ -3,14 +3,11 @@ import { test, expect } from "../../fixtures/index.js";
 import { FINANCIAL_RECOVERY_COSTS_ERROR } from "#src/infrastructure/locales/constants.js";
 import { validateCSRFToken } from "../../utils/govuk-validators.js";
 
-// Recovery costs now requires an answer from the previous step, so reach it via the real journey
-async function answerRecoveryCostMadeAndContinue(
-  page: Page,
-  answer: "Yes" | "No" | "Don't know",
-): Promise<void> {
+// Recovery costs is only reached when the recovery cost has been made (Yes)
+async function answerRecoveryCostMadeYesAndContinue(page: Page): Promise<void> {
   await page.goto("/claim/inquest-outcome-recovery");
   const form = page.getByTestId("inquest-outcome-recovery-form");
-  await form.getByLabel(answer, { exact: true }).check();
+  await form.getByLabel("Yes", { exact: true }).check();
   await form.getByRole("button", { name: "Continue" }).click();
 }
 
@@ -23,9 +20,22 @@ test.describe("Claim - financial recovery costs", () => {
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
   });
 
+  test("redirects to inquest outcome recovery when the recovery cost has not been made", async ({
+    page,
+  }) => {
+    await page.goto("/claim/inquest-outcome-recovery");
+    const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
+    await recoveryForm.getByLabel("No", { exact: true }).check();
+    await recoveryForm.getByRole("button", { name: "Continue" }).click();
+
+    await page.goto("/claim/recovery-costs");
+
+    await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
+  });
+
   test.describe("page content", () => {
     test.beforeEach(async ({ page }) => {
-      await answerRecoveryCostMadeAndContinue(page, "Yes");
+      await answerRecoveryCostMadeYesAndContinue(page);
     });
 
     test("renders back link to inquest outcome recovery", async ({
@@ -76,12 +86,12 @@ test.describe("Claim - financial recovery costs", () => {
     });
   });
 
-  test.describe("when the recovery cost has been made (Yes)", () => {
+  test.describe("validation and submission", () => {
     test.beforeEach(async ({ page }) => {
-      await answerRecoveryCostMadeAndContinue(page, "Yes");
+      await answerRecoveryCostMadeYesAndContinue(page);
     });
 
-    test("shows validation errors when costs, damages and interest are blank", async ({
+    test("shows validation errors for all four fields when blank", async ({
       page,
       checkAccessibility,
     }) => {
@@ -105,11 +115,16 @@ test.describe("Claim - financial recovery costs", () => {
           name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_INTEREST,
         }),
       ).toBeVisible();
+      await expect(
+        page.getByRole("link", {
+          name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
+        }),
+      ).toBeVisible();
 
       await checkAccessibility();
     });
 
-    test("does not require previous pre-certificate costs", async ({
+    test("shows a validation error when previous pre-certificate costs is blank", async ({
       page,
     }) => {
       const form = page.getByTestId("recovery-costs-form");
@@ -119,7 +134,12 @@ test.describe("Claim - financial recovery costs", () => {
       await form.getByLabel("Interest").fill("300");
       await form.getByRole("button", { name: "Continue" }).click();
 
-      await expect(page).toHaveURL("/claim/paying-party");
+      await expect(page).toHaveURL("/claim/recovery-costs");
+      await expect(
+        page.getByRole("link", {
+          name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
+        }),
+      ).toBeVisible();
     });
 
     test("saves the entered values and continues to paying party", async ({
@@ -143,36 +163,4 @@ test.describe("Claim - financial recovery costs", () => {
       ).toHaveValue("100");
     });
   });
-
-  for (const answer of ["No", "Don't know"] as const) {
-    test.describe(`when the recovery cost has not been made (${answer})`, () => {
-      test.beforeEach(async ({ page }) => {
-        await answerRecoveryCostMadeAndContinue(page, answer);
-      });
-
-      test("shows a validation error when previous pre-certificate costs is blank", async ({
-        page,
-      }) => {
-        const form = page.getByTestId("recovery-costs-form");
-
-        await form.getByRole("button", { name: "Continue" }).click();
-
-        await expect(page).toHaveURL("/claim/recovery-costs");
-        await expect(
-          page.getByRole("link", {
-            name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
-          }),
-        ).toBeVisible();
-      });
-
-      test("does not require costs, damages or interest", async ({ page }) => {
-        const form = page.getByTestId("recovery-costs-form");
-
-        await form.getByLabel("Previous pre-certificate costs").fill("400");
-        await form.getByRole("button", { name: "Continue" }).click();
-
-        await expect(page).toHaveURL("/claim/paying-party");
-      });
-    });
-  }
 });

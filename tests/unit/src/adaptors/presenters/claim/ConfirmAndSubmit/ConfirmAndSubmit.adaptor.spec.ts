@@ -362,7 +362,35 @@ describe("ConfirmAndSubmit adaptor", () => {
         viewModel.inquestDetails.recoveryPreCertificateCosts,
         "£400.00",
       );
+      assert.equal(viewModel.inquestDetails.showFinancialRecoveryCosts, true);
+      assert.equal(viewModel.inquestDetails.showPreCertificateCosts, false);
       assert.equal(viewModel.inquestDetails.payingParty, "Acme Ltd");
+    });
+
+    it("shows the pre-certificate costs and hides the financial recovery costs when recovery cost has not been made", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        fundingPostInquest: "YES",
+        recoveryCostMade: "NO",
+        preCertificateCosts: "400",
+        payingParty: "Acme Ltd",
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.inquestDetails.showRecovery, true);
+      assert.equal(viewModel.inquestDetails.recoveryCostMade, "No");
+      assert.equal(viewModel.inquestDetails.preCertificateCosts, "£400.00");
+      assert.equal(viewModel.inquestDetails.showPreCertificateCosts, true);
+      assert.equal(viewModel.inquestDetails.showFinancialRecoveryCosts, false);
     });
 
     it("shows the recovery details when funding is Don't know", () => {
@@ -402,6 +430,8 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.inquestDetails.recoveryCostMade, "");
       assert.equal(viewModel.inquestDetails.payingParty, "");
       assert.equal(viewModel.inquestDetails.showRecovery, false);
+      assert.equal(viewModel.inquestDetails.showPreCertificateCosts, false);
+      assert.equal(viewModel.inquestDetails.showFinancialRecoveryCosts, false);
     });
   });
 

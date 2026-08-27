@@ -283,56 +283,60 @@
 
         {% if inquestDetails.showRecovery %}
         <div data-testid="alternative-funding-details-summary-list">
+          {% set alternativeFundingRows = [
+            {
+              key: { text: "Recovery cost made" },
+              value: { text: inquestDetails.recoveryCostMade },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/inquest-outcome-recovery?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "recovery cost made"
+                  }
+                ]
+              }
+            }
+          ] %}
+          {% if inquestDetails.showPreCertificateCosts %}
+            {% set alternativeFundingRows = (alternativeFundingRows.push({
+              key: { text: "Previous pre-certificate costs" },
+              value: { text: inquestDetails.preCertificateCosts },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/pre-cert-costs?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "previous pre-certificate costs"
+                  }
+                ]
+              }
+            }), alternativeFundingRows) %}
+          {% endif %}
+          {% set alternativeFundingRows = (alternativeFundingRows.push({
+            key: { text: "The paying party" },
+            value: { text: inquestDetails.payingParty },
+            actions: {
+              items: [
+                {
+                  href: "/claim/paying-party?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "the paying party"
+                }
+              ]
+            }
+          }), alternativeFundingRows) %}
           {{ govukSummaryList({
             card: {
               title: {
                 text: "Alternative funding details"
               }
             },
-            rows: [
-              {
-                key: { text: "Recovery cost made" },
-                value: { text: inquestDetails.recoveryCostMade },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/inquest-outcome-recovery?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "recovery cost made"
-                    }
-                  ]
-                }
-              },
-              {
-                key: { text: "Previous pre-certificate costs" },
-                value: { text: inquestDetails.recoveryPreCertificateCosts },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/recovery-costs?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "previous pre-certificate costs"
-                    }
-                  ]
-                }
-              },
-              {
-                key: { text: "The paying party" },
-                value: { text: inquestDetails.payingParty },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/paying-party?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "the paying party"
-                    }
-                  ]
-                }
-              }
-            ]
+            rows: alternativeFundingRows
           }) }}
         </div>
 
+        {% if inquestDetails.showFinancialRecoveryCosts %}
         <div data-testid="financial-recovery-costs-summary-list">
           {{ govukSummaryList({
             card: {
@@ -369,6 +373,7 @@
             ]
           }) }}
         </div>
+        {% endif %}
         {% endif %}
 
         <form data-testid="confirm-and-submit-form" action="/claim/check-your-answers" method="post">

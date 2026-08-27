@@ -8,7 +8,7 @@ import { PAYING_PARTY_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("PayingParty adaptor", () => {
   describe("renderForm", () => {
-    it("renders the paying party form with csrf token, saved value and default back link", () => {
+    it("renders the paying party form with csrf token, saved value and back link to recovery costs when recovery cost was made", () => {
       const adaptor = new PayingPartyAdaptor(
         new PayingPartyValidator(),
         new ClaimNavigationHelper(),
@@ -18,7 +18,10 @@ describe("PayingParty adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       responseStub.locals = { csrfToken: "test-token" };
-      requestStub.session.claim = { payingParty: "Acme Ltd" };
+      requestStub.session.claim = {
+        payingParty: "Acme Ltd",
+        recoveryCostMade: "YES",
+      };
       requestStub.query = {};
 
       adaptor.renderForm(requestStub, responseStub);
@@ -30,6 +33,26 @@ describe("PayingParty adaptor", () => {
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.payingParty, "Acme Ltd");
       assert.equal(viewModel.backHref, "/claim/recovery-costs");
+    });
+
+    it("sets the back link to pre-certificate costs when recovery cost was not made", () => {
+      const adaptor = new PayingPartyAdaptor(
+        new PayingPartyValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { recoveryCostMade: "NO" };
+      requestStub.query = {};
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/pre-cert-costs");
     });
 
     it("renders the form with the back link set to check-your-answers when from=check-your-answers", () => {

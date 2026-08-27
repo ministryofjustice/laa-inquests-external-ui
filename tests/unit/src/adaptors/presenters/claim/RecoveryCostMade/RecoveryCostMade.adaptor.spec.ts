@@ -75,7 +75,7 @@ describe("RecoveryCostMade adaptor", () => {
       );
     });
 
-    it("saves No and redirects to recovery costs", () => {
+    it("saves No and redirects to pre-certificate costs", () => {
       const adaptor = new RecoveryCostMadeAdaptor(
         new RecoveryCostMadeValidator(),
         new ClaimNavigationHelper(),
@@ -93,11 +93,11 @@ describe("RecoveryCostMade adaptor", () => {
       assert.equal(requestStub.session.claim?.recoveryCostMade, "NO");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        "/claim/recovery-costs",
+        "/claim/pre-cert-costs",
       );
     });
 
-    it("saves Don't know and redirects to recovery costs", () => {
+    it("saves Don't know and redirects to pre-certificate costs", () => {
       const adaptor = new RecoveryCostMadeAdaptor(
         new RecoveryCostMadeValidator(),
         new ClaimNavigationHelper(),
@@ -115,7 +115,7 @@ describe("RecoveryCostMade adaptor", () => {
       assert.equal(requestStub.session.claim?.recoveryCostMade, "DONT_KNOW");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        "/claim/recovery-costs",
+        "/claim/pre-cert-costs",
       );
     });
 

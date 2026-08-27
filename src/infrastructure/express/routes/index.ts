@@ -41,6 +41,9 @@ import { RecoveryCostMadeValidator } from "#src/adaptors/presenters/claim/Recove
 import { createRecoveryCostsRouter } from "./claim/recoveryCosts.router.js";
 import { FinancialRecoveryCostsAdaptor } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.adaptor.js";
 import { FinancialRecoveryCostsValidator } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.validator.js";
+import { createPreCertCostsRouter } from "./claim/preCertCosts.router.js";
+import { PreCertificateCostsAdaptor } from "#src/adaptors/presenters/claim/PreCertificateCosts/PreCertificateCosts.adaptor.js";
+import { PreCertificateCostsValidator } from "#src/adaptors/presenters/claim/PreCertificateCosts/PreCertificateCosts.validator.js";
 import { createPayingPartyRouter } from "./claim/payingParty.router.js";
 import { PayingPartyAdaptor } from "#src/adaptors/presenters/claim/PayingParty/PayingParty.adaptor.js";
 import { PayingPartyValidator } from "#src/adaptors/presenters/claim/PayingParty/PayingParty.validator.js";
@@ -104,6 +107,7 @@ const inquestOutcomeRouter = express.Router();
 const fundingPostInquestRouter = express.Router();
 const inquestOutcomeRecoveryRouter = express.Router();
 const recoveryCostsRouter = express.Router();
+const preCertCostsRouter = express.Router();
 const payingPartyRouter = express.Router();
 const evidenceRouter = express.Router();
 const finalBillTemplateRouter = express.Router();
@@ -274,6 +278,11 @@ const financialRecoveryCostsAdaptor = new FinancialRecoveryCostsAdaptor(
   claimNavigationHelper,
 );
 
+const preCertificateCostsAdaptor = new PreCertificateCostsAdaptor(
+  new PreCertificateCostsValidator(),
+  claimNavigationHelper,
+);
+
 const payingPartyAdaptor = new PayingPartyAdaptor(
   new PayingPartyValidator(),
   claimNavigationHelper,
@@ -358,6 +367,7 @@ indexRouter.use(
     recoveryCostMadeAdaptor,
   ),
   createRecoveryCostsRouter(recoveryCostsRouter, financialRecoveryCostsAdaptor),
+  createPreCertCostsRouter(preCertCostsRouter, preCertificateCostsAdaptor),
   createPayingPartyRouter(payingPartyRouter, payingPartyAdaptor),
 );
 
