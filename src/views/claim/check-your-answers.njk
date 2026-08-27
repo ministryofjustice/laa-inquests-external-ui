@@ -244,123 +244,132 @@
 
         <h2 class="govuk-heading-m">Other claim details</h2>
         <div data-testid="inquest-details-summary-list">
-          {% set inquestRows = [
-            {
-              key: { text: "Inquest outcome" },
-              value: { text: inquestDetails.inquestOutcomes },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/inquest-outcome?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "inquest outcome"
-                  }
-                ]
-              }
-            },
-            {
-              key: { text: "Alternative funding post-inquest" },
-              value: { text: inquestDetails.funding },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/funding-post-inquest?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "alternative funding post-inquest"
-                  }
-                ]
-              }
-            }
-          ] %}
-          {% if inquestDetails.showRecovery %}
-            {% set inquestRows = (inquestRows.push({
-              key: { text: "Recovery cost made" },
-              value: { text: inquestDetails.recoveryCostMade },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/inquest-outcome-recovery?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "recovery cost made"
-                  }
-                ]
-              }
-            }), inquestRows) %}
-            {% set inquestRows = (inquestRows.push({
-              key: { text: "Costs" },
-              value: { text: inquestDetails.recoveryCosts },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/recovery-costs?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "costs"
-                  }
-                ]
-              }
-            }), inquestRows) %}
-            {% set inquestRows = (inquestRows.push({
-              key: { text: "Damages" },
-              value: { text: inquestDetails.recoveryDamages },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/recovery-costs?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "damages"
-                  }
-                ]
-              }
-            }), inquestRows) %}
-            {% set inquestRows = (inquestRows.push({
-              key: { text: "Interest" },
-              value: { text: inquestDetails.recoveryInterest },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/recovery-costs?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "interest"
-                  }
-                ]
-              }
-            }), inquestRows) %}
-            {% set inquestRows = (inquestRows.push({
-              key: { text: "Previous pre-certificate costs" },
-              value: { text: inquestDetails.recoveryPreCertificateCosts },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/recovery-costs?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "previous pre-certificate costs"
-                  }
-                ]
-              }
-            }), inquestRows) %}
-            {% set inquestRows = (inquestRows.push({
-              key: { text: "The paying party" },
-              value: { text: inquestDetails.payingParty },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/paying-party?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "the paying party"
-                  }
-                ]
-              }
-            }), inquestRows) %}
-          {% endif %}
           {{ govukSummaryList({
             card: {
               title: {
                 text: "Inquest details"
               }
             },
-            rows: inquestRows
+            rows: [
+              {
+                key: { text: "Inquest outcome" },
+                value: { text: inquestDetails.inquestOutcomes },
+                actions: {
+                  items: [
+                    {
+                      href: "/claim/inquest-outcome?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "inquest outcome"
+                    }
+                  ]
+                }
+              },
+              {
+                key: { text: "Alternative funding post-inquest" },
+                value: { text: inquestDetails.funding },
+                actions: {
+                  items: [
+                    {
+                      href: "/claim/funding-post-inquest?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "alternative funding post-inquest"
+                    }
+                  ]
+                }
+              }
+            ]
           }) }}
         </div>
+
+        {% if inquestDetails.showRecovery %}
+        <div data-testid="alternative-funding-details-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Alternative funding details"
+              }
+            },
+            rows: [
+              {
+                key: { text: "Recovery cost made" },
+                value: { text: inquestDetails.recoveryCostMade },
+                actions: {
+                  items: [
+                    {
+                      href: "/claim/inquest-outcome-recovery?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "recovery cost made"
+                    }
+                  ]
+                }
+              },
+              {
+                key: { text: "Previous pre-certificate costs" },
+                value: { text: inquestDetails.recoveryPreCertificateCosts },
+                actions: {
+                  items: [
+                    {
+                      href: "/claim/recovery-costs?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "previous pre-certificate costs"
+                    }
+                  ]
+                }
+              },
+              {
+                key: { text: "The paying party" },
+                value: { text: inquestDetails.payingParty },
+                actions: {
+                  items: [
+                    {
+                      href: "/claim/paying-party?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "the paying party"
+                    }
+                  ]
+                }
+              }
+            ]
+          }) }}
+        </div>
+
+        <div data-testid="financial-recovery-costs-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Financial recovery costs"
+              },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/recovery-costs?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "financial recovery costs"
+                  }
+                ]
+              }
+            },
+            rows: [
+              {
+                key: { text: "Costs" },
+                value: { text: inquestDetails.recoveryCosts }
+              },
+              {
+                key: { text: "Damages" },
+                value: { text: inquestDetails.recoveryDamages }
+              },
+              {
+                key: { text: "Interest" },
+                value: { text: inquestDetails.recoveryInterest }
+              },
+              {
+                key: { text: "Previous pre-certificate costs" },
+                value: { text: inquestDetails.recoveryPreCertificateCosts }
+              }
+            ]
+          }) }}
+        </div>
+        {% endif %}
 
         <form data-testid="confirm-and-submit-form" action="/claim/check-your-answers" method="post">
           <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
