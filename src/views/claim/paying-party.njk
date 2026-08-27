@@ -2,6 +2,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = "Who is the paying party?" %}
 {% set pageTitle = pageHeading %}
 
@@ -16,16 +17,31 @@
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+        {% if errorSummaries.payingPartyInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.payingPartyInputError.text,
+              href: "#paying-party"
+            }
+          ]
+        }) }}
+        {% endif %}
         <form data-testid="paying-party-form" action="/claim/paying-party" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukInput({
             label: {
-              text: "Enter the name of the paying party",
-              classes: "govuk-label--s"
+              text: pageHeading,
+              classes: "govuk-visually-hidden"
             },
             id: "paying-party",
             name: "paying-party",
-            value: payingParty
+            value: payingParty,
+            errorMessage: errorSummaries.payingPartyInputError,
+            hint: {
+              text: "Add the name of the organisation where the costs are being claimed back from"
+            }
           }) }}
           {{ govukButton({
             text: "Continue",

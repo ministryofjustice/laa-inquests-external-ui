@@ -72,8 +72,12 @@ export class CounselNumberAdaptor {
           counselNumber,
           counselBillsPaid: undefined,
         };
-        this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+        if (returnToCheckYourAnswers) {
+          this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+          res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+        } else {
+          res.redirect("/claim/end-date");
+        }
       } else if (returnToCheckYourAnswers && counselBillsPaid === true) {
         req.session.claim = {
           ...req.session.claim,

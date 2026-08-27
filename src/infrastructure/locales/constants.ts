@@ -9,6 +9,10 @@ export const CASE_SEARCH_ERROR = {
   NO_RESULTS: "There are no results that match the search criteria",
 };
 
+export const PAYING_PARTY_ERROR = {
+  MISSING_PAYING_PARTY: "Enter the name of the paying party",
+};
+
 export const CLAIM_TYPE_ERROR = {
   MISSING_CLAIM_TYPE: "Please select a claim type",
   MISSING_CLAIM_SUBTYPE: "Please select a Payment on Account claim type",
@@ -307,6 +311,26 @@ export const FUNDING_POST_INQUEST_ERROR = {
 
 export const RECOVERY_COST_ERROR = {
   MISSING_SELECTION: "Select whether the recovery cost has been made",
+};
+
+export const RECOVERY_COST_VALUE = {
+  YES: "YES",
+  NO: "NO",
+  DONT_KNOW: "DONT_KNOW",
+} as const;
+
+export const FINANCIAL_RECOVERY_COSTS_ERROR = {
+  MISSING_COSTS: "Enter the costs",
+  INVALID_COSTS: "Costs must be a valid amount with up to 2 decimal places",
+  MISSING_DAMAGES: "Enter the damages",
+  INVALID_DAMAGES: "Damages must be a valid amount with up to 2 decimal places",
+  MISSING_INTEREST: "Enter the interest",
+  INVALID_INTEREST:
+    "Interest must be a valid amount with up to 2 decimal places",
+  MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS:
+    "Enter the previous pre-certificate costs",
+  INVALID_PREVIOUS_PRE_CERTIFICATE_COSTS:
+    "Previous pre-certificate costs must be a valid amount with up to 2 decimal places",
 };
 
 export const FUNDING_POST_INQUEST_VALUE = {

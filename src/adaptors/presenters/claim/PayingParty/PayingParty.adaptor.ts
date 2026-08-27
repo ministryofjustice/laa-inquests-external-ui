@@ -1,18 +1,25 @@
 import type { Request, Response } from "express";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
-import { CLAIM_CHECK_YOUR_ANSWERS_PATH } from "#src/infrastructure/locales/constants.js";
+import type {
+  PayingPartyError,
+  PayingPartyFormData,
+  PayingPartyValidator,
+} from "./PayingParty.validator.js";
+import {
+  CLAIM_CHECK_YOUR_ANSWERS_PATH,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
-export interface PayingPartyFormData {
-  "paying-party"?: string;
-}
-
 export class PayingPartyAdaptor {
+  formValidator: PayingPartyValidator;
   navigationHelper: ClaimNavigationHelper;
 
   constructor(
+    formValidator: PayingPartyValidator,
     navigationHelper: ClaimNavigationHelper = new ClaimNavigationHelper(),
   ) {
+    this.formValidator = formValidator;
     this.navigationHelper = navigationHelper;
   }
 
@@ -38,8 +45,23 @@ export class PayingPartyAdaptor {
     res: Response,
   ): void {
     const {
+      locals: { csrfToken },
+    } = res;
+    const {
       body: { "paying-party": payingParty },
     } = req;
+
+    const errorSummaries: Partial<PayingPartyError> =
+      this.formValidator.validatePayingParty(req.body);
+
+    if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
+      res.render("claim/paying-party", {
+        csrfToken,
+        payingParty,
+        errorSummaries,
+      });
+      return;
+    }
 
     req.session.claim = {
       ...req.session.claim,

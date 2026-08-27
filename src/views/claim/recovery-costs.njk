@@ -15,6 +15,37 @@
   <main class="govuk-main-wrapper">
     <div class="govuk-grid-row">
       <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.costsInputError or errorSummaries.damagesInputError or errorSummaries.interestInputError or errorSummaries.previousPreCertificateCostsInputError %}
+        <div class="govuk-error-summary" data-module="govuk-error-summary">
+          <div role="alert">
+            <h2 class="govuk-error-summary__title">There is a problem</h2>
+            <div class="govuk-error-summary__body">
+              <ul class="govuk-list govuk-error-summary__list">
+                {% if errorSummaries.costsInputError %}
+                <li>
+                  <a href="#costs">{{ errorSummaries.costsInputError.text }}</a>
+                </li>
+                {% endif %}
+                {% if errorSummaries.damagesInputError %}
+                <li>
+                  <a href="#damages">{{ errorSummaries.damagesInputError.text }}</a>
+                </li>
+                {% endif %}
+                {% if errorSummaries.interestInputError %}
+                <li>
+                  <a href="#interest">{{ errorSummaries.interestInputError.text }}</a>
+                </li>
+                {% endif %}
+                {% if errorSummaries.previousPreCertificateCostsInputError %}
+                <li>
+                  <a href="#previous-pre-certificate-costs">{{ errorSummaries.previousPreCertificateCostsInputError.text }}</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
         <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         <form data-testid="recovery-costs-form" action="/claim/recovery-costs" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
@@ -28,7 +59,8 @@
             value: costs,
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
-            inputmode: "decimal"
+            inputmode: "decimal",
+            errorMessage: errorSummaries.costsInputError
           }) }}
           {{ govukInput({
             label: {
@@ -40,7 +72,8 @@
             value: damages,
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
-            inputmode: "decimal"
+            inputmode: "decimal",
+            errorMessage: errorSummaries.damagesInputError
           }) }}
           {{ govukInput({
             label: {
@@ -52,7 +85,8 @@
             value: interest,
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
-            inputmode: "decimal"
+            inputmode: "decimal",
+            errorMessage: errorSummaries.interestInputError
           }) }}
           {{ govukInput({
             label: {
@@ -64,7 +98,8 @@
             value: previousPreCertificateCosts,
             classes: "govuk-input--width-10",
             prefix: { text: "£" },
-            inputmode: "decimal"
+            inputmode: "decimal",
+            errorMessage: errorSummaries.previousPreCertificateCostsInputError
           }) }}
           {{ govukButton({
             text: "Continue",
@@ -77,3 +112,4 @@
 </div>
 
 {% endblock %}
+

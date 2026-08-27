@@ -68,7 +68,7 @@ test.describe("Claim - counsel number", () => {
     ).toBeVisible();
   });
 
-  test("skips to check your answers page when 0 counsel is selected", async ({
+  test("continues to end date page when 0 counsel is selected", async ({
     page,
   }) => {
     const form = page.getByTestId("counsel-number-form");
@@ -76,7 +76,10 @@ test.describe("Claim - counsel number", () => {
     await form.getByLabel("0", { exact: true }).check();
     await form.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page).toHaveURL("/claim/check-your-answers");
+    await expect(page).toHaveURL("/claim/end-date");
+
+    const backLink = page.getByRole("link", { name: "Back", exact: true });
+    await expect(backLink).toHaveAttribute("href", "/claim/counsel-number");
   });
 
   test("continues to pay confirmation page when more than 0 counsel is selected", async ({
@@ -113,7 +116,7 @@ test.describe("Claim - counsel number", () => {
 
     await form.getByLabel("0", { exact: true }).check();
     await form.getByRole("button", { name: "Continue" }).click();
-    await expect(page).toHaveURL("/claim/check-your-answers");
+    await expect(page).toHaveURL("/claim/end-date");
 
     await page.goto("/claim/counsel-number?from=check-your-answers");
 
@@ -122,5 +125,23 @@ test.describe("Claim - counsel number", () => {
     await changeForm.getByRole("button", { name: "Continue" }).click();
 
     await expect(page).toHaveURL("/claim/counsel-pay-confirmation");
+  });
+
+  test("returns to check your answers when changing to 0 counsel via check your answers", async ({
+    page,
+  }) => {
+    const form = page.getByTestId("counsel-number-form");
+
+    await form.getByLabel("2", { exact: true }).check();
+    await form.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/claim/counsel-pay-confirmation");
+
+    await page.goto("/claim/counsel-number?from=check-your-answers");
+
+    const changeForm = page.getByTestId("counsel-number-form");
+    await changeForm.getByLabel("0", { exact: true }).check();
+    await changeForm.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/check-your-answers");
   });
 });
