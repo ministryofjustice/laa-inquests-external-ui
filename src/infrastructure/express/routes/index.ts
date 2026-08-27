@@ -40,6 +40,7 @@ import { RecoveryCostMadeAdaptor } from "#src/adaptors/presenters/claim/Recovery
 import { RecoveryCostMadeValidator } from "#src/adaptors/presenters/claim/RecoveryCostMade/RecoveryCostMade.validator.js";
 import { createRecoveryCostsRouter } from "./claim/recoveryCosts.router.js";
 import { FinancialRecoveryCostsAdaptor } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.adaptor.js";
+import { FinancialRecoveryCostsValidator } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.validator.js";
 import { createPayingPartyRouter } from "./claim/payingParty.router.js";
 import { PayingPartyAdaptor } from "#src/adaptors/presenters/claim/PayingParty/PayingParty.adaptor.js";
 import { PayingPartyValidator } from "#src/adaptors/presenters/claim/PayingParty/PayingParty.validator.js";
@@ -269,6 +270,7 @@ const recoveryCostMadeAdaptor = new RecoveryCostMadeAdaptor(
 );
 
 const financialRecoveryCostsAdaptor = new FinancialRecoveryCostsAdaptor(
+  new FinancialRecoveryCostsValidator(),
   claimNavigationHelper,
 );
 

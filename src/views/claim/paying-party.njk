@@ -31,14 +31,13 @@
         <form data-testid="paying-party-form" action="/claim/paying-party" method="post">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukInput({
-            label: {
-              text: "Enter the name of the paying party",
-              classes: "govuk-label--s"
-            },
             id: "paying-party",
             name: "paying-party",
             value: payingParty,
-            errorMessage: errorSummaries.payingPartyInputError
+            errorMessage: errorSummaries.payingPartyInputError,
+            hint: {
+              text: "Add the name of the organisation where the costs are being claimed back from"
+            }
           }) }}
           {{ govukButton({
             text: "Continue",
