@@ -66,16 +66,24 @@ export class RecoveryCostMadeAdaptor {
       return;
     }
 
-    req.session.claim = {
-      ...req.session.claim,
-      recoveryCostMade,
-    };
-
     if (recoveryCostMade === RECOVERY_COST_VALUE.YES) {
+      req.session.claim = {
+        ...req.session.claim,
+        recoveryCostMade,
+        preCertificateCosts: undefined,
+      };
       res.redirect("/claim/recovery-costs");
       return;
     }
 
+    req.session.claim = {
+      ...req.session.claim,
+      recoveryCostMade,
+      recoveryCosts: undefined,
+      recoveryDamages: undefined,
+      recoveryInterest: undefined,
+      recoveryPreCertificateCosts: undefined,
+    };
     res.redirect("/claim/pre-cert-costs");
   }
 }

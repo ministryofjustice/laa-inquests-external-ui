@@ -4,30 +4,22 @@ import { PRE_CERTIFICATE_COSTS_ERROR } from "#src/infrastructure/locales/constan
 
 describe("PreCertificateCosts validator", () => {
   describe("validatePreCertificateCosts", () => {
-    it("returns a missing error when the field is blank", () => {
+    it("returns no errors when the field is blank", () => {
       const validator = new PreCertificateCostsValidator();
 
       const errors = validator.validatePreCertificateCosts({});
 
-      assert.deepEqual(errors, {
-        preCertificateCostsInputError: {
-          text: PRE_CERTIFICATE_COSTS_ERROR.MISSING,
-        },
-      });
+      assert.deepEqual(errors, {});
     });
 
-    it("returns a missing error when the field is only whitespace", () => {
+    it("returns no errors when the field is only whitespace", () => {
       const validator = new PreCertificateCostsValidator();
 
       const errors = validator.validatePreCertificateCosts({
         "pre-certificate-costs": "   ",
       });
 
-      assert.deepEqual(errors, {
-        preCertificateCostsInputError: {
-          text: PRE_CERTIFICATE_COSTS_ERROR.MISSING,
-        },
-      });
+      assert.deepEqual(errors, {});
     });
 
     it("returns an invalid error when the field is not a valid amount", () => {

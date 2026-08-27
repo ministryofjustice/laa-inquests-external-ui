@@ -581,6 +581,35 @@ test.describe("Claim - confirm and submit", () => {
       );
     });
 
+    test("clears previously entered financial recovery costs when the answer is changed away from Yes", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      const alternativeFunding = page.getByTestId(
+        "alternative-funding-details-summary-list",
+      );
+      await alternativeFunding
+        .locator(
+          'a[href="/claim/inquest-outcome-recovery?from=check-your-answers"]',
+        )
+        .click();
+      await page.waitForURL("**/claim/inquest-outcome-recovery**");
+      await page.getByLabel("No", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/pre-cert-costs");
+      await page.getByLabel("Enter the total amount").fill("400");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/paying-party");
+
+      await page.goto("/claim/inquest-outcome-recovery");
+      await page.getByLabel("Yes", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/recovery-costs");
+
+      await expect(page.getByLabel("Costs", { exact: true })).toHaveValue("");
+    });
+
     test("hides the recovery cards when funding post-inquest is No", async ({
       page,
     }) => {

@@ -4,28 +4,15 @@ import { FINANCIAL_RECOVERY_COSTS_ERROR } from "#src/infrastructure/locales/cons
 
 describe("FinancialRecoveryCosts validator", () => {
   describe("validateFinancialRecoveryCosts", () => {
-    it("returns missing errors for all four fields when blank", () => {
+    it("returns no errors when all four fields are blank", () => {
       const validator = new FinancialRecoveryCostsValidator();
 
       const errors = validator.validateFinancialRecoveryCosts({});
 
-      assert.deepEqual(errors, {
-        costsInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_COSTS,
-        },
-        damagesInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_DAMAGES,
-        },
-        interestInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_INTEREST,
-        },
-        previousPreCertificateCostsInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
-        },
-      });
+      assert.deepEqual(errors, {});
     });
 
-    it("returns a missing error for previous pre-certificate costs when only it is blank", () => {
+    it("returns no errors when only some fields are provided and valid", () => {
       const validator = new FinancialRecoveryCostsValidator();
 
       const errors = validator.validateFinancialRecoveryCosts({
@@ -34,11 +21,7 @@ describe("FinancialRecoveryCosts validator", () => {
         interest: "300",
       });
 
-      assert.deepEqual(errors, {
-        previousPreCertificateCostsInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
-        },
-      });
+      assert.deepEqual(errors, {});
     });
 
     it("returns invalid format errors for all four fields", () => {

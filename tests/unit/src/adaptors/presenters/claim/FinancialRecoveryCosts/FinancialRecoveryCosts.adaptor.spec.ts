@@ -171,7 +171,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
       assert.equal(requestStub.session.claim?.recoveryCosts, "100");
     });
 
-    it("re-renders the form with errors for all four fields when submitted blank", () => {
+    it("saves blank recovery values and redirects to paying party when submitted blank", () => {
       const adaptor = new FinancialRecoveryCostsAdaptor(
         new FinancialRecoveryCostsValidator(),
         new ClaimNavigationHelper(),
@@ -186,6 +186,29 @@ describe("FinancialRecoveryCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/paying-party",
+      );
+    });
+
+    it("re-renders the form with an error when a value is not a valid amount", () => {
+      const adaptor = new FinancialRecoveryCostsAdaptor(
+        new FinancialRecoveryCostsValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { recoveryCostMade: "YES" };
+      requestStub.body = { costs: "abc" };
+
+      adaptor.processForm(requestStub, responseStub);
+
       assert.equal(responseStub.redirect.callCount, 0);
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
@@ -193,16 +216,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.deepEqual(viewModel.errorSummaries, {
         costsInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_COSTS,
-        },
-        damagesInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_DAMAGES,
-        },
-        interestInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_INTEREST,
-        },
-        previousPreCertificateCostsInputError: {
-          text: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
+          text: FINANCIAL_RECOVERY_COSTS_ERROR.INVALID_COSTS,
         },
       });
       assert.equal(requestStub.session.claim?.recoveryCosts, undefined);

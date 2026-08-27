@@ -90,7 +90,7 @@ test.describe("Claim - pre-certificate costs", () => {
         await answerRecoveryCostMadeAndContinue(page, answer);
       });
 
-      test("shows a validation error when the field is blank", async ({
+      test("allows the field to be blank and continues to paying party", async ({
         page,
         checkAccessibility,
       }) => {
@@ -98,12 +98,7 @@ test.describe("Claim - pre-certificate costs", () => {
 
         await form.getByRole("button", { name: "Continue" }).click();
 
-        await expect(page).toHaveURL("/claim/pre-cert-costs");
-        await expect(
-          page.getByRole("link", {
-            name: PRE_CERTIFICATE_COSTS_ERROR.MISSING,
-          }),
-        ).toBeVisible();
+        await expect(page).toHaveURL("/claim/paying-party");
 
         await checkAccessibility();
       });

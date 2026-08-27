@@ -149,7 +149,7 @@ describe("PreCertificateCosts adaptor", () => {
       assert.equal(requestStub.session.claim?.preCertificateCosts, "400");
     });
 
-    it("re-renders the form with an error when the field is missing", () => {
+    it("saves a blank value and redirects to paying party when the field is missing", () => {
       const adaptor = new PreCertificateCostsAdaptor(
         new PreCertificateCostsValidator(),
         new ClaimNavigationHelper(),
@@ -164,17 +164,12 @@ describe("PreCertificateCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(responseStub.redirect.callCount, 0);
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "claim/pre-cert-costs");
-      const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
-      assert.deepEqual(viewModel.errorSummaries, {
-        preCertificateCostsInputError: {
-          text: PRE_CERTIFICATE_COSTS_ERROR.MISSING,
-        },
-      });
-      assert.equal(requestStub.session.claim?.preCertificateCosts, undefined);
+      assert.equal(responseStub.render.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/paying-party",
+      );
     });
 
     it("re-renders the form with an error when the field is not a valid amount", () => {

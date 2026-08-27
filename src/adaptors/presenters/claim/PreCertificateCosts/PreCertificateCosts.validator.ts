@@ -20,11 +20,7 @@ export class PreCertificateCostsValidator extends FormValidator {
     );
 
     if (preCertificateCosts === undefined) {
-      return {
-        preCertificateCostsInputError: {
-          text: PRE_CERTIFICATE_COSTS_ERROR.MISSING,
-        },
-      };
+      return {};
     }
 
     if (!this.#isValidMonetaryValue(preCertificateCosts)) {

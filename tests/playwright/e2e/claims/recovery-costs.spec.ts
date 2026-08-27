@@ -91,7 +91,7 @@ test.describe("Claim - financial recovery costs", () => {
       await answerRecoveryCostMadeYesAndContinue(page);
     });
 
-    test("shows validation errors for all four fields when blank", async ({
+    test("allows all fields to be blank and continues to paying party", async ({
       page,
       checkAccessibility,
     }) => {
@@ -99,45 +99,23 @@ test.describe("Claim - financial recovery costs", () => {
 
       await form.getByRole("button", { name: "Continue" }).click();
 
-      await expect(page).toHaveURL("/claim/recovery-costs");
-      await expect(
-        page.getByRole("link", {
-          name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_COSTS,
-        }),
-      ).toBeVisible();
-      await expect(
-        page.getByRole("link", {
-          name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_DAMAGES,
-        }),
-      ).toBeVisible();
-      await expect(
-        page.getByRole("link", {
-          name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_INTEREST,
-        }),
-      ).toBeVisible();
-      await expect(
-        page.getByRole("link", {
-          name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
-        }),
-      ).toBeVisible();
+      await expect(page).toHaveURL("/claim/paying-party");
 
       await checkAccessibility();
     });
 
-    test("shows a validation error when previous pre-certificate costs is blank", async ({
+    test("shows a validation error when a value is not a valid amount", async ({
       page,
     }) => {
       const form = page.getByTestId("recovery-costs-form");
 
-      await form.getByLabel("Costs", { exact: true }).fill("100");
-      await form.getByLabel("Damages").fill("200");
-      await form.getByLabel("Interest").fill("300");
+      await form.getByLabel("Costs", { exact: true }).fill("abc");
       await form.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/claim/recovery-costs");
       await expect(
         page.getByRole("link", {
-          name: FINANCIAL_RECOVERY_COSTS_ERROR.MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS,
+          name: FINANCIAL_RECOVERY_COSTS_ERROR.INVALID_COSTS,
         }),
       ).toBeVisible();
     });
