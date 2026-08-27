@@ -30,9 +30,8 @@ test.describe("Claim - paying party", () => {
   test("renders the paying party input", async ({ page }) => {
     const form = page.getByTestId("paying-party-form");
 
-    await expect(
-      form.getByLabel("Enter the name of the paying party"),
-    ).toBeVisible();
+    await expect(form.locator("#paying-party")).toBeVisible();
+    await expect(form.getByText("Add the name of the organisation where the costs are being claimed back from")).toBeVisible();
   });
 
   test("includes a csrf token in the form", async ({ page }) => {
@@ -64,18 +63,14 @@ test.describe("Claim - paying party", () => {
   }) => {
     const form = page.getByTestId("paying-party-form");
 
-    await form
-      .getByLabel("Enter the name of the paying party")
-      .fill("Acme Ltd");
+    await form.locator("#paying-party").fill("Acme Ltd");
     await form.getByRole("button", { name: "Continue" }).click();
 
     await expect(page).toHaveURL("/claim/check-your-answers");
 
     await page.goto("/claim/paying-party");
     await expect(
-      page
-        .getByTestId("paying-party-form")
-        .getByLabel("Enter the name of the paying party"),
+      page.getByTestId("paying-party-form").locator("#paying-party"),
     ).toHaveValue("Acme Ltd");
   });
 });
