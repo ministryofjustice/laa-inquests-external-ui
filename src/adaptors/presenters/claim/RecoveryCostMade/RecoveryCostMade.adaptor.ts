@@ -72,6 +72,7 @@ export class RecoveryCostMadeAdaptor {
         recoveryCostMade,
         preCertificateCosts: undefined,
       };
+      this.#markEditWhenReturning(req);
       res.redirect("/claim/recovery-costs");
       return;
     }
@@ -84,6 +85,14 @@ export class RecoveryCostMadeAdaptor {
       recoveryInterest: undefined,
       recoveryPreCertificateCosts: undefined,
     };
+    this.#markEditWhenReturning(req);
     res.redirect("/claim/pre-cert-costs");
+  }
+
+  // Keeps the return-to-check-your-answers trip routed via the dependent cost page.
+  #markEditWhenReturning(req: Pick<Request, "session">): void {
+    if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+      this.navigationHelper.markRecoveryCostMadeEdit(req);
+    }
   }
 }

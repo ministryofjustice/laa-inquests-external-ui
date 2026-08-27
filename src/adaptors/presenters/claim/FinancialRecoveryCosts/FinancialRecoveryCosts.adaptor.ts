@@ -7,6 +7,7 @@ import type {
 import { FinancialRecoveryCostsValidator } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import {
+  CLAIM_CHECK_YOUR_ANSWERS_PATH,
   EMPTY_ARR_LENGTH,
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
@@ -44,9 +45,9 @@ export class FinancialRecoveryCostsAdaptor {
       interest: req.session.claim?.recoveryInterest,
       previousPreCertificateCosts:
         req.session.claim?.recoveryPreCertificateCosts,
-      backHref: this.navigationHelper.resolveBackHref(
+      backHref: this.navigationHelper.resolveCostPageBackHref(
         req,
-        "/claim/inquest-outcome-recovery",
+        RECOVERY_COST_MADE_ANSWER_HREF,
       ),
     });
   }
@@ -82,9 +83,9 @@ export class FinancialRecoveryCostsAdaptor {
         damages,
         interest,
         previousPreCertificateCosts,
-        backHref: this.navigationHelper.resolveBackHref(
+        backHref: this.navigationHelper.resolveCostPageBackHref(
           req,
-          "/claim/inquest-outcome-recovery",
+          RECOVERY_COST_MADE_ANSWER_HREF,
         ),
         errorSummaries,
       });
@@ -98,6 +99,12 @@ export class FinancialRecoveryCostsAdaptor {
       recoveryInterest: interest,
       recoveryPreCertificateCosts: previousPreCertificateCosts,
     };
+
+    if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+      this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+      res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+      return;
+    }
 
     res.redirect("/claim/paying-party");
   }

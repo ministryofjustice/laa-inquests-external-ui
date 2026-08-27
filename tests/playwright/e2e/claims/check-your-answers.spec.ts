@@ -600,7 +600,7 @@ test.describe("Claim - confirm and submit", () => {
       await page.waitForURL("**/claim/pre-cert-costs");
       await page.getByLabel("Enter the total amount").fill("400");
       await page.getByRole("button", { name: "Continue" }).click();
-      await page.waitForURL("**/claim/paying-party");
+      await page.waitForURL("**/claim/check-your-answers");
 
       await page.goto("/claim/inquest-outcome-recovery");
       await page.getByLabel("Yes", { exact: true }).check();
@@ -608,6 +608,78 @@ test.describe("Claim - confirm and submit", () => {
       await page.waitForURL("**/claim/recovery-costs");
 
       await expect(page.getByLabel("Costs", { exact: true })).toHaveValue("");
+    });
+
+    test("returns straight to check your answers after changing financial recovery costs", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      await page
+        .getByTestId("financial-recovery-costs-summary-list")
+        .getByRole("link", { name: "Change" })
+        .click();
+      await page.waitForURL("**/claim/recovery-costs**");
+      await expect(
+        page.getByRole("link", { name: "Back", exact: true }),
+      ).toHaveAttribute("href", "/claim/check-your-answers");
+
+      await page.getByLabel("Costs", { exact: true }).fill("150");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/check-your-answers");
+      await expect(
+        page.getByTestId("financial-recovery-costs-summary-list"),
+      ).toContainText("£150.00");
+    });
+
+    test("returns straight to check your answers after changing previous pre-certificate costs", async ({
+      page,
+    }) => {
+      await completePreCertJourney(page);
+
+      await page
+        .getByTestId("alternative-funding-details-summary-list")
+        .locator('a[href="/claim/pre-cert-costs?from=check-your-answers"]')
+        .click();
+      await page.waitForURL("**/claim/pre-cert-costs**");
+      await expect(
+        page.getByRole("link", { name: "Back", exact: true }),
+      ).toHaveAttribute("href", "/claim/check-your-answers");
+
+      await page.getByLabel("Enter the total amount").fill("450");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/check-your-answers");
+      await expect(
+        page.getByTestId("alternative-funding-details-summary-list"),
+      ).toContainText("£450.00");
+    });
+
+    test("routes through the dependent cost page whose back link returns to recovery cost made when changing the recovery cost made answer", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      await page
+        .getByTestId("alternative-funding-details-summary-list")
+        .locator(
+          'a[href="/claim/inquest-outcome-recovery?from=check-your-answers"]',
+        )
+        .click();
+      await page.waitForURL("**/claim/inquest-outcome-recovery**");
+      await page.getByLabel("No", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/pre-cert-costs");
+      await expect(
+        page.getByRole("link", { name: "Back", exact: true }),
+      ).toHaveAttribute("href", "/claim/inquest-outcome-recovery");
+
+      await page.getByLabel("Enter the total amount").fill("400");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/check-your-answers");
     });
 
     test("hides the recovery cards when funding post-inquest is No", async ({

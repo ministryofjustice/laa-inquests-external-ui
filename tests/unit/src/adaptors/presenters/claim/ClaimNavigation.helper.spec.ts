@@ -37,6 +37,20 @@ describe("ClaimNavigationHelper", () => {
       assert.equal(req.session.claim?.counselNumber, "2");
       assert.equal(req.session.claim?.returnToCheckYourAnswers, true);
     });
+
+    it("resets the recovery cost made edit marker on a fresh direct entry", () => {
+      const helper = new ClaimNavigationHelper();
+      const req = stubInterface<Request>();
+      req.query = { from: "check-your-answers" };
+      req.session.claim = { recoveryCostMadeEditInProgress: true };
+
+      helper.captureCheckYourAnswersEntry(req);
+
+      assert.equal(
+        req.session.claim?.recoveryCostMadeEditInProgress,
+        undefined,
+      );
+    });
   });
 
   describe("isReturningToCheckYourAnswers", () => {
@@ -101,6 +115,72 @@ describe("ClaimNavigationHelper", () => {
       helper.clearReturnToCheckYourAnswersFlag(req);
 
       assert.equal(req.session.claim, undefined);
+    });
+
+    it("also clears the recovery cost made edit marker", () => {
+      const helper = new ClaimNavigationHelper();
+      const req = stubInterface<Request>();
+      req.session.claim = {
+        returnToCheckYourAnswers: true,
+        recoveryCostMadeEditInProgress: true,
+      };
+
+      helper.clearReturnToCheckYourAnswersFlag(req);
+
+      assert.equal(
+        req.session.claim?.recoveryCostMadeEditInProgress,
+        undefined,
+      );
+    });
+  });
+
+  describe("markRecoveryCostMadeEdit", () => {
+    it("sets the recovery cost made edit marker without dropping other claim data", () => {
+      const helper = new ClaimNavigationHelper();
+      const req = stubInterface<Request>();
+      req.session.claim = { returnToCheckYourAnswers: true };
+
+      helper.markRecoveryCostMadeEdit(req);
+
+      assert.equal(req.session.claim?.recoveryCostMadeEditInProgress, true);
+      assert.equal(req.session.claim?.returnToCheckYourAnswers, true);
+    });
+  });
+
+  describe("resolveCostPageBackHref", () => {
+    it("returns the default (recovery cost made) href when reached via a recovery cost made edit", () => {
+      const helper = new ClaimNavigationHelper();
+      const req = stubInterface<Request>();
+      req.session.claim = {
+        returnToCheckYourAnswers: true,
+        recoveryCostMadeEditInProgress: true,
+      };
+
+      assert.equal(
+        helper.resolveCostPageBackHref(req, "/claim/inquest-outcome-recovery"),
+        "/claim/inquest-outcome-recovery",
+      );
+    });
+
+    it("returns check your answers when reached via a direct change to the cost page", () => {
+      const helper = new ClaimNavigationHelper();
+      const req = stubInterface<Request>();
+      req.session.claim = { returnToCheckYourAnswers: true };
+
+      assert.equal(
+        helper.resolveCostPageBackHref(req, "/claim/inquest-outcome-recovery"),
+        CLAIM_CHECK_YOUR_ANSWERS_PATH,
+      );
+    });
+
+    it("returns the default href in the normal forward journey", () => {
+      const helper = new ClaimNavigationHelper();
+      const req = stubInterface<Request>();
+
+      assert.equal(
+        helper.resolveCostPageBackHref(req, "/claim/inquest-outcome-recovery"),
+        "/claim/inquest-outcome-recovery",
+      );
     });
   });
 });

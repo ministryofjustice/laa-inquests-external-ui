@@ -77,6 +77,30 @@ describe("PreCertificateCosts adaptor", () => {
         .args[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.backHref, "/claim/check-your-answers");
     });
+
+    it("sets the back link to recovery cost made when reached via a recovery cost made edit", () => {
+      const adaptor = new PreCertificateCostsAdaptor(
+        new PreCertificateCostsValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        recoveryCostMade: "NO",
+        returnToCheckYourAnswers: true,
+        recoveryCostMadeEditInProgress: true,
+      };
+      requestStub.query = {};
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.backHref, "/claim/inquest-outcome-recovery");
+    });
   });
 
   describe("processForm", () => {
@@ -124,6 +148,41 @@ describe("PreCertificateCosts adaptor", () => {
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/paying-party",
+      );
+    });
+
+    it("saves and redirects to check your answers, clearing the flags, when returning to check your answers", () => {
+      const adaptor = new PreCertificateCostsAdaptor(
+        new PreCertificateCostsValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        recoveryCostMade: "NO",
+        returnToCheckYourAnswers: true,
+        recoveryCostMadeEditInProgress: true,
+      };
+      requestStub.body = { "pre-certificate-costs": "400" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.preCertificateCosts, "400");
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
+      assert.equal(
+        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        undefined,
+      );
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/check-your-answers",
       );
     });
 

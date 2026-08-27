@@ -189,6 +189,79 @@ describe("RecoveryCostMade adaptor", () => {
       assert.equal(requestStub.session.claim?.recoveryCosts, "100");
     });
 
+    it("marks a recovery cost made edit and keeps the return flag when returning to check your answers and Yes is selected", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+      requestStub.body = { "recovery-cost-made": "YES" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(
+        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        true,
+      );
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/recovery-costs",
+      );
+    });
+
+    it("marks a recovery cost made edit and keeps the return flag when returning to check your answers and No is selected", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+      requestStub.body = { "recovery-cost-made": "NO" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(
+        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        true,
+      );
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/pre-cert-costs",
+      );
+    });
+
+    it("does not mark a recovery cost made edit in the normal forward journey", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {};
+      requestStub.body = { "recovery-cost-made": "YES" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(
+        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        undefined,
+      );
+    });
+
     it("re-renders the form with an error when no option is selected", () => {
       const adaptor = new RecoveryCostMadeAdaptor(
         new RecoveryCostMadeValidator(),

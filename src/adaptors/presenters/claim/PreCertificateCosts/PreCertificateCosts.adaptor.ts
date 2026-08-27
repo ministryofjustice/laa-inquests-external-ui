@@ -6,6 +6,7 @@ import type {
   PreCertificateCostsValidator,
 } from "./PreCertificateCosts.validator.js";
 import {
+  CLAIM_CHECK_YOUR_ANSWERS_PATH,
   EMPTY_ARR_LENGTH,
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
@@ -40,7 +41,7 @@ export class PreCertificateCostsAdaptor {
     res.render("claim/pre-cert-costs", {
       csrfToken,
       preCertificateCosts: req.session.claim?.preCertificateCosts,
-      backHref: this.navigationHelper.resolveBackHref(
+      backHref: this.navigationHelper.resolveCostPageBackHref(
         req,
         RECOVERY_COST_MADE_ANSWER_HREF,
       ),
@@ -70,7 +71,7 @@ export class PreCertificateCostsAdaptor {
       res.render("claim/pre-cert-costs", {
         csrfToken,
         preCertificateCosts,
-        backHref: this.navigationHelper.resolveBackHref(
+        backHref: this.navigationHelper.resolveCostPageBackHref(
           req,
           RECOVERY_COST_MADE_ANSWER_HREF,
         ),
@@ -83,6 +84,12 @@ export class PreCertificateCostsAdaptor {
       ...req.session.claim,
       preCertificateCosts,
     };
+
+    if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+      this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+      res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+      return;
+    }
 
     res.redirect("/claim/paying-party");
   }
