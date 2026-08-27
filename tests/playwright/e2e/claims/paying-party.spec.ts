@@ -31,7 +31,11 @@ test.describe("Claim - paying party", () => {
     const form = page.getByTestId("paying-party-form");
 
     await expect(form.locator("#paying-party")).toBeVisible();
-    await expect(form.getByText("Add the name of the organisation where the costs are being claimed back from")).toBeVisible();
+    await expect(
+      form.getByText(
+        "Add the name of the organisation where the costs are being claimed back from",
+      ),
+    ).toBeVisible();
   });
 
   test("includes a csrf token in the form", async ({ page }) => {
