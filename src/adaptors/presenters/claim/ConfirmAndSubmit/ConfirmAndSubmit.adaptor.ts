@@ -5,6 +5,7 @@ import {
   EMPTY_ARR_LENGTH,
   CLAIM_REJECTION_REASON_LABEL,
   CLAIM_SUBTYPE_LABEL,
+  CLAIM_TYPE_HEADING_LABEL,
   CLAIM_TYPE_LABEL,
   CLAIM_TYPE_VALUE,
   COUNSEL_NUMBER_OPTIONS,
@@ -12,6 +13,7 @@ import {
   FUNDING_POST_INQUEST_OPTIONS,
   FUNDING_POST_INQUEST_VALUE,
   INQUEST_OUTCOME_OPTIONS,
+  NIL_BILL_GROSS_TOTAL,
   RECOVERY_COST_OPTIONS,
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
@@ -118,7 +120,7 @@ export class ConfirmAndSubmitAdaptor {
     const {
       caseReference = "",
       type = "",
-      subtype = null,
+      subtype,
       zeroVatTotal,
       netTotal,
       grossTotal,
@@ -126,19 +128,28 @@ export class ConfirmAndSubmitAdaptor {
       finalBillCostTemplate,
     } = claim;
 
+    const isPoa = type === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT;
     const isFinalOrNilBill =
       type === CLAIM_TYPE_VALUE.FINAL_BILL ||
       type === CLAIM_TYPE_VALUE.NIL_BILL;
+    const parsedGrossTotal = this.#parseAmount(grossTotal);
+    const claimType =
+      type === CLAIM_TYPE_VALUE.FINAL_BILL &&
+      parsedGrossTotal === NIL_BILL_GROSS_TOTAL
+        ? CLAIM_TYPE_VALUE.NIL_BILL
+        : type;
 
     return {
       laaReference: caseReference,
-      claimType: type,
-      poaTypeId: subtype,
+      claimType,
+      poaTypeId: isPoa ? (subtype ?? null) : undefined,
       claimantId: providerEmail,
       accessToken,
-      zeroVatTotal: isFinalOrNilBill ? null : this.#parseAmount(zeroVatTotal),
-      netTotal: isFinalOrNilBill ? null : this.#parseAmount(netTotal),
-      grossTotal: this.#parseAmount(grossTotal),
+      zeroVatTotal: isFinalOrNilBill
+        ? undefined
+        : this.#parseAmount(zeroVatTotal),
+      netTotal: isFinalOrNilBill ? undefined : this.#parseAmount(netTotal),
+      grossTotal: parsedGrossTotal,
       claimEvidenceIds: (evidenceFiles ?? []).map((file) => file.id),
       claimCostTemplateFile:
         isFinalOrNilBill && finalBillCostTemplate !== undefined
@@ -465,12 +476,13 @@ export class ConfirmAndSubmitAdaptor {
       locals: { csrfToken },
     } = res;
     const {
-      session: { claimReferenceNumber },
+      session: { claimReferenceNumber, claim },
     } = req;
 
     res.render("claim/confirm-success", {
       csrfToken,
       claimReferenceNumber,
+      claimTypeHeading: this.#claimTypeHeading(claim),
     });
   }
 
@@ -492,7 +504,16 @@ export class ConfirmAndSubmitAdaptor {
     res.render("claim/confirm-reject", {
       csrfToken,
       rejectionReasonDescriptions,
+      claimTypeHeading: this.#claimTypeHeading(req.session.claim),
     });
+  }
+
+  #claimTypeHeading(claim?: ClaimSession): string {
+    const type =
+      claim?.type === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT
+        ? CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT
+        : CLAIM_TYPE_VALUE.FINAL_BILL;
+    return this.#labelFor(CLAIM_TYPE_HEADING_LABEL, type);
   }
 
   #buildCaseDetails(claim?: ClaimSession): {

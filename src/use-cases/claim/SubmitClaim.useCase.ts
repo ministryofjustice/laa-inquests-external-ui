@@ -10,11 +10,11 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 export interface SubmitClaimInput {
   laaReference: string;
   claimType: string;
-  poaTypeId: string | null;
+  poaTypeId: string | null | undefined;
   claimantId: string;
   accessToken: string | undefined;
-  zeroVatTotal: number | null;
-  netTotal: number | null;
+  zeroVatTotal: number | null | undefined;
+  netTotal: number | null | undefined;
   grossTotal: number | null;
   claimEvidenceIds: string[];
   inquestOutcomes?: string[];

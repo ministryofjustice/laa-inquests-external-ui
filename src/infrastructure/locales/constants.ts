@@ -73,6 +73,11 @@ export const CLAIM_TYPE_LABEL: Record<string, string> = {
   FINAL_BILL: "Final bill",
 };
 
+export const CLAIM_TYPE_HEADING_LABEL: Record<string, string> = {
+  PAYMENT_ON_ACCOUNT: "Payment on account",
+  FINAL_BILL: "Final bill",
+};
+
 export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
   PROFIT_COST: "Profit cost",
   EXPERT_COST: "Expert cost",
