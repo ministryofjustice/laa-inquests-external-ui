@@ -481,7 +481,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       ]);
     });
 
-    it("includes the final bill template id in claimEvidenceIds when present", async () => {
+    it("maps final bill fields into submit payload and keeps evidence ids separate from cost template", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
         data: { claimId: 99 },
@@ -496,20 +496,45 @@ describe("ConfirmAndSubmit adaptor", () => {
       requestStub.session.claim = {
         caseReference: "1",
         type: "FINAL_BILL",
+        zeroVatTotal: "0",
+        netTotal: "",
+        grossTotal: "1200",
         evidenceFiles: [{ id: "evidence-id-1", fileName: "a.pdf" }],
         finalBillCostTemplate: {
           costTemplateId: "template-id-1",
           costTemplateFilename: "cost-template.xlsx",
         },
+        inquestOutcomes: ["NATURAL_CAUSES"],
+        counselNumber: "6_OR_MORE",
+        counselBillsPaid: true,
+        fundingPostInquest: "YES",
+        recoveryCostMade: "YES",
+        recoveryCosts: "100",
+        recoveryDamages: "200",
+        recoveryInterest: "300",
+        recoveryPreCertificateCosts: "400",
+        payingParty: "Acme Ltd",
       };
+      requestStub.session.providerEmail = "test@provider.co.uk";
 
       await adaptor.processForm(requestStub, responseStub);
 
       const [input] = submitClaimUseCase.execute.getCall(0).args;
-      assert.deepEqual(input.claimEvidenceIds, [
-        "evidence-id-1",
-        "template-id-1",
-      ]);
+      assert.deepEqual(input.claimEvidenceIds, ["evidence-id-1"]);
+      assert.deepEqual(input.inquestOutcomes, ["NATURAL_CAUSES"]);
+      assert.deepEqual(input.claimCostTemplateFile, {
+        claimCostTemplateFileId: "template-id-1",
+        claimCostTemplateFileName: "cost-template.xlsx",
+      });
+      assert.equal(input.hasCounselBeenPaid, true);
+      assert.equal(input.hasAlternativeFunding, true);
+      assert.equal(input.hasRecoveryCostsAwarded, true);
+      assert.equal(input.financialRecoveryPreviousPreCertificateCosts, 400);
+      assert.equal(input.financialRecoveryCost, 100);
+      assert.equal(input.financialRecoveryDamages, 200);
+      assert.equal(input.financialRecoveryInterest, 300);
+      assert.equal(input.payingParty, "Acme Ltd");
+      assert.equal(input.numberOfCounselInstructed, "MORE_THAN_6");
     });
 
     it("defaults claimEvidenceIds to an empty array when no evidence files are in session", async () => {

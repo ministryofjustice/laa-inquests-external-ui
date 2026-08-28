@@ -123,7 +123,22 @@ export class ConfirmAndSubmitAdaptor {
       grossTotal,
       evidenceFiles,
       finalBillCostTemplate,
+      inquestOutcomes,
+      counselBillsPaid,
+      fundingPostInquest,
+      recoveryCostMade,
+      recoveryCosts,
+      recoveryDamages,
+      recoveryInterest,
+      recoveryPreCertificateCosts,
+      preCertificateCosts,
+      payingParty,
+      counselNumber,
     } = claim;
+
+    const isFinalBill = type === CLAIM_TYPE_VALUE.FINAL_BILL;
+    const hasRecoveryCostsAwarded = this.#mapHasRecoveryCostsAwarded(recoveryCostMade);
+
     return {
       laaReference: caseReference,
       claimType: type,
@@ -133,18 +148,107 @@ export class ConfirmAndSubmitAdaptor {
       zeroVatTotal: this.#parseAmount(zeroVatTotal),
       netTotal: this.#parseAmount(netTotal),
       grossTotal: this.#parseAmount(grossTotal),
-      claimEvidenceIds: [
-        ...(evidenceFiles ?? []).map((file) => file.id),
-        ...(finalBillCostTemplate === undefined
-          ? []
-          : [finalBillCostTemplate.costTemplateId]),
-      ],
+      claimEvidenceIds: (evidenceFiles ?? []).map((file) => file.id),
+      inquestOutcomes,
+      claimCostTemplateFile:
+        finalBillCostTemplate === undefined
+          ? null
+          : {
+              claimCostTemplateFileId: finalBillCostTemplate.costTemplateId,
+              claimCostTemplateFileName:
+                finalBillCostTemplate.costTemplateFilename,
+            },
+      hasCounselBeenPaid: this.#mapHasCounselBeenPaid(counselNumber, counselBillsPaid),
+      hasAlternativeFunding: this.#mapHasAlternativeFunding(fundingPostInquest),
+      hasRecoveryCostsAwarded,
+      financialRecoveryPreviousPreCertificateCosts: this.#parseAmount(
+        hasRecoveryCostsAwarded === true
+          ? recoveryPreCertificateCosts
+          : preCertificateCosts,
+      ),
+      financialRecoveryCost:
+        hasRecoveryCostsAwarded === true ? this.#parseAmount(recoveryCosts) : 0,
+      financialRecoveryDamages:
+        hasRecoveryCostsAwarded === true
+          ? this.#parseAmount(recoveryDamages)
+          : 0,
+      financialRecoveryInterest:
+        hasRecoveryCostsAwarded === true
+          ? this.#parseAmount(recoveryInterest)
+          : 0,
+      payingParty: this.#normaliseText(payingParty),
+      numberOfCounselInstructed: isFinalBill
+        ? this.#mapCounselNumberForApi(counselNumber)
+        : null,
     };
   }
 
   #parseAmount(value: string | undefined): number | null {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  #normaliseText(value: string | undefined): string | null {
+    if (typeof value !== "string") {
+      return null;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  #mapCounselNumberForApi(counselNumber: string | undefined): string | null {
+    if (typeof counselNumber !== "string") {
+      return null;
+    }
+
+    if (counselNumber === "6_OR_MORE") {
+      return "MORE_THAN_6";
+    }
+
+    return counselNumber;
+  }
+
+  #mapHasCounselBeenPaid(
+    counselNumber: string | undefined,
+    counselBillsPaid: boolean | undefined,
+  ): boolean | null {
+    if (counselNumber === COUNSEL_NUMBER_ZERO) {
+      return false;
+    }
+    if (typeof counselBillsPaid === "boolean") {
+      return counselBillsPaid;
+    }
+    return null;
+  }
+
+  #mapHasAlternativeFunding(
+    fundingPostInquest: string | undefined,
+  ): boolean | null {
+    if (fundingPostInquest === FUNDING_POST_INQUEST_VALUE.YES) {
+      return true;
+    }
+    if (
+      fundingPostInquest === FUNDING_POST_INQUEST_VALUE.NO ||
+      fundingPostInquest === FUNDING_POST_INQUEST_VALUE.DONT_KNOW
+    ) {
+      return false;
+    }
+    return null;
+  }
+
+  #mapHasRecoveryCostsAwarded(
+    recoveryCostMade: string | undefined,
+  ): boolean | null {
+    if (recoveryCostMade === RECOVERY_COST_VALUE.YES) {
+      return true;
+    }
+    if (
+      recoveryCostMade === RECOVERY_COST_VALUE.NO ||
+      recoveryCostMade === RECOVERY_COST_VALUE.DONT_KNOW
+    ) {
+      return false;
+    }
+    return null;
   }
 
   #buildRenderData(req: Request): Record<string, unknown> {

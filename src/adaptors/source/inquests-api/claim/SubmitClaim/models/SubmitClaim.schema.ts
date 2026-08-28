@@ -22,6 +22,23 @@ export const SubmitClaimRequestSchema = z.object({
   poaTypeId: z.string().nullable(),
   claimantId: z.string(),
   claimEvidenceIds: z.array(z.string()).nonempty(),
+  inquestOutcomes: z.array(z.string()).optional(),
+  claimCostTemplateFile: z
+    .object({
+      claimCostTemplateFileId: z.string(),
+      claimCostTemplateFileName: z.string(),
+    })
+    .optional()
+    .nullable(),
+  hasCounselBeenPaid: z.boolean().optional().nullable(),
+  hasAlternativeFunding: z.boolean().optional().nullable(),
+  hasRecoveryCostsAwarded: z.boolean().optional().nullable(),
+  financialRecoveryPreviousPreCertificateCosts: z.number().optional().nullable(),
+  financialRecoveryCost: z.number().optional().nullable(),
+  financialRecoveryDamages: z.number().optional().nullable(),
+  financialRecoveryInterest: z.number().optional().nullable(),
+  payingParty: z.string().optional().nullable(),
+  numberOfCounselInstructed: z.string().optional().nullable(),
 });
 
 const SubmitClaimResponseBaseSchema = z.object({
