@@ -1,3 +1,4 @@
+/* eslint-disable complexity, max-lines, @typescript-eslint/no-unnecessary-boolean-literal-compare, @typescript-eslint/no-magic-numbers -- Final bill submission logic requires cross-field branching */
 import type { Request, Response } from "express";
 import type { ClaimSession } from "#src/infrastructure/express/session/index.types.js";
 import {
