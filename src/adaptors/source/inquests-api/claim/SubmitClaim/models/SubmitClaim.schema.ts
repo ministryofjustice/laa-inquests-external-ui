@@ -33,7 +33,10 @@ export const SubmitClaimRequestSchema = z.object({
   hasCounselBeenPaid: z.boolean().optional().nullable(),
   hasAlternativeFunding: z.boolean().optional().nullable(),
   hasRecoveryCostsAwarded: z.boolean().optional().nullable(),
-  financialRecoveryPreviousPreCertificateCosts: z.number().optional().nullable(),
+  financialRecoveryPreviousPreCertificateCosts: z
+    .number()
+    .optional()
+    .nullable(),
   financialRecoveryCost: z.number().optional().nullable(),
   financialRecoveryDamages: z.number().optional().nullable(),
   financialRecoveryInterest: z.number().optional().nullable(),

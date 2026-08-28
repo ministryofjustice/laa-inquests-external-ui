@@ -155,6 +155,7 @@ describe("ConfirmAndSubmit adaptor", () => {
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
       assert.equal(viewModel.counsel.show, false);
+      assert.equal(viewModel.isFinalBill, false);
     });
 
     it("shows the counsel section with paid details when the claim is a final bill with counsel", () => {
@@ -179,6 +180,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.counsel.hasCounsel, true);
       assert.equal(viewModel.counsel.counselNumber, "2");
       assert.equal(viewModel.counsel.counselPaid, "Yes");
+      assert.equal(viewModel.isFinalBill, true);
     });
 
     it("shows the counsel section without a paid row when a final bill has zero counsel", () => {
@@ -479,6 +481,15 @@ describe("ConfirmAndSubmit adaptor", () => {
         "evidence-id-1",
         "evidence-id-2",
       ]);
+      assert.equal(input.hasCounselBeenPaid, null);
+      assert.equal(input.hasAlternativeFunding, null);
+      assert.equal(input.hasRecoveryCostsAwarded, null);
+      assert.equal(input.financialRecoveryPreviousPreCertificateCosts, null);
+      assert.equal(input.financialRecoveryCost, null);
+      assert.equal(input.financialRecoveryDamages, null);
+      assert.equal(input.financialRecoveryInterest, null);
+      assert.equal(input.payingParty, null);
+      assert.equal(input.numberOfCounselInstructed, null);
     });
 
     it("maps final bill fields into submit payload and keeps evidence ids separate from cost template", async () => {
@@ -520,6 +531,9 @@ describe("ConfirmAndSubmit adaptor", () => {
       await adaptor.processForm(requestStub, responseStub);
 
       const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.equal(input.zeroVatTotal, null);
+      assert.equal(input.netTotal, null);
+      assert.equal(input.grossTotal, 1200);
       assert.deepEqual(input.claimEvidenceIds, ["evidence-id-1"]);
       assert.deepEqual(input.inquestOutcomes, ["NATURAL_CAUSES"]);
       assert.deepEqual(input.claimCostTemplateFile, {
@@ -535,6 +549,74 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(input.financialRecoveryInterest, 300);
       assert.equal(input.payingParty, "Acme Ltd");
       assert.equal(input.numberOfCounselInstructed, "MORE_THAN_6");
+    });
+
+    it("excludes leftover POA cost values when submitting a final bill", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "FINAL_BILL",
+        zeroVatTotal: "10",
+        netTotal: "1000",
+        grossTotal: "500",
+        evidenceFiles: [{ id: "e1", fileName: "a.pdf" }],
+        counselNumber: "2",
+        counselBillsPaid: true,
+        fundingPostInquest: "NO",
+        inquestOutcomes: ["NATURAL_CAUSES"],
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.equal(input.zeroVatTotal, null);
+      assert.equal(input.netTotal, null);
+      assert.equal(input.grossTotal, 500);
+      assert.equal(input.claimCostTemplateFile, null);
+    });
+
+    it("defaults hasRecoveryCostsAwarded to false when funding is NO and recovery was never asked", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "FINAL_BILL",
+        grossTotal: "500",
+        evidenceFiles: [{ id: "e1", fileName: "a.pdf" }],
+        counselNumber: "2",
+        counselBillsPaid: true,
+        fundingPostInquest: "NO",
+        inquestOutcomes: ["NATURAL_CAUSES"],
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.equal(input.hasAlternativeFunding, false);
+      assert.equal(input.hasRecoveryCostsAwarded, false);
+      assert.equal(input.financialRecoveryPreviousPreCertificateCosts, 0);
+      assert.equal(input.financialRecoveryCost, 0);
+      assert.equal(input.financialRecoveryDamages, 0);
+      assert.equal(input.financialRecoveryInterest, 0);
+      assert.equal(input.payingParty, "");
+      assert.equal(input.numberOfCounselInstructed, "2");
     });
 
     it("defaults claimEvidenceIds to an empty array when no evidence files are in session", async () => {

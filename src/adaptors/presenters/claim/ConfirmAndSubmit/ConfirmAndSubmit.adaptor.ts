@@ -123,21 +123,11 @@ export class ConfirmAndSubmitAdaptor {
       grossTotal,
       evidenceFiles,
       finalBillCostTemplate,
-      inquestOutcomes,
-      counselBillsPaid,
-      fundingPostInquest,
-      recoveryCostMade,
-      recoveryCosts,
-      recoveryDamages,
-      recoveryInterest,
-      recoveryPreCertificateCosts,
-      preCertificateCosts,
-      payingParty,
-      counselNumber,
     } = claim;
 
-    const isFinalBill = type === CLAIM_TYPE_VALUE.FINAL_BILL;
-    const hasRecoveryCostsAwarded = this.#mapHasRecoveryCostsAwarded(recoveryCostMade);
+    const isFinalOrNilBill =
+      type === CLAIM_TYPE_VALUE.FINAL_BILL ||
+      type === CLAIM_TYPE_VALUE.NIL_BILL;
 
     return {
       laaReference: caseReference,
@@ -145,40 +135,89 @@ export class ConfirmAndSubmitAdaptor {
       poaTypeId: subtype,
       claimantId: providerEmail,
       accessToken,
-      zeroVatTotal: this.#parseAmount(zeroVatTotal),
-      netTotal: this.#parseAmount(netTotal),
+      zeroVatTotal: isFinalOrNilBill ? null : this.#parseAmount(zeroVatTotal),
+      netTotal: isFinalOrNilBill ? null : this.#parseAmount(netTotal),
       grossTotal: this.#parseAmount(grossTotal),
       claimEvidenceIds: (evidenceFiles ?? []).map((file) => file.id),
-      inquestOutcomes,
       claimCostTemplateFile:
-        finalBillCostTemplate === undefined
-          ? null
-          : {
+        isFinalOrNilBill && finalBillCostTemplate !== undefined
+          ? {
               claimCostTemplateFileId: finalBillCostTemplate.costTemplateId,
               claimCostTemplateFileName:
                 finalBillCostTemplate.costTemplateFilename,
-            },
-      hasCounselBeenPaid: this.#mapHasCounselBeenPaid(counselNumber, counselBillsPaid),
-      hasAlternativeFunding: this.#mapHasAlternativeFunding(fundingPostInquest),
+            }
+          : null,
+      ...this.#buildFinalBillFields(claim, isFinalOrNilBill),
+    };
+  }
+
+  #buildFinalBillFields(
+    claim: Partial<ClaimSession>,
+    isFinalOrNilBill: boolean,
+  ): Pick<
+    SubmitClaimInput,
+    | "inquestOutcomes"
+    | "hasCounselBeenPaid"
+    | "hasAlternativeFunding"
+    | "hasRecoveryCostsAwarded"
+    | "financialRecoveryPreviousPreCertificateCosts"
+    | "financialRecoveryCost"
+    | "financialRecoveryDamages"
+    | "financialRecoveryInterest"
+    | "payingParty"
+    | "numberOfCounselInstructed"
+  > {
+    if (!isFinalOrNilBill) {
+      return {
+        inquestOutcomes: undefined,
+        hasCounselBeenPaid: null,
+        hasAlternativeFunding: null,
+        hasRecoveryCostsAwarded: null,
+        financialRecoveryPreviousPreCertificateCosts: null,
+        financialRecoveryCost: null,
+        financialRecoveryDamages: null,
+        financialRecoveryInterest: null,
+        payingParty: null,
+        numberOfCounselInstructed: null,
+      };
+    }
+
+    const hasRecoveryCostsAwarded =
+      this.#mapHasRecoveryCostsAwarded(claim.recoveryCostMade) ?? false;
+    const isFinalBill = claim.type === CLAIM_TYPE_VALUE.FINAL_BILL;
+    const NO_RECOVERY_AMOUNT = 0;
+
+    return {
+      inquestOutcomes: claim.inquestOutcomes,
+      hasCounselBeenPaid:
+        this.#mapHasCounselBeenPaid(
+          claim.counselNumber,
+          claim.counselBillsPaid,
+        ) ?? false,
+      hasAlternativeFunding:
+        this.#mapHasAlternativeFunding(claim.fundingPostInquest) ?? false,
       hasRecoveryCostsAwarded,
-      financialRecoveryPreviousPreCertificateCosts: this.#parseAmount(
-        hasRecoveryCostsAwarded === true
-          ? recoveryPreCertificateCosts
-          : preCertificateCosts,
-      ),
+      financialRecoveryPreviousPreCertificateCosts:
+        this.#parseAmount(
+          hasRecoveryCostsAwarded === true
+            ? claim.recoveryPreCertificateCosts
+            : claim.preCertificateCosts,
+        ) ?? NO_RECOVERY_AMOUNT,
       financialRecoveryCost:
-        hasRecoveryCostsAwarded === true ? this.#parseAmount(recoveryCosts) : 0,
+        hasRecoveryCostsAwarded === true
+          ? this.#parseAmount(claim.recoveryCosts)
+          : NO_RECOVERY_AMOUNT,
       financialRecoveryDamages:
         hasRecoveryCostsAwarded === true
-          ? this.#parseAmount(recoveryDamages)
-          : 0,
+          ? this.#parseAmount(claim.recoveryDamages)
+          : NO_RECOVERY_AMOUNT,
       financialRecoveryInterest:
         hasRecoveryCostsAwarded === true
-          ? this.#parseAmount(recoveryInterest)
-          : 0,
-      payingParty: this.#normaliseText(payingParty),
+          ? this.#parseAmount(claim.recoveryInterest)
+          : NO_RECOVERY_AMOUNT,
+      payingParty: this.#normaliseText(claim.payingParty) ?? "",
       numberOfCounselInstructed: isFinalBill
-        ? this.#mapCounselNumberForApi(counselNumber)
+        ? (this.#mapCounselNumberForApi(claim.counselNumber) ?? "0")
         : null,
     };
   }
@@ -255,7 +294,9 @@ export class ConfirmAndSubmitAdaptor {
     const {
       session: { claim },
     } = req;
+    const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
     return {
+      isFinalBill,
       caseDetails: this.#buildCaseDetails(claim),
       claimDetails: {
         claimType: this.#labelFor(CLAIM_TYPE_LABEL, claim?.type),

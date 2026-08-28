@@ -106,6 +106,30 @@
 
         <h2 class="govuk-heading-m">Cost</h2>
         <div data-testid="cost-summary-list">
+          {% if isFinalBill %}
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Total claim cost"
+              }
+            },
+            rows: [
+              {
+                key: { text: "Total gross amount" },
+                value: { text: cost.grossTotal },
+                actions: {
+                  items: [
+                    {
+                      href: cost.changeHref,
+                      text: "Change",
+                      visuallyHiddenText: "total gross amount"
+                    }
+                  ]
+                }
+              }
+            ]
+          }) }}
+          {% else %}
           {{ govukSummaryList({
             card: {
               title: {
@@ -154,6 +178,7 @@
               }
             ]
           }) }}
+          {% endif %}
         </div>
 
         <h2 class="govuk-heading-m">Evidence</h2>
