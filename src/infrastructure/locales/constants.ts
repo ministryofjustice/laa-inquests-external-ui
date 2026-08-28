@@ -333,6 +333,12 @@ export const FINANCIAL_RECOVERY_COSTS_ERROR = {
     "Previous pre-certificate costs must be a valid amount with up to 2 decimal places",
 };
 
+export const PRE_CERTIFICATE_COSTS_ERROR = {
+  MISSING: "Enter the previous pre-certificate costs",
+  INVALID:
+    "Previous pre-certificate costs must be a valid amount with up to 2 decimal places",
+};
+
 export const FUNDING_POST_INQUEST_VALUE = {
   YES: "YES",
   NO: "NO",

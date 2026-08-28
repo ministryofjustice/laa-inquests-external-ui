@@ -444,4 +444,259 @@ test.describe("Claim - confirm and submit", () => {
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(claimDetails).not.toContainText("Type of POA");
   });
+
+  test.describe("Other claim details", () => {
+    async function answerFunding(
+      page: Page,
+      answer: "Yes" | "No",
+    ): Promise<void> {
+      await page.goto("/claim/inquest-outcome");
+      await page.getByLabel("Accident or misadventure").check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/funding-post-inquest");
+      await page.getByLabel(answer, { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+    }
+
+    async function completeRecoveryJourney(page: Page): Promise<void> {
+      await answerFunding(page, "Yes");
+      await page.waitForURL("**/claim/inquest-outcome-recovery");
+      await page.getByLabel("Yes", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/recovery-costs");
+      await page.getByLabel("Costs", { exact: true }).fill("100");
+      await page.getByLabel("Damages").fill("200");
+      await page.getByLabel("Interest").fill("300");
+      await page.getByLabel("Previous pre-certificate costs").fill("400");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/paying-party");
+      await page.getByLabel("Who is the paying party?").fill("Acme Ltd");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/check-your-answers");
+    }
+
+    async function completePreCertJourney(page: Page): Promise<void> {
+      await answerFunding(page, "Yes");
+      await page.waitForURL("**/claim/inquest-outcome-recovery");
+      await page.getByLabel("No", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/pre-cert-costs");
+      await page.getByLabel("Enter the total amount").fill("400");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/paying-party");
+      await page.getByLabel("Who is the paying party?").fill("Acme Ltd");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/check-your-answers");
+    }
+
+    test("renders the Other claim details heading", async ({ page }) => {
+      await expect(
+        page
+          .locator("h2.govuk-heading-m")
+          .filter({ hasText: "Other claim details" }),
+      ).toBeVisible();
+    });
+
+    test("always renders the Inquest details card", async ({ page }) => {
+      const card = page.getByTestId("inquest-details-summary-list");
+
+      await expect(card).toContainText("Inquest details");
+      await expect(card).toContainText("Inquest outcome");
+      await expect(card).toContainText("Alternative funding post-inquest");
+    });
+
+    test("renders the recovery cards with their rows and values when the recovery cost was made", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      const inquest = page.getByTestId("inquest-details-summary-list");
+      await expect(inquest).toContainText("Accident or misadventure");
+      await expect(inquest).toContainText("Yes");
+
+      const alternativeFunding = page.getByTestId(
+        "alternative-funding-details-summary-list",
+      );
+      await expect(alternativeFunding).toContainText(
+        "Alternative funding details",
+      );
+      await expect(alternativeFunding).toContainText("Recovery cost made");
+      await expect(alternativeFunding).not.toContainText(
+        "Previous pre-certificate costs",
+      );
+      await expect(alternativeFunding).toContainText("The paying party");
+      await expect(alternativeFunding).toContainText("Acme Ltd");
+
+      const financial = page.getByTestId(
+        "financial-recovery-costs-summary-list",
+      );
+      await expect(financial).toContainText("Financial recovery costs");
+      await expect(financial).toContainText("Costs");
+      await expect(financial).toContainText("£100.00");
+      await expect(financial).toContainText("£200.00");
+      await expect(financial).toContainText("£300.00");
+      await expect(financial).toContainText("£400.00");
+    });
+
+    test("shows the pre-certificate costs row and hides the financial recovery costs card when the recovery cost was not made", async ({
+      page,
+    }) => {
+      await completePreCertJourney(page);
+
+      const alternativeFunding = page.getByTestId(
+        "alternative-funding-details-summary-list",
+      );
+      await expect(alternativeFunding).toContainText("Recovery cost made");
+      await expect(alternativeFunding).toContainText(
+        "Previous pre-certificate costs",
+      );
+      await expect(alternativeFunding).toContainText("£400.00");
+      await expect(alternativeFunding).toContainText("The paying party");
+      await expect(alternativeFunding).toContainText("Acme Ltd");
+
+      const changeLink = alternativeFunding.locator(
+        'a[href="/claim/pre-cert-costs?from=check-your-answers"]',
+      );
+      await expect(changeLink).toBeVisible();
+
+      await expect(
+        page.getByTestId("financial-recovery-costs-summary-list"),
+      ).toHaveCount(0);
+    });
+
+    test("renders a single panel-level Change link for financial recovery costs", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      const financial = page.getByTestId(
+        "financial-recovery-costs-summary-list",
+      );
+      const changeLinks = financial.getByRole("link", { name: "Change" });
+
+      await expect(changeLinks).toHaveCount(1);
+      await expect(changeLinks).toHaveAttribute(
+        "href",
+        "/claim/recovery-costs?from=check-your-answers",
+      );
+    });
+
+    test("clears previously entered financial recovery costs when the answer is changed away from Yes", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      const alternativeFunding = page.getByTestId(
+        "alternative-funding-details-summary-list",
+      );
+      await alternativeFunding
+        .locator(
+          'a[href="/claim/inquest-outcome-recovery?from=check-your-answers"]',
+        )
+        .click();
+      await page.waitForURL("**/claim/inquest-outcome-recovery**");
+      await page.getByLabel("No", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/pre-cert-costs");
+      await page.getByLabel("Enter the total amount").fill("400");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/check-your-answers");
+
+      await page.goto("/claim/inquest-outcome-recovery");
+      await page.getByLabel("Yes", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/recovery-costs");
+
+      await expect(page.getByLabel("Costs", { exact: true })).toHaveValue("");
+    });
+
+    test("returns straight to check your answers after changing financial recovery costs", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      await page
+        .getByTestId("financial-recovery-costs-summary-list")
+        .getByRole("link", { name: "Change" })
+        .click();
+      await page.waitForURL("**/claim/recovery-costs**");
+      await expect(
+        page.getByRole("link", { name: "Back", exact: true }),
+      ).toHaveAttribute("href", "/claim/check-your-answers");
+
+      await page.getByLabel("Costs", { exact: true }).fill("150");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/check-your-answers");
+      await expect(
+        page.getByTestId("financial-recovery-costs-summary-list"),
+      ).toContainText("£150.00");
+    });
+
+    test("returns straight to check your answers after changing previous pre-certificate costs", async ({
+      page,
+    }) => {
+      await completePreCertJourney(page);
+
+      await page
+        .getByTestId("alternative-funding-details-summary-list")
+        .locator('a[href="/claim/pre-cert-costs?from=check-your-answers"]')
+        .click();
+      await page.waitForURL("**/claim/pre-cert-costs**");
+      await expect(
+        page.getByRole("link", { name: "Back", exact: true }),
+      ).toHaveAttribute("href", "/claim/check-your-answers");
+
+      await page.getByLabel("Enter the total amount").fill("450");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/check-your-answers");
+      await expect(
+        page.getByTestId("alternative-funding-details-summary-list"),
+      ).toContainText("£450.00");
+    });
+
+    test("routes through the dependent cost page whose back link returns to recovery cost made when changing the recovery cost made answer", async ({
+      page,
+    }) => {
+      await completeRecoveryJourney(page);
+
+      await page
+        .getByTestId("alternative-funding-details-summary-list")
+        .locator(
+          'a[href="/claim/inquest-outcome-recovery?from=check-your-answers"]',
+        )
+        .click();
+      await page.waitForURL("**/claim/inquest-outcome-recovery**");
+      await page.getByLabel("No", { exact: true }).check();
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/pre-cert-costs");
+      await expect(
+        page.getByRole("link", { name: "Back", exact: true }),
+      ).toHaveAttribute("href", "/claim/inquest-outcome-recovery");
+
+      await page.getByLabel("Enter the total amount").fill("400");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await page.waitForURL("**/claim/check-your-answers");
+    });
+
+    test("hides the recovery cards when funding post-inquest is No", async ({
+      page,
+    }) => {
+      await answerFunding(page, "No");
+      await page.waitForURL("**/claim/check-your-answers");
+
+      await expect(
+        page.getByTestId("inquest-details-summary-list"),
+      ).toBeVisible();
+      await expect(
+        page.getByTestId("alternative-funding-details-summary-list"),
+      ).toHaveCount(0);
+      await expect(
+        page.getByTestId("financial-recovery-costs-summary-list"),
+      ).toHaveCount(0);
+    });
+  });
 });

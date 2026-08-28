@@ -6,16 +6,37 @@ test.describe("Claim - paying party", () => {
     await page.goto("/claim/paying-party");
   });
 
-  test("renders back link to recovery costs", async ({
+  test("renders back link to recovery costs when the recovery cost was made", async ({
     page,
     checkAccessibility,
   }) => {
+    await page.goto("/claim/inquest-outcome-recovery");
+    const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
+    await recoveryForm.getByLabel("Yes", { exact: true }).check();
+    await recoveryForm.getByRole("button", { name: "Continue" }).click();
+    await page.goto("/claim/paying-party");
+
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
     await expect(backLink).toBeVisible();
     await expect(backLink).toHaveAttribute("href", "/claim/recovery-costs");
 
     await checkAccessibility();
+  });
+
+  test("renders back link to pre-certificate costs when the recovery cost was not made", async ({
+    page,
+  }) => {
+    await page.goto("/claim/inquest-outcome-recovery");
+    const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
+    await recoveryForm.getByLabel("No", { exact: true }).check();
+    await recoveryForm.getByRole("button", { name: "Continue" }).click();
+    await page.goto("/claim/paying-party");
+
+    const backLink = page.getByRole("link", { name: "Back", exact: true });
+
+    await expect(backLink).toBeVisible();
+    await expect(backLink).toHaveAttribute("href", "/claim/pre-cert-costs");
   });
 
   test("renders page heading", async ({ page }) => {

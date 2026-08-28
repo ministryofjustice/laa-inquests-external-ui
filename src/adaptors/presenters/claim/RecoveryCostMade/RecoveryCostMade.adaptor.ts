@@ -8,6 +8,7 @@ import type {
 import {
   EMPTY_ARR_LENGTH,
   RECOVERY_COST_OPTIONS,
+  RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
@@ -65,11 +66,33 @@ export class RecoveryCostMadeAdaptor {
       return;
     }
 
+    if (recoveryCostMade === RECOVERY_COST_VALUE.YES) {
+      req.session.claim = {
+        ...req.session.claim,
+        recoveryCostMade,
+        preCertificateCosts: undefined,
+      };
+      this.#markEditWhenReturning(req);
+      res.redirect("/claim/recovery-costs");
+      return;
+    }
+
     req.session.claim = {
       ...req.session.claim,
       recoveryCostMade,
+      recoveryCosts: undefined,
+      recoveryDamages: undefined,
+      recoveryInterest: undefined,
+      recoveryPreCertificateCosts: undefined,
     };
+    this.#markEditWhenReturning(req);
+    res.redirect("/claim/pre-cert-costs");
+  }
 
-    res.redirect("/claim/recovery-costs");
+  // Keeps the return-to-check-your-answers trip routed via the dependent cost page.
+  #markEditWhenReturning(req: Pick<Request, "session">): void {
+    if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+      this.navigationHelper.markRecoveryCostMadeEdit(req);
+    }
   }
 }

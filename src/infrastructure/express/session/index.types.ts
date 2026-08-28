@@ -60,6 +60,8 @@ export interface ClaimSession {
   recoveryDamages?: string;
   recoveryInterest?: string;
   recoveryPreCertificateCosts?: string;
+  preCertificateCosts?: string;
+  recoveryCostMadeEditInProgress?: boolean;
   payingParty?: string;
 }
 

@@ -8,6 +8,7 @@ import type {
 import {
   CLAIM_CHECK_YOUR_ANSWERS_PATH,
   EMPTY_ARR_LENGTH,
+  RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
@@ -35,7 +36,7 @@ export class PayingPartyAdaptor {
       payingParty: req.session.claim?.payingParty,
       backHref: this.navigationHelper.resolveBackHref(
         req,
-        "/claim/recovery-costs",
+        this.#previousStepHref(req),
       ),
     });
   }
@@ -70,5 +71,11 @@ export class PayingPartyAdaptor {
 
     this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
     res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+  }
+
+  #previousStepHref(req: Pick<Request, "session">): string {
+    return req.session.claim?.recoveryCostMade === RECOVERY_COST_VALUE.YES
+      ? "/claim/recovery-costs"
+      : "/claim/pre-cert-costs";
   }
 }

@@ -75,7 +75,7 @@ describe("RecoveryCostMade adaptor", () => {
       );
     });
 
-    it("saves No and redirects to recovery costs", () => {
+    it("saves No and redirects to pre-certificate costs", () => {
       const adaptor = new RecoveryCostMadeAdaptor(
         new RecoveryCostMadeValidator(),
         new ClaimNavigationHelper(),
@@ -93,11 +93,11 @@ describe("RecoveryCostMade adaptor", () => {
       assert.equal(requestStub.session.claim?.recoveryCostMade, "NO");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
-        "/claim/recovery-costs",
+        "/claim/pre-cert-costs",
       );
     });
 
-    it("saves Don't know and redirects to recovery costs", () => {
+    it("saves Don't know and redirects to pre-certificate costs", () => {
       const adaptor = new RecoveryCostMadeAdaptor(
         new RecoveryCostMadeValidator(),
         new ClaimNavigationHelper(),
@@ -115,7 +115,150 @@ describe("RecoveryCostMade adaptor", () => {
       assert.equal(requestStub.session.claim?.recoveryCostMade, "DONT_KNOW");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
+        "/claim/pre-cert-costs",
+      );
+    });
+
+    it("clears the pre-certificate costs value when Yes is selected", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { preCertificateCosts: "400" };
+      requestStub.body = { "recovery-cost-made": "YES" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.recoveryCostMade, "YES");
+      assert.equal(requestStub.session.claim?.preCertificateCosts, undefined);
+    });
+
+    it("clears the financial recovery cost values when No is selected", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        recoveryCosts: "100",
+        recoveryDamages: "200",
+        recoveryInterest: "300",
+        recoveryPreCertificateCosts: "400",
+      };
+      requestStub.body = { "recovery-cost-made": "NO" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.recoveryCostMade, "NO");
+      assert.equal(requestStub.session.claim?.recoveryCosts, undefined);
+      assert.equal(requestStub.session.claim?.recoveryDamages, undefined);
+      assert.equal(requestStub.session.claim?.recoveryInterest, undefined);
+      assert.equal(
+        requestStub.session.claim?.recoveryPreCertificateCosts,
+        undefined,
+      );
+    });
+
+    it("keeps the financial recovery cost values when Yes is re-selected", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        recoveryCostMade: "YES",
+        recoveryCosts: "100",
+      };
+      requestStub.body = { "recovery-cost-made": "YES" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.recoveryCosts, "100");
+    });
+
+    it("marks a recovery cost made edit and keeps the return flag when returning to check your answers and Yes is selected", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+      requestStub.body = { "recovery-cost-made": "YES" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(
+        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        true,
+      );
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
         "/claim/recovery-costs",
+      );
+    });
+
+    it("marks a recovery cost made edit and keeps the return flag when returning to check your answers and No is selected", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { returnToCheckYourAnswers: true };
+      requestStub.body = { "recovery-cost-made": "NO" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(
+        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        true,
+      );
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/pre-cert-costs",
+      );
+    });
+
+    it("does not mark a recovery cost made edit in the normal forward journey", () => {
+      const adaptor = new RecoveryCostMadeAdaptor(
+        new RecoveryCostMadeValidator(),
+        new ClaimNavigationHelper(),
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {};
+      requestStub.body = { "recovery-cost-made": "YES" };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(
+        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        undefined,
       );
     });
 

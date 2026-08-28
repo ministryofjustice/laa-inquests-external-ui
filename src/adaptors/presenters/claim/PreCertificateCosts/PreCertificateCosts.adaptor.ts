@@ -1,25 +1,25 @@
 import type { Request, Response } from "express";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type {
-  FinancialRecoveryCostsError,
-  FinancialRecoveryCostsFormData,
-} from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.validator.js";
-import { FinancialRecoveryCostsValidator } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.validator.js";
-import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+  PreCertificateCostsError,
+  PreCertificateCostsFormData,
+  PreCertificateCostsValidator,
+} from "./PreCertificateCosts.validator.js";
 import {
   CLAIM_CHECK_YOUR_ANSWERS_PATH,
   EMPTY_ARR_LENGTH,
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
+import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
 const RECOVERY_COST_MADE_ANSWER_HREF = "/claim/inquest-outcome-recovery";
 
-export class FinancialRecoveryCostsAdaptor {
-  formValidator: FinancialRecoveryCostsValidator;
+export class PreCertificateCostsAdaptor {
+  formValidator: PreCertificateCostsValidator;
   navigationHelper: ClaimNavigationHelper;
 
   constructor(
-    formValidator: FinancialRecoveryCostsValidator = new FinancialRecoveryCostsValidator(),
+    formValidator: PreCertificateCostsValidator,
     navigationHelper: ClaimNavigationHelper = new ClaimNavigationHelper(),
   ) {
     this.formValidator = formValidator;
@@ -27,7 +27,7 @@ export class FinancialRecoveryCostsAdaptor {
   }
 
   renderForm(req: Request, res: Response): void {
-    if (!this.#hasAnsweredRecoveryCostMade(req)) {
+    if (!this.#hasRecoveryCostNotBeenMade(req)) {
       res.redirect(RECOVERY_COST_MADE_ANSWER_HREF);
       return;
     }
@@ -38,13 +38,9 @@ export class FinancialRecoveryCostsAdaptor {
 
     this.navigationHelper.captureCheckYourAnswersEntry(req);
 
-    res.render("claim/recovery-costs", {
+    res.render("claim/pre-cert-costs", {
       csrfToken,
-      costs: req.session.claim?.recoveryCosts,
-      damages: req.session.claim?.recoveryDamages,
-      interest: req.session.claim?.recoveryInterest,
-      previousPreCertificateCosts:
-        req.session.claim?.recoveryPreCertificateCosts,
+      preCertificateCosts: req.session.claim?.preCertificateCosts,
       backHref: this.navigationHelper.resolveCostPageBackHref(
         req,
         RECOVERY_COST_MADE_ANSWER_HREF,
@@ -53,10 +49,10 @@ export class FinancialRecoveryCostsAdaptor {
   }
 
   processForm(
-    req: TypedRequestBody<Partial<FinancialRecoveryCostsFormData>>,
+    req: TypedRequestBody<Partial<PreCertificateCostsFormData>>,
     res: Response,
   ): void {
-    if (!this.#hasAnsweredRecoveryCostMade(req)) {
+    if (!this.#hasRecoveryCostNotBeenMade(req)) {
       res.redirect(RECOVERY_COST_MADE_ANSWER_HREF);
       return;
     }
@@ -65,24 +61,16 @@ export class FinancialRecoveryCostsAdaptor {
       locals: { csrfToken },
     } = res;
     const {
-      body: {
-        costs,
-        damages,
-        interest,
-        "previous-pre-certificate-costs": previousPreCertificateCosts,
-      },
+      body: { "pre-certificate-costs": preCertificateCosts },
     } = req;
 
-    const errorSummaries: Partial<FinancialRecoveryCostsError> =
-      this.formValidator.validateFinancialRecoveryCosts(req.body);
+    const errorSummaries: Partial<PreCertificateCostsError> =
+      this.formValidator.validatePreCertificateCosts(req.body);
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
-      res.render("claim/recovery-costs", {
+      res.render("claim/pre-cert-costs", {
         csrfToken,
-        costs,
-        damages,
-        interest,
-        previousPreCertificateCosts,
+        preCertificateCosts,
         backHref: this.navigationHelper.resolveCostPageBackHref(
           req,
           RECOVERY_COST_MADE_ANSWER_HREF,
@@ -94,10 +82,7 @@ export class FinancialRecoveryCostsAdaptor {
 
     req.session.claim = {
       ...req.session.claim,
-      recoveryCosts: costs,
-      recoveryDamages: damages,
-      recoveryInterest: interest,
-      recoveryPreCertificateCosts: previousPreCertificateCosts,
+      preCertificateCosts,
     };
 
     if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
@@ -109,7 +94,11 @@ export class FinancialRecoveryCostsAdaptor {
     res.redirect("/claim/paying-party");
   }
 
-  #hasAnsweredRecoveryCostMade(req: Pick<Request, "session">): boolean {
-    return req.session.claim?.recoveryCostMade === RECOVERY_COST_VALUE.YES;
+  #hasRecoveryCostNotBeenMade(req: Pick<Request, "session">): boolean {
+    const recoveryCostMade = req.session.claim?.recoveryCostMade;
+    return (
+      recoveryCostMade === RECOVERY_COST_VALUE.NO ||
+      recoveryCostMade === RECOVERY_COST_VALUE.DONT_KNOW
+    );
   }
 }
