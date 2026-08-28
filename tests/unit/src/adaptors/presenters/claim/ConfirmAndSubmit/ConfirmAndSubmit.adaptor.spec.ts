@@ -158,6 +158,29 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.isFinalBill, false);
     });
 
+    it("does not show the counsel section and flags isNilBill when the final bill gross total is £0", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "FINAL_BILL",
+        grossTotal: "0",
+        counselNumber: "2",
+        counselBillsPaid: true,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.isNilBill, true);
+      assert.equal(viewModel.counsel.show, false);
+    });
+
     it("shows the counsel section with paid details when the claim is a final bill with counsel", () => {
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 

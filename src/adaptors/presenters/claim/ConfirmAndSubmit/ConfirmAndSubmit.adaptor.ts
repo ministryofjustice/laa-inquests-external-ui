@@ -133,11 +133,9 @@ export class ConfirmAndSubmitAdaptor {
       type === CLAIM_TYPE_VALUE.FINAL_BILL ||
       type === CLAIM_TYPE_VALUE.NIL_BILL;
     const parsedGrossTotal = this.#parseAmount(grossTotal);
-    const claimType =
-      type === CLAIM_TYPE_VALUE.FINAL_BILL &&
-      parsedGrossTotal === NIL_BILL_GROSS_TOTAL
-        ? CLAIM_TYPE_VALUE.NIL_BILL
-        : type;
+    const claimType = this.#isNilBill(claim)
+      ? CLAIM_TYPE_VALUE.NIL_BILL
+      : type;
 
     return {
       laaReference: caseReference,
@@ -307,8 +305,10 @@ export class ConfirmAndSubmitAdaptor {
       session: { claim },
     } = req;
     const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
+    const isNilBill = this.#isNilBill(claim);
     return {
       isFinalBill,
+      isNilBill,
       caseDetails: this.#buildCaseDetails(claim),
       claimDetails: {
         claimType: this.#labelFor(CLAIM_TYPE_LABEL, claim?.type),
@@ -323,10 +323,17 @@ export class ConfirmAndSubmitAdaptor {
           fileSize: this.formatter.formatFileSize(file.fileSize),
         })),
       },
-      counsel: this.#buildCounselDetails(claim),
+      counsel: this.#buildCounselDetails(claim, isNilBill),
       costTemplateFile: this.#buildCostTemplateFile(claim),
       inquestDetails: this.#buildInquestDetails(claim),
     };
+  }
+
+  #isNilBill(claim?: ClaimSession): boolean {
+    return (
+      claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL &&
+      this.#parseAmount(claim.grossTotal) === NIL_BILL_GROSS_TOTAL
+    );
   }
 
   #buildCostTemplateFile(
@@ -345,21 +352,24 @@ export class ConfirmAndSubmitAdaptor {
     };
   }
 
-  #buildCounselDetails(claim?: ClaimSession): {
+  #buildCounselDetails(
+    claim?: ClaimSession,
+    isNilBill = false,
+  ): {
     show: boolean;
     hasCounsel: boolean;
     counselNumber: string;
     counselPaid: string;
     endDate: string;
   } {
-    const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
+    const show = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL && !isNilBill;
     const counselNumber = claim?.counselNumber;
     const hasCounsel =
-      isFinalBill &&
+      show &&
       typeof counselNumber === "string" &&
       counselNumber !== COUNSEL_NUMBER_ZERO;
     return {
-      show: isFinalBill,
+      show,
       hasCounsel,
       counselNumber: this.#counselNumberLabel(counselNumber),
       counselPaid: claim?.counselBillsPaid === true ? "Yes" : "No",
