@@ -636,8 +636,10 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(input.zeroVatTotal, undefined);
       assert.equal(input.netTotal, undefined);
       assert.equal(input.grossTotal, 0);
-      assert.equal(input.claimCostTemplateFile, null);
-      assert.deepEqual(input.claimEvidenceIds, []);
+      assert.equal(input.claimCostTemplateFile, undefined);
+      assert.equal(input.claimEvidenceIds, undefined);
+      assert.equal(input.hasCounselBeenPaid, undefined);
+      assert.equal(input.numberOfCounselInstructed, undefined);
     });
 
     it("defaults hasRecoveryCostsAwarded to false when funding is NO and recovery was never asked", async () => {

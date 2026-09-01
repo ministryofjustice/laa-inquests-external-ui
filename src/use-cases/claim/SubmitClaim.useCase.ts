@@ -16,7 +16,7 @@ export interface SubmitClaimInput {
   zeroVatTotal: number | null | undefined;
   netTotal: number | null | undefined;
   grossTotal: number | null;
-  claimEvidenceIds: string[];
+  claimEvidenceIds?: string[];
   inquestOutcomes?: string[];
   claimCostTemplateFile?: {
     claimCostTemplateFileId: string;
