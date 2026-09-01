@@ -155,6 +155,30 @@ describe("ConfirmAndSubmit adaptor", () => {
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
       assert.equal(viewModel.counsel.show, false);
+      assert.equal(viewModel.isFinalBill, false);
+    });
+
+    it("does not show the counsel section and flags isNilBill when the final bill gross total is £0", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "FINAL_BILL",
+        grossTotal: "0",
+        counselNumber: "2",
+        counselBillsPaid: true,
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.isNilBill, true);
+      assert.equal(viewModel.counsel.show, false);
     });
 
     it("shows the counsel section with paid details when the claim is a final bill with counsel", () => {
@@ -179,6 +203,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.counsel.hasCounsel, true);
       assert.equal(viewModel.counsel.counselNumber, "2");
       assert.equal(viewModel.counsel.counselPaid, "Yes");
+      assert.equal(viewModel.isFinalBill, true);
     });
 
     it("shows the counsel section without a paid row when a final bill has zero counsel", () => {
@@ -479,9 +504,18 @@ describe("ConfirmAndSubmit adaptor", () => {
         "evidence-id-1",
         "evidence-id-2",
       ]);
+      assert.equal(input.hasCounselBeenPaid, null);
+      assert.equal(input.hasAlternativeFunding, null);
+      assert.equal(input.hasRecoveryCostsAwarded, null);
+      assert.equal(input.financialRecoveryPreviousPreCertificateCosts, null);
+      assert.equal(input.financialRecoveryCost, null);
+      assert.equal(input.financialRecoveryDamages, null);
+      assert.equal(input.financialRecoveryInterest, null);
+      assert.equal(input.payingParty, null);
+      assert.equal(input.numberOfCounselInstructed, null);
     });
 
-    it("includes the final bill template id in claimEvidenceIds when present", async () => {
+    it("maps final bill fields into submit payload and keeps evidence ids separate from cost template", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
         data: { claimId: 99 },
@@ -496,20 +530,151 @@ describe("ConfirmAndSubmit adaptor", () => {
       requestStub.session.claim = {
         caseReference: "1",
         type: "FINAL_BILL",
+        zeroVatTotal: "0",
+        netTotal: "",
+        grossTotal: "1200",
         evidenceFiles: [{ id: "evidence-id-1", fileName: "a.pdf" }],
         finalBillCostTemplate: {
           costTemplateId: "template-id-1",
           costTemplateFilename: "cost-template.xlsx",
         },
+        inquestOutcomes: ["NATURAL_CAUSES"],
+        counselNumber: "6_OR_MORE",
+        counselBillsPaid: true,
+        fundingPostInquest: "YES",
+        recoveryCostMade: "YES",
+        recoveryCosts: "100",
+        recoveryDamages: "200",
+        recoveryInterest: "300",
+        recoveryPreCertificateCosts: "400",
+        payingParty: "Acme Ltd",
+      };
+      requestStub.session.providerEmail = "test@provider.co.uk";
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.equal(input.claimType, "FINAL_BILL");
+      assert.equal(input.poaTypeId, undefined);
+      assert.equal(input.zeroVatTotal, undefined);
+      assert.equal(input.netTotal, undefined);
+      assert.equal(input.grossTotal, 1200);
+      assert.deepEqual(input.claimEvidenceIds, ["evidence-id-1"]);
+      assert.deepEqual(input.inquestOutcomes, ["NATURAL_CAUSES"]);
+      assert.deepEqual(input.claimCostTemplateFile, {
+        claimCostTemplateFileId: "template-id-1",
+        claimCostTemplateFileName: "cost-template.xlsx",
+      });
+      assert.equal(input.hasCounselBeenPaid, true);
+      assert.equal(input.hasAlternativeFunding, true);
+      assert.equal(input.hasRecoveryCostsAwarded, true);
+      assert.equal(input.financialRecoveryPreviousPreCertificateCosts, 400);
+      assert.equal(input.financialRecoveryCost, 100);
+      assert.equal(input.financialRecoveryDamages, 200);
+      assert.equal(input.financialRecoveryInterest, 300);
+      assert.equal(input.payingParty, "Acme Ltd");
+      assert.equal(input.numberOfCounselInstructed, "MORE_THAN_6");
+    });
+
+    it("excludes leftover POA cost values when submitting a final bill", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "FINAL_BILL",
+        zeroVatTotal: "10",
+        netTotal: "1000",
+        grossTotal: "500",
+        evidenceFiles: [{ id: "e1", fileName: "a.pdf" }],
+        counselNumber: "2",
+        counselBillsPaid: true,
+        fundingPostInquest: "NO",
+        inquestOutcomes: ["NATURAL_CAUSES"],
       };
 
       await adaptor.processForm(requestStub, responseStub);
 
       const [input] = submitClaimUseCase.execute.getCall(0).args;
-      assert.deepEqual(input.claimEvidenceIds, [
-        "evidence-id-1",
-        "template-id-1",
-      ]);
+      assert.equal(input.zeroVatTotal, undefined);
+      assert.equal(input.netTotal, undefined);
+      assert.equal(input.grossTotal, 500);
+      assert.equal(input.claimCostTemplateFile, null);
+    });
+
+    it("classifies a final bill as NIL_BILL and omits POA and evidence fields when the gross total entered is £0", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "FINAL_BILL",
+        grossTotal: "0",
+        inquestOutcomes: ["NATURAL_CAUSES"],
+        fundingPostInquest: "NO",
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.equal(input.claimType, "NIL_BILL");
+      assert.equal(input.poaTypeId, undefined);
+      assert.equal(input.zeroVatTotal, undefined);
+      assert.equal(input.netTotal, undefined);
+      assert.equal(input.grossTotal, 0);
+      assert.equal(input.claimCostTemplateFile, undefined);
+      assert.equal(input.claimEvidenceIds, undefined);
+      assert.equal(input.hasCounselBeenPaid, undefined);
+      assert.equal(input.numberOfCounselInstructed, undefined);
+    });
+
+    it("defaults hasRecoveryCostsAwarded to false when funding is NO and recovery was never asked", async () => {
+      submitClaimUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: { claimId: 99 },
+      });
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        caseReference: "1",
+        type: "FINAL_BILL",
+        grossTotal: "500",
+        evidenceFiles: [{ id: "e1", fileName: "a.pdf" }],
+        counselNumber: "2",
+        counselBillsPaid: true,
+        fundingPostInquest: "NO",
+        inquestOutcomes: ["NATURAL_CAUSES"],
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      const [input] = submitClaimUseCase.execute.getCall(0).args;
+      assert.equal(input.hasAlternativeFunding, false);
+      assert.equal(input.hasRecoveryCostsAwarded, false);
+      assert.equal(input.financialRecoveryPreviousPreCertificateCosts, 0);
+      assert.equal(input.financialRecoveryCost, 0);
+      assert.equal(input.financialRecoveryDamages, 0);
+      assert.equal(input.financialRecoveryInterest, 0);
+      assert.equal(input.payingParty, "");
+      assert.equal(input.numberOfCounselInstructed, "2");
     });
 
     it("defaults claimEvidenceIds to an empty array when no evidence files are in session", async () => {
@@ -706,6 +871,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       const requestStub = stubInterface<Request>();
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.session.claimReferenceNumber = "99";
+      requestStub.session.claim = { type: "PAYMENT_ON_ACCOUNT" };
 
       adaptor.renderConfirmSuccess(requestStub, responseStub);
 
@@ -714,6 +880,39 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(renderArgs[0], "claim/confirm-success");
       const viewModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.claimReferenceNumber, "99");
+      assert.equal(viewModel.claimTypeHeading, "Payment on account");
+    });
+
+    it("renders the final bill claim type heading", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "FINAL_BILL" };
+
+      adaptor.renderConfirmSuccess(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0).args[1] as unknown as {
+        claimTypeHeading: string;
+      };
+      assert.equal(viewModel.claimTypeHeading, "Final bill");
+    });
+
+    it("renders the final bill claim type heading for a nil bill claim", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "FINAL_BILL", subtype: "NIL_BILL" };
+
+      adaptor.renderConfirmSuccess(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0).args[1] as unknown as {
+        claimTypeHeading: string;
+      };
+      assert.equal(viewModel.claimTypeHeading, "Final bill");
     });
   });
 
@@ -728,6 +927,7 @@ describe("ConfirmAndSubmit adaptor", () => {
         "MAX_POA_CLAIMS_EXCEEDED",
         "CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT",
       ];
+      requestStub.session.claim = { type: "PAYMENT_ON_ACCOUNT" };
 
       adaptor.renderConfirmReject(requestStub, responseStub);
 
@@ -737,12 +937,14 @@ describe("ConfirmAndSubmit adaptor", () => {
       const viewModel = renderArgs[1] as unknown as {
         csrfToken: string;
         rejectionReasonDescriptions: string[];
+        claimTypeHeading: string;
       };
       assert.equal(viewModel.csrfToken, "test-token");
       assert.deepEqual(viewModel.rejectionReasonDescriptions, [
         CLAIM_REJECTION_REASON_LABEL.MAX_POA_CLAIMS_EXCEEDED,
         CLAIM_REJECTION_REASON_LABEL.CLAIM_EXCEEDS_SUBSTANTIVE_COST_LIMIT,
       ]);
+      assert.equal(viewModel.claimTypeHeading, "Payment on account");
     });
 
     it("falls back to showing the raw rejection reason code when it is unknown", () => {
@@ -752,16 +954,19 @@ describe("ConfirmAndSubmit adaptor", () => {
       const requestStub = stubInterface<Request>();
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.session.claimRejectionReasons = ["UNKNOWN_REASON_CODE"];
+      requestStub.session.claim = { type: "FINAL_BILL" };
 
       adaptor.renderConfirmReject(requestStub, responseStub);
 
       const viewModel = responseStub.render.getCall(0).args[1] as unknown as {
         rejectionReasonDescriptions: string[];
+        claimTypeHeading: string;
       };
 
       assert.deepEqual(viewModel.rejectionReasonDescriptions, [
         "UNKNOWN_REASON_CODE",
       ]);
+      assert.equal(viewModel.claimTypeHeading, "Final bill");
     });
   });
 });
