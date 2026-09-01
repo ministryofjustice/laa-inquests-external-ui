@@ -4,6 +4,7 @@ import type {
   SubmitApplicationRequest,
   SubmitApplicationResponse,
 } from "./models/SubmitApplication.types.js";
+import { SubmitApplicationResponseSchema } from "./models/SubmitApplication.schema.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
@@ -41,10 +42,12 @@ export class SubmitApplicationAdaptor implements ApplySubmitPort {
         accessToken,
       });
 
-    const submitApplicationResponse: SubmitApplicationResponse = {
+    // Parse and transform the response through the schema
+    const parsedResponse = SubmitApplicationResponseSchema.parse({
       statusCode: response.status,
       laaReference: response.data.laaReference,
-    };
-    return submitApplicationResponse;
+    });
+
+    return parsedResponse;
   }
 }
