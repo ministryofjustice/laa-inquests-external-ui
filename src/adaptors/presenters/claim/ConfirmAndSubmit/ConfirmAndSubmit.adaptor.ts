@@ -1,9 +1,11 @@
+/* eslint-disable complexity, max-lines, @typescript-eslint/no-unnecessary-boolean-literal-compare, @typescript-eslint/no-magic-numbers -- Final bill submission logic requires cross-field branching */
 import type { Request, Response } from "express";
 import type { ClaimSession } from "#src/infrastructure/express/session/index.types.js";
 import {
   EMPTY_ARR_LENGTH,
   CLAIM_REJECTION_REASON_LABEL,
   CLAIM_SUBTYPE_LABEL,
+  CLAIM_TYPE_HEADING_LABEL,
   CLAIM_TYPE_LABEL,
   CLAIM_TYPE_VALUE,
   COUNSEL_NUMBER_OPTIONS,
@@ -11,6 +13,7 @@ import {
   FUNDING_POST_INQUEST_OPTIONS,
   FUNDING_POST_INQUEST_VALUE,
   INQUEST_OUTCOME_OPTIONS,
+  NIL_BILL_GROSS_TOTAL,
   RECOVERY_COST_OPTIONS,
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
@@ -117,28 +120,118 @@ export class ConfirmAndSubmitAdaptor {
     const {
       caseReference = "",
       type = "",
-      subtype = null,
+      subtype,
       zeroVatTotal,
       netTotal,
       grossTotal,
       evidenceFiles,
       finalBillCostTemplate,
     } = claim;
+
+    const isPoa = type === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT;
+    const isNilBill = this.#isNilBill(claim);
+    const isFinalOrNilBill =
+      type === CLAIM_TYPE_VALUE.FINAL_BILL ||
+      type === CLAIM_TYPE_VALUE.NIL_BILL;
+    const parsedGrossTotal = this.#parseAmount(grossTotal);
+    const claimType = isNilBill ? CLAIM_TYPE_VALUE.NIL_BILL : type;
+
     return {
       laaReference: caseReference,
-      claimType: type,
-      poaTypeId: subtype,
+      claimType,
+      poaTypeId: isPoa ? (subtype ?? null) : undefined,
       claimantId: providerEmail,
       accessToken,
-      zeroVatTotal: this.#parseAmount(zeroVatTotal),
-      netTotal: this.#parseAmount(netTotal),
-      grossTotal: this.#parseAmount(grossTotal),
-      claimEvidenceIds: [
-        ...(evidenceFiles ?? []).map((file) => file.id),
-        ...(finalBillCostTemplate === undefined
-          ? []
-          : [finalBillCostTemplate.costTemplateId]),
-      ],
+      zeroVatTotal: isFinalOrNilBill
+        ? undefined
+        : this.#parseAmount(zeroVatTotal),
+      netTotal: isFinalOrNilBill ? undefined : this.#parseAmount(netTotal),
+      grossTotal: parsedGrossTotal,
+      claimEvidenceIds: isNilBill
+        ? undefined
+        : (evidenceFiles ?? []).map((file) => file.id),
+      claimCostTemplateFile: isNilBill
+        ? undefined
+        : isFinalOrNilBill && finalBillCostTemplate !== undefined
+          ? {
+              claimCostTemplateFileId: finalBillCostTemplate.costTemplateId,
+              claimCostTemplateFileName:
+                finalBillCostTemplate.costTemplateFilename,
+            }
+          : null,
+      ...this.#buildFinalBillFields(claim, isFinalOrNilBill, isNilBill),
+    };
+  }
+
+  #buildFinalBillFields(
+    claim: Partial<ClaimSession>,
+    isFinalOrNilBill: boolean,
+    isNilBill: boolean,
+  ): Pick<
+    SubmitClaimInput,
+    | "inquestOutcomes"
+    | "hasCounselBeenPaid"
+    | "hasAlternativeFunding"
+    | "hasRecoveryCostsAwarded"
+    | "financialRecoveryPreviousPreCertificateCosts"
+    | "financialRecoveryCost"
+    | "financialRecoveryDamages"
+    | "financialRecoveryInterest"
+    | "payingParty"
+    | "numberOfCounselInstructed"
+  > {
+    if (!isFinalOrNilBill) {
+      return {
+        inquestOutcomes: undefined,
+        hasCounselBeenPaid: null,
+        hasAlternativeFunding: null,
+        hasRecoveryCostsAwarded: null,
+        financialRecoveryPreviousPreCertificateCosts: null,
+        financialRecoveryCost: null,
+        financialRecoveryDamages: null,
+        financialRecoveryInterest: null,
+        payingParty: null,
+        numberOfCounselInstructed: null,
+      };
+    }
+
+    const hasRecoveryCostsAwarded =
+      this.#mapHasRecoveryCostsAwarded(claim.recoveryCostMade) ?? false;
+    const NO_RECOVERY_AMOUNT = 0;
+
+    return {
+      inquestOutcomes: claim.inquestOutcomes,
+      hasCounselBeenPaid: isNilBill
+        ? undefined
+        : (this.#mapHasCounselBeenPaid(
+            claim.counselNumber,
+            claim.counselBillsPaid,
+          ) ?? false),
+      hasAlternativeFunding:
+        this.#mapHasAlternativeFunding(claim.fundingPostInquest) ?? false,
+      hasRecoveryCostsAwarded,
+      financialRecoveryPreviousPreCertificateCosts:
+        this.#parseAmount(
+          hasRecoveryCostsAwarded === true
+            ? claim.recoveryPreCertificateCosts
+            : claim.preCertificateCosts,
+        ) ?? NO_RECOVERY_AMOUNT,
+      financialRecoveryCost:
+        hasRecoveryCostsAwarded === true
+          ? this.#parseAmount(claim.recoveryCosts)
+          : NO_RECOVERY_AMOUNT,
+      financialRecoveryDamages:
+        hasRecoveryCostsAwarded === true
+          ? this.#parseAmount(claim.recoveryDamages)
+          : NO_RECOVERY_AMOUNT,
+      financialRecoveryInterest:
+        hasRecoveryCostsAwarded === true
+          ? this.#parseAmount(claim.recoveryInterest)
+          : NO_RECOVERY_AMOUNT,
+      payingParty: this.#normaliseText(claim.payingParty) ?? "",
+      numberOfCounselInstructed: isNilBill
+        ? undefined
+        : (this.#mapCounselNumberForApi(claim.counselNumber) ?? "0"),
     };
   }
 
@@ -147,11 +240,78 @@ export class ConfirmAndSubmitAdaptor {
     return Number.isFinite(parsed) ? parsed : null;
   }
 
+  #normaliseText(value: string | undefined): string | null {
+    if (typeof value !== "string") {
+      return null;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  #mapCounselNumberForApi(counselNumber: string | undefined): string | null {
+    if (typeof counselNumber !== "string") {
+      return null;
+    }
+
+    if (counselNumber === "6_OR_MORE") {
+      return "MORE_THAN_6";
+    }
+
+    return counselNumber;
+  }
+
+  #mapHasCounselBeenPaid(
+    counselNumber: string | undefined,
+    counselBillsPaid: boolean | undefined,
+  ): boolean | null {
+    if (counselNumber === COUNSEL_NUMBER_ZERO) {
+      return false;
+    }
+    if (typeof counselBillsPaid === "boolean") {
+      return counselBillsPaid;
+    }
+    return null;
+  }
+
+  #mapHasAlternativeFunding(
+    fundingPostInquest: string | undefined,
+  ): boolean | null {
+    if (fundingPostInquest === FUNDING_POST_INQUEST_VALUE.YES) {
+      return true;
+    }
+    if (
+      fundingPostInquest === FUNDING_POST_INQUEST_VALUE.NO ||
+      fundingPostInquest === FUNDING_POST_INQUEST_VALUE.DONT_KNOW
+    ) {
+      return false;
+    }
+    return null;
+  }
+
+  #mapHasRecoveryCostsAwarded(
+    recoveryCostMade: string | undefined,
+  ): boolean | null {
+    if (recoveryCostMade === RECOVERY_COST_VALUE.YES) {
+      return true;
+    }
+    if (
+      recoveryCostMade === RECOVERY_COST_VALUE.NO ||
+      recoveryCostMade === RECOVERY_COST_VALUE.DONT_KNOW
+    ) {
+      return false;
+    }
+    return null;
+  }
+
   #buildRenderData(req: Request): Record<string, unknown> {
     const {
       session: { claim },
     } = req;
+    const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
+    const isNilBill = this.#isNilBill(claim);
     return {
+      isFinalBill,
+      isNilBill,
       caseDetails: this.#buildCaseDetails(claim),
       claimDetails: {
         claimType: this.#labelFor(CLAIM_TYPE_LABEL, claim?.type),
@@ -166,10 +326,17 @@ export class ConfirmAndSubmitAdaptor {
           fileSize: this.formatter.formatFileSize(file.fileSize),
         })),
       },
-      counsel: this.#buildCounselDetails(claim),
+      counsel: this.#buildCounselDetails(claim, isNilBill),
       costTemplateFile: this.#buildCostTemplateFile(claim),
       inquestDetails: this.#buildInquestDetails(claim),
     };
+  }
+
+  #isNilBill(claim?: ClaimSession): boolean {
+    return (
+      claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL &&
+      this.#parseAmount(claim.grossTotal) === NIL_BILL_GROSS_TOTAL
+    );
   }
 
   #buildCostTemplateFile(
@@ -188,21 +355,24 @@ export class ConfirmAndSubmitAdaptor {
     };
   }
 
-  #buildCounselDetails(claim?: ClaimSession): {
+  #buildCounselDetails(
+    claim?: ClaimSession,
+    isNilBill = false,
+  ): {
     show: boolean;
     hasCounsel: boolean;
     counselNumber: string;
     counselPaid: string;
     endDate: string;
   } {
-    const isFinalBill = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL;
+    const show = claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL && !isNilBill;
     const counselNumber = claim?.counselNumber;
     const hasCounsel =
-      isFinalBill &&
+      show &&
       typeof counselNumber === "string" &&
       counselNumber !== COUNSEL_NUMBER_ZERO;
     return {
-      show: isFinalBill,
+      show,
       hasCounsel,
       counselNumber: this.#counselNumberLabel(counselNumber),
       counselPaid: claim?.counselBillsPaid === true ? "Yes" : "No",
@@ -319,12 +489,13 @@ export class ConfirmAndSubmitAdaptor {
       locals: { csrfToken },
     } = res;
     const {
-      session: { claimReferenceNumber },
+      session: { claimReferenceNumber, claim },
     } = req;
 
     res.render("claim/confirm-success", {
       csrfToken,
       claimReferenceNumber,
+      claimTypeHeading: this.#claimTypeHeading(claim),
     });
   }
 
@@ -346,7 +517,16 @@ export class ConfirmAndSubmitAdaptor {
     res.render("claim/confirm-reject", {
       csrfToken,
       rejectionReasonDescriptions,
+      claimTypeHeading: this.#claimTypeHeading(req.session.claim),
     });
+  }
+
+  #claimTypeHeading(claim?: ClaimSession): string {
+    const type =
+      claim?.type === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT
+        ? CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT
+        : CLAIM_TYPE_VALUE.FINAL_BILL;
+    return this.#labelFor(CLAIM_TYPE_HEADING_LABEL, type);
   }
 
   #buildCaseDetails(claim?: ClaimSession): {

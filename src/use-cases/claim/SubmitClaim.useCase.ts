@@ -10,13 +10,27 @@ import { logger } from "#src/infrastructure/express/middleware/logger/logger.js"
 export interface SubmitClaimInput {
   laaReference: string;
   claimType: string;
-  poaTypeId: string | null;
+  poaTypeId: string | null | undefined;
   claimantId: string;
   accessToken: string | undefined;
-  zeroVatTotal: number | null;
-  netTotal: number | null;
+  zeroVatTotal: number | null | undefined;
+  netTotal: number | null | undefined;
   grossTotal: number | null;
-  claimEvidenceIds: string[];
+  claimEvidenceIds?: string[];
+  inquestOutcomes?: string[];
+  claimCostTemplateFile?: {
+    claimCostTemplateFileId: string;
+    claimCostTemplateFileName: string;
+  } | null;
+  hasCounselBeenPaid?: boolean | null;
+  hasAlternativeFunding?: boolean | null;
+  hasRecoveryCostsAwarded?: boolean | null;
+  financialRecoveryPreviousPreCertificateCosts?: number | null;
+  financialRecoveryCost?: number | null;
+  financialRecoveryDamages?: number | null;
+  financialRecoveryInterest?: number | null;
+  payingParty?: string | null;
+  numberOfCounselInstructed?: string | null;
 }
 
 interface SubmitClaimSuccess {
@@ -45,6 +59,18 @@ export class SubmitClaimUseCase {
           poaTypeId: input.poaTypeId,
           claimantId: input.claimantId,
           claimEvidenceIds: input.claimEvidenceIds,
+          inquestOutcomes: input.inquestOutcomes,
+          claimCostTemplateFile: input.claimCostTemplateFile,
+          hasCounselBeenPaid: input.hasCounselBeenPaid,
+          hasAlternativeFunding: input.hasAlternativeFunding,
+          hasRecoveryCostsAwarded: input.hasRecoveryCostsAwarded,
+          financialRecoveryPreviousPreCertificateCosts:
+            input.financialRecoveryPreviousPreCertificateCosts,
+          financialRecoveryCost: input.financialRecoveryCost,
+          financialRecoveryDamages: input.financialRecoveryDamages,
+          financialRecoveryInterest: input.financialRecoveryInterest,
+          payingParty: input.payingParty,
+          numberOfCounselInstructed: input.numberOfCounselInstructed,
         },
         input.accessToken,
       );
