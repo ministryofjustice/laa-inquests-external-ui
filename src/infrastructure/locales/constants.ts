@@ -525,6 +525,8 @@ export const CORONERS_LETTER_ERROR = {
   FILE_IS_EMPTY: "The selected file is empty",
   INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
   FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  INVALID_FILE_NAME:
+    "The file name must only include letters, numbers, spaces and these characters: .!()_-",
 };
 
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)

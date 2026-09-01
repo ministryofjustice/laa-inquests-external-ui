@@ -66,6 +66,38 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {});
       });
+
+      it("returns no errors when file name contains accepted punctuation", () => {
+        const validator = new UploadCoronersLetterValidator();
+        const validFile = {
+          size: 5 * 1024 * 1024,
+          mimetype: validMimeType,
+          originalname: "coroners-letter! (final).pdf",
+        } as Express.Multer.File;
+
+        const errorSummaries =
+          validator.validateCoronersLetterUploadFile(validFile);
+
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns file name error when file contains unsupported characters", () => {
+        const validator = new UploadCoronersLetterValidator();
+        const invalidFileNameFile = {
+          size: 5 * 1024 * 1024,
+          mimetype: validMimeType,
+          originalname: "invalid@file#name.pdf",
+        } as Express.Multer.File;
+
+        const errorSummaries =
+          validator.validateCoronersLetterUploadFile(invalidFileNameFile);
+
+        assert.deepEqual(errorSummaries, {
+          coronersLetterError: {
+            text: "The file name must only include letters, numbers, spaces and these characters: .!()_-",
+          },
+        });
+      });
     });
 
     describe("when file has an invalid type", () => {
