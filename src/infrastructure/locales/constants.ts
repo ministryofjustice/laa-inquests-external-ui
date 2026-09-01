@@ -281,8 +281,8 @@ export const CORRESPONDENCE_RECIPIENT_TYPE = {
 } as const;
 
 export const DECEASED_DETAILS_ERROR = {
-  MISSING_FIRST_NAME: "Enter your first name",
-  MISSING_LAST_NAME: "Enter your last name",
+  MISSING_FIRST_NAME: "Enter the deceased's first name",
+  MISSING_LAST_NAME: "Enter the deceased's last name",
   FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "First name must be 100 characters or less",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
