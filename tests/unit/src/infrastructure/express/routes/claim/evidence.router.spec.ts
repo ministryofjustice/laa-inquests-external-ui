@@ -8,6 +8,7 @@ import type { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/Dow
 import type { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
+import { createAppWithSession } from "./routerTestUtils.js";
 
 describe("createEvidenceRouter", () => {
   it("returns 200 and updates session evidenceFiles on /evidence/delete", async () => {
@@ -24,7 +25,6 @@ describe("createEvidenceRouter", () => {
       deleteEvidenceUseCase,
     );
 
-    const app = express();
     const sharedSession: {
       accessToken?: string;
       claim?: {
@@ -40,16 +40,10 @@ describe("createEvidenceRouter", () => {
       },
     };
 
-    app.use(express.json());
-    app.use((req, _res, next) => {
-      (req as unknown as { session: typeof sharedSession }).session =
-        sharedSession;
-      next();
-    });
-
     const router = express.Router();
-    app.use(
+    const app = createAppWithSession(
       createEvidenceRouter(router, evidenceAdaptor, downloadEvidenceAdaptor),
+      sharedSession,
     );
 
     const response = await request(app)

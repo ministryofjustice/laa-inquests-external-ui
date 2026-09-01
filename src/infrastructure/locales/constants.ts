@@ -1,3 +1,5 @@
+/* eslint-disable max-lines -- Want to keep constants in singular location. */
+
 export const MAX_CHARACTER_LENGTH = 100;
 export const SERVICE_UNAVAILABLE_MESSAGE =
   "Service unavailable. Please try again later.";
@@ -5,6 +7,10 @@ export const SERVICE_UNAVAILABLE_MESSAGE =
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
   NO_RESULTS: "There are no results that match the search criteria",
+};
+
+export const PAYING_PARTY_ERROR = {
+  MISSING_PAYING_PARTY: "Enter the name of the paying party",
 };
 
 export const CLAIM_TYPE_ERROR = {
@@ -67,6 +73,11 @@ export const CLAIM_TYPE_LABEL: Record<string, string> = {
   FINAL_BILL: "Final bill",
 };
 
+export const CLAIM_TYPE_HEADING_LABEL: Record<string, string> = {
+  PAYMENT_ON_ACCOUNT: "Payment on account",
+  FINAL_BILL: "Final bill",
+};
+
 export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
   PROFIT_COST: "Profit cost",
   EXPERT_COST: "Expert cost",
@@ -101,6 +112,18 @@ export const CLAIM_SUBMIT_ERROR = {
   MISSING_CLAIM_EVIDENCE: "Claim evidence is required",
   APPLICATION_NOT_GRANTED:
     "Claims may only be submitted for applications that have been granted.",
+  MISSING_INQUEST_OUTCOMES:
+    "Select at least one inquest outcome to continue submitting your claim.",
+  INQUEST_OUTCOMES_NOT_ALLOWED:
+    "Inquest outcomes can only be provided for final bill and nil bill claims.",
+  MISSING_COST_TEMPLATE_FILE:
+    "Upload the LAA cost claim evidence template to continue submitting your claim.",
+  COST_TEMPLATE_FILE_NOT_ALLOWED:
+    "A cost claim evidence template can only be provided for final bill and nil bill claims.",
+  MISSING_FINAL_BILL_DETAILS:
+    "Complete all final bill details before submitting your claim.",
+  FINAL_BILL_DETAILS_NOT_ALLOWED:
+    "Final bill details can only be provided for final bill and nil bill claims.",
 };
 
 export const CLAIM_NET_TOTAL_VALUE = 1000;
@@ -258,8 +281,8 @@ export const CORRESPONDENCE_RECIPIENT_TYPE = {
 } as const;
 
 export const DECEASED_DETAILS_ERROR = {
-  MISSING_FIRST_NAME: "Enter your first name",
-  MISSING_LAST_NAME: "Enter your last name",
+  MISSING_FIRST_NAME: "Enter the deceased's first name",
+  MISSING_LAST_NAME: "Enter the deceased's last name",
   FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "First name must be 100 characters or less",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
@@ -286,6 +309,126 @@ export const DECEASED_DETAILS_ERROR = {
   FURTHER_INFORMATION_MIN_MAX:
     "Linked case details must be between 2 and 500 characters",
 };
+
+export const END_DATE_ERROR = {
+  MISSING_END_DATE: "Enter the last working date",
+  NON_NUMERIC_END_DATE: "Enter the last working date in the format expected",
+  INVALID_END_DATE: "Enter a valid last working date",
+  FUTURE_OR_TODAY_END_DATE: "Last working date must be in the past",
+};
+
+export const INQUEST_OUTCOME_ERROR = {
+  MISSING_SELECTION: "You must select at least one inquest outcome",
+};
+
+export const FUNDING_POST_INQUEST_ERROR = {
+  MISSING_SELECTION:
+    "Select whether the matter has progressed to alternate funding post-inquest",
+};
+
+export const RECOVERY_COST_ERROR = {
+  MISSING_SELECTION: "Select whether the recovery cost has been made",
+};
+
+export const RECOVERY_COST_VALUE = {
+  YES: "YES",
+  NO: "NO",
+  DONT_KNOW: "DONT_KNOW",
+} as const;
+
+export const FINANCIAL_RECOVERY_COSTS_ERROR = {
+  MISSING_COSTS: "Enter the costs",
+  INVALID_COSTS: "Costs must be a valid amount with up to 2 decimal places",
+  MISSING_DAMAGES: "Enter the damages",
+  INVALID_DAMAGES: "Damages must be a valid amount with up to 2 decimal places",
+  MISSING_INTEREST: "Enter the interest",
+  INVALID_INTEREST:
+    "Interest must be a valid amount with up to 2 decimal places",
+  MISSING_PREVIOUS_PRE_CERTIFICATE_COSTS:
+    "Enter the previous pre-certificate costs",
+  INVALID_PREVIOUS_PRE_CERTIFICATE_COSTS:
+    "Previous pre-certificate costs must be a valid amount with up to 2 decimal places",
+};
+
+export const PRE_CERTIFICATE_COSTS_ERROR = {
+  MISSING: "Enter the previous pre-certificate costs",
+  INVALID:
+    "Previous pre-certificate costs must be a valid amount with up to 2 decimal places",
+};
+
+export const FUNDING_POST_INQUEST_VALUE = {
+  YES: "YES",
+  NO: "NO",
+  DONT_KNOW: "DONT_KNOW",
+} as const;
+
+export const FUNDING_POST_INQUEST_OPTIONS = [
+  { value: "YES", text: "Yes" },
+  { value: "NO", text: "No" },
+  { value: "DONT_KNOW", text: "Don't know" },
+] as const;
+
+export const RECOVERY_COST_OPTIONS = [
+  { value: "YES", text: "Yes" },
+  { value: "NO", text: "No" },
+  { value: "DONT_KNOW", text: "Don't know" },
+] as const;
+
+export const INQUEST_OUTCOME_OPTIONS = [
+  {
+    value: "ACCIDENT_OR_MISADVENTURE",
+    text: "Accident or misadventure",
+    hint: "An unintended or unexpected outcome, with misadventure occasionally involving a deliberate risk that unfortunately turned fatal.",
+  },
+  {
+    value: "ALCOHOL_OR_DRUGS_RELATED",
+    text: "Alcohol or drugs related",
+    hint: "Alcohol, drugs or both has been the ultimate cause of death.",
+  },
+  {
+    value: "INDUSTRIAL_DISEASE",
+    text: "Industrial disease",
+    hint: "Death resulting from an illness contracted at work.",
+  },
+  {
+    value: "NARRATIVE_CONCLUSION",
+    text: "Narrative conclusion",
+    hint: "A number of words that make up a brief factual statement of how the deceased came by their death.",
+  },
+  {
+    value: "NATURAL_CAUSES",
+    text: "Natural causes",
+    hint: "Death without outside triggers or suspicious circumstances.",
+  },
+  {
+    value: "OPEN_CONCLUSION",
+    text: "Open conclusion",
+    hint: "Used when there is insufficient evidence to safely conclude any other specific outcome.",
+  },
+  {
+    value: "ROAD_TRAFFIC_COLLISION",
+    text: "Road traffic collision",
+    hint: "Deaths that arise from collisions involving vehicles on a public road from other accidental events involving vehicles.",
+  },
+  {
+    value: "STILLBIRTH",
+    text: "Stillbirth",
+    hint: "The death of a baby before or during birth after a defined number of weeks of pregnancy.",
+  },
+  {
+    value: "SUICIDE",
+    text: "Suicide",
+    hint: "A conclusion confirming an individual or their actions deliberately ended their own life.",
+  },
+  {
+    value: "UNLAWFUL_OR_LAWFUL_KILLING",
+    text: "Unlawful or lawful killing",
+    hint: "Findings of homicide (such as murder or manslaughter) or justifiable deaths (such as lawful self-defense).",
+  },
+] as const;
+
+export type InquestOutcomeValue =
+  (typeof INQUEST_OUTCOME_OPTIONS)[number]["value"];
 
 export const DECEASED_NAME_PAGE = {
   HEADING: "What is the name of the deceased?",
@@ -411,6 +554,25 @@ export const CLAIM_EVIDENCE_ALLOWED_FILE_TYPES = [
   "image/png",
   "image/bmp",
   "application/pdf",
+];
+
+export const CLAIM_FINAL_BILL_TEMPLATE_ERROR = {
+  NO_FILE_CHOSEN: "Select a file",
+  FILE_REQUIRED: "Upload the LAA cost claim evidence template",
+  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
+  FILE_IS_EMPTY: "The selected file is empty",
+  INVALID_FILE_TYPE: "The selected file must be an Excel spreadsheet",
+  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  ONLY_ONE_FILE_ALLOWED:
+    "You can only upload one file. Delete the existing file before uploading a new one",
+};
+
+export const CLAIM_FINAL_BILL_TEMPLATE_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
+export const CLAIM_FINAL_BILL_TEMPLATE_TOO_SMALL_FILE_SIZE_BYTES = 0;
+
+export const CLAIM_FINAL_BILL_TEMPLATE_ALLOWED_FILE_TYPES = [
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
 ];
 
 export const CLIENT_DECLARATION_ERROR = {

@@ -62,8 +62,12 @@ export class CounselPayConfirmationAdaptor {
         ...req.session.claim,
         counselBillsPaid: true,
       };
-      this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-      res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+      if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+        this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+      } else {
+        res.redirect("/claim/end-date");
+      }
     }
   }
 }

@@ -1,0 +1,59 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Has the recovery cost been made?" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/claim/funding-post-inquest"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if errorSummaries.recoveryCostMadeInputError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.recoveryCostMadeInputError.text,
+              href: "#recovery-cost-made"
+            }
+          ]
+        }) }}
+        {% endif %}
+        <form data-testid="inquest-outcome-recovery-form" action="/claim/inquest-outcome-recovery" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            name: "recovery-cost-made",
+            id: "recovery-cost-made",
+            value: recoveryCostMade,
+            errorMessage: errorSummaries.recoveryCostMadeInputError,
+            fieldset: {
+              legend: {
+                text: pageHeading,
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            hint: {
+              text: "Only select 'yes' if your have recovered inquest costs from a paying party and won't be making a legal aid claim"
+            },
+            items: recoveryOptions
+          }) }}
+          {{ govukButton({
+            text: "Continue",
+            type: "submit"
+          }) }}
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

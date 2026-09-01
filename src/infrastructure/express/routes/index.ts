@@ -26,6 +26,27 @@ import { ClaimTypeAdaptor } from "#src/adaptors/presenters/claim/ClaimType/Claim
 import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.validator.js";
 import { createConfirmAndSubmitClaimRouter } from "./claim/confirmAndSubmitClaim.router.js";
 import { ConfirmAndSubmitAdaptor } from "#src/adaptors/presenters/claim/ConfirmAndSubmit/ConfirmAndSubmit.adaptor.js";
+import { createEndDateRouter } from "./claim/endDate.router.js";
+import { EndDateAdaptor } from "#src/adaptors/presenters/claim/EndDate/EndDate.adaptor.js";
+import { EndDateValidator } from "#src/adaptors/presenters/claim/EndDate/EndDate.validator.js";
+import { createInquestOutcomeRouter } from "./claim/inquestOutcome.router.js";
+import { InquestOutcomeAdaptor } from "#src/adaptors/presenters/claim/InquestOutcome/InquestOutcome.adaptor.js";
+import { InquestOutcomeValidator } from "#src/adaptors/presenters/claim/InquestOutcome/InquestOutcome.validator.js";
+import { createFundingPostInquestRouter } from "./claim/fundingPostInquest.router.js";
+import { FundingPostInquestAdaptor } from "#src/adaptors/presenters/claim/FundingPostInquest/FundingPostInquest.adaptor.js";
+import { FundingPostInquestValidator } from "#src/adaptors/presenters/claim/FundingPostInquest/FundingPostInquest.validator.js";
+import { createInquestOutcomeRecoveryRouter } from "./claim/inquestOutcomeRecovery.router.js";
+import { RecoveryCostMadeAdaptor } from "#src/adaptors/presenters/claim/RecoveryCostMade/RecoveryCostMade.adaptor.js";
+import { RecoveryCostMadeValidator } from "#src/adaptors/presenters/claim/RecoveryCostMade/RecoveryCostMade.validator.js";
+import { createRecoveryCostsRouter } from "./claim/recoveryCosts.router.js";
+import { FinancialRecoveryCostsAdaptor } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.adaptor.js";
+import { FinancialRecoveryCostsValidator } from "#src/adaptors/presenters/claim/FinancialRecoveryCosts/FinancialRecoveryCosts.validator.js";
+import { createPreCertCostsRouter } from "./claim/preCertCosts.router.js";
+import { PreCertificateCostsAdaptor } from "#src/adaptors/presenters/claim/PreCertificateCosts/PreCertificateCosts.adaptor.js";
+import { PreCertificateCostsValidator } from "#src/adaptors/presenters/claim/PreCertificateCosts/PreCertificateCosts.validator.js";
+import { createPayingPartyRouter } from "./claim/payingParty.router.js";
+import { PayingPartyAdaptor } from "#src/adaptors/presenters/claim/PayingParty/PayingParty.adaptor.js";
+import { PayingPartyValidator } from "#src/adaptors/presenters/claim/PayingParty/PayingParty.validator.js";
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
 import { createTotalClaimCostRouter } from "./claim/totalClaimCost.router.js";
 import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
@@ -33,6 +54,9 @@ import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavig
 import { createEvidenceRouter } from "./claim/evidence.router.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import { UploadEvidenceValidator } from "#src/adaptors/presenters/claim/Evidence/Evidence.validator.js";
+import { createFinalBillTemplateRouter } from "./claim/finalBillTemplate.router.js";
+import { FinalBillTemplateAdaptor } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.adaptor.js";
+import { FinalBillTemplateValidator } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.validator.js";
 import { createCounselRouter } from "./claim/counsel.router.js";
 import { CounselNumberAdaptor } from "#src/adaptors/presenters/claim/CounselNumber/CounselNumber.adaptor.js";
 import { CounselNumberValidator } from "#src/adaptors/presenters/claim/CounselNumber/CounselNumber.validator.js";
@@ -78,7 +102,15 @@ const coronersLetterRouter = express.Router();
 const claimTypeRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
+const endDateRouter = express.Router();
+const inquestOutcomeRouter = express.Router();
+const fundingPostInquestRouter = express.Router();
+const inquestOutcomeRecoveryRouter = express.Router();
+const recoveryCostsRouter = express.Router();
+const preCertCostsRouter = express.Router();
+const payingPartyRouter = express.Router();
 const evidenceRouter = express.Router();
+const finalBillTemplateRouter = express.Router();
 const counselRouter = express.Router();
 const errorRouter = express.Router();
 
@@ -224,6 +256,38 @@ const confirmAndSubmitAdaptor = new ConfirmAndSubmitAdaptor(
 
 const totalClaimCostAdaptor = new TotalClaimCostAdaptor();
 
+const endDateAdaptor = new EndDateAdaptor(new EndDateValidator());
+
+const inquestOutcomeAdaptor = new InquestOutcomeAdaptor(
+  new InquestOutcomeValidator(),
+  claimNavigationHelper,
+);
+
+const fundingPostInquestAdaptor = new FundingPostInquestAdaptor(
+  new FundingPostInquestValidator(),
+  claimNavigationHelper,
+);
+
+const recoveryCostMadeAdaptor = new RecoveryCostMadeAdaptor(
+  new RecoveryCostMadeValidator(),
+  claimNavigationHelper,
+);
+
+const financialRecoveryCostsAdaptor = new FinancialRecoveryCostsAdaptor(
+  new FinancialRecoveryCostsValidator(),
+  claimNavigationHelper,
+);
+
+const preCertificateCostsAdaptor = new PreCertificateCostsAdaptor(
+  new PreCertificateCostsValidator(),
+  claimNavigationHelper,
+);
+
+const payingPartyAdaptor = new PayingPartyAdaptor(
+  new PayingPartyValidator(),
+  claimNavigationHelper,
+);
+
 const uploadEvidenceSource = new UploadEvidenceAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
@@ -240,6 +304,13 @@ const evidenceAdaptor = new EvidenceAdaptor(
   uploadEvidenceUseCase,
   deleteEvidenceUseCase,
   claimNavigationHelper,
+);
+
+const finalBillTemplateValidator = new FinalBillTemplateValidator();
+const finalBillTemplateAdaptor = new FinalBillTemplateAdaptor(
+  finalBillTemplateValidator,
+  uploadEvidenceUseCase,
+  deleteEvidenceUseCase,
 );
 
 const downloadEvidenceSource = new DownloadEvidenceSource(
@@ -267,6 +338,10 @@ indexRouter.use(
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
   createTotalClaimCostRouter(totalClaimRouter, totalClaimCostAdaptor),
+  createFinalBillTemplateRouter(
+    finalBillTemplateRouter,
+    finalBillTemplateAdaptor,
+  ),
   createEvidenceRouter(
     evidenceRouter,
     evidenceAdaptor,
@@ -281,6 +356,19 @@ indexRouter.use(
     confirmAndSubmitClaimRouter,
     confirmAndSubmitAdaptor,
   ),
+  createEndDateRouter(endDateRouter, endDateAdaptor),
+  createInquestOutcomeRouter(inquestOutcomeRouter, inquestOutcomeAdaptor),
+  createFundingPostInquestRouter(
+    fundingPostInquestRouter,
+    fundingPostInquestAdaptor,
+  ),
+  createInquestOutcomeRecoveryRouter(
+    inquestOutcomeRecoveryRouter,
+    recoveryCostMadeAdaptor,
+  ),
+  createRecoveryCostsRouter(recoveryCostsRouter, financialRecoveryCostsAdaptor),
+  createPreCertCostsRouter(preCertCostsRouter, preCertificateCostsAdaptor),
+  createPayingPartyRouter(payingPartyRouter, payingPartyAdaptor),
 );
 
 indexRouter.use(

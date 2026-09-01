@@ -10,6 +10,7 @@ export class ClaimNavigationHelper {
       req.session.claim = {
         ...req.session.claim,
         returnToCheckYourAnswers: true,
+        recoveryCostMadeEditInProgress: undefined,
       };
     }
   }
@@ -24,6 +25,23 @@ export class ClaimNavigationHelper {
       : defaultHref;
   }
 
+  resolveCostPageBackHref(
+    req: Pick<Request, "session">,
+    defaultHref: string,
+  ): string {
+    if (req.session.claim?.recoveryCostMadeEditInProgress === true) {
+      return defaultHref;
+    }
+    return this.resolveBackHref(req, defaultHref);
+  }
+
+  markRecoveryCostMadeEdit(req: Pick<Request, "session">): void {
+    req.session.claim = {
+      ...req.session.claim,
+      recoveryCostMadeEditInProgress: true,
+    };
+  }
+
   clearReturnToCheckYourAnswersFlag(req: Pick<Request, "session">): void {
     if (req.session.claim === undefined) {
       return;
@@ -31,6 +49,7 @@ export class ClaimNavigationHelper {
     req.session.claim = {
       ...req.session.claim,
       returnToCheckYourAnswers: undefined,
+      recoveryCostMadeEditInProgress: undefined,
     };
   }
 

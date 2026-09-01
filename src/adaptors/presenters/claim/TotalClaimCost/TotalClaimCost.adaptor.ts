@@ -128,7 +128,6 @@ export class TotalClaimCostAdaptor {
     req.session.claim = {
       ...req.session.claim,
       grossTotal,
-      subtype: isNilBill ? CLAIM_TYPE_VALUE.NIL_BILL : undefined,
     };
 
     if (isNilBill) {

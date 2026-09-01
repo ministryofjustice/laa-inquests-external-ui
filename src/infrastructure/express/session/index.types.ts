@@ -46,15 +46,35 @@ export interface ClaimSession {
   netTotal?: string;
   grossTotal?: string;
   evidenceFiles?: ClaimEvidenceFile[];
+  finalBillCostTemplate?: ClaimFinalBillCostTemplate;
   counselNumber?: string;
   counselBillsPaid?: boolean;
   returnToCheckYourAnswers?: boolean;
+  endDateDay?: string;
+  endDateMonth?: string;
+  endDateYear?: string;
+  inquestOutcomes?: string[];
+  fundingPostInquest?: string;
+  recoveryCostMade?: string;
+  recoveryCosts?: string;
+  recoveryDamages?: string;
+  recoveryInterest?: string;
+  recoveryPreCertificateCosts?: string;
+  preCertificateCosts?: string;
+  recoveryCostMadeEditInProgress?: boolean;
+  payingParty?: string;
 }
 
 export interface ClaimEvidenceFile {
   id: string;
   fileName: string;
   fileSize?: number;
+}
+
+export interface ClaimFinalBillCostTemplate {
+  costTemplateId: string;
+  costTemplateFilename: string;
+  costTemplateFileSize?: number;
 }
 
 export interface ClaimClientDetails {

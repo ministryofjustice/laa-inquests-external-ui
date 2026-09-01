@@ -262,6 +262,51 @@ describe("SubmitClaimUseCase", () => {
     ]);
   });
 
+  it("forwards final bill specific fields to the submit port", async () => {
+    await useCase.execute({
+      laaReference: "1",
+      claimType: "FINAL_BILL",
+      poaTypeId: null,
+      claimantId: "test@provider.co.uk",
+      accessToken: "access-token-123",
+      zeroVatTotal: null,
+      netTotal: null,
+      grossTotal: 1200,
+      claimEvidenceIds: ["evidence-id-1"],
+      inquestOutcomes: ["NATURAL_CAUSES"],
+      claimCostTemplateFile: {
+        claimCostTemplateFileId: "template-id-1",
+        claimCostTemplateFileName: "cost-template.xlsx",
+      },
+      hasCounselBeenPaid: true,
+      hasAlternativeFunding: false,
+      hasRecoveryCostsAwarded: true,
+      financialRecoveryPreviousPreCertificateCosts: 400,
+      financialRecoveryCost: 100,
+      financialRecoveryDamages: 200,
+      financialRecoveryInterest: 300,
+      payingParty: "Acme Ltd",
+      numberOfCounselInstructed: "2",
+    });
+
+    assert(claimSubmitPort.submitClaim.calledOnce);
+    const [, body] = claimSubmitPort.submitClaim.getCall(0).args;
+    assert.deepEqual(body.inquestOutcomes, ["NATURAL_CAUSES"]);
+    assert.deepEqual(body.claimCostTemplateFile, {
+      claimCostTemplateFileId: "template-id-1",
+      claimCostTemplateFileName: "cost-template.xlsx",
+    });
+    assert.equal(body.hasCounselBeenPaid, true);
+    assert.equal(body.hasAlternativeFunding, false);
+    assert.equal(body.hasRecoveryCostsAwarded, true);
+    assert.equal(body.financialRecoveryPreviousPreCertificateCosts, 400);
+    assert.equal(body.financialRecoveryCost, 100);
+    assert.equal(body.financialRecoveryDamages, 200);
+    assert.equal(body.financialRecoveryInterest, 300);
+    assert.equal(body.payingParty, "Acme Ltd");
+    assert.equal(body.numberOfCounselInstructed, "2");
+  });
+
   it("returns SUCCESS with rejection reasons when the port returns REJECTED", async () => {
     claimSubmitPort.submitClaim.resolves({
       status: "REJECTED",

@@ -1,0 +1,89 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "moj/components/multi-file-upload/macro.njk" import mojMultiFileUpload %}
+{%- from "govuk/components/error-summary/macro.njk" import govukErrorSummary -%}
+{% set pageHeading = "Upload claim cost template" %}
+{% set pageTitle = pageHeading %}
+
+
+{% block content %}
+
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: backHref or "/claim/total-cost"
+  }) }}
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+
+          {% if errorSummaries and errorSummaries.templateError %}
+            {{ govukErrorSummary({
+              titleText: "There is a problem",
+              errorList: [{
+                text: errorSummaries.templateError.text,
+                href: "#documents"
+              }]
+            }) }}
+          {% endif %}
+
+          <p class="govuk-body">Provide us with a breakdown of all the line items associated with. this case.</p>
+
+          <p class="govuk-body">You must use the LAA cost claim evidence template for Inquest final bills. Final bills submitted which don't use this template will be rejected.</p>
+
+          <p class="govuk-body">For more information on how to complete the template, please read <a class="govuk-link" href="#">How to complete the LAA cost claim template and submit evidence</a> page.</p>
+
+          <p class="govuk-body">You can upload:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>.excel</li>
+            <li>10mb max</li>
+          </ul>
+
+          <form action="/claim/final-bill-template/upload" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+            <input type="hidden" name="uploadMode" value="html" />
+            {% set uploadHtml %}
+              {% set errorMessage = errorSummaries.templateError if errorSummaries and errorSummaries.templateError %}
+              {{ govukFileUpload({
+                id: "documents",
+                name: "documents",
+                classes: "moj-multi-file-upload__input",
+                label: {
+                  text: "Upload new files",
+                  classes: "govuk-label--m govuk-heading-l"
+                },
+                attributes: { accept: ".xlsx,.xls" },
+                errorMessage: errorMessage
+              }) }}
+
+              {{ govukButton({
+                text: "Upload file",
+                classes: "govuk-button--secondary moj-multi-file-upload__button"
+              }) }}
+            {% endset %}
+
+              {{ mojMultiFileUpload({
+                uploadedFiles: {
+                heading: { text: "Uploaded files" },
+                items: uploadedFiles
+              },
+              uploadHtml: uploadHtml
+            }) }}
+          </form>
+
+          <form data-testid="final-bill-template-form" action="/claim/final-bill-template" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+            {{ govukButton({
+              text: "Continue",
+              type: "submit"
+            }) }}
+          </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

@@ -12,9 +12,17 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
+import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import {
+  buildJsonUploadErrorResponse,
+  isNonEmptyString,
+  extractFileId,
+  isHtmlUploadMode,
+  resolveUploadFailureMessage,
+} from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 const HTTP_SUCCESS = 200;
 
 export class EvidenceAdaptor {
@@ -45,8 +53,18 @@ export class EvidenceAdaptor {
     res.render("claim/evidence", {
       csrfToken,
       uploadedFiles: this.#buildUploadedFiles(req),
-      backHref: this.navigationHelper.resolveBackHref(req, "/claim/total-cost"),
+      backHref: this.#buildBackHref(req),
     });
+  }
+
+  #buildBackHref(req: Request): string {
+    if (req.session.claim?.returnToCheckYourAnswers === true) {
+      return "/claim/check-your-answers";
+    } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
+      return "/claim/final-bill-template";
+    } else {
+      return "/claim/total-cost";
+    }
   }
 
   processForm(req: Request, res: Response): void {
@@ -68,16 +86,20 @@ export class EvidenceAdaptor {
   }
 
   async processEvidenceUpload(req: Request, res: Response): Promise<void> {
-    if (
-      this.#isNoJsUpload(req) &&
-      this.#extractEvidenceFileId(req) !== undefined
-    ) {
+    const { uploadMode } = req.body as { uploadMode?: string | string[] };
+    const body = req.body as {
+      delete?: string | string[];
+      fileName?: string | string[];
+      filename?: string | string[];
+    };
+
+    if (isHtmlUploadMode(uploadMode) && extractFileId(body) !== undefined) {
       await this.processEvidenceDeleteNoJs(req, res);
       return;
     }
 
     const { file } = req;
-    const isNoJsUpload = this.#isNoJsUpload(req);
+    const isNoJs = isHtmlUploadMode(uploadMode);
 
     const errors = this.formValidator.validateEvidenceUploadFile(file);
     if (Object.keys(errors).length > EMPTY_ARR_LENGTH) {
@@ -87,11 +109,11 @@ export class EvidenceAdaptor {
         request: req,
         extraContext: {
           event: "claim_evidence_upload_validation_failed",
-          no_js_upload: isNoJsUpload,
+          no_js_upload: isNoJs,
           errors,
         },
       });
-      this.#handleValidationFailure(req, res, errors, isNoJsUpload);
+      this.#handleValidationFailure(req, res, errors, isNoJs);
     } else {
       const result = await this.uploadEvidenceUseCase.execute({
         buffer: file!.buffer,
@@ -102,8 +124,8 @@ export class EvidenceAdaptor {
 
       const hasValidData =
         result.status === "SUCCESS" &&
-        this.#checkNonEmptyString(result.data?.evidenceFileId) &&
-        this.#checkNonEmptyString(result.data?.evidenceFileName);
+        isNonEmptyString(result.data?.evidenceFileId) &&
+        isNonEmptyString(result.data?.evidenceFileName);
 
       if (hasValidData) {
         this.#handleUploadSuccess({
@@ -111,7 +133,7 @@ export class EvidenceAdaptor {
           res,
           data: result.data!,
           file: file!,
-          isNoJsUpload,
+          isNoJsUpload: isNoJs,
         });
       } else {
         logger.logWarn({
@@ -120,16 +142,16 @@ export class EvidenceAdaptor {
           request: req,
           extraContext: {
             event: "claim_evidence_upload_failed",
-            no_js_upload: isNoJsUpload,
+            no_js_upload: isNoJs,
           },
         });
-        this.#handleUploadFailure({ req, res, result, isNoJsUpload });
+        this.#handleUploadFailure({ req, res, result, isNoJsUpload: isNoJs });
       }
     }
   }
 
   async processEvidenceDelete(req: Request, res: Response): Promise<void> {
-    const evidenceFileId = this.#extractEvidenceFileId(req);
+    const evidenceFileId = extractFileId(req.body as Record<string, unknown>);
     if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
       logger.logWarn({
         functionName: "evidenceAdaptor_processEvidenceDelete",
@@ -170,7 +192,7 @@ export class EvidenceAdaptor {
   }
 
   async processEvidenceDeleteNoJs(req: Request, res: Response): Promise<void> {
-    const evidenceFileId = this.#extractEvidenceFileId(req);
+    const evidenceFileId = extractFileId(req.body as Record<string, unknown>);
     if (typeof evidenceFileId !== "string" || evidenceFileId === "") {
       logger.logWarn({
         functionName: "evidenceAdaptor_processEvidenceDeleteNoJs",
@@ -218,29 +240,6 @@ export class EvidenceAdaptor {
     res.redirect("/claim/evidence");
   }
 
-  #isNoJsUpload(req: Request): boolean {
-    const { uploadMode } = req.body as { uploadMode?: string | string[] };
-    return (
-      uploadMode === "html" ||
-      (Array.isArray(uploadMode) && uploadMode.includes("html"))
-    );
-  }
-
-  #extractEvidenceFileId(req: Request): string | undefined {
-    const body = req.body as {
-      delete?: string | string[];
-      fileName?: string | string[];
-      filename?: string | string[];
-    };
-    const candidate = body.delete ?? body.fileName ?? body.filename;
-    if (Array.isArray(candidate)) {
-      return candidate.find(
-        (value) => typeof value === "string" && value !== "",
-      );
-    }
-    return candidate;
-  }
-
   #buildUploadedFiles(req: Request): Array<{
     message: { text: string };
     fileName: string;
@@ -285,13 +284,9 @@ export class EvidenceAdaptor {
     originalname: string | undefined,
     statusCode: number,
   ): void {
-    res.status(statusCode).json({
-      error: { message },
-      file: {
-        filename: "",
-        originalname: originalname ?? "",
-      },
-    });
+    res
+      .status(statusCode)
+      .json(buildJsonUploadErrorResponse(message, originalname));
   }
 
   #handleValidationFailure(
@@ -318,15 +313,15 @@ export class EvidenceAdaptor {
   #handleUploadFailure(options: {
     req: Request;
     res: Response;
-    result: { status: string; reason?: string };
+    result: UseCaseResult<unknown, unknown>;
     isNoJsUpload: boolean;
   }): void {
     const { req, res, result, isNoJsUpload } = options;
-    const message =
-      result.status === "TECHNICAL_FAILURE" &&
-      result.reason === "FILE_SCAN_FOUND_VIRUS"
-        ? CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS
-        : SERVICE_UNAVAILABLE_MESSAGE;
+    const message = resolveUploadFailureMessage(
+      result,
+      CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS,
+      SERVICE_UNAVAILABLE_MESSAGE,
+    );
 
     if (isNoJsUpload) {
       this.#renderNoJsError(req, res, message, HTTP_SERVICE_UNAVAILABLE);
@@ -338,10 +333,6 @@ export class EvidenceAdaptor {
         HTTP_SERVICE_UNAVAILABLE,
       );
     }
-  }
-
-  #checkNonEmptyString(value: string | undefined): boolean {
-    return typeof value === "string" && value !== "";
   }
 
   #handleUploadSuccess(options: {
@@ -393,8 +384,8 @@ export class EvidenceAdaptor {
     fileSize: number | undefined,
   ): void {
     if (
-      this.#checkNonEmptyString(evidenceFileId) &&
-      this.#checkNonEmptyString(evidenceFileName)
+      isNonEmptyString(evidenceFileId) &&
+      isNonEmptyString(evidenceFileName)
     ) {
       const existingFiles = req.session.claim?.evidenceFiles ?? [];
       req.session.claim = {
