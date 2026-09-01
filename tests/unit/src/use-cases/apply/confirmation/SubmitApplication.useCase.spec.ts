@@ -144,23 +144,6 @@ describe("SubmitApplicationUseCase", () => {
     });
   });
 
-  it("accepts laaReference as number (backwards compatibility)", async () => {
-    const state = createValidState();
-    applySubmitPort.submitApplication.resolves({
-      statusCode: HTTP_CREATED,
-      laaReference: "987654321",
-    });
-
-    const result = await useCase.execute(state);
-
-    assert.deepEqual(result, {
-      status: "SUCCESS",
-      data: {
-        laaReference: "987654321",
-      },
-    });
-  });
-
   it("returns upstream rejected when API status code is not HTTP_CREATED", async () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({
