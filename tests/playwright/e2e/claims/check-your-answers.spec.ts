@@ -145,7 +145,7 @@ test.describe("Claim - confirm and submit", () => {
 
     const card = page.getByTestId("evidence-summary-list");
 
-    await expect(card).toContainText("Files");
+    await expect(card).toContainText("Supporting files");
     await expect(card).toContainText("test-evidence.pdf");
 
     await expect(card.getByRole("link", { name: "View" })).toHaveCount(1);
