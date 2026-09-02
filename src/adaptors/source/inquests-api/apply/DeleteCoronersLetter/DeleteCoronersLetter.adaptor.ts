@@ -36,7 +36,8 @@ export class DeleteCoronersLetterAdaptor implements DeleteCoronersLetterPort {
             : "UPSTREAM_REJECTED";
         logger.logWarn({
           functionName: "deleteCoronersLetterAdaptor_deleteCoronersLetter",
-          message: "Delete coroners letter request rejected by upstream service",
+          message:
+            "Delete coroners letter request rejected by upstream service",
           extraContext: {
             event: "apply_coroners_letter_delete_failed",
             reason,

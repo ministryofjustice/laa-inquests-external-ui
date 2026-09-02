@@ -19,6 +19,25 @@ describe("UploadCoronersLetterValidator", () => {
       });
     });
 
+    it("returns only-one-file error when a coroner's letter is already uploaded", () => {
+      const validator = new UploadCoronersLetterValidator();
+      const validFile = {
+        size: 5 * 1024 * 1024,
+        mimetype: validMimeType,
+      } as Express.Multer.File;
+
+      const errorSummaries = validator.validateCoronersLetterUploadFile(
+        validFile,
+        "existing-coroners-letter-id",
+      );
+
+      assert.deepEqual(errorSummaries, {
+        coronersLetterError: {
+          text: "You can only upload one file. Delete the existing file before uploading a new one",
+        },
+      });
+    });
+
     describe("when file has a valid type", () => {
       it("returns expected error when file size is 0", () => {
         const validator = new UploadCoronersLetterValidator();

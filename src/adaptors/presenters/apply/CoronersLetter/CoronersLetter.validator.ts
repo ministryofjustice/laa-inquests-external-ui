@@ -8,12 +8,33 @@ import {
 import { FormValidator } from "#src/utils/FormValidator.js";
 
 export class UploadCoronersLetterValidator extends FormValidator {
+  validateCoronersLetterSelection(
+    coronersLetterId: string | undefined,
+  ): Partial<UploadCoronersLetterError> {
+    if (coronersLetterId === undefined || coronersLetterId === "") {
+      return {
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+      };
+    }
+
+    return {};
+  }
+
   validateCoronersLetterUploadFile(
     fileInput: Express.Multer.File | undefined,
+    existingCoronersLetterId?: string,
   ): Partial<UploadCoronersLetterError> {
     if (fileInput === undefined) {
       return {
         coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+      };
+    }
+
+    if (existingCoronersLetterId !== undefined && existingCoronersLetterId !== "") {
+      return {
+        coronersLetterError: {
+          text: CORONERS_LETTER_ERROR.ONLY_ONE_FILE_ALLOWED,
+        },
       };
     }
 
