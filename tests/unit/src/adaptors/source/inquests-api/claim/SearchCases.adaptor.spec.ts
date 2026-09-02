@@ -13,7 +13,7 @@ describe("SearchCasesAdaptor", () => {
       status: 200,
       data: [
         {
-          laaReference: 1,
+          laaReference: "1",
           clientFirstName: "Jane",
           clientLastName: "Smith",
           clientDateOfBirth: "2000-01-01",
@@ -35,7 +35,34 @@ describe("SearchCasesAdaptor", () => {
     );
 
     assert.equal(result.length, 1);
-    assert.equal(result[0].laaReference, 1);
+    assert.equal(result[0].laaReference, "1");
+    assert.equal(result[0].clientFirstName, "Jane");
+    assert.equal(result[0].clientLastName, "Smith");
+  });
+
+  it("coerces laaReference to string when API returns number (backwards compatability)", async () => {
+    axiosStub.get.resolves({
+      status: 200,
+      data: [
+        {
+          laaReference: 1,
+          clientFirstName: "Jane",
+          clientLastName: "Smith",
+          clientDateOfBirth: "2000-01-01",
+          dateSubmitted: "2026-06-30T15:59:32.622897",
+          firmName: "Test Firm",
+          firmNumber: "0A123B",
+          overallDecision: "GRANTED",
+        },
+      ],
+    });
+    const result = await adaptor.searchCases(
+      { laaReference: "1" },
+      "access-token-123",
+    );
+
+    assert.equal(result.length, 1);
+    assert.equal(result[0].laaReference, "1");
     assert.equal(result[0].clientFirstName, "Jane");
     assert.equal(result[0].clientLastName, "Smith");
   });

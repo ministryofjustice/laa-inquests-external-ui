@@ -102,7 +102,7 @@ describe("CaseSearch adaptor", () => {
   describe("renderResults", () => {
     it("renders case search results when use case succeeds", async () => {
       const mockCase = {
-        laaReference: 1,
+        laaReference: "1",
         clientFirstName: "Jane",
         clientLastName: "Smith",
         clientDateOfBirth: "2000-01-01",
@@ -149,7 +149,7 @@ describe("CaseSearch adaptor", () => {
 
     it("stores the formatted client details in the session", async () => {
       const mockCase = {
-        laaReference: 1,
+        laaReference: "1",
         clientFirstName: "Jane",
         clientLastName: "Smith",
         clientDateOfBirth: "2000-01-01",
@@ -217,7 +217,7 @@ describe("CaseSearch adaptor", () => {
 
     it("renders results with null firm name as empty string", async () => {
       const mockCase = {
-        laaReference: 2,
+        laaReference: "2",
         clientFirstName: "John",
         clientLastName: "Doe",
         clientDateOfBirth: "1990-05-15",
