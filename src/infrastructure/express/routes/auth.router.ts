@@ -45,6 +45,7 @@ export function createAuthRouter(
       req.session.userId = "test-provider";
       req.session.officeId = "001";
       req.session.providerEmail = "test@example.com";
+      req.session.roles = ["test-role"];
       res.redirect("/");
     });
   }

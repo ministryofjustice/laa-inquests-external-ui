@@ -33,13 +33,7 @@ export class EntraAuthAdaptor implements AuthPort {
       }
 
       this.#logTokenDetails(result);
-      return {
-        userId: result.account?.homeAccountId ?? result.uniqueId,
-        userName: result.account?.name ?? undefined,
-        officeId: this.#extractOfficeId(result.account?.idTokenClaims),
-        providerEmail: result.account?.username ?? undefined,
-        ...this.#getAccessTokenField(result),
-      };
+      return this.#mapTokenResult(result);
     } catch (err) {
       logger.logError({
         functionName: "entraAuthAdaptor_acquireTokenByCode",
@@ -58,6 +52,35 @@ export class EntraAuthAdaptor implements AuthPort {
   ): Pick<AuthTokenResult, "accessToken"> | Record<string, never> {
     if (typeof result.accessToken === "string" && result.accessToken !== "") {
       return { accessToken: result.accessToken };
+    }
+    return {};
+  }
+
+  #mapTokenResult(result: AuthenticationResult): AuthTokenResult {
+    return {
+      userId: result.account?.homeAccountId ?? result.uniqueId,
+      userName: result.account?.name ?? undefined,
+      officeId: this.#extractOfficeId(result.account?.idTokenClaims),
+      providerEmail: result.account?.username ?? undefined,
+      ...this.#getRolesField(result.account?.idTokenClaims),
+      ...this.#getAccessTokenField(result),
+    };
+  }
+
+  #getRolesField(
+    claims: Record<string, unknown> | undefined,
+  ): Pick<AuthTokenResult, "roles"> | Record<string, never> {
+    const roles = claims?.LAA_APP_ROLES;
+    if (typeof roles === "string" && roles !== "") {
+      return { roles: [roles] };
+    }
+    if (Array.isArray(roles)) {
+      const mappedRoles = roles.filter(
+        (role): role is string => typeof role === "string" && role !== "",
+      );
+      if (mappedRoles.length > EMPTY_ARR_LENGTH) {
+        return { roles: mappedRoles };
+      }
     }
     return {};
   }

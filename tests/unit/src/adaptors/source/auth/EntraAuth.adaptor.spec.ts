@@ -52,13 +52,17 @@ describe("EntraAuthAdaptor", () => {
   });
 
   describe("acquireTokenByCode", () => {
-    it("returns AuthTokenResult with userId, userName, officeId and providerEmail from token claims", async () => {
+    it("returns AuthTokenResult with userId, userName, officeId, providerEmail and roles from token claims", async () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
           name: "Test User",
           username: "test@example.com",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: {
+            FIRM_CODE: "0A123B",
+            ACCOUNTS: "001",
+            LAA_APP_ROLES: ["test-role"],
+          },
         },
         accessToken: "access-token-123",
       } as any);
@@ -75,6 +79,7 @@ describe("EntraAuthAdaptor", () => {
         officeId: "001",
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
+        roles: ["test-role"],
       });
       assert.ok(
         msalClient.acquireTokenByCode.calledOnceWith({
@@ -159,6 +164,44 @@ describe("EntraAuthAdaptor", () => {
       );
 
       assert.equal(result.officeId, undefined);
+    });
+
+    it("returns undefined roles when LAA_APP_ROLES claim is missing", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.roles, undefined);
+    });
+
+    it("maps string LAA_APP_ROLES claim to a one-item roles array", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: {
+            FIRM_CODE: "0A123B",
+            ACCOUNTS: "001",
+            LAA_APP_ROLES: "test-role",
+          },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result.roles, ["test-role"]);
     });
 
     it("throws when MSAL returns null", async () => {

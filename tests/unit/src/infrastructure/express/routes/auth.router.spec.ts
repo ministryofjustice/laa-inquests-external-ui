@@ -59,6 +59,7 @@ describe("createAuthRouter", () => {
       assert.equal(req.session.userId, "test-provider");
       assert.equal(req.session.officeId, "001");
       assert.equal(req.session.providerEmail, "test@example.com");
+      assert.deepEqual(req.session.roles, ["test-role"]);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
     });
