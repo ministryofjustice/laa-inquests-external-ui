@@ -15,7 +15,7 @@ describe("SearchCasesUseCase", () => {
   it("returns success with cases when the API responds", async () => {
     const mockCases = [
       {
-        laaReference: 1,
+        laaReference: "1",
         clientFirstName: "Jane",
         clientLastName: "Smith",
         clientDateOfBirth: "2000-01-01",

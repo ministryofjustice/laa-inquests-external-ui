@@ -16,7 +16,7 @@ export interface FormattedCase {
 export class CaseSearchFormatter {
   formatCases(cases: SearchCase[]): FormattedCase[] {
     return cases.map((c) => ({
-      reference: String(c.laaReference),
+      reference: c.laaReference,
       clientName: [c.clientFirstName, c.clientLastName]
         .filter(Boolean)
         .join(" "),

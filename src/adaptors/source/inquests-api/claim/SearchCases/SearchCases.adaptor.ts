@@ -6,6 +6,7 @@ import type {
 } from "./models/SearchCases.types.js";
 import { getFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { SearchCasesResponseSchema } from "./models/SearchCases.schema.js";
 
 export class SearchCasesAdaptor implements SearchCasesPort {
   constructor(
@@ -44,7 +45,7 @@ export class SearchCasesAdaptor implements SearchCasesPort {
           params: queryParams,
         },
       });
-      return response.data;
+      return SearchCasesResponseSchema.parse(response.data);
     } catch (err) {
       logger.logError({
         functionName: "searchCasesAdaptor_searchCases",
