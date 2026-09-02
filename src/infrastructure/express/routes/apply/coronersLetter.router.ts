@@ -19,5 +19,12 @@ export function createCoronersLetterRouter(
     },
   );
 
+  coronersLetterRouter.post(
+    "/upload-coroners-letter/delete",
+    async (req: Request, res: Response): Promise<void> => {
+      await coronersLetterAdaptor.processCoronersLetterDelete(req, res);
+    },
+  );
+
   return coronersLetterRouter;
 }

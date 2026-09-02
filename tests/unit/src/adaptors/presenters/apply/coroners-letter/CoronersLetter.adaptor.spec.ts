@@ -8,6 +8,7 @@ import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/a
 import { v4 as uuidv4 } from "uuid";
 import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import { DeleteCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/DeleteCoronersLetter.useCase.js";
 
 describe("Coroners Letter adaptor", () => {
   let coronersLetterAdaptor: CoronersLetterAdaptor;
@@ -19,6 +20,8 @@ describe("Coroners Letter adaptor", () => {
 
   const uploadCoronersLetterUseCase =
     stubInterface<UploadCoronersLetterUseCase>();
+  const deleteCoronersLetterUseCase =
+    stubInterface<DeleteCoronersLetterUseCase>();
   const uploadCoronersLetterValidator =
     stubInterface<UploadCoronersLetterValidator>();
   uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({});
@@ -34,6 +37,7 @@ describe("Coroners Letter adaptor", () => {
     coronersLetterAdaptor = new CoronersLetterAdaptor(
       uploadCoronersLetterValidator,
       uploadCoronersLetterUseCase,
+      deleteCoronersLetterUseCase,
     );
   });
 
@@ -53,7 +57,8 @@ describe("Coroners Letter adaptor", () => {
   };
 
   it("renders the coroners upload letter view with the correct arguments", () => {
-    requestStub.session.coronersLetterFile = "test-file";
+    requestStub.session.coronersLetterId = testCoronersLetterId;
+    requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
     coronersLetterAdaptor.renderUploadCoronersLetterForm(
       requestStub,
       responseStub,
@@ -64,7 +69,7 @@ describe("Coroners Letter adaptor", () => {
     assert.equal(renderArgs[0], "apply/upload-coroners-letter");
     assert.deepEqual(renderArgs[1], {
       csrfToken: responseStub.locals.csrfToken,
-      uploadedFile: "test-file",
+      uploadedFile: { fileName: testCoronersLetterFileName },
       backHref: "/apply/public-authority",
     });
   });
@@ -86,7 +91,7 @@ describe("Coroners Letter adaptor", () => {
     });
   });
 
-  it("saves the file and redirects on success", async () => {
+  it("saves the file and redirects to the upload form on success", async () => {
     const buffer = setupRequestFile();
     requestStub.session.accessToken = "access-token-123";
 
@@ -108,7 +113,7 @@ describe("Coroners Letter adaptor", () => {
 
     assert.equal(responseStub.redirect.callCount, 1);
     const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/check-your-answers");
+    assert.equal(redirectArgs[0], "/apply/upload-coroners-letter");
     assert.equal(requestStub.session.returnToApplyCheckYourAnswers, undefined);
   });
 
@@ -132,6 +137,30 @@ describe("Coroners Letter adaptor", () => {
     assert.equal(
       requestStub.session.coronersLetterFileName,
       testCoronersLetterFileName,
+    );
+  });
+
+  it("deletes the uploaded letter and clears it from session", async () => {
+    requestStub.session.coronersLetterId = testCoronersLetterId;
+    requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
+    requestStub.session.accessToken = "access-token-123";
+    deleteCoronersLetterUseCase.execute.resolves({ status: "SUCCESS" });
+
+    await coronersLetterAdaptor.processCoronersLetterDelete(
+      requestStub,
+      responseStub,
+    );
+
+    assert.deepEqual(deleteCoronersLetterUseCase.execute.getCall(0).args[0], {
+      coronersLetterId: testCoronersLetterId,
+      accessToken: "access-token-123",
+    });
+    assert.equal(requestStub.session.coronersLetterId, undefined);
+    assert.equal(requestStub.session.coronersLetterFileName, undefined);
+    assert.equal(responseStub.redirect.callCount, 1);
+    assert.equal(
+      responseStub.redirect.getCall(0).args[0],
+      "/apply/upload-coroners-letter",
     );
   });
 

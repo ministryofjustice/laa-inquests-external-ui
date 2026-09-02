@@ -3,6 +3,7 @@
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 
 {% set pageHeading = "Upload coroner's letter" %}
 {% set pageTitle = pageHeading %}
@@ -27,6 +28,23 @@
       }}
     {% endif %}
     <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+    {% if uploadedFile %}
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Uploaded file" },
+            value: { text: uploadedFile.fileName }
+          }
+        ]
+      }) }}
+      <form action="/apply/upload-coroners-letter/delete" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukButton({
+          text: "Delete",
+          classes: "govuk-button--secondary"
+        }) }}
+      </form>
+    {% else %}
     <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post" enctype="multipart/form-data">
       <input type="hidden" name="_csrf" value="{{csrfToken}}" />
       {{ govukFileUpload({
@@ -47,6 +65,7 @@
       }) }}
       {{ govukButton({ text: "Continue" }) }}
     </form>
+    {% endif %}
   </main>
 </div>
 {% endblock %}

@@ -134,4 +134,21 @@ test.describe("Provider can", () => {
       CORONERS_LETTER_ERROR.INVALID_FILE_TYPE,
     );
   });
+
+  test("deletes an uploaded coroner's letter", async ({ page }) => {
+    await uploadFile(page, {
+      name: "test-coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("coroners letter content"),
+    });
+
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/apply/upload-coroners-letter");
+    await expect(page.getByText("test_coroners_letter.pdf")).toBeVisible();
+
+    await page.getByRole("button", { name: "Delete" }).click();
+
+    await expect(page.getByText("test_coroners_letter.pdf")).toHaveCount(0);
+  });
 });

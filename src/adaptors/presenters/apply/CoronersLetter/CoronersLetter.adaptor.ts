@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import type { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import type { DeleteCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/DeleteCoronersLetter.useCase.js";
 import type { UploadCoronersLetterValidator } from "./CoronersLetter.validator.js";
 import {
   CORONERS_LETTER_ERROR,
@@ -10,13 +11,16 @@ import {
 export class CoronersLetterAdaptor {
   formValidator: UploadCoronersLetterValidator;
   uploadCoronersLetterUseCase: UploadCoronersLetterUseCase;
+  deleteCoronersLetterUseCase: DeleteCoronersLetterUseCase;
 
   constructor(
     formValidator: UploadCoronersLetterValidator,
     uploadCoronersLetterUseCase: UploadCoronersLetterUseCase,
+    deleteCoronersLetterUseCase: DeleteCoronersLetterUseCase,
   ) {
     this.formValidator = formValidator;
     this.uploadCoronersLetterUseCase = uploadCoronersLetterUseCase;
+    this.deleteCoronersLetterUseCase = deleteCoronersLetterUseCase;
   }
 
   renderUploadCoronersLetterForm(req: Request, res: Response): void {
@@ -28,7 +32,7 @@ export class CoronersLetterAdaptor {
 
     res.render("apply/upload-coroners-letter", {
       csrfToken,
-      uploadedFile: req.session.coronersLetterFile,
+      uploadedFile: this.#buildUploadedFile(req),
       backHref: this.#resolveBackHref(req),
     });
   }
@@ -38,6 +42,12 @@ export class CoronersLetterAdaptor {
     res: Response,
   ): Promise<void> {
     const { file } = req;
+
+    if (file === undefined && req.session.coronersLetterId !== undefined) {
+      req.session.returnToApplyCheckYourAnswers = undefined;
+      res.redirect("/apply/check-your-answers");
+      return;
+    }
 
     const errors = this.formValidator.validateCoronersLetterUploadFile(file);
 
@@ -87,7 +97,52 @@ export class CoronersLetterAdaptor {
     }
 
     req.session.returnToApplyCheckYourAnswers = undefined;
-    res.redirect("/apply/check-your-answers");
+    res.redirect("/apply/upload-coroners-letter");
+  }
+
+  async processCoronersLetterDelete(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    const coronersLetterId = req.session.coronersLetterId;
+
+    if (coronersLetterId === undefined || coronersLetterId === "") {
+      res.status(HTTP_SERVICE_UNAVAILABLE).render("main/error", {
+        status: "503",
+        error: "Service unavailable. Please try again later.",
+      });
+      return;
+    }
+
+    const result = await this.deleteCoronersLetterUseCase.execute({
+      coronersLetterId,
+      accessToken: req.session.accessToken,
+    });
+
+    if (result.status !== "SUCCESS") {
+      res.status(HTTP_SERVICE_UNAVAILABLE).render("main/error", {
+        status: "503",
+        error: "Service unavailable. Please try again later.",
+      });
+      return;
+    }
+
+    req.session.coronersLetterId = undefined;
+    req.session.coronersLetterFileName = undefined;
+    res.redirect("/apply/upload-coroners-letter");
+  }
+
+  #buildUploadedFile(req: Request): { fileName: string } | undefined {
+    const { coronersLetterId, coronersLetterFileName } = req.session;
+
+    if (
+      coronersLetterId !== undefined &&
+      coronersLetterFileName !== undefined
+    ) {
+      return { fileName: coronersLetterFileName };
+    }
+
+    return undefined;
   }
 
   #captureCheckYourAnswersEntry(req: Request): void {
