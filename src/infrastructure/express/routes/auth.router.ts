@@ -1,5 +1,8 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
+import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
+
+const MILLISECONDS_IN_A_SECOND = 1000;
 
 export function createAuthRouter(
   authRouter: Router,
@@ -45,6 +48,16 @@ export function createAuthRouter(
       req.session.userId = "test-provider";
       req.session.officeId = "001";
       req.session.providerEmail = "test@example.com";
+
+      // Optional expiry to exercise session-expiry behaviour in E2E tests.
+      const tokenExpirySeconds = Number(req.query.tokenExpirySeconds);
+      if (!Number.isNaN(tokenExpirySeconds)) {
+        applySessionExpiry(
+          req.session,
+          new Date(Date.now() + tokenExpirySeconds * MILLISECONDS_IN_A_SECOND),
+        );
+      }
+
       res.redirect("/");
     });
   }

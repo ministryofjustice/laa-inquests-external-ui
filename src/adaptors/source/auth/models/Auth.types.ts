@@ -4,4 +4,5 @@ export interface AuthTokenResult {
   officeId?: string;
   providerEmail?: string;
   accessToken?: string;
+  accessTokenExpiresOn?: Date;
 }
