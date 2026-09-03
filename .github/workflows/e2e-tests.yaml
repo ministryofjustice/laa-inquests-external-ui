@@ -218,10 +218,13 @@ jobs:
           RATELIMIT_HEADERS_ENABLED: "true"
           RATE_LIMIT_MAX: "10000"
           RATE_WINDOW_MS: "900000"
-          AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
-          AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
-          AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
-          INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
+          # Auth and API secrets are not required — auth is faked and the API
+          # is mocked via MSW in the E2E tests. Kept (commented out) for a
+          # future refactor that tests against real auth/API.
+          # AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
+          # AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
+          # AUTH_CLIENT_SECRET: ${{ secrets.E2E_AUTH_CLIENT_SECRET }}
+          # INQUESTS_API_CLIENT_ID: ${{ secrets.E2E_INQUESTS_API_CLIENT_ID }}
           # E2E_PROVIDER_USERNAME: ${{ secrets.E2E_PROVIDER_USERNAME }}
           # E2E_PROVIDER_PASSWORD: ${{ secrets.E2E_PROVIDER_PASSWORD }}
           # E2E_PROVIDER_MFA_TOTP_SECRET: ${{ secrets.E2E_PROVIDER_MFA_TOTP_SECRET }}
