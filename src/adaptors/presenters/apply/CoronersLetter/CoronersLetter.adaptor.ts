@@ -125,7 +125,6 @@ export class CoronersLetterAdaptor {
           req,
           res,
           data: result.data!,
-          file: file!,
           isNoJsUpload: isNoJs,
         });
       } else {
@@ -322,10 +321,9 @@ export class CoronersLetterAdaptor {
     req: Request;
     res: Response;
     data: { coronersLetterId: string; coronersLetterFileName: string };
-    file: Express.Multer.File;
     isNoJsUpload: boolean;
   }): void {
-    const { req, res, data, file, isNoJsUpload } = options;
+    const { req, res, data, isNoJsUpload } = options;
 
     this.#storeUploadedCoronersLetter(
       req,
@@ -338,12 +336,12 @@ export class CoronersLetterAdaptor {
     } else {
       res.status(HTTP_CREATED).json({
         success: {
-          messageText: `${file.originalname} uploaded`,
-          messageHtml: `${file.originalname} uploaded`,
+          messageText: `${data.coronersLetterFileName} uploaded`,
+          messageHtml: `${data.coronersLetterFileName} uploaded`,
         },
         file: {
           filename: data.coronersLetterId,
-          originalname: file.originalname,
+          originalname: data.coronersLetterFileName,
         },
       });
     }

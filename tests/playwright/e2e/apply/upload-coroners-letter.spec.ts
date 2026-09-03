@@ -162,7 +162,12 @@ test.describe("Apply - upload coroner's letter (no javascript)", () => {
     await page.getByRole("button", { name: "Upload file" }).click();
 
     await expect(page).toHaveURL("/apply/upload-coroners-letter");
-    await expect(page.getByText(MOCK_UPLOADED_FILE_NAME)).toBeVisible();
+    await expect(
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
+        .first(),
+    ).toBeVisible();
   });
 
   test("shows a virus error when the file scan is positive", async ({
@@ -196,7 +201,12 @@ test.describe("Apply - upload coroner's letter (no javascript)", () => {
     });
 
     await page.getByRole("button", { name: "Upload file" }).click();
-    await expect(page.getByText(MOCK_UPLOADED_FILE_NAME)).toBeVisible();
+    await expect(
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
+        .first(),
+    ).toBeVisible();
 
     await page
       .getByTestId("upload-coroners-letter-form")
@@ -217,7 +227,12 @@ test.describe("Apply - upload coroner's letter (no javascript)", () => {
       buffer: Buffer.from("first coroners letter content"),
     });
     await page.getByRole("button", { name: "Upload file" }).click();
-    await expect(page.getByText(MOCK_UPLOADED_FILE_NAME)).toBeVisible();
+    await expect(
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
+        .first(),
+    ).toBeVisible();
 
     await page.setInputFiles("#documents", {
       name: "second-coroners-letter.pdf",
