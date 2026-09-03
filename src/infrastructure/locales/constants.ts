@@ -73,6 +73,11 @@ export const CLAIM_TYPE_LABEL: Record<string, string> = {
   FINAL_BILL: "Final bill",
 };
 
+export const CLAIM_TYPE_HEADING_LABEL: Record<string, string> = {
+  PAYMENT_ON_ACCOUNT: "Payment on account",
+  FINAL_BILL: "Final bill",
+};
+
 export const CLAIM_SUBTYPE_LABEL: Record<string, string> = {
   PROFIT_COST: "Profit cost",
   EXPERT_COST: "Expert cost",
@@ -107,6 +112,18 @@ export const CLAIM_SUBMIT_ERROR = {
   MISSING_CLAIM_EVIDENCE: "Claim evidence is required",
   APPLICATION_NOT_GRANTED:
     "Claims may only be submitted for applications that have been granted.",
+  MISSING_INQUEST_OUTCOMES:
+    "Select at least one inquest outcome to continue submitting your claim.",
+  INQUEST_OUTCOMES_NOT_ALLOWED:
+    "Inquest outcomes can only be provided for final bill and nil bill claims.",
+  MISSING_COST_TEMPLATE_FILE:
+    "Upload the LAA cost claim evidence template to continue submitting your claim.",
+  COST_TEMPLATE_FILE_NOT_ALLOWED:
+    "A cost claim evidence template can only be provided for final bill and nil bill claims.",
+  MISSING_FINAL_BILL_DETAILS:
+    "Complete all final bill details before submitting your claim.",
+  FINAL_BILL_DETAILS_NOT_ALLOWED:
+    "Final bill details can only be provided for final bill and nil bill claims.",
 };
 
 export const CLAIM_NET_TOTAL_VALUE = 1000;
@@ -264,8 +281,8 @@ export const CORRESPONDENCE_RECIPIENT_TYPE = {
 } as const;
 
 export const DECEASED_DETAILS_ERROR = {
-  MISSING_FIRST_NAME: "Enter your first name",
-  MISSING_LAST_NAME: "Enter your last name",
+  MISSING_FIRST_NAME: "Enter the deceased's first name",
+  MISSING_LAST_NAME: "Enter the deceased's last name",
   FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "First name must be 100 characters or less",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:

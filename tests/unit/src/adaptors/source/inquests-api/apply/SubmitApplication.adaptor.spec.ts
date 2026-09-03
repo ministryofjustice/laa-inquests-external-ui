@@ -21,7 +21,7 @@ describe("SubmitApplicationAdaptor", () => {
       });
 
       const expectedApiResponse = {
-        laaReference: 12345678910,
+        laaReference: "12345678910",
         statusCode: 201,
       };
 
@@ -182,6 +182,52 @@ describe("SubmitApplicationAdaptor", () => {
       );
 
       assert.ok(logDebugSpy.notCalled);
+    });
+
+    it("transforms laaReference from number to string (backwards compatibility)", async () => {
+      const axiosStub = stubInterface<AxiosInstance>();
+      axiosStub.post.resolves({
+        data: { laaReference: 987654321 },
+        status: 201,
+      });
+
+      const adaptor = new SubmitApplicationAdaptor(
+        axiosStub,
+        "http://localhost",
+      );
+
+      const minimalBody = {
+        coronersLetterId: "x",
+        client: {
+          clientFirstName: "A",
+          clientLastName: "B",
+          dateOfBirth: "01/01/1990",
+          hasNoFixedAbode: false,
+          correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
+        },
+        deceased: {
+          deceasedFirstName: "D",
+          deceasedLastName: "E",
+          deceasedDateOfBirth: "01/01/1960",
+          deceasedDateOfDeath: "01/01/2020",
+          coronersReference: "",
+          furtherInformation: "",
+          clientRelationshipToDeceased: "child",
+        },
+        proceeding: {
+          proceedingId: "IQCA",
+        },
+        publicBodies: [],
+        provider: { officeId: "Y", emailAddress: "z@z.com" },
+      };
+
+      const result = await adaptor.submitApplication(
+        minimalBody,
+        "access-token-123",
+      );
+
+      assert.equal(result.laaReference, "987654321");
+      assert.equal(typeof result.laaReference, "string");
     });
   });
 });

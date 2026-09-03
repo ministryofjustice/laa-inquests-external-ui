@@ -1,15 +1,7 @@
 echo "Pre Commit Checks"
 set -e
 
-echo "Running MoJ secret scanning baseline"
-if command -v prek >/dev/null 2>&1
-then
-  prek run baseline --hook-stage pre-commit
-else
-  echo "Missing prerequisite: install both 'prek' and 'gitleaks' to run devsecops hooks."
-  echo "On macOS: brew install prek gitleaks"
-  exit 1
-fi
+
 
 echo "Running Linting Fix"
 
@@ -29,6 +21,16 @@ then
   yarn prettier . --write
   echo "Exiting $code"
   exit $code
+fi
+
+echo "Running MoJ secret scanning baseline"
+if command -v prek >/dev/null 2>&1
+then
+  prek run baseline --hook-stage pre-commit
+else
+  echo "Missing prerequisite: install both 'prek' and 'gitleaks' to run devsecops hooks."
+  echo "On macOS: brew install prek gitleaks"
+  exit 1
 fi
 
 git status

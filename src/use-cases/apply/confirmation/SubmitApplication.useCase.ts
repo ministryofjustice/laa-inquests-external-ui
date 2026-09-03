@@ -17,7 +17,7 @@ import {
 import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface SubmitApplicationSuccess {
-  laaReference: number;
+  laaReference: string;
 }
 
 type SubmitBodyResult =

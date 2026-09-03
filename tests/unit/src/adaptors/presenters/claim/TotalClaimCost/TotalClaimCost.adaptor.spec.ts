@@ -212,7 +212,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(viewModel.grossTotal, "500.00");
     });
 
-    it("saves NIL_BILL subtype and redirects to /claim/inquest-outcome when the gross amount is 0", () => {
+    it("redirects to /claim/inquest-outcome without setting a subtype when the gross amount is 0", () => {
       const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
@@ -230,7 +230,7 @@ describe("TotalClaim adaptor", () => {
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/inquest-outcome");
       assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.subtype, "NIL_BILL");
+      assert.equal(requestStub.session.claim?.subtype, undefined);
       assert.equal(requestStub.session.claim?.grossTotal, "0");
     });
 
@@ -250,17 +250,17 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/inquest-outcome");
-      assert.equal(requestStub.session.claim?.subtype, "NIL_BILL");
+      assert.equal(requestStub.session.claim?.subtype, undefined);
     });
 
-    it("clears the subtype and redirects to /claim/final-bill-template when the gross amount is greater than 0", () => {
+    it("redirects to /claim/final-bill-template without setting a subtype when the gross amount is greater than 0", () => {
       const adaptor = new TotalClaimCostAdaptor();
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.session = {
-        claim: { type: "FINAL_BILL", subtype: "NIL_BILL" },
+        claim: { type: "FINAL_BILL" },
       } as Request["session"];
       requestStub.body = { "gross-total": "1250.50" };
 
