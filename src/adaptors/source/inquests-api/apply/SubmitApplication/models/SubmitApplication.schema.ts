@@ -73,5 +73,7 @@ export const SubmitApplicationRequestSchema = z.object({
 
 export const SubmitApplicationResponseSchema = z.object({
   statusCode: z.number(),
-  laaReference: z.number(),
+  laaReference: z
+    .union([z.number(), z.string()])
+    .transform((val) => String(val)),
 });

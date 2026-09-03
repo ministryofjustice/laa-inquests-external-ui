@@ -8,7 +8,7 @@ describe("CaseSearchFormatter", () => {
 
       const rows = formatter.formatCases([
         {
-          laaReference: 1,
+          laaReference: "1",
           clientFirstName: "Jane",
           clientLastName: "Smith",
           clientDateOfBirth: "2000-01-01",
@@ -36,7 +36,7 @@ describe("CaseSearchFormatter", () => {
 
       const rows = formatter.formatCases([
         {
-          laaReference: 2,
+          laaReference: "2",
           clientFirstName: "John",
           clientLastName: "Doe",
           clientDateOfBirth: "1990-05-15",
