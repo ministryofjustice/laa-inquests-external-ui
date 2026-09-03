@@ -245,7 +245,8 @@ export class CoronersLetterAdaptor {
     originalFileName: string;
     deleteButton: { text: string };
   }> {
-    const { coronersLetterId, coronersLetterFileName } = req.session;
+    const { session } = req;
+    const { coronersLetterId, coronersLetterFileName } = session;
 
     return coronersLetterId === undefined ||
       coronersLetterFileName === undefined

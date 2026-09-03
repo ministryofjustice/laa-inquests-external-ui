@@ -30,7 +30,10 @@ export class UploadCoronersLetterValidator extends FormValidator {
       };
     }
 
-    if (existingCoronersLetterId !== undefined && existingCoronersLetterId !== "") {
+    if (
+      existingCoronersLetterId !== undefined &&
+      existingCoronersLetterId !== ""
+    ) {
       return {
         coronersLetterError: {
           text: CORONERS_LETTER_ERROR.ONLY_ONE_FILE_ALLOWED,
