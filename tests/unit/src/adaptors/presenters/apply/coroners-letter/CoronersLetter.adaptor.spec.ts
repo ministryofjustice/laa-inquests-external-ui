@@ -1,289 +1,281 @@
-import { StubbedInstance, stubInterface } from "ts-sinon";
-import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
-import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
-import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { strict as assert } from "assert";
+import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
-import { UploadCoronersLetterRequest } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
 import { v4 as uuidv4 } from "uuid";
-import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
-import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
+import type { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import type { DeleteCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/DeleteCoronersLetter.useCase.js";
+import type { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
+import {
+  CORONERS_LETTER_ERROR,
+  HTTP_BAD_REQUEST,
+  HTTP_CREATED,
+  HTTP_SERVICE_UNAVAILABLE,
+  HTTP_UNPROCESSABLE_CONTENT,
+} from "#src/infrastructure/locales/constants.js";
 
 describe("Coroners Letter adaptor", () => {
-  let coronersLetterAdaptor: CoronersLetterAdaptor;
-  let requestStub: StubbedInstance<Request>;
-  let responseStub: StubbedInstance<Response>;
+  let uploadCoronersLetterUseCase: StubbedInstance<UploadCoronersLetterUseCase>;
+  let deleteCoronersLetterUseCase: StubbedInstance<DeleteCoronersLetterUseCase>;
+  let formValidator: StubbedInstance<UploadCoronersLetterValidator>;
 
   const testCoronersLetterId = uuidv4();
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
-  const uploadCoronersLetterUseCase =
-    stubInterface<UploadCoronersLetterUseCase>();
-  const uploadCoronersLetterValidator =
-    stubInterface<UploadCoronersLetterValidator>();
-  uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({});
-  uploadCoronersLetterUseCase.execute.resolves({
-    status: "SUCCESS",
-    data: {
-      coronersLetterId: testCoronersLetterId,
-      coronersLetterFileName: testCoronersLetterFileName,
-    },
-  });
-
-  before(() => {
-    coronersLetterAdaptor = new CoronersLetterAdaptor(
-      uploadCoronersLetterValidator,
-      uploadCoronersLetterUseCase,
-    );
-  });
-
   beforeEach(() => {
-    requestStub = stubInterface<Request>();
-    responseStub = stubInterface<Response>();
+    uploadCoronersLetterUseCase = stubInterface<UploadCoronersLetterUseCase>();
+    deleteCoronersLetterUseCase = stubInterface<DeleteCoronersLetterUseCase>();
+    formValidator = stubInterface<UploadCoronersLetterValidator>();
+    formValidator.validateCoronersLetterSelection.returns({});
+    formValidator.validateCoronersLetterUploadFile.returns({});
   });
 
-  const setupRequestFile = (): Buffer<ArrayBuffer> => {
-    const testBuffer = Buffer.from("test-file-content");
-    requestStub.file = {
-      buffer: testBuffer,
+  function buildAdaptor(): CoronersLetterAdaptor {
+    return new CoronersLetterAdaptor(
+      formValidator,
+      uploadCoronersLetterUseCase,
+      deleteCoronersLetterUseCase,
+    );
+  }
+
+  function buildFile(): Express.Multer.File {
+    return {
+      buffer: Buffer.from("test-file-content"),
       mimetype: "application/pdf",
       originalname: testCoronersLetterFileName,
+      size: 17,
     } as Express.Multer.File;
-    return testBuffer;
-  };
+  }
 
-  it("renders the coroners upload letter view with the correct arguments", () => {
-    requestStub.session.coronersLetterFile = "test-file";
-    coronersLetterAdaptor.renderUploadCoronersLetterForm(
-      requestStub,
-      responseStub,
-    );
+  describe("renderUploadCoronersLetterForm", () => {
+    it("renders the view with no uploaded file and the default back link", () => {
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
 
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-    assert.deepEqual(renderArgs[1], {
-      csrfToken: responseStub.locals.csrfToken,
-      uploadedFile: "test-file",
-      backHref: "/apply/public-authority",
+      adaptor.renderUploadCoronersLetterForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const [view, viewModel] = responseStub.render.getCall(0)
+        .args as unknown as [string, Record<string, unknown>];
+      assert.equal(view, "apply/upload-coroners-letter");
+      assert.equal(viewModel.csrfToken, "test-token");
+      assert.deepEqual(viewModel.uploadedFiles, []);
+      assert.equal(viewModel.backHref, "/apply/public-authority");
+    });
+
+    it("renders the uploaded file from session for the multi file upload widget", () => {
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.coronersLetterId = testCoronersLetterId;
+      requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
+
+      adaptor.renderUploadCoronersLetterForm(requestStub, responseStub);
+
+      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
+        string,
+        Record<string, unknown>,
+      ];
+      assert.deepEqual(viewModel.uploadedFiles, [
+        {
+          message: { text: testCoronersLetterFileName },
+          fileName: testCoronersLetterId,
+          originalFileName: testCoronersLetterFileName,
+          deleteButton: { text: "Delete" },
+        },
+      ]);
+    });
+
+    it("captures check-your-answers origin and sets the check-your-answers back link", () => {
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.query = { from: "check-your-answers" };
+
+      adaptor.renderUploadCoronersLetterForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+      const [, viewModel] = responseStub.render.getCall(0).args as unknown as [
+        string,
+        Record<string, unknown>,
+      ];
+      assert.equal(viewModel.backHref, "/apply/check-your-answers");
     });
   });
 
-  it("captures check-your-answers origin and sets check-your-answers back link", () => {
-    requestStub.query = { from: "check-your-answers" };
-
-    coronersLetterAdaptor.renderUploadCoronersLetterForm(
-      requestStub,
-      responseStub,
-    );
-
-    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.deepEqual(renderArgs[1], {
-      csrfToken: responseStub.locals.csrfToken,
-      uploadedFile: undefined,
-      backHref: "/apply/check-your-answers",
-    });
-  });
-
-  it("saves the file and redirects on success", async () => {
-    const buffer = setupRequestFile();
-    requestStub.session.accessToken = "access-token-123";
-
-    await coronersLetterAdaptor.processCoronersLetterUploadForm(
-      requestStub,
-      responseStub,
-    );
-
-    assert.equal(uploadCoronersLetterUseCase.execute.callCount, 1);
-
-    const uploadBody = uploadCoronersLetterUseCase.execute.getCall(0).args[0];
-
-    assert.deepEqual(uploadBody, {
-      buffer: buffer,
-      mimetype: "application/pdf",
-      originalname: testCoronersLetterFileName,
-      accessToken: "access-token-123",
-    });
-
-    assert.equal(responseStub.redirect.callCount, 1);
-    const redirectArgs = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectArgs[0], "/apply/check-your-answers");
-    assert.equal(requestStub.session.returnToApplyCheckYourAnswers, undefined);
-  });
-
-  it("saves the letter id and a file name to session on successful upload", async () => {
-    setupRequestFile();
-
-    uploadCoronersLetterUseCase.execute.resolves({
-      status: "SUCCESS",
-      data: {
-        coronersLetterId: testCoronersLetterId,
-        coronersLetterFileName: testCoronersLetterFileName,
-      },
-    });
-
-    await coronersLetterAdaptor.processCoronersLetterUploadForm(
-      requestStub,
-      responseStub,
-    );
-
-    assert.equal(requestStub.session.coronersLetterId, testCoronersLetterId);
-    assert.equal(
-      requestStub.session.coronersLetterFileName,
-      testCoronersLetterFileName,
-    );
-  });
-
-  describe("when the file validation fails", () => {
-    afterEach(() => {
-      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns(
-        {},
-      );
-    });
-
-    it("re-renders the form with error summaries when no file is chosen", async () => {
-      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
+  describe("processCoronersLetterContinue", () => {
+    it("re-renders with errors when no coroner's letter has been uploaded", () => {
+      formValidator.validateCoronersLetterSelection.returns({
         coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
       });
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
 
-      await coronersLetterAdaptor.processCoronersLetterUploadForm(
-        requestStub,
-        responseStub,
-      );
+      adaptor.processCoronersLetterContinue(requestStub, responseStub);
 
       assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-      assert.deepEqual(renderArgs[1], {
-        csrfToken: responseStub.locals.csrfToken,
-        errorSummaries: {
-          coronersLetterError: { text: "Select a file" },
-        },
-        backHref: "/apply/public-authority",
+      const [view, viewModel] = responseStub.render.getCall(0)
+        .args as unknown as [string, Record<string, unknown>];
+      assert.equal(view, "apply/upload-coroners-letter");
+      assert.deepEqual(viewModel.errorSummaries, {
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
       });
+      assert.equal(responseStub.redirect.callCount, 0);
     });
 
-    it("re-renders the form with error summaries when the file type is invalid", async () => {
-      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
+    it("redirects to check your answers when a coroner's letter has been uploaded", () => {
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.coronersLetterId = testCoronersLetterId;
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+
+      adaptor.processCoronersLetterContinue(requestStub, responseStub);
+
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/apply/check-your-answers",
+      );
+      assert.equal(
+        requestStub.session.returnToApplyCheckYourAnswers,
+        undefined,
+      );
+    });
+  });
+
+  describe("processCoronersLetterUpload", () => {
+    it("returns a validation error as JSON when the file is invalid", async () => {
+      formValidator.validateCoronersLetterUploadFile.returns({
         coronersLetterError: { text: CORONERS_LETTER_ERROR.INVALID_FILE_TYPE },
       });
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.file = buildFile();
 
-      await coronersLetterAdaptor.processCoronersLetterUploadForm(
-        requestStub,
-        responseStub,
+      await adaptor.processCoronersLetterUpload(requestStub, responseStub);
+
+      assert.equal(
+        responseStub.status.getCall(0).args[0],
+        HTTP_UNPROCESSABLE_CONTENT,
       );
-
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-      assert.deepEqual(renderArgs[1], {
-        csrfToken: responseStub.locals.csrfToken,
-        errorSummaries: {
-          coronersLetterError: {
-            text: "The selected file must be a JPG, PNG, BMP or PDF",
-          },
-        },
-        backHref: "/apply/public-authority",
-      });
+      assert.equal(
+        (responseStub.json.getCall(0).args[0] as { error: { message: string } })
+          .error.message,
+        CORONERS_LETTER_ERROR.INVALID_FILE_TYPE,
+      );
     });
 
-    it("re-renders the form with error summaries when file chosen exceeds 10 MB", async () => {
-      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
-        coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_TOO_LARGE },
-      });
-
-      await coronersLetterAdaptor.processCoronersLetterUploadForm(
-        requestStub,
-        responseStub,
-      );
-
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-      assert.deepEqual(renderArgs[1], {
-        csrfToken: responseStub.locals.csrfToken,
-        errorSummaries: {
-          coronersLetterError: {
-            text: "The selected file must be smaller than 10MB",
-          },
+    it("stores the uploaded letter in session and returns 201 on success", async () => {
+      uploadCoronersLetterUseCase.execute.resolves({
+        status: "SUCCESS",
+        data: {
+          coronersLetterId: testCoronersLetterId,
+          coronersLetterFileName: testCoronersLetterFileName,
         },
-        backHref: "/apply/public-authority",
       });
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.file = buildFile();
+      requestStub.session.save = ((callback: (err?: Error) => void): void => {
+        callback();
+      }) as Request["session"]["save"];
+
+      await adaptor.processCoronersLetterUpload(requestStub, responseStub);
+
+      assert.equal(responseStub.status.getCall(0).args[0], HTTP_CREATED);
+      assert.equal(requestStub.session.coronersLetterId, testCoronersLetterId);
+      assert.equal(
+        requestStub.session.coronersLetterFileName,
+        testCoronersLetterFileName,
+      );
     });
 
-    it("re-renders the form with error summaries when file chosen is 0 bytes", async () => {
-      uploadCoronersLetterValidator.validateCoronersLetterUploadFile.returns({
-        coronersLetterError: { text: CORONERS_LETTER_ERROR.FILE_IS_EMPTY },
+    it("returns a service unavailable error when the upload fails", async () => {
+      uploadCoronersLetterUseCase.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: "UPSTREAM_REJECTED",
       });
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.file = buildFile();
 
-      await coronersLetterAdaptor.processCoronersLetterUploadForm(
-        requestStub,
-        responseStub,
+      await adaptor.processCoronersLetterUpload(requestStub, responseStub);
+
+      assert.equal(
+        responseStub.status.getCall(0).args[0],
+        HTTP_SERVICE_UNAVAILABLE,
       );
+    });
 
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-      assert.deepEqual(renderArgs[1], {
-        csrfToken: responseStub.locals.csrfToken,
-        errorSummaries: {
-          coronersLetterError: { text: "The selected file is empty" },
-        },
-        backHref: "/apply/public-authority",
+    it("returns the virus error message as JSON when the scan is positive", async () => {
+      uploadCoronersLetterUseCase.execute.resolves({
+        status: "TECHNICAL_FAILURE",
+        reason: "FILE_SCAN_FOUND_VIRUS",
       });
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.file = buildFile();
+
+      await adaptor.processCoronersLetterUpload(requestStub, responseStub);
+
+      assert.equal(
+        (responseStub.json.getCall(0).args[0] as { error: { message: string } })
+          .error.message,
+        CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
+      );
     });
   });
 
-  it("renders the 503 error page when the response status is not SUCCESS", async () => {
-    setupRequestFile();
-    responseStub.status.returns(responseStub);
-    uploadCoronersLetterUseCase.execute.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
+  describe("processCoronersLetterDelete", () => {
+    it("returns 400 when no file identifier is provided", async () => {
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.status.returns(responseStub);
+      requestStub.body = {};
+
+      await adaptor.processCoronersLetterDelete(requestStub, responseStub);
+
+      assert.equal(responseStub.status.getCall(0).args[0], HTTP_BAD_REQUEST);
     });
 
-    await coronersLetterAdaptor.processCoronersLetterUploadForm(
-      requestStub,
-      responseStub,
-    );
+    it("clears the session and returns success when the delete succeeds", async () => {
+      deleteCoronersLetterUseCase.execute.resolves({ status: "SUCCESS" });
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.status.returns(responseStub);
+      requestStub.body = { delete: testCoronersLetterId };
+      requestStub.session.coronersLetterId = testCoronersLetterId;
+      requestStub.session.coronersLetterFileName = testCoronersLetterFileName;
 
-    assert.equal(responseStub.status.calledWith(503), true);
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "main/error");
-    assert.deepEqual(renderArgs[1], {
-      status: "503",
-      error: "Service unavailable. Please try again later.",
-    });
-    assert.equal(responseStub.redirect.callCount, 0);
-  });
+      await adaptor.processCoronersLetterDelete(requestStub, responseStub);
 
-  it("displays an error when the virus scan fails", async () => {
-    setupRequestFile();
-    responseStub.status.returns(responseStub);
-
-    uploadCoronersLetterUseCase.execute.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "FILE_SCAN_FOUND_VIRUS",
-    });
-
-    await coronersLetterAdaptor.processCoronersLetterUploadForm(
-      requestStub,
-      responseStub,
-    );
-
-    assert.equal(responseStub.render.callCount, 1);
-    const renderArgs = responseStub.render.getCall(0).args;
-    assert.equal(renderArgs[0], "apply/upload-coroners-letter");
-    assert.deepEqual(renderArgs[1], {
-      csrfToken: responseStub.locals.csrfToken,
-      errorSummaries: {
-        coronersLetterError: {
-          text: CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
-        },
-      },
-      backHref: "/apply/public-authority",
+      assert.deepEqual(deleteCoronersLetterUseCase.execute.getCall(0).args[0], {
+        coronersLetterId: testCoronersLetterId,
+        accessToken: undefined,
+      });
+      assert.equal(requestStub.session.coronersLetterId, undefined);
+      assert.equal(requestStub.session.coronersLetterFileName, undefined);
+      assert.equal(responseStub.json.getCall(0).args[0].success, true);
     });
   });
 });

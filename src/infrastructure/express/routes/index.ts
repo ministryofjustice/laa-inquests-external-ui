@@ -78,6 +78,8 @@ import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import { DeleteCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/DeleteCoronersLetter/DeleteCoronersLetter.adaptor.js";
+import { DeleteCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/DeleteCoronersLetter.useCase.js";
 import { UploadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/UploadEvidence.adaptor.js";
 import { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import { DeleteEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/DeleteEvidence/DeleteEvidence.adaptor.js";
@@ -222,9 +224,17 @@ const uploadCoronersLetterUseCase = new UploadCoronersLetterUseCase(
   uploadCoronersLetterSource,
 );
 const uploadCoronersLetterValidator = new UploadCoronersLetterValidator();
+const deleteCoronersLetterSource = new DeleteCoronersLetterAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const deleteCoronersLetterUseCase = new DeleteCoronersLetterUseCase(
+  deleteCoronersLetterSource,
+);
 const coronersLetterAdaptor = new CoronersLetterAdaptor(
   uploadCoronersLetterValidator,
   uploadCoronersLetterUseCase,
+  deleteCoronersLetterUseCase,
 );
 const caseSearchValidator = new CaseSearchValidator();
 const searchCasesSource = new SearchCasesAdaptor(

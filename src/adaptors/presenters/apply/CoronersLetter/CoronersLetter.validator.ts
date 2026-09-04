@@ -8,12 +8,36 @@ import {
 import { FormValidator } from "#src/utils/FormValidator.js";
 
 export class UploadCoronersLetterValidator extends FormValidator {
+  validateCoronersLetterSelection(
+    coronersLetterId: string | undefined,
+  ): Partial<UploadCoronersLetterError> {
+    if (coronersLetterId === undefined || coronersLetterId === "") {
+      return {
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+      };
+    }
+
+    return {};
+  }
+
   validateCoronersLetterUploadFile(
     fileInput: Express.Multer.File | undefined,
+    existingCoronersLetterId?: string,
   ): Partial<UploadCoronersLetterError> {
     if (fileInput === undefined) {
       return {
         coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+      };
+    }
+
+    if (
+      existingCoronersLetterId !== undefined &&
+      existingCoronersLetterId !== ""
+    ) {
+      return {
+        coronersLetterError: {
+          text: CORONERS_LETTER_ERROR.ONLY_ONE_FILE_ALLOWED,
+        },
       };
     }
 
@@ -32,6 +56,9 @@ export class UploadCoronersLetterValidator extends FormValidator {
     }
     if (fileInput.size === CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES) {
       return CORONERS_LETTER_ERROR.FILE_IS_EMPTY;
+    }
+    if (/[^A-Za-z0-9.!\(\)_ \-]/v.test(fileInput.originalname)) {
+      return CORONERS_LETTER_ERROR.INVALID_FILE_NAME;
     }
   }
 }

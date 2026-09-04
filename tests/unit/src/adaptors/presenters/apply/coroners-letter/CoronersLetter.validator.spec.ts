@@ -1,4 +1,5 @@
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
+import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
 import { assert } from "chai";
 
 describe("UploadCoronersLetterValidator", () => {
@@ -15,6 +16,25 @@ describe("UploadCoronersLetterValidator", () => {
       assert.deepEqual(errorSummaries, {
         coronersLetterError: {
           text: "Select a file",
+        },
+      });
+    });
+
+    it("returns only-one-file error when a coroner's letter is already uploaded", () => {
+      const validator = new UploadCoronersLetterValidator();
+      const validFile = {
+        size: 5 * 1024 * 1024,
+        mimetype: validMimeType,
+      } as Express.Multer.File;
+
+      const errorSummaries = validator.validateCoronersLetterUploadFile(
+        validFile,
+        "existing-coroners-letter-id",
+      );
+
+      assert.deepEqual(errorSummaries, {
+        coronersLetterError: {
+          text: "You can only upload one file. Delete the existing file before uploading a new one",
         },
       });
     });
@@ -65,6 +85,38 @@ describe("UploadCoronersLetterValidator", () => {
           validator.validateCoronersLetterUploadFile(validFile);
 
         assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns no errors when file name contains accepted punctuation", () => {
+        const validator = new UploadCoronersLetterValidator();
+        const validFile = {
+          size: 5 * 1024 * 1024,
+          mimetype: validMimeType,
+          originalname: "coroners-letter! (final).pdf",
+        } as Express.Multer.File;
+
+        const errorSummaries =
+          validator.validateCoronersLetterUploadFile(validFile);
+
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns file name error when file contains unsupported characters", () => {
+        const validator = new UploadCoronersLetterValidator();
+        const invalidFileNameFile = {
+          size: 5 * 1024 * 1024,
+          mimetype: validMimeType,
+          originalname: "invalid@file#name.pdf",
+        } as Express.Multer.File;
+
+        const errorSummaries =
+          validator.validateCoronersLetterUploadFile(invalidFileNameFile);
+
+        assert.deepEqual(errorSummaries, {
+          coronersLetterError: {
+            text: CORONERS_LETTER_ERROR.INVALID_FILE_NAME,
+          },
+        });
       });
     });
 

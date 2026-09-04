@@ -91,14 +91,19 @@ test.describe("Provider can", () => {
     };
 
     const uploadDummyCoronersLetter = async (): Promise<void> => {
-      const fileInput = page.locator(
-        'input[name="coroners-letter-file-upload"]',
-      );
-      await fileInput.setInputFiles({
-        name: "dummy-coroners-letter.pdf",
-        mimeType: "application/pdf",
-        buffer: Buffer.from("dummy coroners letter content"),
-      });
+      await Promise.all([
+        page.waitForResponse(
+          (response) =>
+            response.url().includes("/apply/upload-coroners-letter/upload") &&
+            response.request().method() === "POST" &&
+            response.status() === 201,
+        ),
+        page.setInputFiles("#documents", {
+          name: "dummy-coroners-letter.pdf",
+          mimeType: "application/pdf",
+          buffer: Buffer.from("dummy coroners letter content"),
+        }),
+      ]);
     };
 
     await page.goto("/apply/client-details/name-and-dob");
