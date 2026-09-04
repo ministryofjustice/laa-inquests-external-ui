@@ -1,4 +1,5 @@
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
+import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
 import { assert } from "chai";
 
 describe("UploadCoronersLetterValidator", () => {
@@ -94,7 +95,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "The file name must only include letters, numbers, spaces and these characters: .!()_-",
+            text: CORONERS_LETTER_ERROR.INVALID_FILE_NAME,
           },
         });
       });
