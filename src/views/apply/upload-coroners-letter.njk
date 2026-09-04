@@ -25,11 +25,12 @@
             errorList: [{
               text: errorSummaries.coronersLetterError.text,
               href: "#documents"
-            }]
-          }) }}
-        {% endif %}
-
-        <p class="govuk-body">You can upload:</p>
+            }
+          ]
+        })
+      }}
+    {% endif %}
+    <p class="govuk-body">You can upload:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>PDF, JPG, PNG or BMP</li>
           <li>10MB max</li>
@@ -37,6 +38,16 @@
 
         <form action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data">
           <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {% set hintHtml %}
+        <p class="govuk-body">The maximum file size for each file is 10MB. We can accept these file types:</p>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>pdf</li>
+          <li>jpeg, jpg</li>
+          <li>png</li>
+          <li>bmp</li>
+        </ul>
+        <p class="govuk-body">Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-. Using other characters in your filenames could cause the uploads to fail.</p>
+      {% endset %}
           <input type="hidden" name="uploadMode" value="html" />
           {% set uploadHtml %}
             {% set errorMessage = errorSummaries.coronersLetterError if errorSummaries and errorSummaries.coronersLetterError %}
@@ -47,6 +58,9 @@
               label: {
                 text: "Attach a file",
                 classes: "govuk-label--m govuk-heading-l"
+              },
+              hint: {
+                html: hintHtml
               },
               attributes: { accept: ".pdf,.jpg,.jpeg,.png,.bmp" },
               errorMessage: errorMessage
@@ -74,8 +88,6 @@
             type: "submit"
           }) }}
         </form>
-      </div>
-    </div>
   </main>
 </div>
 {% endblock %}
