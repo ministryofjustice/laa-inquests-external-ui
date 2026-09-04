@@ -333,7 +333,21 @@ export class CoronersLetterAdaptor {
 
     if (isNoJsUpload) {
       res.redirect("/apply/upload-coroners-letter");
-    } else {
+      this.#logUploadSuccess(req, isNoJsUpload);
+      return;
+    }
+
+    // ensure the session is persisted before the client's next request arrives
+    req.session.save((err: unknown) => {
+      if (err !== null && err !== undefined) {
+        logger.logError({
+          functionName: "coronersLetterAdaptor_handleUploadSuccess",
+          message: "Failed to save session after coroners letter upload",
+          request: req,
+          err,
+        });
+      }
+
       res.status(HTTP_CREATED).json({
         success: {
           messageText: `${data.coronersLetterFileName} uploaded`,
@@ -344,8 +358,11 @@ export class CoronersLetterAdaptor {
           originalname: data.coronersLetterFileName,
         },
       });
-    }
+      this.#logUploadSuccess(req, isNoJsUpload);
+    });
+  }
 
+  #logUploadSuccess(req: Request, isNoJsUpload: boolean): void {
     logger.logInfo({
       functionName: "coronersLetterAdaptor_handleUploadSuccess",
       message: "Coroners letter upload completed successfully",

@@ -188,6 +188,9 @@ describe("Coroners Letter adaptor", () => {
       responseStub.locals = { csrfToken: "test-token" };
       responseStub.status.returns(responseStub);
       requestStub.file = buildFile();
+      requestStub.session.save = ((callback: (err?: Error) => void): void => {
+        callback();
+      }) as Request["session"]["save"];
 
       await adaptor.processCoronersLetterUpload(requestStub, responseStub);
 
