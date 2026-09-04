@@ -2,6 +2,7 @@ import moment from "moment";
 import {
   DATE_MONTH_INDEX_OFFSET,
   MAX_CHARACTER_LENGTH,
+  MINIMUM_DATE_PART_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 
 export interface DateParts {
@@ -64,6 +65,18 @@ export class FormValidator {
     ]).isValid();
   }
 
+  protected checkDatePartsArePositive(
+    day: string | undefined,
+    month: string | undefined,
+    year: string | undefined,
+  ): boolean {
+    return (
+      Number(day) > MINIMUM_DATE_PART_VALUE &&
+      Number(month) > MINIMUM_DATE_PART_VALUE &&
+      Number(year) > MINIMUM_DATE_PART_VALUE
+    );
+  }
+
   protected validateDateInput(
     day: string | undefined,
     month: string | undefined,
@@ -81,6 +94,10 @@ export class FormValidator {
 
     if (this.checkDateIsNotANumber(day, month, year)) {
       return errors.nonNumeric;
+    }
+
+    if (!this.checkDatePartsArePositive(day, month, year)) {
+      return errors.invalidDate;
     }
 
     if (!this.checkDateIsValid(day, month, year)) {

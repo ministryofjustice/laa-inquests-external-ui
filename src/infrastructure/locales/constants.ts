@@ -176,6 +176,8 @@ export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
+export const MINIMUM_DATE_PART_VALUE = 0;
+
 export const EMPTY_ARR_LENGTH = 0;
 
 export const NIL_BILL_GROSS_TOTAL = 0;

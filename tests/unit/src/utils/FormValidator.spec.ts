@@ -110,6 +110,55 @@ describe("FormValidator - validateDateInput", () => {
       expectedError: STANDARD_ERRORS.invalidDate,
     },
 
+    // Zero values (any zero-padding)
+    {
+      testCase: "returns invalidDate when day is 0",
+      date: ["0", "1", "2000"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+    {
+      testCase: "returns invalidDate when day is 00",
+      date: ["00", "1", "2000"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+    {
+      testCase: "returns invalidDate when month is 000",
+      date: ["1", "000", "2000"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+    {
+      testCase: "returns invalidDate when year is 0",
+      date: ["1", "1", "0"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+    {
+      testCase: "returns invalidDate when year is 0000",
+      date: ["1", "1", "0000"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+
+    // Negative values
+    {
+      testCase: "returns invalidDate when day is negative",
+      date: ["-1", "1", "2000"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+    {
+      testCase: "returns invalidDate when month is negative",
+      date: ["1", "-1", "2000"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+    {
+      testCase: "returns invalidDate when year is negative",
+      date: ["1", "1", "-1"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+    {
+      testCase: "returns invalidDate when day is -0",
+      date: ["-0", "1", "2000"],
+      expectedError: STANDARD_ERRORS.invalidDate,
+    },
+
     // Future dates
     {
       testCase: "returns futureDate for a clear future year",
