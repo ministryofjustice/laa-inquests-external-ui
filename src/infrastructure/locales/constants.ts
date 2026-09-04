@@ -527,6 +527,8 @@ export const CORONERS_LETTER_ERROR = {
   FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
   INVALID_FILE_NAME:
     "Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-",
+  ONLY_ONE_FILE_ALLOWED:
+    "You can only upload one file. Delete the existing file before uploading a new one",
 };
 
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)

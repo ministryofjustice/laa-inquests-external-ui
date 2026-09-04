@@ -122,6 +122,10 @@ export const apiHandlers = [
       }
     },
   ),
+  http.delete(
+    `${process.env.INQUESTS_API_URL}/applications/coroners-letter/:coronersLetterId`,
+    () => new HttpResponse(null, { status: 204 }),
+  ),
 
   http.post(
     `${process.env.INQUESTS_API_URL}/claims/evidence`,

@@ -23,9 +23,15 @@ function initialiseMultiFileUpload(): void {
     const isFinalBillTemplatePage = window.location.pathname.startsWith(
       "/claim/final-bill-template",
     );
-    const uploadRouteBase = isFinalBillTemplatePage
-      ? "/claim/final-bill-template"
-      : "/claim/evidence";
+    const isCoronersLetterPage = window.location.pathname.startsWith(
+      "/apply/upload-coroners-letter",
+    );
+    let uploadRouteBase = "/claim/evidence";
+    if (isFinalBillTemplatePage) {
+      uploadRouteBase = "/claim/final-bill-template";
+    } else if (isCoronersLetterPage) {
+      uploadRouteBase = "/apply/upload-coroners-letter";
+    }
 
     void new MultiFileUpload(multiFileUploadElement, {
       uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
