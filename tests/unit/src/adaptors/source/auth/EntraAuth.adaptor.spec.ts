@@ -161,6 +161,27 @@ describe("EntraAuthAdaptor", () => {
       assert.equal(result.officeId, undefined);
     });
 
+    it("surfaces the token expiry from the MSAL result", async () => {
+      const expiresOn = new Date("2026-09-03T12:00:00.000Z");
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          name: "Test User",
+          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+        },
+        accessToken: "access-token-123",
+        expiresOn,
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result.accessTokenExpiresOn, expiresOn);
+    });
+
     it("throws when MSAL returns null", async () => {
       msalClient.acquireTokenByCode.resolves(null as any);
 

@@ -600,6 +600,9 @@ export const CLIENT_DECLARATION_ERROR = {
     "You need to confirm the declaration to submit this application",
 };
 
+// Buffer before the Entra access-token expiry at which the session is treated as expired.
+export const SESSION_EXPIRY_BUFFER_MS = 60_000;
+
 export const HTTP_CREATED = 201;
 
 export const HTTP_OK = 200;

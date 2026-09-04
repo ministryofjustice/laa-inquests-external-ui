@@ -39,6 +39,7 @@ export class EntraAuthAdaptor implements AuthPort {
         officeId: this.#extractOfficeId(result.account?.idTokenClaims),
         providerEmail: result.account?.username ?? undefined,
         ...this.#getAccessTokenField(result),
+        ...this.#getExpiryField(result),
       };
     } catch (err) {
       logger.logError({
@@ -51,6 +52,15 @@ export class EntraAuthAdaptor implements AuthPort {
       });
       throw err;
     }
+  }
+
+  #getExpiryField(
+    result: AuthenticationResult,
+  ): Pick<AuthTokenResult, "accessTokenExpiresOn"> | Record<string, never> {
+    if (result.expiresOn instanceof Date) {
+      return { accessTokenExpiresOn: result.expiresOn };
+    }
+    return {};
   }
 
   #getAccessTokenField(
