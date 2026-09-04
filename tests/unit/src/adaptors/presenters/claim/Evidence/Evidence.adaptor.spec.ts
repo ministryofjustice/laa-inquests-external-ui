@@ -262,6 +262,9 @@ describe("Evidence adaptor", () => {
         size: 16,
       } as Express.Multer.File;
       requestStub.body = {};
+      requestStub.session.save = ((callback: (err?: Error) => void): void => {
+        callback();
+      }) as Request["session"]["save"];
       return requestStub;
     };
 
