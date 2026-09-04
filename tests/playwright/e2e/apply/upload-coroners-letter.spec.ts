@@ -250,16 +250,23 @@ test.describe("Apply - upload coroner's letter (no javascript)", () => {
   test("does not render a file name error when file name contains accepted punctuation", async ({
     page,
   }) => {
-    await uploadFile(page, {
+    await page.goto("/apply/upload-coroners-letter");
+
+    await page.setInputFiles("#documents", {
       name: "coroners-letter! (final).pdf",
       mimeType: "application/pdf",
       buffer: Buffer.from("letter content"),
     });
 
-    await form.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Upload file" }).click();
 
+    const errorSummary = page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
     await expect(
-      page.getByText(CORONERS_LETTER_ERROR.INVALID_FILE_NAME),
-    ).not.toBeVisible();
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
+        .first(),
+    ).toBeVisible();
   });
 });
