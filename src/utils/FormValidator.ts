@@ -4,6 +4,12 @@ import {
   MAX_CHARACTER_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
 
+export interface DateParts {
+  day?: string;
+  month?: string;
+  year?: string;
+}
+
 export class FormValidator {
   protected exceedsMaxLength(
     inputValue: string | undefined,
@@ -102,5 +108,32 @@ export class FormValidator {
       typeof inputValue === "string" &&
       (inputValue.length < minLength || inputValue.length > maxLength)
     );
+  }
+
+  protected isDateStrictlyAfter(first: DateParts, second: DateParts): boolean {
+    const bothDatesValid =
+      !this.checkDateFieldsAreEmpty(first.day, first.month, first.year) &&
+      !this.checkDateIsNotANumber(first.day, first.month, first.year) &&
+      this.checkDateIsValid(first.day, first.month, first.year) &&
+      !this.checkDateFieldsAreEmpty(second.day, second.month, second.year) &&
+      !this.checkDateIsNotANumber(second.day, second.month, second.year) &&
+      this.checkDateIsValid(second.day, second.month, second.year);
+
+    if (!bothDatesValid) {
+      return false;
+    }
+
+    const firstDate = moment([
+      Number(first.year),
+      Number(first.month) - DATE_MONTH_INDEX_OFFSET,
+      Number(first.day),
+    ]);
+    const secondDate = moment([
+      Number(second.year),
+      Number(second.month) - DATE_MONTH_INDEX_OFFSET,
+      Number(second.day),
+    ]);
+
+    return firstDate.isAfter(secondDate, "day");
   }
 }

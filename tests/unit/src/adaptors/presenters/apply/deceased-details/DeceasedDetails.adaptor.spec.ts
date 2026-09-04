@@ -3,6 +3,7 @@ import { stubInterface } from "ts-sinon";
 import { type Request, type Response, type Locals, response } from "express";
 import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
 import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
+import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("Deceased details adaptor", () => {
   const formValidator = new DeceasedDetailsValidator();
@@ -188,6 +189,31 @@ describe("Deceased details adaptor", () => {
         dateOfDeathYear,
       );
     });
+
+    it("re-renders date of death with cross-date error when date of death is before session date of birth", () => {
+      requestStub.session.deceasedDateOfBirthDay = "2";
+      requestStub.session.deceasedDateOfBirthMonth = "1";
+      requestStub.session.deceasedDateOfBirthYear = "1990";
+
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-date-of-death-day": "1",
+        "deceased-date-of-death-month": "1",
+        "deceased-date-of-death-year": "1990",
+      };
+
+      deceasedDetailsAdaptor.processDateOfDeathForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/date-of-death");
+
+      const renderModel = renderArgs[1] as Record<string, any>;
+      assert.equal(
+        renderModel.errorSummaries.dateOfDeathInputError.text,
+        DECEASED_DETAILS_ERROR.DATE_OF_DEATH_BEFORE_DATE_OF_BIRTH,
+      );
+    });
   });
 
   describe("renderDateOfBirthForm", () => {
@@ -293,6 +319,31 @@ describe("Deceased details adaptor", () => {
       assert.equal(
         requestStub.session.deceasedDateOfBirthYear,
         dateOfBirthYear,
+      );
+    });
+
+    it("re-renders date of birth with cross-date error when date of birth is after session date of death", () => {
+      requestStub.session.deceasedDateOfDeathDay = "1";
+      requestStub.session.deceasedDateOfDeathMonth = "1";
+      requestStub.session.deceasedDateOfDeathYear = "1990";
+
+      requestStub.body = {
+        _csrf: "abcdefg",
+        "deceased-date-of-birth-day": "2",
+        "deceased-date-of-birth-month": "1",
+        "deceased-date-of-birth-year": "1990",
+      };
+
+      deceasedDetailsAdaptor.processDateOfBirthForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/dob");
+
+      const renderModel = renderArgs[1] as Record<string, any>;
+      assert.equal(
+        renderModel.errorSummaries.dateOfBirthInputError.text,
+        DECEASED_DETAILS_ERROR.DATE_OF_BIRTH_AFTER_DATE_OF_DEATH,
       );
     });
 

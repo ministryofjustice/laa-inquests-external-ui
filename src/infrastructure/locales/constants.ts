@@ -295,6 +295,10 @@ export const DECEASED_DETAILS_ERROR = {
   NON_NUMERIC_DATE_OF_BIRTH:
     "Please enter date of birth in the format expected",
   FUTURE_DATE_OF_BIRTH: "Date of birth must not be in the future",
+  DATE_OF_BIRTH_AFTER_DATE_OF_DEATH:
+    "Date of birth must not be after date of death",
+  DATE_OF_DEATH_BEFORE_DATE_OF_BIRTH:
+    "Date of death must not be before date of birth",
   INVALID_DATE: "Please enter a valid date",
   RELATIONSHIP_SELECTION_REQUIRED: "Please select an option",
   RELATIONSHIP_NOT_ELIGIBLE:
