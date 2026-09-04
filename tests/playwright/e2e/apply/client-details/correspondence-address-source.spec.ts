@@ -53,7 +53,7 @@ test.describe("Client details - correspondence address source", () => {
 
     await expect(errorSummary).toBeVisible();
     await expect(errorSummary).toContainText(
-      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_SOURCE_NOT_SELECTED,
     );
     await expect(
       form.locator("#correspondence-address-source-error"),

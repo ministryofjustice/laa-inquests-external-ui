@@ -231,7 +231,7 @@ describe("Proceedings adaptor", () => {
       assert.deepInclude(renderArgs[1], {
         errorSummaries: {
           noProceedingSelected: {
-            text: "An application must specify at least one related proceeding.",
+            text: "Select what your client wants legal aid for",
           },
         },
       });

@@ -64,7 +64,7 @@ test.describe("Client details - NINO page", () => {
 
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
-        CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        CLIENT_DETAILS_ERROR.HAS_NINO_NOT_SELECTED,
       );
     });
     test("if radio is selected but nino is not provided", async ({ page }) => {
@@ -125,7 +125,7 @@ test.describe("Client details - NINO page", () => {
       await expect(errorSummary).toContainText("There is a problem");
 
       const noInputError = errorSummary.getByText(
-        CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        CLIENT_DETAILS_ERROR.HAS_NINO_NOT_SELECTED,
       );
       await expect(noInputError).toBeVisible();
     });
