@@ -29,6 +29,16 @@
     <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
     <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post" enctype="multipart/form-data">
       <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+      {% set hintHtml %}
+        <p class="govuk-body">The maximum file size for each file is 10MB. We can accept these file types:</p>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>pdf</li>
+          <li>jpeg, jpg</li>
+          <li>png</li>
+          <li>bmp</li>
+        </ul>
+        <p class="govuk-body">Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-. Using other characters in your filenames could cause the uploads to fail.</p>
+      {% endset %}
       {{ govukFileUpload({
         id: "coroners-letter-upload",
         name: "coroners-letter-file-upload",
@@ -37,7 +47,7 @@
           classes: "govuk-label--m"
         },
         hint: {
-          text: "The maximum file size is 10MB. Accepted file types are PDF, JPG, PNG and BMP."
+          html: hintHtml
         },
         attributes: {
           accept: ".pdf,.jpg,.jpeg,.png,.bmp"

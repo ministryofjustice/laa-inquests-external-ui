@@ -33,5 +33,8 @@ export class UploadCoronersLetterValidator extends FormValidator {
     if (fileInput.size === CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES) {
       return CORONERS_LETTER_ERROR.FILE_IS_EMPTY;
     }
+    if (/[^A-Za-z0-9.!\(\)_ \-]/v.test(fileInput.originalname)) {
+      return CORONERS_LETTER_ERROR.INVALID_FILE_NAME;
+    }
   }
 }

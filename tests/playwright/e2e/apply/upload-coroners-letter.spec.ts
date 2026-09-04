@@ -134,4 +134,19 @@ test.describe("Provider can", () => {
       CORONERS_LETTER_ERROR.INVALID_FILE_TYPE,
     );
   });
+  test("does not render a file name error when file name contains accepted punctuation", async ({
+    page,
+  }) => {
+    await uploadFile(page, {
+      name: "coroners-letter! (final).pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("letter content"),
+    });
+
+    await form.getByRole("button", { name: "Continue" }).click();
+
+    await expect(
+      page.getByText(CORONERS_LETTER_ERROR.INVALID_FILE_NAME),
+    ).not.toBeVisible();
+  });
 });
