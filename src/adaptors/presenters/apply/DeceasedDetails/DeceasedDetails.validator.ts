@@ -6,6 +6,7 @@ import {
   DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
+import type { DateParts } from "#src/utils/FormValidator.js";
 import type {
   DeceasedClientRelationshipError,
   DeceasedCoronerReferenceError,
@@ -52,6 +53,7 @@ export class DeceasedDetailsValidator extends FormValidator {
 
   validateDeceasedDateOfDeath(
     formBody: Partial<DeceasedDetailsFormData>,
+    dateOfBirth?: DateParts,
   ): Partial<DeceasedDateOfDeathError> {
     const errorSummaries: Partial<DeceasedDateOfDeathError> = {};
 
@@ -77,6 +79,20 @@ export class DeceasedDetailsValidator extends FormValidator {
       errorSummaries.dateOfDeathInputError = {
         text: errorMessage,
       };
+      return errorSummaries;
+    }
+
+    if (
+      dateOfBirth !== undefined &&
+      this.isDateStrictlyAfter(dateOfBirth, {
+        day: dateOfDeathDay,
+        month: dateOfDeathMonth,
+        year: dateOfDeathYear,
+      })
+    ) {
+      errorSummaries.dateOfDeathInputError = {
+        text: DECEASED_DETAILS_ERROR.DATE_OF_DEATH_BEFORE_DATE_OF_BIRTH,
+      };
     }
 
     return errorSummaries;
@@ -84,6 +100,7 @@ export class DeceasedDetailsValidator extends FormValidator {
 
   validateDeceasedDateOfBirth(
     formBody: Partial<DeceasedDetailsFormData>,
+    dateOfDeath?: DateParts,
   ): Partial<DeceasedDateOfBirthError> {
     const errorSummaries: Partial<DeceasedDateOfBirthError> = {};
 
@@ -108,6 +125,23 @@ export class DeceasedDetailsValidator extends FormValidator {
     if (typeof errorMessage === "string") {
       errorSummaries.dateOfBirthInputError = {
         text: errorMessage,
+      };
+      return errorSummaries;
+    }
+
+    if (
+      dateOfDeath !== undefined &&
+      this.isDateStrictlyAfter(
+        {
+          day: dateOfBirthDay,
+          month: dateOfBirthMonth,
+          year: dateOfBirthYear,
+        },
+        dateOfDeath,
+      )
+    ) {
+      errorSummaries.dateOfBirthInputError = {
+        text: DECEASED_DETAILS_ERROR.DATE_OF_BIRTH_AFTER_DATE_OF_DEATH,
       };
     }
 

@@ -2,7 +2,14 @@ import moment from "moment";
 import {
   DATE_MONTH_INDEX_OFFSET,
   MAX_CHARACTER_LENGTH,
+  MINIMUM_DATE_PART_VALUE,
 } from "#src/infrastructure/locales/constants.js";
+
+export interface DateParts {
+  day?: string;
+  month?: string;
+  year?: string;
+}
 
 export class FormValidator {
   protected exceedsMaxLength(
@@ -58,6 +65,18 @@ export class FormValidator {
     ]).isValid();
   }
 
+  protected checkDatePartsArePositive(
+    day: string | undefined,
+    month: string | undefined,
+    year: string | undefined,
+  ): boolean {
+    return (
+      Number(day) > MINIMUM_DATE_PART_VALUE &&
+      Number(month) > MINIMUM_DATE_PART_VALUE &&
+      Number(year) > MINIMUM_DATE_PART_VALUE
+    );
+  }
+
   protected validateDateInput(
     day: string | undefined,
     month: string | undefined,
@@ -75,6 +94,10 @@ export class FormValidator {
 
     if (this.checkDateIsNotANumber(day, month, year)) {
       return errors.nonNumeric;
+    }
+
+    if (!this.checkDatePartsArePositive(day, month, year)) {
+      return errors.invalidDate;
     }
 
     if (!this.checkDateIsValid(day, month, year)) {
@@ -102,5 +125,32 @@ export class FormValidator {
       typeof inputValue === "string" &&
       (inputValue.length < minLength || inputValue.length > maxLength)
     );
+  }
+
+  protected isDateStrictlyAfter(first: DateParts, second: DateParts): boolean {
+    const bothDatesValid =
+      !this.checkDateFieldsAreEmpty(first.day, first.month, first.year) &&
+      !this.checkDateIsNotANumber(first.day, first.month, first.year) &&
+      this.checkDateIsValid(first.day, first.month, first.year) &&
+      !this.checkDateFieldsAreEmpty(second.day, second.month, second.year) &&
+      !this.checkDateIsNotANumber(second.day, second.month, second.year) &&
+      this.checkDateIsValid(second.day, second.month, second.year);
+
+    if (!bothDatesValid) {
+      return false;
+    }
+
+    const firstDate = moment([
+      Number(first.year),
+      Number(first.month) - DATE_MONTH_INDEX_OFFSET,
+      Number(first.day),
+    ]);
+    const secondDate = moment([
+      Number(second.year),
+      Number(second.month) - DATE_MONTH_INDEX_OFFSET,
+      Number(second.day),
+    ]);
+
+    return firstDate.isAfter(secondDate, "day");
   }
 }

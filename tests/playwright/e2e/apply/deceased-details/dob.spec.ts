@@ -109,6 +109,35 @@ test.describe("Provider can", () => {
         DECEASED_DETAILS_ERROR.FUTURE_DATE_OF_BIRTH,
       );
     });
+
+    test("date of birth is after date of death", async ({ page }) => {
+      await page.goto("/apply/deceased-details/dod");
+      const dateOfDeathForm = await page.getByTestId(
+        "deceased-date-of-death-form",
+      );
+      await dateOfDeathForm.getByLabel("Day").fill("1");
+      await dateOfDeathForm.getByLabel("Month").fill("1");
+      await dateOfDeathForm.getByLabel("Year").fill("1990");
+      await continueToNextPage(dateOfDeathForm, page);
+
+      const dateOfBirthForm = await page.getByTestId(
+        "deceased-date-of-birth-form",
+      );
+      await dateOfBirthForm.getByLabel("Day").fill("1");
+      await dateOfBirthForm.getByLabel("Month").fill("1");
+      await dateOfBirthForm.getByLabel("Year").fill("2000");
+      await continueToNextPage(dateOfBirthForm, page);
+
+      await expect(page.url()).toContain("/apply/deceased-details/dob");
+
+      const errorMessage = dateOfBirthForm.locator(
+        "#deceased-date-of-birth-error",
+      );
+      await expect(errorMessage).toBeVisible();
+      await expect(errorMessage).toContainText(
+        DECEASED_DETAILS_ERROR.DATE_OF_BIRTH_AFTER_DATE_OF_DEATH,
+      );
+    });
   });
 
   test("view auto-populated fields given they've filled in the date, continued and navigated back", async ({

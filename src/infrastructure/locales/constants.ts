@@ -176,6 +176,8 @@ export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
+export const MINIMUM_DATE_PART_VALUE = 0;
+
 export const EMPTY_ARR_LENGTH = 0;
 
 export const NIL_BILL_GROSS_TOTAL = 0;
@@ -304,6 +306,10 @@ export const DECEASED_DETAILS_ERROR = {
   NON_NUMERIC_DATE_OF_BIRTH:
     "Please enter date of birth in the format expected",
   FUTURE_DATE_OF_BIRTH: "Date of birth must not be in the future",
+  DATE_OF_BIRTH_AFTER_DATE_OF_DEATH:
+    "Date of birth must not be after date of death",
+  DATE_OF_DEATH_BEFORE_DATE_OF_BIRTH:
+    "Date of death must not be before date of birth",
   INVALID_DATE: "Please enter a valid date",
   RELATIONSHIP_SELECTION_REQUIRED:
     "Select yes if your client meets the definition of a family member",
