@@ -140,7 +140,7 @@ export class ClientDetailsValidator extends FormValidator {
 
     if (typeof hasNameChanged !== "string") {
       errorSummaries.noRadioSelected = {
-        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        text: CLIENT_DETAILS_ERROR.NAME_CHANGE_NOT_SELECTED,
       };
     }
 
@@ -165,7 +165,7 @@ export class ClientDetailsValidator extends FormValidator {
 
     if (typeof hasNino !== "string") {
       errorSummaries.noRadioSelected = {
-        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        text: CLIENT_DETAILS_ERROR.HAS_NINO_NOT_SELECTED,
       };
     }
 
@@ -202,7 +202,7 @@ export class ClientDetailsValidator extends FormValidator {
 
     if (typeof hasPrevApplication !== "string") {
       errorSummaries.noRadioSelected = {
-        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        text: CLIENT_DETAILS_ERROR.HAS_PREV_APPLICATION_NOT_SELECTED,
       };
     }
 
@@ -263,7 +263,7 @@ export class ClientDetailsValidator extends FormValidator {
 
     if (typeof correspondenceAddressSource !== "string") {
       errorSummaries.noRadioSelected = {
-        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_SOURCE_NOT_SELECTED,
       };
       return errorSummaries;
     }
@@ -317,7 +317,7 @@ export class ClientDetailsValidator extends FormValidator {
 
     if (typeof correspondenceRecipient !== "string") {
       errorSummaries.noRadioSelected = {
-        text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_NOT_SELECTED,
       };
       return errorSummaries;
     }

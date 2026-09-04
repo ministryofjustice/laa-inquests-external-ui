@@ -192,7 +192,16 @@ export const CLIENT_DETAILS_ERROR = {
   MISSING_FIRST_NAME: "Please enter your client's first name",
   MISSING_LAST_NAME: "Please enter your client's last name",
   MISSING_LAST_NAME_AT_BIRTH: "Please enter the client's birth name",
-  INPUT_NOT_SELECTED: "Please select an option",
+  NAME_CHANGE_NOT_SELECTED:
+    "Select yes if your client has ever changed their last name",
+  HAS_NINO_NOT_SELECTED:
+    "Select yes if your client has a National Insurance number",
+  HAS_PREV_APPLICATION_NOT_SELECTED:
+    "Select yes if your client has applied for Inquest legal aid before",
+  CORRESPONDENCE_ADDRESS_SOURCE_NOT_SELECTED:
+    "Select where we should send your client's correspondence",
+  CORRESPONDENCE_RECIPIENT_NOT_SELECTED:
+    "Select if you want to add a 'care of' recipient for your client's mail",
   MISSING_NINO: "You must enter the client's National Insurance Number",
   INVALID_NINO: "You must enter a valid National Insurance Number",
   APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
@@ -296,7 +305,8 @@ export const DECEASED_DETAILS_ERROR = {
     "Please enter date of birth in the format expected",
   FUTURE_DATE_OF_BIRTH: "Date of birth must not be in the future",
   INVALID_DATE: "Please enter a valid date",
-  RELATIONSHIP_SELECTION_REQUIRED: "Please select an option",
+  RELATIONSHIP_SELECTION_REQUIRED:
+    "Select yes if your client meets the definition of a family member",
   RELATIONSHIP_NOT_ELIGIBLE:
     "Your client needs to meet the definition of family member to qualify for legal aid",
   RELATIONSHIP_REQUIRED_MIN_MAX:
@@ -305,7 +315,8 @@ export const DECEASED_DETAILS_ERROR = {
     "Relationship must be 70 characters or less",
   CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Coroner reference must be 50 characters or less",
-  FURTHER_INFORMATION_SELECTION_REQUIRED: "Please select an option",
+  FURTHER_INFORMATION_SELECTION_REQUIRED:
+    "Select yes if there are any other applications for legal aid being made by family members for an inquest arising from this same incident",
   FURTHER_INFORMATION_MIN_MAX:
     "Linked case details must be between 2 and 500 characters",
 };
@@ -440,8 +451,7 @@ export const DECEASED_NAME_PAGE = {
 };
 
 export const PROCEEDING_ERROR = {
-  NO_PROCEEDING_SPECIFIED:
-    "An application must specify at least one related proceeding.",
+  NO_PROCEEDING_SPECIFIED: "Select what your client wants legal aid for",
   NO_CONFIRMATION_SPECIFIED: "Please select either yes or no to continue.",
   NO_PROCEEDINGS_IN_LIST: "A case must have a minimum of 1 proceeding",
 };

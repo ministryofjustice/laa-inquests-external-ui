@@ -217,7 +217,9 @@ describe("ClientDetailsValidator", () => {
         };
         const errorSummaries = formValidator.validateClientName(formBody);
         assert.deepEqual(errorSummaries, {
-          noRadioSelected: { text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED },
+          noRadioSelected: {
+            text: CLIENT_DETAILS_ERROR.NAME_CHANGE_NOT_SELECTED,
+          },
         });
       });
       it("adds error message when yes radio button has been selected but no previous name has been provided", () => {
@@ -293,7 +295,7 @@ describe("ClientDetailsValidator", () => {
         const errorSummaries = formValidator.validateNino(formBody);
         assert.deepEqual(errorSummaries, {
           noRadioSelected: {
-            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+            text: CLIENT_DETAILS_ERROR.HAS_NINO_NOT_SELECTED,
           },
         });
       });
@@ -393,7 +395,7 @@ describe("ClientDetailsValidator", () => {
           formValidator.validatePrevApplicationReference(formBody);
         assert.deepEqual(errorSummaries, {
           noRadioSelected: {
-            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+            text: CLIENT_DETAILS_ERROR.HAS_PREV_APPLICATION_NOT_SELECTED,
           },
         });
       });
@@ -713,7 +715,7 @@ describe("ClientDetailsValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           noRadioSelected: {
-            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_ADDRESS_SOURCE_NOT_SELECTED,
           },
         });
       });
@@ -1067,7 +1069,7 @@ describe("ClientDetailsValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           noRadioSelected: {
-            text: CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+            text: CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_NOT_SELECTED,
           },
         });
       });

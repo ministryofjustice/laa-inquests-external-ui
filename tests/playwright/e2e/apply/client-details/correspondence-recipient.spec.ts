@@ -47,7 +47,7 @@ test.describe("Client details - correspondence recipient", () => {
     await expect(errorSummary).toBeVisible();
     await expect(errorSummary).toContainText("There is a problem");
     await expect(errorSummary).toContainText(
-      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_NOT_SELECTED,
     );
 
     await expect(form.locator("#correspondence-recipient-error")).toBeVisible();
