@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@azure/msal-node": "^5.6.0",
+    "@azure/msal-node": "^6.0.0",
     "@eslint/js": "^10.0.1",
     "@playwright/cli": "^0.1.18",
     "@playwright/test": "^1.62.1",
