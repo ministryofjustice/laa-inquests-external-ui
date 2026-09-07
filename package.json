@@ -31,7 +31,7 @@
     "node": "26.8.1"
   },
   "dependencies": {
-    "@ministryofjustice/frontend": "^10.0.1",
+    "@ministryofjustice/frontend": "^11.0.1",
     "@redis/client": "^6.2.1",
     "axios": "^1.20.0",
     "body-parser": "^2.3.0",
