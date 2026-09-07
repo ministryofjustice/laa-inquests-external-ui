@@ -1,9 +1,7 @@
 import { z } from "zod";
 
 export const SearchCaseSchema = z.object({
-  laaReference: z
-    .union([z.number(), z.string()])
-    .transform((val) => String(val)),
+  laaReference: z.string(),
   clientFirstName: z.string(),
   clientLastName: z.string(),
   clientDateOfBirth: z.string(),
