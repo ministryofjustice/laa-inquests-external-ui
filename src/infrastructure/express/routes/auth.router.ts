@@ -46,6 +46,7 @@ export function createAuthRouter(
       };
       req.session.accessToken = "test-access-token";
       req.session.userId = "test-provider";
+      req.session.firmId = "123";
       req.session.officeId = "001";
       req.session.providerEmail = "test@example.com";
 

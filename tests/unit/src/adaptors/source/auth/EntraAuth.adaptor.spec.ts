@@ -52,13 +52,13 @@ describe("EntraAuthAdaptor", () => {
   });
 
   describe("acquireTokenByCode", () => {
-    it("returns AuthTokenResult with userId, userName, officeId and providerEmail from token claims", async () => {
+    it("returns AuthTokenResult with userId, userName, firmId, officeId and providerEmail from token claims", async () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
           name: "Test User",
           username: "test@example.com",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
         },
         accessToken: "access-token-123",
       } as any);
@@ -72,6 +72,7 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result, {
         userId: "user-oid-123",
         userName: "Test User",
+        firmId: "123",
         officeId: "001",
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
@@ -90,7 +91,7 @@ describe("EntraAuthAdaptor", () => {
         account: {
           homeAccountId: "user-oid-123",
           username: "test@example.com",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
         },
         uniqueId: "user-oid-123",
       } as any);
@@ -104,6 +105,7 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result, {
         userId: "user-oid-123",
         userName: undefined,
+        firmId: "123",
         officeId: "001",
         providerEmail: "test@example.com",
       });
@@ -113,7 +115,7 @@ describe("EntraAuthAdaptor", () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
         },
       } as any);
 
@@ -131,7 +133,7 @@ describe("EntraAuthAdaptor", () => {
         account: {
           homeAccountId: "user-oid-123",
           name: "Test User",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: ["001", "002"] },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: ["001", "002"] },
         },
       } as any);
 
@@ -148,7 +150,7 @@ describe("EntraAuthAdaptor", () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
-          idTokenClaims: { FIRM_CODE: "0A123B" },
+          idTokenClaims: { FIRM_CODE: "123" },
         },
       } as any);
 
@@ -161,13 +163,30 @@ describe("EntraAuthAdaptor", () => {
       assert.equal(result.officeId, undefined);
     });
 
+    it("returns undefined firmId when FIRM_CODE claim is missing", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: { ACCOUNTS: "001" },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.firmId, undefined);
+    });
+
     it("surfaces the token expiry from the MSAL result", async () => {
       const expiresOn = new Date("2026-09-03T12:00:00.000Z");
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
           name: "Test User",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
         },
         accessToken: "access-token-123",
         expiresOn,

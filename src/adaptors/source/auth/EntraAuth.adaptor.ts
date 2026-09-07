@@ -33,10 +33,12 @@ export class EntraAuthAdaptor implements AuthPort {
       }
 
       this.#logTokenDetails(result);
+      const claims = result.account?.idTokenClaims;
       return {
         userId: result.account?.homeAccountId ?? result.uniqueId,
         userName: result.account?.name ?? undefined,
-        officeId: this.#extractOfficeId(result.account?.idTokenClaims),
+        firmId: this.#getClaim(claims, "FIRM_CODE"),
+        officeId: this.#extractOfficeId(claims),
         providerEmail: result.account?.username ?? undefined,
         ...this.#getAccessTokenField(result),
         ...this.#getExpiryField(result),

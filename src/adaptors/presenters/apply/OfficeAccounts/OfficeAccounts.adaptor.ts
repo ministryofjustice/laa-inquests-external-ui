@@ -33,7 +33,7 @@ export class OfficeAccountsAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const firmId = this.#resolveFirmId(req.query);
+    const firmId = this.#resolveFirmId(req);
     const officeOptions = await this.#getOfficeOptions(req, firmId);
 
     res.render("apply/office-accounts/select-office-account", {
@@ -87,8 +87,10 @@ export class OfficeAccountsAdaptor {
       .join(", ");
   }
 
-  #resolveFirmId(query: Request["query"]): string {
-    const { firmId } = query;
+  #resolveFirmId(req: Request): string {
+    const {
+      session: { firmId },
+    } = req;
     return typeof firmId === "string" && firmId !== "" ? firmId : "";
   }
 }

@@ -44,8 +44,8 @@ describe("OfficeAccounts adaptor", () => {
     const adaptor = new OfficeAccountsAdaptor(port);
 
     const requestStub = stubInterface<Request>();
-    requestStub.query =
-      options?.firmId === undefined ? {} : { firmId: options.firmId };
+    requestStub.query = {};
+    requestStub.session.firmId = options?.firmId ?? "123";
     requestStub.session.accessToken =
       options?.accessToken ?? "access-token-123";
 
@@ -86,7 +86,7 @@ describe("OfficeAccounts adaptor", () => {
       });
     });
 
-    it("passes firmId from query and access token to provider offices port", async () => {
+    it("passes firmId from authenticated session and access token to provider offices port", async () => {
       const { port, adaptor, requestStub, responseStub } = createRenderFixtures(
         {
           firmId: "999",
@@ -103,9 +103,10 @@ describe("OfficeAccounts adaptor", () => {
       );
     });
 
-    it("renders empty options when no firm id is provided", async () => {
-      const { port, adaptor, requestStub, responseStub } =
-        createRenderFixtures();
+    it("renders empty options when no firm id is available in session", async () => {
+      const { port, adaptor, requestStub, responseStub } = createRenderFixtures(
+        { firmId: "" },
+      );
 
       await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
 

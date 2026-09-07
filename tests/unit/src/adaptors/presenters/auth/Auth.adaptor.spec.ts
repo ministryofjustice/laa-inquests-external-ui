@@ -69,11 +69,12 @@ describe("AuthAdaptor", () => {
       req.session.cookie = {} as any;
     });
 
-    it("stores userId, user.name, officeId and providerEmail in session and redirects to /", async () => {
+    it("stores userId, user.name, firmId, officeId and providerEmail in session and redirects to /", async () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
         userName: "Test User",
+        firmId: "123",
         officeId: "001",
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
@@ -92,6 +93,7 @@ describe("AuthAdaptor", () => {
       );
       assert.equal(req.session["userId"], "user-oid-abc");
       assert.deepEqual(req.session["user"], { name: "Test User" });
+      assert.equal(req.session["firmId"], "123");
       assert.equal(req.session["officeId"], "001");
       assert.equal(req.session["providerEmail"], "test@example.com");
       assert.equal(req.session["accessToken"], "access-token-123");

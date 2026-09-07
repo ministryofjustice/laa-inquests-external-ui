@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 const DEV_SESSION_DATA = {
   userId: "dev-user-id",
   user: { name: "Developer User" },
+  firmId: "123",
   officeId: "001",
   providerEmail: "developer@example.com",
   accessToken: "dev-access-token",
