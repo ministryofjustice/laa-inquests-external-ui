@@ -1,5 +1,6 @@
 s{% extends "base.njk" %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 
@@ -35,6 +36,11 @@ s{% extends "base.njk" %}
             text: "No office accounts were found for this firm."
           }) }}
         {% endif %}
+
+        {{ govukButton({
+            text: "Save and continue",
+            href: "/"
+        }) }}
       </div>
     </div>
   </main>
