@@ -1,0 +1,43 @@
+s{% extends "base.njk" %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+
+{% set pageHeading = "Select the account number of the office handling this application" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+<div class="govuk-width-container">
+  {{ govukBackLink({
+    text: "Back",
+    href: "/"
+  }) }}
+
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        {% if officeOptions.length %}
+          {{ govukRadios({
+            idPrefix: "office-accounts",
+            name: "office-accounts",
+            fieldset: {
+              legend: {
+                text: pageHeading,
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            items: officeOptions
+          }) }}
+        {% else %}
+          <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+          {{ govukInsetText({
+            text: "No office accounts were found for this firm."
+          }) }}
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+

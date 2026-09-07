@@ -3,29 +3,29 @@ import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetP
 import { GetProviderOfficesUseCase } from "#src/use-cases/apply/providerOffices/GetProviderOffices.useCase.js";
 import type { GetProviderOffice } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/models/GetProviderOffices.types.js";
 
-interface OfficeAccountUseCases {
+interface OfficeAccountsUseCases {
   getProviderOffices: GetProviderOfficesUseCase;
 }
 
-interface OfficeAccountOption {
+interface OfficeAccountsOption {
   value: string;
   html: string;
   hint: { text: string };
 }
 
-export class OfficeAccountAdaptor {
+export class OfficeAccountsAdaptor {
   getProviderOfficesUseCase: GetProviderOfficesUseCase;
 
   constructor(
     getProviderOfficesPort: GetProviderOfficesPort,
-    useCases?: Partial<OfficeAccountUseCases>,
+    useCases?: Partial<OfficeAccountsUseCases>,
   ) {
     this.getProviderOfficesUseCase =
       useCases?.getProviderOffices ??
       new GetProviderOfficesUseCase(getProviderOfficesPort);
   }
 
-  async renderOfficeAccountSelectForm(
+  async renderOfficeAccountsSelectForm(
     req: Request,
     res: Response,
   ): Promise<void> {
@@ -36,7 +36,7 @@ export class OfficeAccountAdaptor {
     const firmId = this.#resolveFirmId(req.query);
     const officeOptions = await this.#getOfficeOptions(req, firmId);
 
-    res.render("apply/office-account/select-office-account", {
+    res.render("apply/office-accounts/select-office-account", {
       csrfToken,
       officeOptions,
     });
@@ -45,7 +45,7 @@ export class OfficeAccountAdaptor {
   async #getOfficeOptions(
     req: Request,
     firmId: string,
-  ): Promise<OfficeAccountOption[]> {
+  ): Promise<OfficeAccountsOption[]> {
     if (firmId === "") {
       return [];
     }
@@ -66,7 +66,7 @@ export class OfficeAccountAdaptor {
     return this.#formatOfficeOptions(result.data);
   }
 
-  #formatOfficeOptions(offices: GetProviderOffice[]): OfficeAccountOption[] {
+  #formatOfficeOptions(offices: GetProviderOffice[]): OfficeAccountsOption[] {
     return offices.map((office) => ({
       value: office.officeCode,
       html: `<strong>${this.#formatAddress(office)}</strong>`,
