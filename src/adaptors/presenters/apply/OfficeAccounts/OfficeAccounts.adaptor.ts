@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
 import { GetProviderOfficesUseCase } from "#src/use-cases/apply/providerOffices/GetProviderOffices.useCase.js";
 import type { GetProviderOffice } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/models/GetProviderOffices.types.js";
+import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
 
 interface OfficeAccountsUseCases {
   getProviderOffices: GetProviderOfficesUseCase;
@@ -75,11 +76,30 @@ export class OfficeAccountsAdaptor {
       session: { userOfficeAccounts },
     } = req;
     if (!Array.isArray(userOfficeAccounts)) {
+      logger.logDebug({
+        functionName: "officeAccountsAdaptor_filterAuthorisedOffices",
+        message: "No userOfficeAccounts found in session; showing no offices",
+        extraContext: {
+          event: "office_accounts_filter",
+          officesReturnedByApi: offices.length,
+        },
+      });
       return [];
     }
-    return offices.filter((office) =>
+    const authorisedOffices = offices.filter((office) =>
       userOfficeAccounts.includes(office.officeCode),
     );
+    logger.logDebug({
+      functionName: "officeAccountsAdaptor_filterAuthorisedOffices",
+      message: "Filtered provider offices to those the user has access to",
+      extraContext: {
+        event: "office_accounts_filter",
+        officesReturnedByApi: offices.length,
+        userOfficeAccountsCount: userOfficeAccounts.length,
+        authorisedOfficesCount: authorisedOffices.length,
+      },
+    });
+    return authorisedOffices;
   }
 
   #formatOfficeOptions(offices: GetProviderOffice[]): OfficeAccountsOption[] {

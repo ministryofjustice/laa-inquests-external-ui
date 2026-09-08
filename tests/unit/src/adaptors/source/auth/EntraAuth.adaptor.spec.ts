@@ -189,6 +189,51 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result.userOfficeAccounts, []);
     });
 
+    it("returns userOfficeAccounts from an array-valued ACCOUNTS claim", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: {
+            FIRM_CODE: "123",
+            ACCOUNTS: ["2P223Y", "2N861E", "2P224Z", "2F761M"],
+          },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result.userOfficeAccounts, [
+        "2P223Y",
+        "2N861E",
+        "2P224Z",
+        "2F761M",
+      ]);
+    });
+
+    it("uses the first element of an array-valued ACCOUNTS claim as officeId", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: {
+            FIRM_CODE: "123",
+            ACCOUNTS: ["2P223Y", "2N861E"],
+          },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.officeId, "2P223Y");
+    });
+
     it("returns undefined firmId when FIRM_CODE claim is missing", async () => {
       msalClient.acquireTokenByCode.resolves({
         account: {

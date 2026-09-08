@@ -78,18 +78,20 @@ export class EntraAuthAdaptor implements AuthPort {
   #extractOfficeId(
     claims: Record<string, unknown> | undefined,
   ): string | undefined {
-    return this.#getClaim(claims, "ACCOUNTS");
+    const [firstOfficeCode] = this.#extractUserOfficeAccounts(claims);
+    return firstOfficeCode;
   }
 
   #extractUserOfficeAccounts(
     claims: Record<string, unknown> | undefined,
   ): string[] {
     const value = claims?.ACCOUNTS;
-    if (typeof value !== "string" || value === "") {
-      return [];
-    }
-    return value
-      .split(",")
+    const rawAccountCodes = Array.isArray(value)
+      ? value.map((accountCode) => String(accountCode))
+      : typeof value === "string"
+        ? value.split(",")
+        : [];
+    return rawAccountCodes
       .map((accountCode) => accountCode.trim())
       .filter((accountCode) => accountCode !== "");
   }
