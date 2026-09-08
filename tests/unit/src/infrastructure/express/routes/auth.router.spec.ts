@@ -64,6 +64,34 @@ describe("createAuthRouter", () => {
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
     });
+
+    it("overrides userOfficeAccounts from a comma-separated officeAccounts query param", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { officeAccounts: "A004B, A005B" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.userOfficeAccounts, ["A004B", "A005B"]);
+    });
+
+    it("seeds an empty userOfficeAccounts when officeAccounts query param is empty", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { officeAccounts: "" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.userOfficeAccounts, []);
+    });
   });
 
   describe("when NODE_ENV is not test", () => {
