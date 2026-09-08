@@ -76,6 +76,7 @@ describe("AuthAdaptor", () => {
         userName: "Test User",
         firmId: "123",
         officeId: "001",
+        userOfficeAccounts: ["001", "002"],
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
         accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
@@ -95,6 +96,7 @@ describe("AuthAdaptor", () => {
       assert.deepEqual(req.session["user"], { name: "Test User" });
       assert.equal(req.session["firmId"], "123");
       assert.equal(req.session["officeId"], "001");
+      assert.deepEqual(req.session["userOfficeAccounts"], ["001", "002"]);
       assert.equal(req.session["providerEmail"], "test@example.com");
       assert.equal(req.session["accessToken"], "access-token-123");
       assert.equal(res.redirect.callCount, 1);
@@ -106,6 +108,7 @@ describe("AuthAdaptor", () => {
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
         userName: "Test User",
+        userOfficeAccounts: [],
         accessToken: "access-token-123",
         accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
       });
@@ -123,6 +126,7 @@ describe("AuthAdaptor", () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
+        userOfficeAccounts: [],
         accessToken: "access-token-123",
         accessTokenExpiresOn: new Date(Date.now() - ONE_HOUR_MS),
       });
@@ -136,6 +140,7 @@ describe("AuthAdaptor", () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
+        userOfficeAccounts: [],
         accessToken: "access-token-123",
       });
 

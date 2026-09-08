@@ -22,6 +22,7 @@ declare module "express-session" {
     user?: { name?: string };
     firmId?: string;
     officeId?: string;
+    userOfficeAccounts?: string[];
     accessToken?: string;
     coronersLetterId?: string;
     coronersLetterFileName?: string;

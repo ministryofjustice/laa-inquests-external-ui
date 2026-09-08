@@ -39,6 +39,7 @@ export class EntraAuthAdaptor implements AuthPort {
         userName: result.account?.name ?? undefined,
         firmId: this.#getClaim(claims, "FIRM_CODE"),
         officeId: this.#extractOfficeId(claims),
+        userOfficeAccounts: this.#extractUserOfficeAccounts(claims),
         providerEmail: result.account?.username ?? undefined,
         ...this.#getAccessTokenField(result),
         ...this.#getExpiryField(result),
@@ -77,18 +78,20 @@ export class EntraAuthAdaptor implements AuthPort {
   #extractOfficeId(
     claims: Record<string, unknown> | undefined,
   ): string | undefined {
+    return this.#getClaim(claims, "ACCOUNTS");
+  }
+
+  #extractUserOfficeAccounts(
+    claims: Record<string, unknown> | undefined,
+  ): string[] {
     const value = claims?.ACCOUNTS;
-    if (typeof value === "string" && value !== "") {
-      return value;
+    if (typeof value !== "string" || value === "") {
+      return [];
     }
-    if (
-      Array.isArray(value) &&
-      value.length > EMPTY_ARR_LENGTH &&
-      typeof value[EMPTY_ARR_LENGTH] === "string"
-    ) {
-      return value[EMPTY_ARR_LENGTH];
-    }
-    return undefined;
+    return value
+      .split(",")
+      .map((accountCode) => accountCode.trim())
+      .filter((accountCode) => accountCode !== "");
   }
 
   #getClaim(

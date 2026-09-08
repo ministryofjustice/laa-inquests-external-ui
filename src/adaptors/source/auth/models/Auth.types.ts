@@ -3,6 +3,7 @@ export interface AuthTokenResult {
   userName?: string;
   firmId?: string;
   officeId?: string;
+  userOfficeAccounts: string[];
   providerEmail?: string;
   accessToken?: string;
   accessTokenExpiresOn?: Date;

@@ -30,6 +30,7 @@ export class AuthAdaptor {
       userId: user.userId,
       firmId: user.firmId,
       officeId: user.officeId,
+      userOfficeAccounts: user.userOfficeAccounts,
       providerEmail: user.providerEmail,
       accessToken: user.accessToken,
     });

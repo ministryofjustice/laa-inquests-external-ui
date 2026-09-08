@@ -5,6 +5,7 @@ const DEV_SESSION_DATA = {
   user: { name: "Developer User" },
   firmId: "123",
   officeId: "001",
+  userOfficeAccounts: ["001", "002"],
   providerEmail: "developer@example.com",
   accessToken: "dev-access-token",
 } as const;

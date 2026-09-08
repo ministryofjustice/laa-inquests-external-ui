@@ -40,6 +40,7 @@ const PROVIDER_OFFICES = [
 interface RenderFixturesOptions {
   firmId?: string;
   accessToken?: string;
+  userOfficeAccounts?: string[];
 }
 
 describe("OfficeAccounts adaptor", () => {
@@ -58,6 +59,11 @@ describe("OfficeAccounts adaptor", () => {
     requestStub.session.firmId = options?.firmId ?? "123";
     requestStub.session.accessToken =
       options?.accessToken ?? "access-token-123";
+    requestStub.session.userOfficeAccounts = options?.userOfficeAccounts ?? [
+      "0A123A",
+      "0A456A",
+      "0A789A",
+    ];
 
     const responseStub = stubInterface<Response>();
     responseStub.locals = { csrfToken: "abcdefg" };
@@ -146,6 +152,38 @@ describe("OfficeAccounts adaptor", () => {
           ),
         { message: "UNEXPECTED_EXCEPTION" },
       );
+    });
+
+    it("only shows offices the logged-in user's userOfficeAccounts includes", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmId: "123",
+        userOfficeAccounts: ["0A456A"],
+      });
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.deepEqual(renderModel.officeOptions, [
+        {
+          value: "0A456A",
+          html: "<strong>2 Test Street, Manchester, M1A 1AA</strong>",
+          hint: { text: "0A456A" },
+        },
+      ]);
+    });
+
+    it("renders empty options when the session has no userOfficeAccounts", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmId: "123",
+        userOfficeAccounts: [],
+      });
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.deepEqual(renderModel.officeOptions, []);
     });
   });
 });

@@ -63,7 +63,23 @@ export class OfficeAccountsAdaptor {
       );
     }
 
-    return this.#formatOfficeOptions(result.data);
+    const authorisedOffices = this.#filterAuthorisedOffices(req, result.data);
+    return this.#formatOfficeOptions(authorisedOffices);
+  }
+
+  #filterAuthorisedOffices(
+    req: Request,
+    offices: GetProviderOffice[],
+  ): GetProviderOffice[] {
+    const {
+      session: { userOfficeAccounts },
+    } = req;
+    if (!Array.isArray(userOfficeAccounts)) {
+      return [];
+    }
+    return offices.filter((office) =>
+      userOfficeAccounts.includes(office.officeCode),
+    );
   }
 
   #formatOfficeOptions(offices: GetProviderOffice[]): OfficeAccountsOption[] {
