@@ -16,7 +16,7 @@ describe("SubmitApplicationAdaptor", () => {
     it("submits an application", async () => {
       let axiosStub = stubInterface<AxiosInstance>();
       axiosStub.post.resolves({
-        data: { laaReference: 12345678910 },
+        data: { laaReference: "12345678910" },
         status: 201,
       });
 
@@ -93,7 +93,7 @@ describe("SubmitApplicationAdaptor", () => {
 
     it("logs the payload when payloadDebugEnabled is true", async () => {
       const axiosStub = stubInterface<AxiosInstance>();
-      axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
+      axiosStub.post.resolves({ data: { laaReference: "1" }, status: 201 });
       const logDebugSpy = sinon.spy(logger, "logDebug");
 
       const adaptor = new SubmitApplicationAdaptor(
@@ -144,7 +144,7 @@ describe("SubmitApplicationAdaptor", () => {
 
     it("does not log the payload when payloadDebugEnabled is false", async () => {
       const axiosStub = stubInterface<AxiosInstance>();
-      axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
+      axiosStub.post.resolves({ data: { laaReference: "1" }, status: 201 });
       const logDebugSpy = sinon.spy(logger, "logDebug");
 
       const adaptor = new SubmitApplicationAdaptor(
@@ -182,52 +182,6 @@ describe("SubmitApplicationAdaptor", () => {
       );
 
       assert.ok(logDebugSpy.notCalled);
-    });
-
-    it("transforms laaReference from number to string (backwards compatibility)", async () => {
-      const axiosStub = stubInterface<AxiosInstance>();
-      axiosStub.post.resolves({
-        data: { laaReference: 987654321 },
-        status: 201,
-      });
-
-      const adaptor = new SubmitApplicationAdaptor(
-        axiosStub,
-        "http://localhost",
-      );
-
-      const minimalBody = {
-        coronersLetterId: "x",
-        client: {
-          clientFirstName: "A",
-          clientLastName: "B",
-          dateOfBirth: "01/01/1990",
-          hasNoFixedAbode: false,
-          correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-        },
-        deceased: {
-          deceasedFirstName: "D",
-          deceasedLastName: "E",
-          deceasedDateOfBirth: "01/01/1960",
-          deceasedDateOfDeath: "01/01/2020",
-          coronersReference: "",
-          furtherInformation: "",
-          clientRelationshipToDeceased: "child",
-        },
-        proceeding: {
-          proceedingId: "IQCA",
-        },
-        publicBodies: [],
-        provider: { officeId: "Y", emailAddress: "z@z.com" },
-      };
-
-      const result = await adaptor.submitApplication(
-        minimalBody,
-        "access-token-123",
-      );
-
-      assert.equal(result.laaReference, "987654321");
-      assert.equal(typeof result.laaReference, "string");
     });
   });
 });

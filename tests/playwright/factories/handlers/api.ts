@@ -24,8 +24,8 @@ const bypassCreateApplicationMocks =
 
 // Sentinel laaReference used in E2E tests to trigger a 422 response from the claim submit endpoint.
 // The GET search handler returns a mock case with this numeric laaReference when the search term is "force-422".
-const FORCE_422_LAA_REFERENCE = "422";
-const FORCE_REJECTED_LAA_REFERENCE = "299";
+const FORCE_422_LAA_REFERENCE = "INQ-YYY-422";
+const FORCE_REJECTED_LAA_REFERENCE = "INQ-YYY-299";
 const VIRUS_FILE_NAME = "virus.pdf";
 
 export const apiHandlers = [
@@ -56,7 +56,7 @@ export const apiHandlers = [
     if (laaReference === "force-rejected") {
       return HttpResponse.json([
         {
-          laaReference: 299,
+          laaReference: FORCE_REJECTED_LAA_REFERENCE,
           clientFirstName: "Force",
           clientLastName: "Rejected",
           clientDateOfBirth: "01/01/2000",
@@ -71,7 +71,7 @@ export const apiHandlers = [
     if (laaReference === "force-422") {
       return HttpResponse.json([
         {
-          laaReference: 422,
+          laaReference: FORCE_422_LAA_REFERENCE,
           clientFirstName: "Force",
           clientLastName: "422",
           clientDateOfBirth: "01/01/2000",
@@ -83,10 +83,10 @@ export const apiHandlers = [
       ]);
     }
 
-    if (laaReference === "1") {
+    if (laaReference === "INQ-YYY-001") {
       return HttpResponse.json([
         {
-          laaReference: 1,
+          laaReference: "INQ-YYY-001",
           clientFirstName: "Seed",
           clientLastName: "Provider",
           clientDateOfBirth: "01-01-1990",
@@ -179,7 +179,7 @@ export const apiHandlers = [
 
     return HttpResponse.json(
       {
-        laaReference: 123,
+        laaReference: "INQ-YYY-123",
       },
       { status: 201 },
     );
@@ -211,7 +211,7 @@ export const apiHandlers = [
       return HttpResponse.json(
         {
           claimId: 42,
-          laaReference: 299,
+          laaReference: "INQ-YYY-299",
           claimTypeId: "PAYMENT_ON_ACCOUNT",
           statusId: "REJECTED",
           submissionDate: "2026-07-07T12:25:08.407881",
@@ -232,7 +232,7 @@ export const apiHandlers = [
     return HttpResponse.json(
       {
         claimId: 42,
-        laaReference: 1,
+        laaReference: "INQ-YYY-001",
         claimTypeId: "PAYMENT_ON_ACCOUNT",
         statusId: "SUBMITTED",
         submissionDate: "2026-07-07T12:25:08.407881",
