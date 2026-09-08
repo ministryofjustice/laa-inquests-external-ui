@@ -47,8 +47,8 @@ export function createAuthRouter(
       req.session.accessToken = "test-access-token";
       req.session.userId = "test-provider";
       req.session.firmId = "123";
-      req.session.officeId = "001";
-      req.session.userOfficeAccounts = ["001", "002"];
+      req.session.officeId = "A001B";
+      req.session.userOfficeAccounts = ["A001B", "A002B"];
       req.session.providerEmail = "test@example.com";
 
       // Optional expiry to exercise session-expiry behaviour in E2E tests.

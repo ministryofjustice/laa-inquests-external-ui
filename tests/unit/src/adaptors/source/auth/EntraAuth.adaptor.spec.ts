@@ -58,7 +58,7 @@ describe("EntraAuthAdaptor", () => {
           homeAccountId: "user-oid-123",
           name: "Test User",
           username: "test@example.com",
-          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
         },
         accessToken: "access-token-123",
       } as any);
@@ -73,8 +73,8 @@ describe("EntraAuthAdaptor", () => {
         userId: "user-oid-123",
         userName: "Test User",
         firmId: "123",
-        officeId: "001",
-        userOfficeAccounts: ["001"],
+        officeId: "A001B",
+        userOfficeAccounts: ["A001B"],
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
       });
@@ -92,7 +92,7 @@ describe("EntraAuthAdaptor", () => {
         account: {
           homeAccountId: "user-oid-123",
           username: "test@example.com",
-          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
         },
         uniqueId: "user-oid-123",
       } as any);
@@ -107,8 +107,8 @@ describe("EntraAuthAdaptor", () => {
         userId: "user-oid-123",
         userName: undefined,
         firmId: "123",
-        officeId: "001",
-        userOfficeAccounts: ["001"],
+        officeId: "A001B",
+        userOfficeAccounts: ["A001B"],
         providerEmail: "test@example.com",
       });
     });
@@ -117,7 +117,7 @@ describe("EntraAuthAdaptor", () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
-          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
         },
       } as any);
 
@@ -193,7 +193,7 @@ describe("EntraAuthAdaptor", () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
-          idTokenClaims: { ACCOUNTS: "001" },
+          idTokenClaims: { ACCOUNTS: "A001B" },
         },
       } as any);
 
@@ -212,7 +212,7 @@ describe("EntraAuthAdaptor", () => {
         account: {
           homeAccountId: "user-oid-123",
           name: "Test User",
-          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
         },
         accessToken: "access-token-123",
         expiresOn,

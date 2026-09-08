@@ -4,8 +4,8 @@ const DEV_SESSION_DATA = {
   userId: "dev-user-id",
   user: { name: "Developer User" },
   firmId: "123",
-  officeId: "001",
-  userOfficeAccounts: ["001", "002"],
+  officeId: "A001B",
+  userOfficeAccounts: ["A001B", "A002B"],
   providerEmail: "developer@example.com",
   accessToken: "dev-access-token",
 } as const;
