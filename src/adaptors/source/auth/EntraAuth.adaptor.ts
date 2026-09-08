@@ -33,10 +33,13 @@ export class EntraAuthAdaptor implements AuthPort {
       }
 
       this.#logTokenDetails(result);
+      const claims = result.account?.idTokenClaims;
       return {
         userId: result.account?.homeAccountId ?? result.uniqueId,
         userName: result.account?.name ?? undefined,
-        officeId: this.#extractOfficeId(result.account?.idTokenClaims),
+        firmId: this.#getClaim(claims, "FIRM_CODE"),
+        officeId: this.#extractOfficeId(claims),
+        userOfficeAccounts: this.#extractUserOfficeAccounts(claims),
         providerEmail: result.account?.username ?? undefined,
         ...this.#getAccessTokenField(result),
         ...this.#getExpiryField(result),
@@ -75,18 +78,22 @@ export class EntraAuthAdaptor implements AuthPort {
   #extractOfficeId(
     claims: Record<string, unknown> | undefined,
   ): string | undefined {
+    const [firstOfficeCode] = this.#extractUserOfficeAccounts(claims);
+    return firstOfficeCode;
+  }
+
+  #extractUserOfficeAccounts(
+    claims: Record<string, unknown> | undefined,
+  ): string[] {
     const value = claims?.ACCOUNTS;
-    if (typeof value === "string" && value !== "") {
-      return value;
-    }
-    if (
-      Array.isArray(value) &&
-      value.length > EMPTY_ARR_LENGTH &&
-      typeof value[EMPTY_ARR_LENGTH] === "string"
-    ) {
-      return value[EMPTY_ARR_LENGTH];
-    }
-    return undefined;
+    const rawAccountCodes = Array.isArray(value)
+      ? value.map((accountCode) => String(accountCode))
+      : typeof value === "string"
+        ? value.split(",")
+        : [];
+    return rawAccountCodes
+      .map((accountCode) => accountCode.trim())
+      .filter((accountCode) => accountCode !== "");
   }
 
   #getClaim(

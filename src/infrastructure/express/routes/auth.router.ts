@@ -4,6 +4,17 @@ import { applySessionExpiry } from "#src/infrastructure/express/session/sessionE
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 
+// Allows E2E tests to exercise office filtering by overriding the seeded office codes.
+function parseOfficeAccountsQueryParam(value: unknown): string[] {
+  if (typeof value !== "string") {
+    return ["A001B", "A002B"];
+  }
+  return value
+    .split(",")
+    .map((officeCode) => officeCode.trim())
+    .filter((officeCode) => officeCode !== "");
+}
+
 export function createAuthRouter(
   authRouter: Router,
   authAdaptor: AuthAdaptor,
@@ -46,7 +57,11 @@ export function createAuthRouter(
       };
       req.session.accessToken = "test-access-token";
       req.session.userId = "test-provider";
-      req.session.officeId = "001";
+      req.session.firmId = "123";
+      req.session.officeId = "A001B";
+      req.session.userOfficeAccounts = parseOfficeAccountsQueryParam(
+        req.query.officeAccounts,
+      );
       req.session.providerEmail = "test@example.com";
 
       // Optional expiry to exercise session-expiry behaviour in E2E tests.

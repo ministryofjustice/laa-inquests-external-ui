@@ -45,6 +45,40 @@ export const apiHandlers = [
       },
     ]),
   ),
+  http.get("*/applications/provider-offices/:firmId", () =>
+    HttpResponse.json([
+      {
+        officeCode: "A001B",
+        address: {
+          addressLine1: "1 Test Street",
+          addressLine2: "Suite 2",
+          townOrCity: "London",
+          county: "Greater London",
+          postcode: "SW1A 1AA",
+        },
+      },
+      {
+        officeCode: "A002B",
+        address: {
+          addressLine1: "2 Test Street",
+          addressLine2: null,
+          townOrCity: "Manchester",
+          county: null,
+          postcode: "M1A 1AA",
+        },
+      },
+      {
+        officeCode: "A003B",
+        address: {
+          addressLine1: "3 Test Street",
+          addressLine2: "Suite 4",
+          townOrCity: "Leeds",
+          county: "West Yorkshire",
+          postcode: "LS1 1AA",
+        },
+      },
+    ]),
+  ),
   http.get("*/applications/search", ({ request }) => {
     const url = new URL(request.url);
     const laaReference = url.searchParams.get("laa_reference");
