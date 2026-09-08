@@ -84,11 +84,12 @@ describe("Session Helpers", () => {
       expect(req.session.cookie).to.equal("cookieData");
     });
 
-    it("preserves firmId, officeId, providerEmail and accessToken after clearing apply form data", () => {
+    it("preserves firmId, officeId, userOfficeAccounts, providerEmail and accessToken after clearing apply form data", () => {
       const req = createMockRequest({
         clientFirstName: "value1",
         firmId: "123",
-        officeId: "001",
+        officeId: "A001B",
+        userOfficeAccounts: ["A001B", "A002B"],
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
         cookie: "cookieData",
@@ -97,7 +98,8 @@ describe("Session Helpers", () => {
       sessionHelper.clearApplyFormData(req);
       expect(req.session.clientFirstName).to.be.undefined;
       expect(req.session.firmId).to.equal("123");
-      expect(req.session.officeId).to.equal("001");
+      expect(req.session.officeId).to.equal("A001B");
+      expect(req.session.userOfficeAccounts).to.deep.equal(["A001B", "A002B"]);
       expect(req.session.providerEmail).to.equal("test@example.com");
       expect(req.session.accessToken).to.equal("access-token-123");
     });

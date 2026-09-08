@@ -35,6 +35,7 @@ export class SessionHelper {
             "userId",
             "firmId",
             "officeId",
+            "userOfficeAccounts",
             "providerEmail",
             "accessToken",
           ].includes(k),
