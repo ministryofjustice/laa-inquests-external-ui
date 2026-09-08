@@ -25,6 +25,16 @@ const PROVIDER_OFFICES = [
       postcode: "M1A 1AA",
     },
   },
+  {
+    officeCode: "0A789A",
+    address: {
+      addressLine1: "3 Test Street",
+      addressLine2: null,
+      townOrCity: "Leeds",
+      county: null,
+      postcode: "LS1 1AA",
+    },
+  },
 ];
 
 interface RenderFixturesOptions {
@@ -81,6 +91,11 @@ describe("OfficeAccounts adaptor", () => {
             value: "0A456A",
             html: "<strong>2 Test Street, Manchester, M1A 1AA</strong>",
             hint: { text: "0A456A" },
+          },
+          {
+            value: "0A789A",
+            html: "<strong>3 Test Street, Leeds, LS1 1AA</strong>",
+            hint: { text: "0A789A" },
           },
         ],
       });

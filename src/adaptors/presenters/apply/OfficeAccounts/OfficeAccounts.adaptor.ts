@@ -83,7 +83,7 @@ export class OfficeAccountsAdaptor {
       address.county,
       address.postcode,
     ]
-      .filter((part) => part !== "")
+      .filter((part): part is string => part !== null && part !== "")
       .join(", ");
   }
 

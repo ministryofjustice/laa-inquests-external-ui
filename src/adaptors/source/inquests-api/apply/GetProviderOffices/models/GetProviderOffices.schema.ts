@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const GetProviderOfficeAddressSchema = z.object({
   addressLine1: z.string(),
-  addressLine2: z.string(),
+  addressLine2: z.string().nullable(),
   townOrCity: z.string(),
-  county: z.string(),
+  county: z.string().nullable(),
   postcode: z.string(),
 });
 
