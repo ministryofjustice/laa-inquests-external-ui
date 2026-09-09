@@ -4,29 +4,36 @@ import { MultiFileUpload } from "@ministryofjustice/frontend/moj/components/mult
 
 const COPY_RESET_DELAY_MS = 4000;
 
-// Mirrors the allowed character set enforced server-side (A-Za-z0-9.!()_ -).
-const FILENAME_UNSAFE_CHARACTERS = /[^A-Za-z0-9.!\(\)_ \-]/gv;
+// Captured to restore later via `.call(this, ...)`, preserving the caller's `this`.
+// eslint-disable-next-line @typescript-eslint/unbound-method, @typescript-eslint/prefer-destructuring -- overloaded XHR method reference, already destructured
+const { open } = XMLHttpRequest.prototype;
+const originalXhrOpen = open;
 
-function sanitiseFileName(name: string): string {
-  return name.replace(FILENAME_UNSAFE_CHARACTERS, "");
-}
+type XhrOpenArgs = [
+  async?: boolean,
+  username?: string | null,
+  password?: string | null,
+];
 
-// Renames the file client-side so characters that can trip an upstream WAF
-// (e.g. apostrophes) never leave the browser in the multipart request.
-function sanitiseFile(file: File): File {
-  const safeName = sanitiseFileName(file.name);
-  if (safeName === file.name) {
-    return file;
-  }
-
-  return new File([file], safeName, {
-    type: file.type,
-    lastModified: file.lastModified,
-  });
-}
-
-interface MultiFileUploadInstance {
-  uploadFile: (file: File) => void;
+// TEST CANDIDATE (transport isolation): sends the CSRF token as a header
+// instead of a query string param, for every XHR opened against
+// `uploadRouteBase`, to check whether the query string trips the WAF.
+function patchXhrOpenToSendCsrfHeader(
+  uploadRouteBase: string,
+  csrfToken: string,
+): void {
+  XMLHttpRequest.prototype.open = function (
+    this: XMLHttpRequest,
+    method: string,
+    url: string | URL,
+    ...openArgs: XhrOpenArgs
+  ): void {
+    const [async = true, username, password] = openArgs;
+    originalXhrOpen.call(this, method, url, async, username, password);
+    if (typeof url === "string" && url.startsWith(uploadRouteBase)) {
+      this.setRequestHeader("X-CSRF-Token", csrfToken);
+    }
+  };
 }
 
 function initialiseMultiFileUpload(): void {
@@ -35,15 +42,9 @@ function initialiseMultiFileUpload(): void {
   );
 
   if (multiFileUploadElement !== null) {
-    // The widget uploads via XHR and cannot add fields to the request body,
-    // so the CSRF token is passed in the query string instead.
     const csrfToken = document
       .querySelector('meta[name="csrf-token"]')
       ?.getAttribute("content");
-    const csrfQuery =
-      csrfToken !== null && csrfToken !== undefined && csrfToken !== ""
-        ? `?_csrf=${encodeURIComponent(csrfToken)}`
-        : "";
 
     const isFinalBillTemplatePage = window.location.pathname.startsWith(
       "/claim/final-bill-template",
@@ -58,15 +59,14 @@ function initialiseMultiFileUpload(): void {
       uploadRouteBase = "/apply/upload-coroners-letter";
     }
 
-    const multiFileUpload = new MultiFileUpload(multiFileUploadElement, {
-      uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
-      deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
-    }) as MultiFileUploadInstance;
+    if (csrfToken !== null && csrfToken !== undefined && csrfToken !== "") {
+      patchXhrOpenToSendCsrfHeader(uploadRouteBase, csrfToken);
+    }
 
-    const originalUploadFile = multiFileUpload.uploadFile.bind(multiFileUpload);
-    multiFileUpload.uploadFile = (file: File): void => {
-      originalUploadFile(sanitiseFile(file));
-    };
+    void new MultiFileUpload(multiFileUploadElement, {
+      uploadUrl: `${uploadRouteBase}/upload`,
+      deleteUrl: `${uploadRouteBase}/delete`,
+    });
   }
 }
 
