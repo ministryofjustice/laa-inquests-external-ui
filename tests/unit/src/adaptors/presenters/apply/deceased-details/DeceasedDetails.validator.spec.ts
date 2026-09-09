@@ -280,6 +280,193 @@ describe("DeceasedDetails.validator", () => {
     });
   });
 
+  describe("cross-date validation", () => {
+    const buildDatePart = (date: string) => {
+      const [day, month, year] = date.split("/");
+      return { day, month, year };
+    };
+
+    describe("validateDeceasedDateOfBirth against date of death", () => {
+      it("returns an error when date of birth is after date of death", () => {
+        const formBody = buildDateFormBody(
+          "2/1/2000",
+          "deceased-date-of-birth-day",
+          "deceased-date-of-birth-month",
+          "deceased-date-of-birth-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfBirth(
+          formBody,
+          buildDatePart("1/1/2000"),
+        );
+
+        assert.deepEqual(errorSummaries, {
+          dateOfBirthInputError: {
+            text: DECEASED_DETAILS_ERROR.DATE_OF_BIRTH_AFTER_DATE_OF_DEATH,
+          },
+        });
+      });
+
+      it("returns no error when date of birth equals date of death", () => {
+        const formBody = buildDateFormBody(
+          "1/1/2000",
+          "deceased-date-of-birth-day",
+          "deceased-date-of-birth-month",
+          "deceased-date-of-birth-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfBirth(
+          formBody,
+          buildDatePart("1/1/2000"),
+        );
+
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns no error when date of birth is before date of death", () => {
+        const formBody = buildDateFormBody(
+          "1/1/1990",
+          "deceased-date-of-birth-day",
+          "deceased-date-of-birth-month",
+          "deceased-date-of-birth-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfBirth(
+          formBody,
+          buildDatePart("1/1/2000"),
+        );
+
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns the format error and skips the cross-date check when date of birth is invalid", () => {
+        const formBody = buildDateFormBody(
+          "32/1/2000",
+          "deceased-date-of-birth-day",
+          "deceased-date-of-birth-month",
+          "deceased-date-of-birth-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfBirth(
+          formBody,
+          buildDatePart("1/1/1990"),
+        );
+
+        assert.deepEqual(errorSummaries, {
+          dateOfBirthInputError: {
+            text: DECEASED_DETAILS_ERROR.INVALID_DATE,
+          },
+        });
+      });
+
+      it("returns no cross-date error when date of death is not a valid date", () => {
+        const formBody = buildDateFormBody(
+          "2/1/2000",
+          "deceased-date-of-birth-day",
+          "deceased-date-of-birth-month",
+          "deceased-date-of-birth-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfBirth(
+          formBody,
+          buildDatePart("//"),
+        );
+
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
+
+    describe("validateDeceasedDateOfDeath against date of birth", () => {
+      it("returns an error when date of death is before date of birth", () => {
+        const formBody = buildDateFormBody(
+          "1/1/1990",
+          "deceased-date-of-death-day",
+          "deceased-date-of-death-month",
+          "deceased-date-of-death-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfDeath(
+          formBody,
+          buildDatePart("2/1/1990"),
+        );
+
+        assert.deepEqual(errorSummaries, {
+          dateOfDeathInputError: {
+            text: DECEASED_DETAILS_ERROR.DATE_OF_DEATH_BEFORE_DATE_OF_BIRTH,
+          },
+        });
+      });
+
+      it("returns no error when date of death equals date of birth", () => {
+        const formBody = buildDateFormBody(
+          "1/1/1990",
+          "deceased-date-of-death-day",
+          "deceased-date-of-death-month",
+          "deceased-date-of-death-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfDeath(
+          formBody,
+          buildDatePart("1/1/1990"),
+        );
+
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns no error when date of death is after date of birth", () => {
+        const formBody = buildDateFormBody(
+          "1/1/2000",
+          "deceased-date-of-death-day",
+          "deceased-date-of-death-month",
+          "deceased-date-of-death-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfDeath(
+          formBody,
+          buildDatePart("1/1/1990"),
+        );
+
+        assert.deepEqual(errorSummaries, {});
+      });
+
+      it("returns the format error and skips the cross-date check when date of death is invalid", () => {
+        const formBody = buildDateFormBody(
+          "32/1/1990",
+          "deceased-date-of-death-day",
+          "deceased-date-of-death-month",
+          "deceased-date-of-death-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfDeath(
+          formBody,
+          buildDatePart("1/1/2000"),
+        );
+
+        assert.deepEqual(errorSummaries, {
+          dateOfDeathInputError: {
+            text: DECEASED_DETAILS_ERROR.INVALID_DATE,
+          },
+        });
+      });
+
+      it("returns no cross-date error when date of birth is not a valid date", () => {
+        const formBody = buildDateFormBody(
+          "1/1/1990",
+          "deceased-date-of-death-day",
+          "deceased-date-of-death-month",
+          "deceased-date-of-death-year",
+        );
+
+        const errorSummaries = formValidator.validateDeceasedDateOfDeath(
+          formBody,
+          buildDatePart("//"),
+        );
+
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
+  });
+
   describe("validateClientRelationship", () => {
     it("returns an error when no radio option is selected", () => {
       const errorSummaries = formValidator.validateClientRelationship({

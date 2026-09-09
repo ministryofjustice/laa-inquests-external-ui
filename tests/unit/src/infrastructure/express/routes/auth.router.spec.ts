@@ -57,10 +57,40 @@ describe("createAuthRouter", () => {
       assert.deepEqual(req.session.user, { name: "External Test [LAA]" });
       assert.equal(req.session.accessToken, "test-access-token");
       assert.equal(req.session.userId, "test-provider");
-      assert.equal(req.session.officeId, "001");
+      assert.equal(req.session.firmId, "123");
+      assert.equal(req.session.officeId, "A001B");
+      assert.deepEqual(req.session.userOfficeAccounts, ["A001B", "A002B"]);
       assert.equal(req.session.providerEmail, "test@example.com");
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
+    });
+
+    it("overrides userOfficeAccounts from a comma-separated officeAccounts query param", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { officeAccounts: "A004B, A005B" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.userOfficeAccounts, ["A004B", "A005B"]);
+    });
+
+    it("seeds an empty userOfficeAccounts when officeAccounts query param is empty", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { officeAccounts: "" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.userOfficeAccounts, []);
     });
   });
 

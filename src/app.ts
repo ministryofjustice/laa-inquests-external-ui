@@ -145,9 +145,21 @@ setupNunjucks(app);
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.post(
-  "/apply/upload-coroners-letter",
-  upload.single("coroners-letter-file-upload"),
+  "/apply/upload-coroners-letter/upload",
+  upload.single("documents"),
+  csrfProtection,
+  (req, res) => {
+    indexRouter(req, res, () => {
+      res.status(HTTP_NOT_FOUND).end();
+    });
+  },
 );
+
+app.post("/apply/upload-coroners-letter/delete", csrfProtection, (req, res) => {
+  indexRouter(req, res, () => {
+    res.status(HTTP_NOT_FOUND).end();
+  });
+});
 
 app.post(
   "/claim/evidence/upload",

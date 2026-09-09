@@ -353,7 +353,21 @@ export class EvidenceAdaptor {
 
     if (isNoJsUpload) {
       res.redirect("/claim/evidence");
-    } else {
+      this.#logUploadSuccess(req, isNoJsUpload);
+      return;
+    }
+
+    // ensure the session is persisted before the client's next request arrives
+    req.session.save((err: unknown) => {
+      if (err !== null && err !== undefined) {
+        logger.logError({
+          functionName: "evidenceAdaptor_handleUploadSuccess",
+          message: "Failed to save session after evidence upload",
+          request: req,
+          err,
+        });
+      }
+
       res.status(HTTP_CREATED).json({
         success: {
           messageText: `${file.originalname} uploaded`,
@@ -364,8 +378,11 @@ export class EvidenceAdaptor {
           originalname: file.originalname,
         },
       });
-    }
+      this.#logUploadSuccess(req, isNoJsUpload);
+    });
+  }
 
+  #logUploadSuccess(req: Request, isNoJsUpload: boolean): void {
     logger.logInfo({
       functionName: "evidenceAdaptor_handleUploadSuccess",
       message: "Evidence upload completed successfully",

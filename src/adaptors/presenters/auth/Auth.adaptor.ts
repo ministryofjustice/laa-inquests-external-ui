@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
+import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
 
 export class AuthAdaptor {
   constructor(
@@ -27,11 +28,14 @@ export class AuthAdaptor {
     );
     Object.assign(req.session, {
       userId: user.userId,
+      firmId: user.firmId,
       officeId: user.officeId,
+      userOfficeAccounts: user.userOfficeAccounts,
       providerEmail: user.providerEmail,
       accessToken: user.accessToken,
     });
     req.session.user = { name: user.userName };
+    applySessionExpiry(req.session, user.accessTokenExpiresOn);
     res.redirect("/");
   }
 

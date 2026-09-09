@@ -148,7 +148,7 @@ test.describe("Client details - name and dob", () => {
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
 
-      getAndUpdateFormFields(
+      await getAndUpdateFormFields(
         page,
         { "First name": "test name", "Last name": "a".repeat(101) },
         ["Last name"],
@@ -190,7 +190,7 @@ test.describe("Client details - name and dob", () => {
 
       await expect(errorMessageElement).toBeVisible();
       await expect(errorMessageElement).toContainText(
-        CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        CLIENT_DETAILS_ERROR.NAME_CHANGE_NOT_SELECTED,
       );
     });
     test("if radio is selected but birth name is not provided", async ({
@@ -312,7 +312,7 @@ test.describe("Client details - name and dob", () => {
         CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
       );
       const noRadioSelectedError = errorSummary.getByText(
-        CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+        CLIENT_DETAILS_ERROR.NAME_CHANGE_NOT_SELECTED,
       );
       const noDobError = errorSummary.getByText(
         CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT,

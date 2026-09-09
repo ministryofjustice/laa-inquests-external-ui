@@ -52,13 +52,13 @@ describe("EntraAuthAdaptor", () => {
   });
 
   describe("acquireTokenByCode", () => {
-    it("returns AuthTokenResult with userId, userName, officeId and providerEmail from token claims", async () => {
+    it("returns AuthTokenResult with userId, userName, firmId, officeId and providerEmail from token claims", async () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
           name: "Test User",
           username: "test@example.com",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
         },
         accessToken: "access-token-123",
       } as any);
@@ -72,7 +72,9 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result, {
         userId: "user-oid-123",
         userName: "Test User",
-        officeId: "001",
+        firmId: "123",
+        officeId: "A001B",
+        userOfficeAccounts: ["A001B"],
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
       });
@@ -90,7 +92,7 @@ describe("EntraAuthAdaptor", () => {
         account: {
           homeAccountId: "user-oid-123",
           username: "test@example.com",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
         },
         uniqueId: "user-oid-123",
       } as any);
@@ -104,7 +106,9 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result, {
         userId: "user-oid-123",
         userName: undefined,
-        officeId: "001",
+        firmId: "123",
+        officeId: "A001B",
+        userOfficeAccounts: ["A001B"],
         providerEmail: "test@example.com",
       });
     });
@@ -113,7 +117,7 @@ describe("EntraAuthAdaptor", () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: "001" },
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
         },
       } as any);
 
@@ -126,29 +130,11 @@ describe("EntraAuthAdaptor", () => {
       assert.equal(result.providerEmail, undefined);
     });
 
-    it("uses first element of ACCOUNTS array as officeId", async () => {
-      msalClient.acquireTokenByCode.resolves({
-        account: {
-          homeAccountId: "user-oid-123",
-          name: "Test User",
-          idTokenClaims: { FIRM_CODE: "0A123B", ACCOUNTS: ["001", "002"] },
-        },
-      } as any);
-
-      const result = await adaptor.acquireTokenByCode(
-        "auth-code",
-        SCOPES,
-        REDIRECT_URI,
-      );
-
-      assert.equal(result.officeId, "001");
-    });
-
     it("returns undefined officeId when ACCOUNTS claim is missing", async () => {
       msalClient.acquireTokenByCode.resolves({
         account: {
           homeAccountId: "user-oid-123",
-          idTokenClaims: { FIRM_CODE: "0A123B" },
+          idTokenClaims: { FIRM_CODE: "123" },
         },
       } as any);
 
@@ -159,6 +145,131 @@ describe("EntraAuthAdaptor", () => {
       );
 
       assert.equal(result.officeId, undefined);
+    });
+
+    it("splits a comma-separated ACCOUNTS claim into userOfficeAccounts, trimming whitespace", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: {
+            FIRM_CODE: "123",
+            ACCOUNTS: "2P223Y, 2N861E,2P224Z ,2F761M",
+          },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result.userOfficeAccounts, [
+        "2P223Y",
+        "2N861E",
+        "2P224Z",
+        "2F761M",
+      ]);
+    });
+
+    it("returns an empty userOfficeAccounts array when ACCOUNTS claim is missing", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: { FIRM_CODE: "123" },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result.userOfficeAccounts, []);
+    });
+
+    it("returns userOfficeAccounts from an array-valued ACCOUNTS claim", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: {
+            FIRM_CODE: "123",
+            ACCOUNTS: ["2P223Y", "2N861E", "2P224Z", "2F761M"],
+          },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result.userOfficeAccounts, [
+        "2P223Y",
+        "2N861E",
+        "2P224Z",
+        "2F761M",
+      ]);
+    });
+
+    it("uses the first element of an array-valued ACCOUNTS claim as officeId", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: {
+            FIRM_CODE: "123",
+            ACCOUNTS: ["2P223Y", "2N861E"],
+          },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.officeId, "2P223Y");
+    });
+
+    it("returns undefined firmId when FIRM_CODE claim is missing", async () => {
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          idTokenClaims: { ACCOUNTS: "A001B" },
+        },
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.equal(result.firmId, undefined);
+    });
+
+    it("surfaces the token expiry from the MSAL result", async () => {
+      const expiresOn = new Date("2026-09-03T12:00:00.000Z");
+      msalClient.acquireTokenByCode.resolves({
+        account: {
+          homeAccountId: "user-oid-123",
+          name: "Test User",
+          idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
+        },
+        accessToken: "access-token-123",
+        expiresOn,
+      } as any);
+
+      const result = await adaptor.acquireTokenByCode(
+        "auth-code",
+        SCOPES,
+        REDIRECT_URI,
+      );
+
+      assert.deepEqual(result.accessTokenExpiresOn, expiresOn);
     });
 
     it("throws when MSAL returns null", async () => {

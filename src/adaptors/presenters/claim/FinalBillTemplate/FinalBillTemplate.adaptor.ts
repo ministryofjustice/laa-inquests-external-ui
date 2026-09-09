@@ -333,7 +333,21 @@ export class FinalBillTemplateAdaptor {
 
     if (isNoJsUpload) {
       res.redirect("/claim/final-bill-template");
-    } else {
+      this.#logUploadSuccess(req, isNoJsUpload);
+      return;
+    }
+
+    // ensure the session is persisted before the client's next request arrives
+    req.session.save((err: unknown) => {
+      if (err !== null && err !== undefined) {
+        logger.logError({
+          functionName: "finalBillTemplateAdaptor_handleUploadSuccess",
+          message: "Failed to save session after final bill template upload",
+          request: req,
+          err,
+        });
+      }
+
       res.status(HTTP_CREATED).json({
         success: {
           messageText: `${file.originalname} uploaded`,
@@ -344,8 +358,11 @@ export class FinalBillTemplateAdaptor {
           originalname: file.originalname,
         },
       });
-    }
+      this.#logUploadSuccess(req, isNoJsUpload);
+    });
+  }
 
+  #logUploadSuccess(req: Request, isNoJsUpload: boolean): void {
     logger.logInfo({
       functionName: "finalBillTemplateAdaptor_handleUploadSuccess",
       message: "Final bill template upload completed successfully",

@@ -69,6 +69,9 @@ import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 import { GetPublicAuthoritiesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/GetPublicAuthorities.adaptor.js";
+import { GetProviderOfficesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/GetProviderOffices.adaptor.js";
+import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
+import { createOfficeAccountsRouter } from "#src/infrastructure/express/routes/apply/officeAccounts.router.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
@@ -78,6 +81,8 @@ import { HomeAdaptor } from "#src/adaptors/presenters/home/Home.adaptor.js";
 import { requireAuth } from "../middleware/auth/requireAuth.js";
 import { UploadCoronersLetterValidator } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.validator.js";
 import { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
+import { DeleteCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/DeleteCoronersLetter/DeleteCoronersLetter.adaptor.js";
+import { DeleteCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/DeleteCoronersLetter.useCase.js";
 import { UploadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/UploadEvidence.adaptor.js";
 import { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import { DeleteEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/DeleteEvidence/DeleteEvidence.adaptor.js";
@@ -99,6 +104,7 @@ const proceedingsRouter = express.Router();
 const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
 const coronersLetterRouter = express.Router();
+const officeAccountsRouter = express.Router();
 const claimTypeRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
@@ -222,9 +228,17 @@ const uploadCoronersLetterUseCase = new UploadCoronersLetterUseCase(
   uploadCoronersLetterSource,
 );
 const uploadCoronersLetterValidator = new UploadCoronersLetterValidator();
+const deleteCoronersLetterSource = new DeleteCoronersLetterAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const deleteCoronersLetterUseCase = new DeleteCoronersLetterUseCase(
+  deleteCoronersLetterSource,
+);
 const coronersLetterAdaptor = new CoronersLetterAdaptor(
   uploadCoronersLetterValidator,
   uploadCoronersLetterUseCase,
+  deleteCoronersLetterUseCase,
 );
 const caseSearchValidator = new CaseSearchValidator();
 const searchCasesSource = new SearchCasesAdaptor(
@@ -380,5 +394,20 @@ indexRouter.use(
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
   createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
+
+if (process.env.NODE_ENV !== "production") {
+  const getProviderOfficesSource = new GetProviderOfficesAdaptor(
+    axios.create(),
+    config.INQUESTS_API_URL,
+  );
+  const officeAccountsAdaptor = new OfficeAccountsAdaptor(
+    getProviderOfficesSource,
+  );
+
+  indexRouter.use(
+    "/apply",
+    createOfficeAccountsRouter(officeAccountsRouter, officeAccountsAdaptor),
+  );
+}
 
 export default indexRouter;

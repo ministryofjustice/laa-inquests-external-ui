@@ -133,6 +133,42 @@ test.describe("Provider can", () => {
     await expect(page.url()).toContain("apply/deceased-details/dob");
   });
 
+  test("view validation error when date of death is before date of birth", async ({
+    page,
+  }) => {
+    await form.getByLabel("Day").fill("1");
+    await form.getByLabel("Month").fill("1");
+    await form.getByLabel("Year").fill("2000");
+    await continueToNextPage(form, page);
+
+    const dateOfBirthForm = await page.getByTestId(
+      "deceased-date-of-birth-form",
+    );
+    await dateOfBirthForm.getByLabel("Day").fill("1");
+    await dateOfBirthForm.getByLabel("Month").fill("1");
+    await dateOfBirthForm.getByLabel("Year").fill("1990");
+    await continueToNextPage(dateOfBirthForm, page);
+
+    await page.goto("/apply/deceased-details/dod");
+    const dateOfDeathForm = await page.getByTestId(
+      "deceased-date-of-death-form",
+    );
+    await dateOfDeathForm.getByLabel("Day").fill("1");
+    await dateOfDeathForm.getByLabel("Month").fill("1");
+    await dateOfDeathForm.getByLabel("Year").fill("1980");
+    await continueToNextPage(dateOfDeathForm, page);
+
+    await expect(page.url()).toContain("/apply/deceased-details/dod");
+
+    const errorMessage = dateOfDeathForm.locator(
+      "#deceased-date-of-death-error",
+    );
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toContainText(
+      DECEASED_DETAILS_ERROR.DATE_OF_DEATH_BEFORE_DATE_OF_BIRTH,
+    );
+  });
+
   test("fill in details, continue and navigate back with deceased date of death automatically filled in", async ({
     page,
   }) => {

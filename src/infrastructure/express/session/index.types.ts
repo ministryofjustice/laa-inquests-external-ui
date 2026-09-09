@@ -20,7 +20,9 @@ declare module "express-session" {
     clientHasNoFixedAbode?: boolean;
     userId?: string;
     user?: { name?: string };
+    firmId?: string;
     officeId?: string;
+    userOfficeAccounts?: string[];
     accessToken?: string;
     coronersLetterId?: string;
     coronersLetterFileName?: string;

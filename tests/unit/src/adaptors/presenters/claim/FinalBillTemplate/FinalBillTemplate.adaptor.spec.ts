@@ -169,6 +169,9 @@ describe("FinalBillTemplate adaptor", () => {
         originalname: "cost-template.xlsx",
         size: 4,
       } as Express.Multer.File;
+      requestStub.session.save = ((callback: (err?: Error) => void): void => {
+        callback();
+      }) as Request["session"]["save"];
 
       await adaptor.processTemplateUpload(requestStub, responseStub);
 

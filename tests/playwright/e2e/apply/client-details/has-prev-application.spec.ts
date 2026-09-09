@@ -85,7 +85,7 @@ test.describe("Previous application", () => {
     await expect(errorSummary).toBeVisible();
     await expect(errorSummary).toContainText("There is a problem");
     await expect(errorSummary).toContainText(
-      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      CLIENT_DETAILS_ERROR.HAS_PREV_APPLICATION_NOT_SELECTED,
     );
 
     const errorMessageElement = prevApplicationStatusForm.locator(
@@ -93,7 +93,7 @@ test.describe("Previous application", () => {
     );
     await expect(errorMessageElement).toBeVisible();
     await expect(errorMessageElement).toContainText(
-      CLIENT_DETAILS_ERROR.INPUT_NOT_SELECTED,
+      CLIENT_DETAILS_ERROR.HAS_PREV_APPLICATION_NOT_SELECTED,
     );
   });
   test("renders error message and summary when input selected but no reference provided", async ({

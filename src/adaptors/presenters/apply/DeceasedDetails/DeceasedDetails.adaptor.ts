@@ -136,6 +136,11 @@ export class DeceasedDetailsAdaptor {
 
     const errorSummaries = this.formValidator.validateDeceasedDateOfDeath(
       req.body,
+      {
+        day: getStringValue(req.session.deceasedDateOfBirthDay),
+        month: getStringValue(req.session.deceasedDateOfBirthMonth),
+        year: getStringValue(req.session.deceasedDateOfBirthYear),
+      },
     );
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {
       const dateOfDeathView = this.#buildDeceasedDetailsView("dateOfDeath", {
@@ -203,6 +208,11 @@ export class DeceasedDetailsAdaptor {
 
     const errorSummaries = this.formValidator.validateDeceasedDateOfBirth(
       req.body,
+      {
+        day: getStringValue(req.session.deceasedDateOfDeathDay),
+        month: getStringValue(req.session.deceasedDateOfDeathMonth),
+        year: getStringValue(req.session.deceasedDateOfDeathYear),
+      },
     );
 
     if (Object.keys(errorSummaries).length > EMPTY_ARR_LENGTH) {

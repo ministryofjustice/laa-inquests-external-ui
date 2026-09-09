@@ -176,6 +176,8 @@ export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
+export const MINIMUM_DATE_PART_VALUE = 0;
+
 export const EMPTY_ARR_LENGTH = 0;
 
 export const NIL_BILL_GROSS_TOTAL = 0;
@@ -192,7 +194,16 @@ export const CLIENT_DETAILS_ERROR = {
   MISSING_FIRST_NAME: "Please enter your client's first name",
   MISSING_LAST_NAME: "Please enter your client's last name",
   MISSING_LAST_NAME_AT_BIRTH: "Please enter the client's birth name",
-  INPUT_NOT_SELECTED: "Please select an option",
+  NAME_CHANGE_NOT_SELECTED:
+    "Select yes if your client has ever changed their last name",
+  HAS_NINO_NOT_SELECTED:
+    "Select yes if your client has a National Insurance number",
+  HAS_PREV_APPLICATION_NOT_SELECTED:
+    "Select yes if your client has applied for Inquest legal aid before",
+  CORRESPONDENCE_ADDRESS_SOURCE_NOT_SELECTED:
+    "Select where we should send your client's correspondence",
+  CORRESPONDENCE_RECIPIENT_NOT_SELECTED:
+    "Select if you want to add a 'care of' recipient for your client's mail",
   MISSING_NINO: "You must enter the client's National Insurance Number",
   INVALID_NINO: "You must enter a valid National Insurance Number",
   APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
@@ -295,8 +306,13 @@ export const DECEASED_DETAILS_ERROR = {
   NON_NUMERIC_DATE_OF_BIRTH:
     "Please enter date of birth in the format expected",
   FUTURE_DATE_OF_BIRTH: "Date of birth must not be in the future",
+  DATE_OF_BIRTH_AFTER_DATE_OF_DEATH:
+    "Date of birth must not be after date of death",
+  DATE_OF_DEATH_BEFORE_DATE_OF_BIRTH:
+    "Date of death must not be before date of birth",
   INVALID_DATE: "Please enter a valid date",
-  RELATIONSHIP_SELECTION_REQUIRED: "Please select an option",
+  RELATIONSHIP_SELECTION_REQUIRED:
+    "Select yes if your client meets the definition of a family member",
   RELATIONSHIP_NOT_ELIGIBLE:
     "Your client needs to meet the definition of family member to qualify for legal aid",
   RELATIONSHIP_REQUIRED_MIN_MAX:
@@ -305,7 +321,8 @@ export const DECEASED_DETAILS_ERROR = {
     "Relationship must be 70 characters or less",
   CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Coroner reference must be 50 characters or less",
-  FURTHER_INFORMATION_SELECTION_REQUIRED: "Please select an option",
+  FURTHER_INFORMATION_SELECTION_REQUIRED:
+    "Select yes if there are any other applications for legal aid being made by family members for an inquest arising from this same incident",
   FURTHER_INFORMATION_MIN_MAX:
     "Linked case details must be between 2 and 500 characters",
 };
@@ -440,8 +457,7 @@ export const DECEASED_NAME_PAGE = {
 };
 
 export const PROCEEDING_ERROR = {
-  NO_PROCEEDING_SPECIFIED:
-    "An application must specify at least one related proceeding.",
+  NO_PROCEEDING_SPECIFIED: "Select what your client wants legal aid for",
   NO_CONFIRMATION_SPECIFIED: "Please select either yes or no to continue.",
   NO_PROCEEDINGS_IN_LIST: "A case must have a minimum of 1 proceeding",
 };
@@ -527,6 +543,8 @@ export const CORONERS_LETTER_ERROR = {
   FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
   INVALID_FILE_NAME:
     "Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-",
+  ONLY_ONE_FILE_ALLOWED:
+    "You can only upload one file. Delete the existing file before uploading a new one",
 };
 
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
@@ -581,6 +599,9 @@ export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:
     "You need to confirm the declaration to submit this application",
 };
+
+// Buffer before the Entra access-token expiry at which the session is treated as expired.
+export const SESSION_EXPIRY_BUFFER_MS = 60_000;
 
 export const HTTP_CREATED = 201;
 

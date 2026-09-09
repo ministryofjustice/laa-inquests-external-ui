@@ -7,7 +7,7 @@ test.describe("Claim - case search results", () => {
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
-      .fill("1");
+      .fill("INQ-YYY-001");
     await page
       .getByTestId("case-search-form")
       .getByRole("button", { name: "Continue" })

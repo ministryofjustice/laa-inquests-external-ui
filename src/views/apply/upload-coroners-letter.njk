@@ -3,6 +3,7 @@
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "moj/components/multi-file-upload/macro.njk" import mojMultiFileUpload %}
 
 {% set pageHeading = "Upload coroner's letter" %}
 {% set pageTitle = pageHeading %}
@@ -14,22 +15,30 @@
       href: backHref or "/apply/public-authority"
   }) }}
   <main class="govuk-main-wrapper">
-  {% if errorSummaries %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [
-            {
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+
+        {% if errorSummaries and errorSummaries.coronersLetterError %}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [{
               text: errorSummaries.coronersLetterError.text,
-              href: "#coroners-letter-upload"
+              href: "#documents"
             }
           ]
         })
       }}
     {% endif %}
-    <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-    <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-      {% set hintHtml %}
+    <p class="govuk-body">You can upload:</p>
+        <ul class="govuk-list govuk-list--bullet">
+          <li>PDF, JPG, PNG or BMP</li>
+          <li>10MB max</li>
+        </ul>
+
+        <form action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {% set hintHtml %}
         <p class="govuk-body">The maximum file size for each file is 10MB. We can accept these file types:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>pdf</li>
