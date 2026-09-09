@@ -395,19 +395,17 @@ indexRouter.use(
   createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
 
-if (process.env.NODE_ENV !== "production") {
-  const getProviderOfficesSource = new GetProviderOfficesAdaptor(
-    axios.create(),
-    config.INQUESTS_API_URL,
-  );
-  const officeAccountsAdaptor = new OfficeAccountsAdaptor(
-    getProviderOfficesSource,
-  );
+const getProviderOfficesSource = new GetProviderOfficesAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const officeAccountsAdaptor = new OfficeAccountsAdaptor(
+  getProviderOfficesSource,
+);
 
-  indexRouter.use(
-    "/apply",
-    createOfficeAccountsRouter(officeAccountsRouter, officeAccountsAdaptor),
-  );
-}
+indexRouter.use(
+  "/apply",
+  createOfficeAccountsRouter(officeAccountsRouter, officeAccountsAdaptor),
+);
 
 export default indexRouter;
