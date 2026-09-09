@@ -1,6 +1,7 @@
 import { initAll as initGOVUK } from "govuk-frontend";
 import { initAll as initMOJ } from "@ministryofjustice/frontend";
 import { MultiFileUpload } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
+import type { MultiFileUploadInstance } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
 
 const COPY_RESET_DELAY_MS = 4000;
 
@@ -36,6 +37,15 @@ function initialiseMultiFileUpload(): void {
     void new MultiFileUpload(multiFileUploadElement, {
       uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
       deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
+      hooks: {
+        // TEST: confirms entryHook fires with the real (upload, file) args before send.
+        entryHook: (upload: MultiFileUploadInstance, file: File): void => {
+          console.log("MultiFileUpload entry hook triggered", {
+            upload,
+            fileName: file.name,
+          });
+        },
+      },
     });
   }
 }
