@@ -4,6 +4,31 @@ import { MultiFileUpload } from "@ministryofjustice/frontend/moj/components/mult
 
 const COPY_RESET_DELAY_MS = 4000;
 
+// Mirrors the allowed character set enforced server-side (A-Za-z0-9.!()_ -).
+const FILENAME_UNSAFE_CHARACTERS = /[^A-Za-z0-9.!\(\)_ \-]/gv;
+
+function sanitiseFileName(name: string): string {
+  return name.replace(FILENAME_UNSAFE_CHARACTERS, "");
+}
+
+// Renames the file client-side so characters that can trip an upstream WAF
+// (e.g. apostrophes) never leave the browser in the multipart request.
+function sanitiseFile(file: File): File {
+  const safeName = sanitiseFileName(file.name);
+  if (safeName === file.name) {
+    return file;
+  }
+
+  return new File([file], safeName, {
+    type: file.type,
+    lastModified: file.lastModified,
+  });
+}
+
+interface MultiFileUploadInstance {
+  uploadFile: (file: File) => void;
+}
+
 function initialiseMultiFileUpload(): void {
   const multiFileUploadElement = document.querySelector(
     '[data-module="moj-multi-file-upload"]',
@@ -33,10 +58,15 @@ function initialiseMultiFileUpload(): void {
       uploadRouteBase = "/apply/upload-coroners-letter";
     }
 
-    void new MultiFileUpload(multiFileUploadElement, {
+    const multiFileUpload = new MultiFileUpload(multiFileUploadElement, {
       uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
       deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
-    });
+    }) as MultiFileUploadInstance;
+
+    const originalUploadFile = multiFileUpload.uploadFile.bind(multiFileUpload);
+    multiFileUpload.uploadFile = (file: File): void => {
+      originalUploadFile(sanitiseFile(file));
+    };
   }
 }
 
