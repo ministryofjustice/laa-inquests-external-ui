@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import type { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
 import type { DeleteCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/DeleteCoronersLetter.useCase.js";
 import type { UploadCoronersLetterValidator } from "./CoronersLetter.validator.js";
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
+import type { UploadCoronersLetterResponse } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
 import {
   CORONERS_LETTER_ERROR,
   EMPTY_ARR_LENGTH,
@@ -115,16 +115,14 @@ export class CoronersLetterAdaptor {
         accessToken: req.session.accessToken,
       });
 
-      const hasValidData =
-        result.status === "SUCCESS" &&
-        isNonEmptyString(result.data?.coronersLetterId) &&
-        isNonEmptyString(result.data?.coronersLetterFileName);
-
-      if (hasValidData) {
+      if (result.status === "SUCCESS") {
         this.#handleUploadSuccess({
           req,
           res,
-          data: result.data!,
+          data: {
+            coronersLetterId: result.coronersLetterId,
+            coronersLetterFileName: result.coronersLetterFileName,
+          },
           isNoJsUpload: isNoJs,
         });
       } else {
@@ -295,7 +293,7 @@ export class CoronersLetterAdaptor {
   #handleUploadFailure(options: {
     req: Request;
     res: Response;
-    result: UseCaseResult<unknown, unknown>;
+    result: UploadCoronersLetterResponse;
     isNoJsUpload: boolean;
   }): void {
     const { req, res, result, isNoJsUpload } = options;
@@ -333,7 +331,7 @@ export class CoronersLetterAdaptor {
 
     if (isNoJsUpload) {
       res.redirect("/apply/upload-coroners-letter");
-      this.#logUploadSuccess(req, isNoJsUpload);
+      this.#logUploadSuccess(req, isNoJsUpload, data.coronersLetterId);
       return;
     }
 
@@ -358,18 +356,19 @@ export class CoronersLetterAdaptor {
           originalname: data.coronersLetterFileName,
         },
       });
-      this.#logUploadSuccess(req, isNoJsUpload);
+      this.#logUploadSuccess(req, isNoJsUpload, data.coronersLetterId);
     });
   }
 
-  #logUploadSuccess(req: Request, isNoJsUpload: boolean): void {
+  #logUploadSuccess(req: Request, isNoJsUpload: boolean, fileId: string): void {
     logger.logInfo({
       functionName: "coronersLetterAdaptor_handleUploadSuccess",
       message: "Coroners letter upload completed successfully",
       request: req,
       extraContext: {
-        event: "apply_coroners_letter_upload_completed",
+        event: "coroners_letter_uploaded",
         no_js_upload: isNoJsUpload,
+        file_id: fileId,
       },
     });
   }

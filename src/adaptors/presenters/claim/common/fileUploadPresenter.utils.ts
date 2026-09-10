@@ -1,5 +1,3 @@
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-
 export interface JsonUploadErrorResponse {
   error: { message: string };
   file: {
@@ -47,12 +45,17 @@ export function buildJsonUploadErrorResponse(
 }
 
 export function resolveUploadFailureMessage(
-  result: UseCaseResult<unknown, unknown>,
+  result: { status: string; reason?: string },
   virusErrorMessage: string,
   defaultMessage: string,
 ): string {
-  return result.status === "TECHNICAL_FAILURE" &&
-    result.reason === "FILE_SCAN_FOUND_VIRUS"
-    ? virusErrorMessage
-    : defaultMessage;
+  // Accepts both the migrated value-based union (`status: FILE_SCAN_FOUND_VIRUS`)
+  // and the legacy `TECHNICAL_FAILURE` + reason shape still used by unmigrated
+  // upload flows.
+  const isVirusRejection =
+    result.status === "FILE_SCAN_FOUND_VIRUS" ||
+    (result.status === "TECHNICAL_FAILURE" &&
+      result.reason === "FILE_SCAN_FOUND_VIRUS");
+
+  return isVirusRejection ? virusErrorMessage : defaultMessage;
 }

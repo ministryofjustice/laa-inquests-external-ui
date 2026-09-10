@@ -47,7 +47,7 @@ describe("DeleteCoronersLetterAdaptor", () => {
     });
   });
 
-  it("returns invalid input failure when upstream responds with 404", async () => {
+  it("returns DELETE_REJECTED when upstream responds with 404", async () => {
     axiosStub.delete.resolves({ status: 404, data: {} });
 
     const result = await adaptor.deleteCoronersLetter(
@@ -56,12 +56,11 @@ describe("DeleteCoronersLetterAdaptor", () => {
     );
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "INVALID_INPUT_STATE",
+      status: "DELETE_REJECTED",
     });
   });
 
-  it("returns upstream rejected failure for other non-204 responses", async () => {
+  it("returns DELETE_REJECTED for other non-204 responses", async () => {
     axiosStub.delete.resolves({ status: 500, data: {} });
 
     const result = await adaptor.deleteCoronersLetter(
@@ -70,12 +69,11 @@ describe("DeleteCoronersLetterAdaptor", () => {
     );
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
+      status: "DELETE_REJECTED",
     });
   });
 
-  it("returns unexpected exception failure when the request throws", async () => {
+  it("returns DELETE_REJECTED when the request throws", async () => {
     axiosStub.delete.rejects(new Error("network failure"));
 
     const result = await adaptor.deleteCoronersLetter(
@@ -84,8 +82,7 @@ describe("DeleteCoronersLetterAdaptor", () => {
     );
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
+      status: "DELETE_REJECTED",
     });
   });
 });

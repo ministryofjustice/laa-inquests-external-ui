@@ -33,19 +33,12 @@ describe("UploadCoronersLetterAdaptor", () => {
     coronersLetterFileName: testCoronersLetterFileName,
   };
 
-  const expectedFailureResponse: UploadCoronersLetterResponse = {
-    status: "TECHNICAL_FAILURE",
-    reason: "UPSTREAM_REJECTED",
+  const expectedRejectedResponse: UploadCoronersLetterResponse = {
+    status: "UPLOAD_REJECTED",
   };
 
   const expectedVirusFoundResponse: UploadCoronersLetterResponse = {
-    status: "TECHNICAL_FAILURE",
-    reason: "FILE_SCAN_FOUND_VIRUS",
-  };
-
-  const expectedExceptionResponse: UploadCoronersLetterResponse = {
-    status: "TECHNICAL_FAILURE",
-    reason: "UNEXPECTED_EXCEPTION",
+    status: "FILE_SCAN_FOUND_VIRUS",
   };
 
   const submitBodyRaw = {
@@ -64,7 +57,7 @@ describe("UploadCoronersLetterAdaptor", () => {
     assert.deepEqual(expectedSuccessResponse, fileSaveResponse);
   });
 
-  it("returns a technical failure response on failed upload", async () => {
+  it("returns UPLOAD_REJECTED on a non-201/422 upstream response", async () => {
     axiosStub.post.resolves({
       status: 500,
       data: {},
@@ -76,10 +69,25 @@ describe("UploadCoronersLetterAdaptor", () => {
         "access-token-123",
       );
 
-    assert.deepEqual(expectedFailureResponse, fileSaveResponse);
+    assert.deepEqual(expectedRejectedResponse, fileSaveResponse);
   });
 
-  it("returns a technical failure response on failed upload", async () => {
+  it("returns UPLOAD_REJECTED on a malformed 201 payload", async () => {
+    axiosStub.post.resolves({
+      status: 201,
+      data: { coronersLetterId: "" },
+    });
+
+    const fileSaveResponse =
+      await uploadCoronersLetterAdaptor.uploadCoronersLetter(
+        submitBodyRaw,
+        "access-token-123",
+      );
+
+    assert.deepEqual(expectedRejectedResponse, fileSaveResponse);
+  });
+
+  it("returns FILE_SCAN_FOUND_VIRUS on a 422 response", async () => {
     axiosStub.post.resolves({
       status: 422,
       data: {},
@@ -94,7 +102,7 @@ describe("UploadCoronersLetterAdaptor", () => {
     assert.deepEqual(expectedVirusFoundResponse, fileSaveResponse);
   });
 
-  it("returns a technical failure response on unexpected exception", async () => {
+  it("returns UPLOAD_REJECTED on unexpected exception", async () => {
     axiosStub.post.rejects(new Error("Unexpected error"));
 
     const fileSaveResponse =
@@ -103,7 +111,7 @@ describe("UploadCoronersLetterAdaptor", () => {
         "access-token-123",
       );
 
-    assert.deepEqual(expectedExceptionResponse, fileSaveResponse);
+    assert.deepEqual(expectedRejectedResponse, fileSaveResponse);
   });
 
   it("calls correct api endpoint with parameters", async () => {

@@ -13,18 +13,28 @@ error handling is legacy code and is not precedent for new or migrated paths.
 
 Classify failures before choosing a representation:
 
-| Failure                                                                   | Representation                                      | Owner                     |
-| ------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------- |
-| Form validation                                                           | Validation result with error summaries              | Inbound adapter/validator |
-| Expected absence, such as no provider offices or no public authorities    | Use-case-specific result or `undefined` at the port | Use case/port             |
-| Business outcome or invalid application state                             | Use-case-specific result                            | Use case                  |
-| Upload virus-scan rejection                                               | Expected result value (`FILE_SCAN_FOUND_VIRUS`)     | Outbound adapter/use case |
-| External authentication, authorization, availability, or response failure | Sanitized `ApplicationError`                        | Outbound adapter          |
-| Programmer or framework error                                             | Original exception                                  | Generic error middleware  |
+| Failure                                                                                | Representation                                                                             | Owner                     |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------- |
+| Form validation                                                                        | Validation result with error summaries                                                     | Inbound adapter/validator |
+| Expected absence, such as no provider offices or no public authorities                 | Use-case-specific result or `undefined` at the port                                        | Use case/port             |
+| Business outcome or invalid application state                                          | Use-case-specific result                                                                   | Use case                  |
+| Any upload/delete failure (virus scan, rejection, transport)                           | Expected result value (e.g. `FILE_SCAN_FOUND_VIRUS`, `UPLOAD_REJECTED`, `DELETE_REJECTED`) | Outbound adapter/use case |
+| External authentication, authorization, availability, or response failure (non-upload) | Sanitized `ApplicationError`                                                               | Outbound adapter          |
+| Programmer or framework error                                                          | Original exception                                                                         | Generic error middleware  |
 
 Do not represent the same failure as both a result and an exception within one
 operation. The upload virus-scan rejection is an expected outcome rendered as a
 user-facing message; it is never an `ApplicationError`.
+
+**Upload/delete carve-out.** File upload and delete flows use a value-based
+protocol only: the adapter returns a discriminated union (`SUCCESS`,
+`FILE_SCAN_FOUND_VIRUS`, `UPLOAD_REJECTED`/`DELETE_REJECTED`) and never throws
+an `ApplicationError`. This is deliberate: the upload widget's contract is to
+render every failure inline (JSON for the JS uploader, an HTML re-render for the
+no-JS path), so a technical failure must not propagate to the generic middleware
+and become an XHR-breaking HTML 500 or a full error page. The adapter still logs
+each outcome once at the boundary and Zod-validates the upstream payload
+(malformed → `UPLOAD_REJECTED`).
 
 ## Application Errors
 
