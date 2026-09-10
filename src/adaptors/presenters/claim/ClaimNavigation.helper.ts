@@ -1,8 +1,6 @@
 import type { Request } from "express";
-import {
-  CHECK_YOUR_ANSWERS_ORIGIN,
-  CLAIM_CHECK_YOUR_ANSWERS_PATH,
-} from "#src/infrastructure/locales/constants.js";
+import { CHECK_YOUR_ANSWERS_ORIGIN } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 
 export class ClaimNavigationHelper {
   captureCheckYourAnswersEntry(req: Request): void {
@@ -21,7 +19,7 @@ export class ClaimNavigationHelper {
 
   resolveBackHref(req: Pick<Request, "session">, defaultHref: string): string {
     return this.isReturningToCheckYourAnswers(req)
-      ? CLAIM_CHECK_YOUR_ANSWERS_PATH
+      ? CLAIM_PATHS.CHECK_YOUR_ANSWERS
       : defaultHref;
   }
 
