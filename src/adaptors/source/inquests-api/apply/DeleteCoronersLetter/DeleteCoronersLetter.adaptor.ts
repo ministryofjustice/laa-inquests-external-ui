@@ -7,7 +7,7 @@ import type {
 import { DeleteCoronersLetterResponseSchema } from "./models/DeleteCoronersLetter.schema.js";
 import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
 import { deleteFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 const HTTP_NO_CONTENT = 204;
 

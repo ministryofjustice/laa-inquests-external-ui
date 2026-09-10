@@ -8,7 +8,7 @@ import {
   shouldLog,
   validLogLevel,
   Logger,
-} from "#src/infrastructure/express/middleware/logger/logger.js";
+} from "#src/infrastructure/logging/logger.js";
 
 const now = new Date("2026-08-17T12:20:24.744Z");
 

@@ -138,21 +138,12 @@ export class PublicAuthorityAdaptor {
       return session.availablePublicAuthorities;
     }
 
-    const result = await this.getPublicAuthoritiesUseCase.execute(
+    const publicBodies = await this.getPublicAuthoritiesUseCase.execute(
       session.accessToken,
     );
 
-    if (result.status !== "SUCCESS" || result.data === undefined) {
-      throw new Error(
-        result.status === "TECHNICAL_FAILURE"
-          ? result.reason
-          : "UNEXPECTED_FAILURE",
-      );
-    }
-
-    const publicAuthorities = this.#mapPublicBodiesToPublicAuthorities(
-      result.data,
-    );
+    const publicAuthorities =
+      this.#mapPublicBodiesToPublicAuthorities(publicBodies);
     // eslint-disable-next-line require-atomic-updates -- Express sessions are per-request; no concurrency risk
     session.availablePublicAuthorities = publicAuthorities;
     return publicAuthorities;

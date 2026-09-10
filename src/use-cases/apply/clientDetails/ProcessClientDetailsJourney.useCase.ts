@@ -8,7 +8,7 @@ import type {
   ClientPrevApplicationRefError,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import type { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 type ClientDetailsValidationErrors =

@@ -12,7 +12,7 @@ describe("GetPublicAuthoritiesUseCase", () => {
     useCase = new GetPublicAuthoritiesUseCase(getPublicAuthoritiesPort);
   });
 
-  it("returns success with public bodies when API responds", async () => {
+  it("returns the public bodies when the port resolves", async () => {
     const publicBodies = [
       {
         publicBodyId: "Cabinet Office",
@@ -24,20 +24,19 @@ describe("GetPublicAuthoritiesUseCase", () => {
 
     const result = await useCase.execute("access-token-123");
 
-    assert.equal(result.status, "SUCCESS");
-    assert.deepEqual(result.data, publicBodies);
+    assert.deepEqual(result, publicBodies);
   });
 
-  it("returns technical failure when API throws", async () => {
-    getPublicAuthoritiesPort.getPublicAuthorities.rejects(
-      new Error("Network error"),
+  it("propagates the port error unchanged", async () => {
+    const portError = new Error("Network error");
+    getPublicAuthoritiesPort.getPublicAuthorities.rejects(portError);
+
+    await assert.rejects(
+      async () => useCase.execute("access-token-123"),
+      (error: unknown) => {
+        assert.equal(error, portError);
+        return true;
+      },
     );
-
-    const result = await useCase.execute("access-token-123");
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
   });
 });

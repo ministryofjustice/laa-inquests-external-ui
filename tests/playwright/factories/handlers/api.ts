@@ -29,8 +29,18 @@ const FORCE_REJECTED_LAA_REFERENCE = "INQ-YYY-299";
 const VIRUS_FILE_NAME = "virus.pdf";
 
 export const apiHandlers = [
-  http.get("*/applications/public-bodies", () =>
-    HttpResponse.json([
+  http.get("*/applications/public-bodies", ({ request }) => {
+    const authorization = request.headers.get("authorization");
+    if (authorization === "Bearer FORCE_401") {
+      return new HttpResponse(null, { status: 401 });
+    }
+    if (authorization === "Bearer FORCE_403") {
+      return new HttpResponse(null, { status: 403 });
+    }
+    if (authorization === "Bearer FORCE_500") {
+      return new HttpResponse(null, { status: 500 });
+    }
+    return HttpResponse.json([
       {
         publicBodyId: "DEPARTMENT_FOR_TRANSPORT",
         publicBodyDescription: "Department for Transport",
@@ -43,8 +53,8 @@ export const apiHandlers = [
         publicBodyId: "MINISTRY_OF_DEFENCE",
         publicBodyDescription: "Ministry of Defence",
       },
-    ]),
-  ),
+    ]);
+  }),
   http.get("*/applications/provider-offices/:firmId", () =>
     HttpResponse.json([
       {

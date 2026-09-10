@@ -6,7 +6,7 @@ import type {
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class EntraAuthAdaptor implements AuthPort {
   constructor(

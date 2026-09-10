@@ -5,7 +5,7 @@ import type {
   SearchCasesResponse,
 } from "./models/SearchCases.types.js";
 import { getFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { SearchCasesResponseSchema } from "./models/SearchCases.schema.js";
 
 export class SearchCasesAdaptor implements SearchCasesPort {

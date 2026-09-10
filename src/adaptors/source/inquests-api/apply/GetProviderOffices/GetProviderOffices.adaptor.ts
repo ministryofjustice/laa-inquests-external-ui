@@ -2,7 +2,7 @@ import type { AxiosInstance } from "axios";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
 import type { GetProviderOfficesResponse } from "./models/GetProviderOffices.types.js";
 import { getFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class GetProviderOfficesAdaptor implements GetProviderOfficesPort {
   constructor(

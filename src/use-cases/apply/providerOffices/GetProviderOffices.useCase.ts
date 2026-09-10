@@ -1,7 +1,7 @@
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
 import type { GetProviderOfficesResponse } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/models/GetProviderOffices.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class GetProviderOfficesUseCase {
   constructor(

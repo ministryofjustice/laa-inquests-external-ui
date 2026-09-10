@@ -3,7 +3,7 @@ import type {
   UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 import type { DeleteCoronersLetterPort } from "#src/ports/source/inquests-api/DeleteCoronersLetter.port.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface DeleteCoronersLetterInput {
   coronersLetterId: string;

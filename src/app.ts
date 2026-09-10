@@ -11,6 +11,7 @@ import {
   handleRouteNotFound,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
+import { handleAuthErrors } from "#src/infrastructure/express/middleware/errors/authErrors.js";
 import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
 import { initializeI18nextSync } from "./infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import cookieParser from "cookie-parser";
@@ -29,7 +30,8 @@ import { setupRateLimiter } from "./infrastructure/express/middleware/security/s
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
 import multer from "multer";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { requestContextMiddleware } from "#src/infrastructure/logging/requestContextMiddleware.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -63,6 +65,7 @@ app.set("view engine", "njk");
 
 initializeI18nextSync();
 
+app.use(requestContextMiddleware);
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));
@@ -208,6 +211,7 @@ if (process.env.NODE_ENV === "production") {
 app.use("/", indexRouter);
 
 app.all("{*splat}", handleRouteNotFound);
+app.use(handleAuthErrors);
 app.use(handleServerErrors);
 
 if (process.env.NODE_ENV === "development") {

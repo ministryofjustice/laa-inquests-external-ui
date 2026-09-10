@@ -14,7 +14,7 @@ import {
   CORRESPONDENCE_RECIPIENT_TYPE,
   HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface SubmitApplicationSuccess {
   laaReference: string;

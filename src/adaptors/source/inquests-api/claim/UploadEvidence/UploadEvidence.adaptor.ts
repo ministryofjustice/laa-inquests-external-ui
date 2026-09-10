@@ -10,7 +10,7 @@ import {
   HTTP_UNPROCESSABLE_CONTENT,
 } from "#src/infrastructure/locales/constants.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class UploadEvidenceAdaptor implements UploadEvidencePort {
   constructor(

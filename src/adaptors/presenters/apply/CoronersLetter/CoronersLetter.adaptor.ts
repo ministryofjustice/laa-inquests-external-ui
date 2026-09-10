@@ -13,7 +13,7 @@ import {
   HTTP_UNPROCESSABLE_CONTENT,
   SERVICE_UNAVAILABLE_MESSAGE,
 } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,

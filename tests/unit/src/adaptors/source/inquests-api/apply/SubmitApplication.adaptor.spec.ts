@@ -3,7 +3,7 @@ import sinon from "sinon";
 import { AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
 import { v4 as uuidv4 } from "uuid";
 

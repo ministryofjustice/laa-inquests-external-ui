@@ -2,7 +2,7 @@ import type { CorrespondenceRecipientSelectionValue } from "#src/adaptors/presen
 import { CORRESPONDENCE_RECIPIENT_TYPE } from "#src/infrastructure/locales/constants.js";
 import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface UpdateCorrespondenceRecipientOutput {
   clientCorrespondenceRecipient: CorrespondenceRecipient | null;

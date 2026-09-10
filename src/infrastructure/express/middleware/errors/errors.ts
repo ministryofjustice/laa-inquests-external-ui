@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { isApplicationError } from "#src/use-cases/common/ApplicationError.js";
 import {
   HTTP_INTERNAL_SERVER_ERROR,
   HTTP_NOT_FOUND,
@@ -46,12 +47,16 @@ const handleServerErrors = (
     request: req,
     extraContext: {
       event: "http_request_failed",
+      error_type: isApplicationError(err) ? err.type : "UNKNOWN",
+      ...(isApplicationError(err)
+        ? { operation: err.operation, retryable: err.retryable }
+        : {}),
       route: getRequestRoutePath(req),
       method: req.method,
       status_code: HTTP_INTERNAL_SERVER_ERROR,
     },
   });
-  res.render("main/error", {
+  res.status(HTTP_INTERNAL_SERVER_ERROR).render("main/error", {
     status: HTTP_INTERNAL_SERVER_ERROR,
     message: "Internal Server Error",
   });

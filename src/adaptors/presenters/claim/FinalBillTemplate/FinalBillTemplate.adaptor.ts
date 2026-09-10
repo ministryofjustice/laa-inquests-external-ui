@@ -13,7 +13,7 @@ import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import type { FinalBillTemplateValidator } from "./FinalBillTemplate.validator.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,
