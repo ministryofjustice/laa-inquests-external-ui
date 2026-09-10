@@ -8,6 +8,10 @@ async function loginWithAccessToken(
   page: Page,
   accessToken: string,
 ): Promise<void> {
+  // Start from a clean cookie jar so this spec gets its own session. The 401
+  // case destroys the session, and reusing the shared seeded session would
+  // wipe it for other specs.
+  await page.context().clearCookies();
   await page.goto(`/auth/test-login?accessToken=${accessToken}`);
   await page.waitForURL("/");
 }

@@ -6,7 +6,7 @@ import type {
 } from "./models/SubmitApplication.types.js";
 import { SubmitApplicationResponseSchema } from "./models/SubmitApplication.schema.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class SubmitApplicationAdaptor implements ApplySubmitPort {
   constructor(

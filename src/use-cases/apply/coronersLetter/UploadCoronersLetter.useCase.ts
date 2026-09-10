@@ -3,7 +3,7 @@ import type {
   UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface UploadCoronersLetterInput {
   buffer: Buffer;

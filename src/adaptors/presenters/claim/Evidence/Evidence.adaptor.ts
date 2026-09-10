@@ -15,7 +15,7 @@ import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,

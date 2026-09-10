@@ -2,7 +2,7 @@ import type { Readable } from "node:stream";
 import type { DownloadEvidencePort } from "#src/ports/source/inquests-api/DownloadEvidence.port.js";
 import type { EvidenceDisposition } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/models/DownloadEvidence.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface DownloadEvidenceInput {
   claimEvidenceId: string;

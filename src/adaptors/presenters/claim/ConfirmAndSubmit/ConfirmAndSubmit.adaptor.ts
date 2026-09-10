@@ -24,7 +24,7 @@ import {
   type SubmitClaimErrorSummaries,
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
-import { logger as appLogger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger as appLogger } from "#src/infrastructure/logging/logger.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;

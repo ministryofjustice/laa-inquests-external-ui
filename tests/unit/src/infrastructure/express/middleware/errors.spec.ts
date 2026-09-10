@@ -3,7 +3,7 @@ import sinon from "sinon";
 import type { NextFunction, Request, Response } from "express";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { handleServerErrors } from "#src/infrastructure/express/middleware/errors/errors.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   ApplicationError,
   APPLICATION_ERROR_TYPES,

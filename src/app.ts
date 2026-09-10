@@ -30,7 +30,8 @@ import { setupRateLimiter } from "./infrastructure/express/middleware/security/s
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import crypto from "node:crypto";
 import multer from "multer";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { requestContextMiddleware } from "#src/infrastructure/logging/requestContextMiddleware.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -64,6 +65,7 @@ app.set("view engine", "njk");
 
 initializeI18nextSync();
 
+app.use(requestContextMiddleware);
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));

@@ -7,7 +7,7 @@ import {
   MissingAccessTokenError,
   translateInquestsApiError,
 } from "#src/adaptors/source/inquests-api/errorTranslation.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 const OPERATION = "get_public_bodies";
 const UPSTREAM_METHOD = "GET";

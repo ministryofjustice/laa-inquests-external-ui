@@ -3,7 +3,7 @@ import type {
   TechnicalFailureReason,
   UseCaseResult,
 } from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface UploadEvidenceInput {
   buffer: Buffer;

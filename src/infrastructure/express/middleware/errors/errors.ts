@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { isApplicationError } from "#src/use-cases/common/ApplicationError.js";
 import {
   HTTP_INTERNAL_SERVER_ERROR,

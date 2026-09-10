@@ -7,7 +7,7 @@ description: Rules for adding and updating logs in laa-inquests-external-ui. Use
 
 ## Required shared helpers
 
-Reuse the logger helpers in `src/infrastructure/express/middleware/logger/logger.ts`:
+Reuse the logger helpers in `src/infrastructure/logging/logger.ts`:
 
 - `LOG_LEVELS`
 - `LOG_LEVEL_PRIORITY`
