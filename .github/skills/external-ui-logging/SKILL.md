@@ -25,10 +25,40 @@ Level-gating behavior must stay aligned with `laa-inquests-internal-ui`.
 
 ## Layer responsibilities
 
-- Routes: log journey entry/exit and validation outcomes.
-- Use cases: log business milestones and validation failures.
-- Outbound adapters: log outbound API call outcome, status code, and duration.
-- Error middleware: emit one failed-request boundary event.
+- Routes/presenters: log journey entry/exit, validation outcomes, and business success events after the use case succeeds.
+- Use cases: do not import the concrete logger or emit logging events. Expected outcomes are returned as results; technical exceptions propagate unchanged.
+- Outbound adapters: log the outbound API call outcome (status code, duration) and, on failure, one translated failure event before throwing a sanitized `ApplicationError`.
+- Error middleware: emit one failed-request boundary event and set the real HTTP status.
+
+When changing any error path, also load the `error-handling` skill.
+
+## Error-path events
+
+A failed external request produces at most two complementary records: one
+`outbound_api_request_failed` at the outbound boundary, and one
+`http_request_failed`, `auth_session_expired`, or `api_forbidden` at the final
+HTTP boundary. Do not duplicate the same technical failure in use cases or
+presenters.
+
+Outbound events: `outbound_api_call` (info, success), `outbound_api_not_found`
+(warn, expected absence), `outbound_api_request_failed` (error, translated
+failure). Failure records include `operation`, route template,
+`upstream_method`, `duration_ms`, `failure_type`, `retryable`, safe
+`upstream_status_code`, plus `exception_type` and `exception_message`.
+
+Allowed `failure_type` values: `missing_credentials`, `unauthenticated`,
+`forbidden`, `timeout`, `network`, `upstream_4xx`, `upstream_5xx`,
+`invalid_response`.
+
+Presenter-owned business success events (info, once, after confirmed success):
+`application_submitted`, `claim_submitted`, `coroners_letter_uploaded`,
+`evidence_uploaded`, `evidence_deleted`.
+
+Event-name reconciliations: `inquests_api_request_failed` becomes
+`outbound_api_request_failed`; `auth_token_exchange_failed` becomes
+`auth_token_acquisition_failed`. Keep `auth_session_expired` (upstream 401)
+distinguishable from the local session-timeout event in
+`src/infrastructure/express/session/`.
 
 ## Log levels and defaults
 

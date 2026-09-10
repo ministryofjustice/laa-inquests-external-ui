@@ -24,6 +24,14 @@ It is particularly important to keep these small as they are expensive to test.
 - Keep framework-specific code (annotations, decorators, routing) confined to this layer.
 - Should instantiate the tree of objects. No instantiation of adapters, use-cases or their dependencies should happen anywhere else.
 
+## Error handling
+
+Load the `error-handling` skill before changing any failure path. In short:
+
+- Map only expected use-case outcomes (validation failure, expected not-found, virus-scan rejection) to HTTP responses.
+- Let technical exceptions propagate unchanged to Express error middleware. Do not `throw new Error(result.reason)`, `res.redirect("/error")`, render a generic 500, or log a technical exception before propagating it.
+- Emit business success events only after the awaited use case succeeds.
+
 ## Anti-patterns to avoid
 
 - Performing business decisions (conditionals based on business rules) inside a handler/controller.

@@ -26,6 +26,15 @@ To do this they:
 - Depend only on ports (interfaces), never on concrete adapter implementations.
 - Accept and return simple value objects or domain types — not framework-specific types.
 
+## Error handling
+
+Load the `error-handling` skill before changing any failure path. In short:
+
+- Let translated technical exceptions (`ApplicationError`) propagate unchanged. Do not catch merely to log, rename, wrap, or return `TECHNICAL_FAILURE`.
+- Do not import the concrete logger or any infrastructure module.
+- Keep expected validation, not-found, and business outcomes in use-case-specific result types.
+- Do not emit logging events directly; presenters emit HTTP-driven success events after the use case succeeds.
+
 ## Anti-patterns to avoid
 
 - Putting validation logic that belongs in the domain inside a use case. (But be loose on this if the repo doesn't have a solid domain layer).
