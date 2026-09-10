@@ -24,6 +24,7 @@ describe("error middleware", () => {
     it("logs and renders the fallback 500 page", () => {
       const err = new Error("plain error");
       const logSpy = sinon.spy(logger, "logError");
+      res.status.returns(res);
       req.route = { path: "/test-path" } as Request["route"];
       req.method = "POST";
 
@@ -49,6 +50,9 @@ describe("error middleware", () => {
           },
         },
       ]);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], 500);
+      assert.ok(res.status.firstCall.calledBefore(res.render.firstCall));
       assert.equal(res.render.callCount, 1);
       assert.deepEqual(res.render.firstCall.args, [
         "main/error",

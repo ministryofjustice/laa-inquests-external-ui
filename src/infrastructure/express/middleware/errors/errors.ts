@@ -51,7 +51,7 @@ const handleServerErrors = (
       status_code: HTTP_INTERNAL_SERVER_ERROR,
     },
   });
-  res.render("main/error", {
+  res.status(HTTP_INTERNAL_SERVER_ERROR).render("main/error", {
     status: HTTP_INTERNAL_SERVER_ERROR,
     message: "Internal Server Error",
   });
