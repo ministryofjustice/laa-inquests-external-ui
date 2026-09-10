@@ -8,10 +8,10 @@ import type {
   ClaimTypeValidator,
 } from "./ClaimType.validator.js";
 import {
-  CLAIM_CHECK_YOUR_ANSWERS_PATH,
   CLAIM_TYPE_VALUE,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
 export class ClaimTypeAdaptor {
@@ -76,7 +76,7 @@ export class ClaimTypeAdaptor {
         res.redirect("/claim/total-cost");
       } else if (returnToCheckYourAnswers) {
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+        res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       } else {
         res.redirect("/claim/total-cost");
       }
@@ -126,7 +126,7 @@ export class ClaimTypeAdaptor {
       };
       if (returnToCheckYourAnswers) {
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+        res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       } else {
         res.redirect("/claim/total-cost");
       }

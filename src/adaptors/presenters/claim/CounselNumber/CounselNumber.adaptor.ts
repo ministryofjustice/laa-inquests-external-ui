@@ -6,11 +6,11 @@ import type {
   CounselNumberValidator,
 } from "./CounselNumber.validator.js";
 import {
-  CLAIM_CHECK_YOUR_ANSWERS_PATH,
   COUNSEL_NUMBER_OPTIONS,
   COUNSEL_NUMBER_ZERO,
   EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
 export class CounselNumberAdaptor {
@@ -74,7 +74,7 @@ export class CounselNumberAdaptor {
         };
         if (returnToCheckYourAnswers) {
           this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-          res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+          res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
         } else {
           res.redirect("/claim/end-date");
         }
@@ -84,7 +84,7 @@ export class CounselNumberAdaptor {
           counselNumber,
         };
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+        res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       } else {
         req.session.claim = {
           ...req.session.claim,

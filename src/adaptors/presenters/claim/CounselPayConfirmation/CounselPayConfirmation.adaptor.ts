@@ -5,10 +5,8 @@ import type {
   CounselPayConfirmationFormData,
   CounselPayConfirmationValidator,
 } from "./CounselPayConfirmation.validator.js";
-import {
-  CLAIM_CHECK_YOUR_ANSWERS_PATH,
-  EMPTY_ARR_LENGTH,
-} from "#src/infrastructure/locales/constants.js";
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 
 export class CounselPayConfirmationAdaptor {
@@ -64,7 +62,7 @@ export class CounselPayConfirmationAdaptor {
       };
       if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-        res.redirect(CLAIM_CHECK_YOUR_ANSWERS_PATH);
+        res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       } else {
         res.redirect("/claim/end-date");
       }
