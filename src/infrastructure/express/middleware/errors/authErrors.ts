@@ -16,34 +16,27 @@ const handleAuthErrors = (
 ): void => {
   if (!isApplicationError(err)) {
     next(err);
-    return;
-  }
-
-  if (err.type === APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED) {
+  } else if (err.type === APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED) {
     // Safety net: never bounce an auth-route failure back into the login
     // redirect, which would risk a redirect loop.
     if (req.path.startsWith(AUTH_PATH_PREFIX)) {
       next(err);
-      return;
+    } else {
+      logger.logWarn({
+        functionName: "auth_error_middleware",
+        message: "Upstream authentication required; destroying session",
+        request: req,
+        extraContext: {
+          event: "auth_session_expired",
+          operation: err.operation,
+        },
+      });
+
+      req.session.destroy(() => {
+        res.redirect("/auth/login");
+      });
     }
-
-    logger.logWarn({
-      functionName: "auth_error_middleware",
-      message: "Upstream authentication required; destroying session",
-      request: req,
-      extraContext: {
-        event: "auth_session_expired",
-        operation: err.operation,
-      },
-    });
-
-    req.session.destroy(() => {
-      res.redirect("/auth/login");
-    });
-    return;
-  }
-
-  if (err.type === APPLICATION_ERROR_TYPES.FORBIDDEN) {
+  } else if (err.type === APPLICATION_ERROR_TYPES.FORBIDDEN) {
     logger.logWarn({
       functionName: "auth_error_middleware",
       message: "Upstream returned forbidden",
@@ -58,10 +51,9 @@ const handleAuthErrors = (
       status: HTTP_FORBIDDEN,
       message: "Forbidden",
     });
-    return;
+  } else {
+    next(err);
   }
-
-  next(err);
 };
 
 export { handleAuthErrors };
