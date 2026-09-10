@@ -15,6 +15,15 @@ function parseOfficeAccountsQueryParam(value: unknown): string[] {
     .filter((officeCode) => officeCode !== "");
 }
 
+// Allows E2E tests to exercise upstream auth/failure handling by seeding a
+// sentinel access token the MSW handlers recognise.
+function resolveAccessToken(value: unknown): string {
+  if (typeof value === "string" && value !== "") {
+    return value;
+  }
+  return "test-access-token";
+}
+
 export function createAuthRouter(
   authRouter: Router,
   authAdaptor: AuthAdaptor,
@@ -55,7 +64,7 @@ export function createAuthRouter(
       req.session.user = {
         name: "External Test [LAA]",
       };
-      req.session.accessToken = "test-access-token";
+      req.session.accessToken = resolveAccessToken(req.query.accessToken);
       req.session.userId = "test-provider";
       req.session.firmId = "123";
       req.session.officeId = "A001B";

@@ -11,6 +11,7 @@ import {
   handleRouteNotFound,
   handleServerErrors,
 } from "#src/infrastructure/express/middleware/errors/errors.js";
+import { handleAuthErrors } from "#src/infrastructure/express/middleware/errors/authErrors.js";
 import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
 import { initializeI18nextSync } from "./infrastructure/express/middleware/nunjucks/i18nLoader.js";
 import cookieParser from "cookie-parser";
@@ -208,6 +209,7 @@ if (process.env.NODE_ENV === "production") {
 app.use("/", indexRouter);
 
 app.all("{*splat}", handleRouteNotFound);
+app.use(handleAuthErrors);
 app.use(handleServerErrors);
 
 if (process.env.NODE_ENV === "development") {
