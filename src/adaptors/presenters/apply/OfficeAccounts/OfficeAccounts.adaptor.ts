@@ -51,20 +51,15 @@ export class OfficeAccountsAdaptor {
       return [];
     }
 
-    const result = await this.getProviderOfficesUseCase.execute(
+    const providerOffices = await this.getProviderOfficesUseCase.execute(
       firmId,
       req.session.accessToken,
     );
 
-    if (result.status !== "SUCCESS" || result.data === undefined) {
-      throw new Error(
-        result.status === "TECHNICAL_FAILURE"
-          ? result.reason
-          : "UNEXPECTED_FAILURE",
-      );
-    }
-
-    const authorisedOffices = this.#filterAuthorisedOffices(req, result.data);
+    const authorisedOffices = this.#filterAuthorisedOffices(
+      req,
+      providerOffices,
+    );
     return this.#formatOfficeOptions(authorisedOffices);
   }
 

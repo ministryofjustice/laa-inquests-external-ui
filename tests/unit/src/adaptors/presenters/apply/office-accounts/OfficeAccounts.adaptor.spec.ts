@@ -137,11 +137,12 @@ describe("OfficeAccounts adaptor", () => {
       assert.deepEqual(renderModel.officeOptions, []);
     });
 
-    it("throws when loading provider offices fails", async () => {
+    it("propagates the error unchanged when loading provider offices fails", async () => {
       const { port, requestStub, responseStub } = createRenderFixtures({
         firmId: "123",
       });
-      port.getProviderOffices.rejects(new Error("Network error"));
+      const portError = new Error("Network error");
+      port.getProviderOffices.rejects(portError);
       const failingAdaptor = new OfficeAccountsAdaptor(port);
 
       await assert.rejects(
@@ -150,7 +151,10 @@ describe("OfficeAccounts adaptor", () => {
             requestStub,
             responseStub,
           ),
-        { message: "UNEXPECTED_EXCEPTION" },
+        (error: unknown) => {
+          assert.equal(error, portError);
+          return true;
+        },
       );
     });
 

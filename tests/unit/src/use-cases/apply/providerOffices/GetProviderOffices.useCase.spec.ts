@@ -39,8 +39,7 @@ describe("GetProviderOfficesUseCase", () => {
 
     const result = await useCase.execute("123", "access-token-123");
 
-    assert.equal(result.status, "SUCCESS");
-    assert.deepEqual(result.data, offices);
+    assert.deepEqual(result, offices);
   });
 
   it("passes the firm id and access token to the port", async () => {
@@ -56,16 +55,16 @@ describe("GetProviderOfficesUseCase", () => {
     );
   });
 
-  it("returns technical failure when the port throws", async () => {
-    getProviderOfficesPort.getProviderOffices.rejects(
-      new Error("Network error"),
+  it("propagates the port error unchanged", async () => {
+    const portError = new Error("Network error");
+    getProviderOfficesPort.getProviderOffices.rejects(portError);
+
+    await assert.rejects(
+      async () => useCase.execute("123", "access-token-123"),
+      (error: unknown) => {
+        assert.equal(error, portError);
+        return true;
+      },
     );
-
-    const result = await useCase.execute("123", "access-token-123");
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
   });
 });
