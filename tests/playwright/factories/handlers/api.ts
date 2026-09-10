@@ -55,8 +55,18 @@ export const apiHandlers = [
       },
     ]);
   }),
-  http.get("*/applications/provider-offices/:firmId", () =>
-    HttpResponse.json([
+  http.get("*/applications/provider-offices/:firmId", ({ request }) => {
+    const authorization = request.headers.get("authorization");
+    if (authorization === "Bearer FORCE_401") {
+      return new HttpResponse(null, { status: 401 });
+    }
+    if (authorization === "Bearer FORCE_403") {
+      return new HttpResponse(null, { status: 403 });
+    }
+    if (authorization === "Bearer FORCE_500") {
+      return new HttpResponse(null, { status: 500 });
+    }
+    return HttpResponse.json([
       {
         officeCode: "A001B",
         address: {
@@ -87,8 +97,8 @@ export const apiHandlers = [
           postcode: "LS1 1AA",
         },
       },
-    ]),
-  ),
+    ]);
+  }),
   http.get("*/applications/search", ({ request }) => {
     const url = new URL(request.url);
     const laaReference = url.searchParams.get("laa_reference");
