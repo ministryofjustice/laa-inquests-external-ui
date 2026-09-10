@@ -5,6 +5,26 @@ import type { MultiFileUploadInstance } from "@ministryofjustice/frontend/moj/co
 
 const COPY_RESET_DELAY_MS = 4000;
 
+// Mirrors the row/error markup the widget renders for a server-rejected file, since the
+// ingress blocks invalid filenames before they would ever reach that server-side validation.
+function renderClientSideUploadError(
+  upload: MultiFileUploadInstance,
+  file: File,
+  message: string,
+): void {
+  const $row = upload.getFileRow(file);
+  const $message = $row.querySelector(".moj-multi-file-upload__message");
+  if ($message !== null) {
+    $message.innerHTML = upload.getErrorHtml(new Error(message));
+  }
+
+  upload.$feedbackContainer.classList.remove("moj-hidden");
+  upload.$feedbackContainer
+    .querySelector(".moj-multi-file-upload__list")
+    ?.append($row);
+  upload.$status.textContent = message;
+}
+
 function initialiseMultiFileUpload(): void {
   const multiFileUploadElement = document.querySelector(
     '[data-module="moj-multi-file-upload"]',
@@ -38,12 +58,15 @@ function initialiseMultiFileUpload(): void {
       uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
       deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
       hooks: {
-        // TEST: confirms entryHook fires with the real (upload, file) args before send.
         entryHook: (upload: MultiFileUploadInstance, file: File): void => {
-          console.log("MultiFileUpload entry hook triggered", {
-            upload,
-            fileName: file.name,
-          });
+          const filepathPattern = `^(?:&(?:(?:[acegilnorsuz]acut|[aeiou]grav|[aino]tild)e|[c-elnr-tz]caron|(?:[cgklnr-t]cedi|[aeiouy]um)l|[aceg-josuwy]circ|[au]ring|a(?:mp|pos)|nbsp|oslash);|[^\\"';=\\x5c])*$`;
+          /* eslint-disable-next-line require-unicode-regexp -- not expected to have unicode in filenames */
+          const filepathRegex = new RegExp(filepathPattern);
+          if (!filepathRegex.test(file.name)) {
+            const message = `Invalid file name: ${file.name}`;
+            renderClientSideUploadError(upload, file, message);
+            throw new Error(message);
+          }
         },
       },
     });

@@ -18,13 +18,13 @@ declare module "@ministryofjustice/frontend/moj/components/multi-file-upload/mul
       xhr: XMLHttpRequest,
       textStatus: string,
     ) => void;
-    errorHook?: (
-      upload: MultiFileUploadInstance,
-      file: File,
-      xhr: XMLHttpRequest,
-      textStatus: string,
-      errorThrown: Error,
-    ) => void;
+    // errorHook?: (
+    //   upload: MultiFileUploadInstance,
+    //   file: File,
+    //   xhr: XMLHttpRequest,
+    //   textStatus: string,
+    //   errorThrown: Error,
+    // ) => void;
     deleteHook?: (
       upload: MultiFileUploadInstance,
       file: File | undefined,
@@ -39,7 +39,12 @@ declare module "@ministryofjustice/frontend/moj/components/multi-file-upload/mul
     hooks?: MultiFileUploadHooks;
   }
 
-  export type MultiFileUploadInstance = object;
+  export interface MultiFileUploadInstance {
+    $feedbackContainer: HTMLElement;
+    $status: HTMLElement;
+    getFileRow: (file: File) => HTMLElement;
+    getErrorHtml: (error: Error) => string;
+  }
 
   type MultiFileUploadConstructor = new (
     root: Element,
