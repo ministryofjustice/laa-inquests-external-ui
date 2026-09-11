@@ -1,16 +1,22 @@
-import type { AxiosInstance, AxiosResponse } from "axios";
+import axios, { type AxiosInstance, type AxiosResponse } from "axios";
 import type { Readable } from "node:stream";
 import type { DownloadEvidencePort } from "#src/ports/source/inquests-api/DownloadEvidence.port.js";
 import type {
   DownloadEvidenceRequest,
   DownloadEvidenceResponse,
 } from "./models/DownloadEvidence.types.js";
-import {
-  HTTP_NOT_FOUND,
-  HTTP_OK,
-} from "#src/infrastructure/locales/constants.js";
+import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
 import { getFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
+import {
+  MissingAccessTokenError,
+  translateInquestsApiError,
+} from "#src/adaptors/source/inquests-api/errorTranslation.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+
+const DEFAULT_CONTENT_TYPE = "application/octet-stream";
+const OPERATION = "download_evidence";
+const UPSTREAM_METHOD = "GET";
+const UPSTREAM_ROUTE = "/claims/:claimEvidenceId";
 
 export class DownloadEvidenceAdaptor implements DownloadEvidencePort {
   constructor(
@@ -22,7 +28,13 @@ export class DownloadEvidenceAdaptor implements DownloadEvidencePort {
     request: DownloadEvidenceRequest,
     accessToken: string | undefined,
   ): Promise<DownloadEvidenceResponse> {
+    const startedAt = Date.now();
+
     try {
+      if (typeof accessToken !== "string" || accessToken === "") {
+        throw new MissingAccessTokenError();
+      }
+
       const response: AxiosResponse<Readable> =
         await getFromInquestsApi<Readable>({
           http: this.http,
@@ -31,44 +43,17 @@ export class DownloadEvidenceAdaptor implements DownloadEvidencePort {
           params: { disposition: request.disposition },
           accessToken,
           responseType: "stream",
-          validateStatus: () => true,
         });
-
-      if (response.status === HTTP_NOT_FOUND) {
-        logger.logError({
-          functionName: "downloadEvidenceAdaptor_downloadEvidence",
-          message: "Evidence file was not found upstream",
-          extraContext: {
-            event: "claim_evidence_download_failed",
-            reason: "NOT_FOUND",
-            status_code: response.status,
-            file_id: request.claimEvidenceId,
-          },
-        });
-        return { status: "TECHNICAL_FAILURE", reason: "NOT_FOUND" };
-      }
-
-      if (response.status !== HTTP_OK) {
-        logger.logError({
-          functionName: "downloadEvidenceAdaptor_downloadEvidence",
-          message: "Evidence download rejected by upstream service",
-          extraContext: {
-            event: "claim_evidence_download_failed",
-            reason: "UPSTREAM_REJECTED",
-            status_code: response.status,
-            file_id: request.claimEvidenceId,
-          },
-        });
-        return { status: "TECHNICAL_FAILURE", reason: "UPSTREAM_REJECTED" };
-      }
 
       logger.logInfo({
-        functionName: "downloadEvidenceAdaptor_downloadEvidence",
+        functionName: "download_evidence_adaptor",
         message: "Evidence download retrieved successfully",
         extraContext: {
-          event: "claim_evidence_download_completed",
-          outcome: "SUCCESS",
-          file_id: request.claimEvidenceId,
+          event: "outbound_api_call",
+          operation: OPERATION,
+          upstream_method: UPSTREAM_METHOD,
+          upstream_route: UPSTREAM_ROUTE,
+          duration_ms: Date.now() - startedAt,
         },
       });
 
@@ -77,23 +62,36 @@ export class DownloadEvidenceAdaptor implements DownloadEvidencePort {
         stream: response.data,
         contentType:
           (response.headers["content-type"] as string | undefined) ??
-          "application/octet-stream",
+          DEFAULT_CONTENT_TYPE,
         contentDisposition:
           (response.headers["content-disposition"] as string | undefined) ??
           request.disposition,
       };
-    } catch (err) {
-      logger.logError({
-        functionName: "downloadEvidenceAdaptor_downloadEvidence",
-        message: "Evidence download failed with exception",
-        err,
-        extraContext: {
-          event: "claim_evidence_download_failed",
-          reason: "UNEXPECTED_EXCEPTION",
-          file_id: request.claimEvidenceId,
-        },
+    } catch (error) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response?.status === HTTP_NOT_FOUND
+      ) {
+        logger.logWarn({
+          functionName: "download_evidence_adaptor",
+          message: "Evidence file was not found upstream",
+          extraContext: {
+            event: "outbound_api_not_found",
+            operation: OPERATION,
+            upstream_status_code: HTTP_NOT_FOUND,
+          },
+        });
+        return { status: "NOT_FOUND" };
+      }
+
+      throw translateInquestsApiError({
+        error,
+        operation: OPERATION,
+        functionName: "download_evidence_adaptor",
+        upstreamMethod: UPSTREAM_METHOD,
+        upstreamRoute: UPSTREAM_ROUTE,
+        startedAt,
       });
-      return { status: "TECHNICAL_FAILURE", reason: "UNEXPECTED_EXCEPTION" };
     }
   }
 }

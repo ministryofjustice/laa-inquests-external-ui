@@ -45,17 +45,11 @@ export function buildJsonUploadErrorResponse(
 }
 
 export function resolveUploadFailureMessage(
-  result: { status: string; reason?: string },
+  result: { status: string },
   virusErrorMessage: string,
   defaultMessage: string,
 ): string {
-  // Accepts both the migrated value-based union (`status: FILE_SCAN_FOUND_VIRUS`)
-  // and the legacy `TECHNICAL_FAILURE` + reason shape still used by unmigrated
-  // upload flows.
-  const isVirusRejection =
-    result.status === "FILE_SCAN_FOUND_VIRUS" ||
-    (result.status === "TECHNICAL_FAILURE" &&
-      result.reason === "FILE_SCAN_FOUND_VIRUS");
-
-  return isVirusRejection ? virusErrorMessage : defaultMessage;
+  return result.status === "FILE_SCAN_FOUND_VIRUS"
+    ? virusErrorMessage
+    : defaultMessage;
 }

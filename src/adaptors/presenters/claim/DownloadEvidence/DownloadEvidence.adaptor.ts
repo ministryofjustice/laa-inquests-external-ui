@@ -32,19 +32,17 @@ export class DownloadEvidenceAdaptor {
     });
 
     if (result.status === "SUCCESS") {
-      res.setHeader("Content-Type", result.data!.contentType);
-      res.setHeader("Content-Disposition", result.data!.contentDisposition);
-      result.data!.stream.pipe(res);
-    } else if (
-      result.status === "TECHNICAL_FAILURE" &&
-      result.reason === "NOT_FOUND"
-    ) {
+      res.setHeader("Content-Type", result.contentType);
+      res.setHeader("Content-Disposition", result.contentDisposition);
+      result.stream.pipe(res);
+    } else {
+      // NOT_FOUND is the only non-success outcome; technical failures reach the
+      // Express error middleware as an ApplicationError instead of being routed
+      // here, so an error is never streamed as a document.
       res.status(HTTP_NOT_FOUND).render("main/error", {
         status: HTTP_NOT_FOUND,
         message: "Page not found",
       });
-    } else {
-      res.redirect("/error");
     }
   }
 }
