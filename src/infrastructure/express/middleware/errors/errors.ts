@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { isApplicationError } from "#src/use-cases/common/ApplicationError.js";
 import {
+  ERROR_PAGE_MESSAGE,
   HTTP_INTERNAL_SERVER_ERROR,
   HTTP_NOT_FOUND,
 } from "#src/infrastructure/locales/constants.js";
@@ -30,7 +31,7 @@ const handleRouteNotFound = (req: Request, res: Response): void => {
 
   res.status(HTTP_NOT_FOUND).render("main/error", {
     status: HTTP_NOT_FOUND,
-    message: "Page not found",
+    message: ERROR_PAGE_MESSAGE.NOT_FOUND,
   });
 };
 
@@ -58,7 +59,7 @@ const handleServerErrors = (
   });
   res.status(HTTP_INTERNAL_SERVER_ERROR).render("main/error", {
     status: HTTP_INTERNAL_SERVER_ERROR,
-    message: "Internal Server Error",
+    message: ERROR_PAGE_MESSAGE.INTERNAL_SERVER_ERROR,
   });
 };
 

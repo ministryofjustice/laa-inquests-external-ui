@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
 import type { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
 import type { EvidenceDisposition } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/models/DownloadEvidence.types.js";
-import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
+import {
+  ERROR_PAGE_MESSAGE,
+  HTTP_NOT_FOUND,
+} from "#src/infrastructure/locales/constants.js";
 
 export class DownloadEvidenceAdaptor {
   downloadEvidenceUseCase: DownloadEvidenceUseCase;
@@ -41,7 +44,7 @@ export class DownloadEvidenceAdaptor {
       // here, so an error is never streamed as a document.
       res.status(HTTP_NOT_FOUND).render("main/error", {
         status: HTTP_NOT_FOUND,
-        message: "Page not found",
+        message: ERROR_PAGE_MESSAGE.NOT_FOUND,
       });
     }
   }

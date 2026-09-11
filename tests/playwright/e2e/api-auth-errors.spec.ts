@@ -56,6 +56,7 @@ test.describe("Inquests API auth and failure handling", () => {
 
     expect(response?.status()).toBe(403);
     await expect(page.locator("h1")).toHaveText("403");
+    await expect(page.getByText("Forbidden")).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 
@@ -66,6 +67,7 @@ test.describe("Inquests API auth and failure handling", () => {
 
     expect(response?.status()).toBe(500);
     await expect(page.locator("h1")).toHaveText("500");
+    await expect(page.getByText("Internal Server Error")).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 });
@@ -96,6 +98,7 @@ test.describe("Provider offices auth and failure handling", () => {
 
     expect(response?.status()).toBe(403);
     await expect(page.locator("h1")).toHaveText("403");
+    await expect(page.getByText("Forbidden")).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 
@@ -106,6 +109,7 @@ test.describe("Provider offices auth and failure handling", () => {
 
     expect(response?.status()).toBe(500);
     await expect(page.locator("h1")).toHaveText("500");
+    await expect(page.getByText("Internal Server Error")).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 });
