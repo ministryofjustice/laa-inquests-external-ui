@@ -60,6 +60,29 @@ export default [
       "@typescript-eslint/class-methods-use-this": "off",
     },
   },
+  // Use cases are application core: they must not import the concrete logger.
+  // Logging belongs at the adapter/presenter boundary.
+  {
+    files: ["src/use-cases/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "#src/infrastructure/logging",
+                "#src/infrastructure/logging/*",
+                "#src/infrastructure/logging/**",
+              ],
+              message:
+                "Use cases must not import the concrete logger. Perform logging at the adapter/presenter boundary.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Add a separate config for declaration files
   {
     files: ["**/*.d.ts"],
