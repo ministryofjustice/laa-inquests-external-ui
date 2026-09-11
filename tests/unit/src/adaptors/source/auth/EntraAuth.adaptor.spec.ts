@@ -424,37 +424,45 @@ describe("EntraAuthAdaptor", () => {
     });
 
     describe("error handling", () => {
-        it("translates a null MSAL result into a sanitized ApplicationError", async () => {
-            msalClient.acquireTokenByCode.resolves(null as any);
+      it("translates a null MSAL result into a sanitized ApplicationError", async () => {
+        msalClient.acquireTokenByCode.resolves(null as any);
 
-            await assert.rejects(
-                () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-                (err: unknown) => {
-                    assert.ok(err instanceof ApplicationError);
-                    assert.equal(err.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
-                    assert.equal(err.operation, "acquire_token");
-                    assert.equal(err.cause, undefined);
-                    assert.doesNotMatch(err.message, /MSAL returned null token result/);
-                    return true;
-                },
+        await assert.rejects(
+          () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
+          (err: unknown) => {
+            assert.ok(err instanceof ApplicationError);
+            assert.equal(
+              err.type,
+              APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
             );
-        });
+            assert.equal(err.operation, "acquire_token");
+            assert.equal(err.cause, undefined);
+            assert.doesNotMatch(err.message, /MSAL returned null token result/);
+            return true;
+          },
+        );
+      });
 
-        it("translates an MSAL exception into a sanitized ApplicationError", async () => {
-            msalClient.acquireTokenByCode.rejects(new Error("token endpoint error"));
+      it("translates an MSAL exception into a sanitized ApplicationError", async () => {
+        msalClient.acquireTokenByCode.rejects(
+          new Error("token endpoint error"),
+        );
 
-            await assert.rejects(
-                () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-                (err: unknown) => {
-                    assert.ok(err instanceof ApplicationError);
-                    assert.equal(err.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
-                    assert.equal(err.operation, "acquire_token");
-                    assert.equal(err.cause, undefined);
-                    assert.doesNotMatch(err.message, /token endpoint error/);
-                    return true;
-                },
+        await assert.rejects(
+          () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
+          (err: unknown) => {
+            assert.ok(err instanceof ApplicationError);
+            assert.equal(
+              err.type,
+              APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
             );
-        });
+            assert.equal(err.operation, "acquire_token");
+            assert.equal(err.cause, undefined);
+            assert.doesNotMatch(err.message, /token endpoint error/);
+            return true;
+          },
+        );
+      });
     });
   });
 });
