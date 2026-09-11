@@ -413,7 +413,6 @@ describe("Confirmation adaptor", () => {
       ];
 
       applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
         laaReference: "123",
       });
 
@@ -510,7 +509,6 @@ describe("Confirmation adaptor", () => {
       ];
 
       applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
         laaReference: "123",
       });
 
@@ -588,7 +586,6 @@ describe("Confirmation adaptor", () => {
       ];
 
       applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
         laaReference: "123",
       });
 
@@ -653,7 +650,6 @@ describe("Confirmation adaptor", () => {
       ];
 
       applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
         laaReference: "123",
       });
 
@@ -708,7 +704,6 @@ describe("Confirmation adaptor", () => {
       ];
 
       applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
         laaReference: "123",
       });
 
@@ -767,7 +762,6 @@ describe("Confirmation adaptor", () => {
       ];
 
       applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
         laaReference: "123",
       });
 
@@ -833,7 +827,6 @@ describe("Confirmation adaptor", () => {
       ];
 
       applySubmitPortStub.submitApplication.resolves({
-        statusCode: 201,
         laaReference: "123",
       });
 

@@ -33,20 +33,15 @@ interface ConfirmAndSubmitUseCases {
 export class ConfirmAndSubmitAdaptor {
   formatter: Formatter;
   submitClaimUseCase: SubmitClaimUseCase;
-  logger: (message: string) => void;
 
   constructor(
     formatter: Formatter,
     claimSubmitPort: ClaimSubmitPort,
     useCases?: Partial<ConfirmAndSubmitUseCases>,
-    logger: (message: string) => void = (message) => {
-      appLogger.logInfo({ functionName: "ConfirmAndSubmit", message });
-    },
   ) {
     this.formatter = formatter;
     this.submitClaimUseCase =
       useCases?.submitClaim ?? new SubmitClaimUseCase(claimSubmitPort);
-    this.logger = logger;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -63,10 +58,8 @@ export class ConfirmAndSubmitAdaptor {
 
     if (result.status === "VALIDATION_FAILED") {
       this.#renderValidationErrors(req, res, result.errorSummaries);
-    } else if (result.status === "SUCCESS") {
-      this.#handleSuccessfulSubmission(req, res, result.data);
     } else {
-      this.#handleSubmissionFailure(result, res);
+      this.#handleSuccessfulSubmission(req, res, result.data);
     }
   }
 
@@ -88,6 +81,15 @@ export class ConfirmAndSubmitAdaptor {
     data: { claimId: number; rejectionReasons?: string[] } | undefined,
   ): void {
     const { session } = req;
+    appLogger.logInfo({
+      functionName: "confirm_and_submit_presenter",
+      message: "Claim submitted",
+      request: req,
+      extraContext: {
+        event: "claim_submitted",
+        claim_id: data?.claimId,
+      },
+    });
     session.claimReferenceNumber = data?.claimId.toString() ?? "";
     session.claimRejectionReasons = data?.rejectionReasons;
     const hasRejectionReasons =
@@ -98,20 +100,6 @@ export class ConfirmAndSubmitAdaptor {
     } else {
       res.redirect("/claim/confirmation/success");
     }
-  }
-
-  #handleSubmissionFailure(
-    result: { status: string; reason?: string },
-    res: Response,
-  ): void {
-    const reason = "reason" in result ? result.reason : "INVALID_INPUT_STATE";
-    this.logger(
-      JSON.stringify({
-        event: "submit.claim.error",
-        reason,
-      }),
-    );
-    res.redirect("/error");
   }
 
   #buildSubmitClaimInput(req: Request): SubmitClaimInput {

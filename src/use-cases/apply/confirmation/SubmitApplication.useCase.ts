@@ -1,34 +1,18 @@
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
-import {
-  SubmitApplicationRequestSchema,
-  SubmitApplicationResponseSchema,
-} from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
+import { SubmitApplicationRequestSchema } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.schema.js";
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import type { ConfirmationSessionState } from "#src/use-cases/apply/confirmation/models/confirmationSessionState.types.js";
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 import { formatDateISOYYYYMMDD } from "#src/utils/dateFormatter.js";
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 import {
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
-  HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface SubmitApplicationSuccess {
   laaReference: string;
 }
-
-type SubmitBodyResult =
-  | {
-      status: "SUCCESS";
-      data: SubmitApplicationRequest;
-    }
-  | {
-      status: "TECHNICAL_FAILURE";
-      reason: "INVALID_INPUT_STATE" | "UNEXPECTED_EXCEPTION";
-    };
 
 export class SubmitApplicationUseCase {
   applySubmitPort: ApplySubmitPort;
@@ -39,156 +23,36 @@ export class SubmitApplicationUseCase {
 
   async execute(
     state: ConfirmationSessionState,
-  ): Promise<UseCaseResult<SubmitApplicationSuccess>> {
-    const submitBodyResult = this.#generateSubmitBody(state);
-
-    if (submitBodyResult.status === "TECHNICAL_FAILURE") {
-      logger.logWarn({
-        functionName: "submitApplicationUseCase_execute",
-        message: "Submit application failed to build request payload",
-        extraContext: {
-          event: "apply_submission_failed",
-          reason: submitBodyResult.reason,
-        },
-      });
-      return submitBodyResult;
-    }
-
-    try {
-      const responseRaw = await this.applySubmitPort.submitApplication(
-        submitBodyResult.data,
-        state.accessToken,
-      );
-      const parseResponseResult =
-        SubmitApplicationResponseSchema.safeParse(responseRaw);
-
-      if (!parseResponseResult.success) {
-        logger.logWarn({
-          functionName: "submitApplicationUseCase_execute",
-          message: "Submit application returned invalid response payload",
-          extraContext: {
-            event: "apply_submission_failed",
-            reason: "INVALID_RESPONSE",
-            issues: parseResponseResult.error.issues,
-          },
-        });
-        return {
-          status: "TECHNICAL_FAILURE",
-          reason: "INVALID_RESPONSE",
-        };
-      }
-
-      const { data: responseData } = parseResponseResult;
-      const { statusCode, laaReference } = responseData;
-
-      if (statusCode === HTTP_CREATED) {
-        logger.logInfo({
-          functionName: "submitApplicationUseCase_execute",
-          message: "Submit application completed successfully",
-          extraContext: {
-            event: "apply_submission_completed",
-            outcome: "SUCCESS",
-            laa_reference: laaReference,
-          },
-        });
-        return {
-          status: "SUCCESS",
-          data: {
-            laaReference,
-          },
-        };
-      }
-
-      logger.logError({
-        functionName: "submitApplicationUseCase_execute",
-        message: "Submit application rejected by downstream component",
-        extraContext: {
-          event: "apply_submission_failed",
-          reason: "UPSTREAM_REJECTED",
-          status_code: statusCode,
-        },
-      });
-
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
-      };
-    } catch (err) {
-      logger.logError({
-        functionName: "submitApplicationUseCase_execute",
-        message: "Submit application failed with exception",
-        err,
-        extraContext: {
-          event: "apply_submission_failed",
-          reason: "UNEXPECTED_EXCEPTION",
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
-      };
-    }
+  ): Promise<SubmitApplicationSuccess> {
+    const body = this.#generateSubmitBody(state);
+    return await this.applySubmitPort.submitApplication(
+      body,
+      state.accessToken,
+    );
   }
 
-  #generateSubmitBody(state: ConfirmationSessionState): SubmitBodyResult {
-    try {
-      const client = this.#buildClientForSubmit(state);
+  #generateSubmitBody(
+    state: ConfirmationSessionState,
+  ): SubmitApplicationRequest {
+    const client = this.#buildClientForSubmit(state);
 
-      this.#applyOptionalClientFields(client, state);
-      this.#applyClientAddressesForSubmit(client, state);
-      this.#applyClientCorrespondenceRecipientForSubmit(client, state);
+    this.#applyOptionalClientFields(client, state);
+    this.#applyClientAddressesForSubmit(client, state);
+    this.#applyClientCorrespondenceRecipientForSubmit(client, state);
 
-      const submitBodyWithDetails = {
-        client,
-        deceased: this.#buildDeceasedForSubmit(state),
-        proceeding: this.#buildProceedingForSubmit(state),
-        publicBodies: this.#buildPublicBodiesForSubmit(state),
-        provider: {
-          officeId: state.officeId!,
-          emailAddress: state.providerEmail!,
-        },
-        coronersLetterId: state.coronersLetterId!,
-      };
+    const submitBodyWithDetails = {
+      client,
+      deceased: this.#buildDeceasedForSubmit(state),
+      proceeding: this.#buildProceedingForSubmit(state),
+      publicBodies: this.#buildPublicBodiesForSubmit(state),
+      provider: {
+        officeId: state.officeId!,
+        emailAddress: state.providerEmail!,
+      },
+      coronersLetterId: state.coronersLetterId!,
+    };
 
-      const parseRequestResult = SubmitApplicationRequestSchema.safeParse(
-        submitBodyWithDetails,
-      );
-
-      if (!parseRequestResult.success) {
-        logger.logWarn({
-          functionName: "submitApplicationUseCase_generateSubmitBody",
-          message:
-            "Submit application request payload failed schema validation",
-          extraContext: {
-            event: "apply_submission_failed",
-            reason: "INVALID_INPUT_STATE",
-          },
-        });
-        return {
-          status: "TECHNICAL_FAILURE",
-          reason: "INVALID_INPUT_STATE",
-        };
-      }
-
-      return {
-        status: "SUCCESS",
-        data: parseRequestResult.data,
-      };
-    } catch (err) {
-      logger.logError({
-        functionName: "submitApplicationUseCase_generateSubmitBody",
-        message: "Submit application request payload generation failed",
-        err,
-        extraContext: {
-          event: "apply_submission_failed",
-          reason: "UNEXPECTED_EXCEPTION",
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
-      };
-    }
+    return SubmitApplicationRequestSchema.parse(submitBodyWithDetails);
   }
 
   #applyOptionalClientFields(

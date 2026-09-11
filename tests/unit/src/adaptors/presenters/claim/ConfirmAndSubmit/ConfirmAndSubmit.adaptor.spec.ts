@@ -11,13 +11,11 @@ describe("ConfirmAndSubmit adaptor", () => {
   let claimSubmitPort: StubbedInstance<ClaimSubmitPort>;
   let submitClaimUseCase: StubbedInstance<SubmitClaimUseCase>;
   let formatter: Formatter;
-  let loggerMessages: string[];
 
   beforeEach(() => {
     claimSubmitPort = stubInterface<ClaimSubmitPort>();
     submitClaimUseCase = stubInterface<SubmitClaimUseCase>();
     formatter = new Formatter();
-    loggerMessages = [];
   });
   describe("renderForm", () => {
     it("renders the confirm and submit view", () => {
@@ -820,21 +818,12 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 0);
     });
 
-    it("redirects to the global error route when the use case returns TECHNICAL_FAILURE", async () => {
-      submitClaimUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
+    it("propagates errors thrown by the use case", async () => {
+      const error = new Error("submit failed");
+      submitClaimUseCase.execute.rejects(error);
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
       });
-      const adaptor = new ConfirmAndSubmitAdaptor(
-        formatter,
-        claimSubmitPort,
-        {
-          submitClaim: submitClaimUseCase,
-        },
-        (message) => {
-          loggerMessages.push(message);
-        },
-      );
 
       const responseStub = stubInterface<Response>();
       responseStub.status.returns(responseStub);
@@ -845,21 +834,13 @@ describe("ConfirmAndSubmit adaptor", () => {
         subtype: "PROFIT_COST",
       };
 
-      await adaptor.processForm(requestStub, responseStub);
-
-      assert.equal(responseStub.redirect.callCount, 1);
-      const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/error");
-      assert.equal(responseStub.status.callCount, 0);
-      assert.equal(responseStub.render.callCount, 0);
-      assert.equal(loggerMessages.length, 1);
-      assert.equal(
-        loggerMessages[0],
-        JSON.stringify({
-          event: "submit.claim.error",
-          reason: "UNEXPECTED_EXCEPTION",
-        }),
+      await assert.rejects(
+        adaptor.processForm(requestStub, responseStub),
+        error,
       );
+
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 0);
     });
   });
 

@@ -72,6 +72,5 @@ export const SubmitApplicationRequestSchema = z.object({
 });
 
 export const SubmitApplicationResponseSchema = z.object({
-  statusCode: z.number(),
   laaReference: z.string(),
 });
