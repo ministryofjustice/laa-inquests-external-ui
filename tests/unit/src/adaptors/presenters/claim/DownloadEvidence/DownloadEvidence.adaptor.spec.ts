@@ -5,6 +5,7 @@ import sinon from "sinon";
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
+import { ERROR_PAGE_MESSAGE } from "#src/infrastructure/locales/constants.js";
 
 describe("DownloadEvidenceAdaptor (presenter)", () => {
   let downloadEvidenceUseCase: StubbedInstance<DownloadEvidenceUseCase>;
@@ -84,7 +85,7 @@ describe("DownloadEvidenceAdaptor (presenter)", () => {
     const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
     assert.deepEqual(renderModel, {
       status: 404,
-      message: "Page not found",
+      message: ERROR_PAGE_MESSAGE.NOT_FOUND,
     });
     assert.equal(streamStub.pipe.callCount, 0);
   });

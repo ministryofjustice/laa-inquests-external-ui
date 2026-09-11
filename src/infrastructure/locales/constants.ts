@@ -617,3 +617,9 @@ export const HTTP_INTERNAL_SERVER_ERROR = 500;
 export const HTTP_BAD_GATEWAY = 502;
 export const HTTP_SERVICE_UNAVAILABLE = 503;
 export const HTTP_GATEWAY_TIMEOUT = 504;
+
+export const ERROR_PAGE_MESSAGE = {
+  FORBIDDEN: "Forbidden",
+  NOT_FOUND: "Page not found",
+  INTERNAL_SERVER_ERROR: "Internal Server Error",
+};

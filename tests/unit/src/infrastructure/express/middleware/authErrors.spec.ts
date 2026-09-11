@@ -8,6 +8,7 @@ import {
   ApplicationError,
   APPLICATION_ERROR_TYPES,
 } from "#src/use-cases/common/ApplicationError.js";
+import { ERROR_PAGE_MESSAGE } from "#src/infrastructure/locales/constants.js";
 
 describe("handleAuthErrors", () => {
   let req: StubbedInstance<Request>;
@@ -118,7 +119,7 @@ describe("handleAuthErrors", () => {
     assert.equal(res.render.callCount, 1);
     assert.deepEqual(res.render.firstCall.args, [
       "main/error",
-      { status: 403, message: "Forbidden" },
+      { status: 403, message: ERROR_PAGE_MESSAGE.FORBIDDEN },
     ]);
     assert.equal(next.callCount, 0);
   });

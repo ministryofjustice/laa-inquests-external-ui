@@ -4,7 +4,10 @@ import {
   isApplicationError,
   APPLICATION_ERROR_TYPES,
 } from "#src/use-cases/common/ApplicationError.js";
-import { HTTP_FORBIDDEN } from "#src/infrastructure/locales/constants.js";
+import {
+  ERROR_PAGE_MESSAGE,
+  HTTP_FORBIDDEN,
+} from "#src/infrastructure/locales/constants.js";
 
 const AUTH_PATH_PREFIX = "/auth/";
 
@@ -49,7 +52,7 @@ const handleAuthErrors = (
 
     res.status(HTTP_FORBIDDEN).render("main/error", {
       status: HTTP_FORBIDDEN,
-      message: "Forbidden",
+      message: ERROR_PAGE_MESSAGE.FORBIDDEN,
     });
   } else {
     next(err);

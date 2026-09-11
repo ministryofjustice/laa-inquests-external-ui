@@ -221,6 +221,7 @@ test.describe("Claim - confirm and submit", () => {
     );
 
     expect(response.status()).toBe(404);
+    expect(await response.text()).toContain("Page not found");
   });
 
   test("renders Change links pointing to the correct pages", async ({
