@@ -138,22 +138,20 @@ export class ConfirmationAdaptor {
     }
 
     const { session } = req;
-    if (result.status === "SUCCESS") {
-      const { laaReference } =
-        await this.submitApplicationUseCase.execute(sessionState);
-      logger.logInfo({
-        functionName: "confirmation_presenter",
-        message: "Application submitted",
-        request: req,
-        extraContext: {
-          event: "application_submitted",
-          laa_reference: laaReference,
-        },
-      });
-      this.sessionHelper.clearApplyFormData(req);
-      session.applicationReferenceNumber = laaReference;
-      res.redirect("/apply/confirmation/success");
-    }
+    const { laaReference } =
+      await this.submitApplicationUseCase.execute(sessionState);
+    logger.logInfo({
+      functionName: "confirmation_presenter",
+      message: "Application submitted",
+      request: req,
+      extraContext: {
+        event: "application_submitted",
+        laa_reference: laaReference,
+      },
+    });
+    this.sessionHelper.clearApplyFormData(req);
+    session.applicationReferenceNumber = laaReference;
+    res.redirect("/apply/confirmation/success");
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {
