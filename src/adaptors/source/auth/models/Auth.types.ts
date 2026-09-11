@@ -1,3 +1,5 @@
+import type { AppRole } from "#src/infrastructure/config/accessControl.js";
+
 export interface AuthTokenResult {
   userId: string;
   userName?: string;
@@ -7,4 +9,5 @@ export interface AuthTokenResult {
   providerEmail?: string;
   accessToken?: string;
   accessTokenExpiresOn?: Date;
+  roles: AppRole[];
 }

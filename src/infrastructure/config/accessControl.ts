@@ -21,6 +21,8 @@ export type AppRole = (typeof APP_ROLES)[keyof typeof APP_ROLES];
 /** The complete set of roles the service recognises. */
 export const RECOGNISED_ROLES: readonly AppRole[] = Object.values(APP_ROLES);
 
+export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
+
 export interface RoutePolicy {
   readonly prefix: string;
   readonly allowedRoles: readonly AppRole[];

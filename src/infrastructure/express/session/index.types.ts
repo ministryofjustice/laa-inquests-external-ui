@@ -1,6 +1,7 @@
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 import type { ClaimRejectionReasonCode } from "#src/infrastructure/locales/constants.js";
+import type { AppRole } from "#src/infrastructure/config/accessControl.js";
 
 declare module "express-session" {
   interface SessionData extends Record<
@@ -23,6 +24,7 @@ declare module "express-session" {
     firmId?: string;
     officeId?: string;
     userOfficeAccounts?: string[];
+    roles?: AppRole[];
     accessToken?: string;
     coronersLetterId?: string;
     coronersLetterFileName?: string;

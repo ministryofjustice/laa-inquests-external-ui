@@ -80,6 +80,7 @@ describe("EntraAuthAdaptor", () => {
         officeId: "A001B",
         userOfficeAccounts: ["A001B"],
         providerEmail: "test@example.com",
+        roles: [],
         accessToken: "access-token-123",
       });
       assert.ok(
@@ -114,6 +115,7 @@ describe("EntraAuthAdaptor", () => {
         officeId: "A001B",
         userOfficeAccounts: ["A001B"],
         providerEmail: "test@example.com",
+        roles: [],
       });
     });
 
@@ -253,6 +255,143 @@ describe("EntraAuthAdaptor", () => {
       );
 
       assert.equal(result.firmId, undefined);
+    });
+
+    describe("role extraction", () => {
+      it("extracts recognised roles from an array-valued LAA_APP_ROLES claim", async () => {
+        msalClient.acquireTokenByCode.resolves({
+          account: {
+            homeAccountId: "user-oid-123",
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES: [
+                "Inquests - Provider Application User",
+                "Inquests - Provider Claims User",
+              ],
+            },
+          },
+        } as any);
+
+        const result = await adaptor.acquireTokenByCode(
+          "auth-code",
+          SCOPES,
+          REDIRECT_URI,
+        );
+
+        assert.deepEqual(result.roles, [
+          "Inquests - Provider Application User",
+          "Inquests - Provider Claims User",
+        ]);
+      });
+
+      it("extracts recognised roles from a comma-separated LAA_APP_ROLES claim, trimming whitespace", async () => {
+        msalClient.acquireTokenByCode.resolves({
+          account: {
+            homeAccountId: "user-oid-123",
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES:
+                "Inquests - Provider Application User , Inquests - Provider Claims User",
+            },
+          },
+        } as any);
+
+        const result = await adaptor.acquireTokenByCode(
+          "auth-code",
+          SCOPES,
+          REDIRECT_URI,
+        );
+
+        assert.deepEqual(result.roles, [
+          "Inquests - Provider Application User",
+          "Inquests - Provider Claims User",
+        ]);
+      });
+
+      it("deduplicates repeated roles in the LAA_APP_ROLES claim", async () => {
+        msalClient.acquireTokenByCode.resolves({
+          account: {
+            homeAccountId: "user-oid-123",
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES: [
+                "Inquests - Provider Application User",
+                "Inquests - Provider Application User",
+              ],
+            },
+          },
+        } as any);
+
+        const result = await adaptor.acquireTokenByCode(
+          "auth-code",
+          SCOPES,
+          REDIRECT_URI,
+        );
+
+        assert.deepEqual(result.roles, [
+          "Inquests - Provider Application User",
+        ]);
+      });
+
+      it("ignores unrecognised roles in the LAA_APP_ROLES claim", async () => {
+        msalClient.acquireTokenByCode.resolves({
+          account: {
+            homeAccountId: "user-oid-123",
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES: [
+                "Inquests - Random Role",
+                "Inquests - Provider Claims User",
+              ],
+            },
+          },
+        } as any);
+
+        const result = await adaptor.acquireTokenByCode(
+          "auth-code",
+          SCOPES,
+          REDIRECT_URI,
+        );
+
+        assert.deepEqual(result.roles, ["Inquests - Provider Claims User"]);
+      });
+
+      it("returns an empty roles array when the LAA_APP_ROLES claim is missing", async () => {
+        msalClient.acquireTokenByCode.resolves({
+          account: {
+            homeAccountId: "user-oid-123",
+            idTokenClaims: { FIRM_CODE: "123" },
+          },
+        } as any);
+
+        const result = await adaptor.acquireTokenByCode(
+          "auth-code",
+          SCOPES,
+          REDIRECT_URI,
+        );
+
+        assert.deepEqual(result.roles, []);
+      });
+
+      it("returns an empty roles array when the LAA_APP_ROLES claim is malformed", async () => {
+        msalClient.acquireTokenByCode.resolves({
+          account: {
+            homeAccountId: "user-oid-123",
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES: { unexpected: 1 },
+            },
+          },
+        } as any);
+
+        const result = await adaptor.acquireTokenByCode(
+          "auth-code",
+          SCOPES,
+          REDIRECT_URI,
+        );
+
+        assert.deepEqual(result.roles, []);
+      });
     });
 
     it("surfaces the token expiry from the MSAL result", async () => {
