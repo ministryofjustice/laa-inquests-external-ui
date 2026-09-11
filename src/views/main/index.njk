@@ -10,17 +10,21 @@
 
 
     {% if hasRole(appRoles.APPLICATION_USER) %}
-        {{ govukButton({
-            text: "Apply",
-            href: "/apply"
-        }) }}
+        <div>
+            {{ govukButton({
+                text: "Apply",
+                href: "/apply"
+            }) }}
+        </div>
     {% endif %}
 
     {% if hasRole(appRoles.CLAIMS_USER) %}
-        {{ govukButton({
-            text: "Make a claim",
-            href: "/claim"
-        }) }}
+        <div>
+            {{ govukButton({
+                text: "Make a claim",
+                href: "/claim"
+            }) }}
+        </div>
     {% endif %}
 
 {% endblock %}
