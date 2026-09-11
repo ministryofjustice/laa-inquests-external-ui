@@ -112,10 +112,7 @@ describe("CaseSearch adaptor", () => {
         overallDecision: "GRANTED",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
-      searchCasesUseCase.execute.resolves({
-        status: "SUCCESS",
-        data: [mockCase],
-      });
+      searchCasesUseCase.execute.resolves([mockCase]);
 
       const validator = new CaseSearchValidator();
       const port = stubInterface<SearchCasesPort>();
@@ -159,10 +156,7 @@ describe("CaseSearch adaptor", () => {
         overallDecision: "GRANTED",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
-      searchCasesUseCase.execute.resolves({
-        status: "SUCCESS",
-        data: [mockCase],
-      });
+      searchCasesUseCase.execute.resolves([mockCase]);
 
       const adaptor = new CaseSearchAdaptor(
         new CaseSearchValidator(),
@@ -189,12 +183,10 @@ describe("CaseSearch adaptor", () => {
       ]);
     });
 
-    it("does not render when use case returns TECHNICAL_FAILURE", async () => {
+    it("propagates a use-case rejection unchanged", async () => {
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
-      searchCasesUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
-      });
+      const useCaseError = new Error("upstream unavailable");
+      searchCasesUseCase.execute.rejects(useCaseError);
 
       const validator = new CaseSearchValidator();
       const port = stubInterface<SearchCasesPort>();
@@ -210,8 +202,13 @@ describe("CaseSearch adaptor", () => {
       requestStub.session.claim = { caseReference: "1" };
       requestStub.session.accessToken = "access-token-123";
 
-      await adaptor.renderResults(requestStub, responseStub);
-
+      await assert.rejects(
+        () => adaptor.renderResults(requestStub, responseStub),
+        (error: unknown) => {
+          assert.equal(error, useCaseError);
+          return true;
+        },
+      );
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -227,10 +224,7 @@ describe("CaseSearch adaptor", () => {
         overallDecision: "GRANTED",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
-      searchCasesUseCase.execute.resolves({
-        status: "SUCCESS",
-        data: [mockCase],
-      });
+      searchCasesUseCase.execute.resolves([mockCase]);
 
       const validator = new CaseSearchValidator();
       const port = stubInterface<SearchCasesPort>();
@@ -258,10 +252,7 @@ describe("CaseSearch adaptor", () => {
 
     it("renders results with empty cases array when API returns no results", async () => {
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
-      searchCasesUseCase.execute.resolves({
-        status: "SUCCESS",
-        data: [],
-      });
+      searchCasesUseCase.execute.resolves([]);
 
       const validator = new CaseSearchValidator();
       const port = stubInterface<SearchCasesPort>();
