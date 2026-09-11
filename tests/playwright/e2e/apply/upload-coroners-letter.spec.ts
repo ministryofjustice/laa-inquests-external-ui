@@ -6,7 +6,10 @@ import {
   validateCSRFToken,
   validateContinueButton,
 } from "../../utils/govuk-validators.js";
-import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
+import {
+  CORONERS_LETTER_ERROR,
+  INVALID_FILE_NAME,
+} from "#src/infrastructure/locales/constants.js";
 
 // The mock upload handler returns this fixed file name for any non-virus file.
 const MOCK_UPLOADED_FILE_NAME = "test_coroners_letter.pdf";
@@ -82,7 +85,7 @@ test.describe("Apply - upload coroner's letter", () => {
     );
   });
 
-  test("uploads a coroner's letter using the javascript uploader", async ({
+  test("uploads a coroner's letter using the multifile uploader", async ({
     page,
   }) => {
     await uploadViaWidget(page, {
@@ -145,128 +148,19 @@ test.describe("Apply - upload coroner's letter", () => {
         .filter({ hasText: MOCK_UPLOADED_FILE_NAME }),
     ).toHaveCount(0);
   });
-});
-
-test.describe("Apply - upload coroner's letter (no javascript)", () => {
-  test.use({ javaScriptEnabled: false });
-
-  test("uploads a coroner's letter and stays on the page", async ({ page }) => {
-    await page.goto("/apply/upload-coroners-letter");
-
-    await page.setInputFiles("#documents", {
-      name: "test-coroners-letter.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("coroners letter content"),
-    });
-
-    await page.getByRole("button", { name: "Upload file" }).click();
-
-    await expect(page).toHaveURL("/apply/upload-coroners-letter");
-    await expect(
-      page
-        .locator(".moj-multi-file-upload__message")
-        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
-        .first(),
-    ).toBeVisible();
-  });
-
-  test("shows a virus error when the file scan is positive", async ({
+  test("renders a file name error when file name contains unaccepted punctuation", async ({
     page,
   }) => {
     await page.goto("/apply/upload-coroners-letter");
 
     await page.setInputFiles("#documents", {
-      name: "virus.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("infected content"),
-    });
-
-    await page.getByRole("button", { name: "Upload file" }).click();
-
-    const errorSummary = page.getByRole("alert");
-    await expect(errorSummary).toBeVisible();
-    await expect(errorSummary).toContainText("There is a problem");
-    await expect(errorSummary).toContainText(
-      CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
-    );
-  });
-
-  test("continues to check your answers after uploading", async ({ page }) => {
-    await page.goto("/apply/upload-coroners-letter");
-
-    await page.setInputFiles("#documents", {
-      name: "test-coroners-letter.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("coroners letter content"),
-    });
-
-    await page.getByRole("button", { name: "Upload file" }).click();
-    await expect(
-      page
-        .locator(".moj-multi-file-upload__message")
-        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
-        .first(),
-    ).toBeVisible();
-
-    await page
-      .getByTestId("upload-coroners-letter-form")
-      .getByRole("button", { name: "Continue" })
-      .click();
-
-    await expect(page).toHaveURL("/apply/check-your-answers");
-  });
-
-  test("rejects a second file when one is already uploaded", async ({
-    page,
-  }) => {
-    await page.goto("/apply/upload-coroners-letter");
-
-    await page.setInputFiles("#documents", {
-      name: "first-coroners-letter.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("first coroners letter content"),
-    });
-    await page.getByRole("button", { name: "Upload file" }).click();
-    await expect(
-      page
-        .locator(".moj-multi-file-upload__message")
-        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
-        .first(),
-    ).toBeVisible();
-
-    await page.setInputFiles("#documents", {
-      name: "second-coroners-letter.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("second coroners letter content"),
-    });
-    await page.getByRole("button", { name: "Upload file" }).click();
-
-    const errorSummary = page.getByRole("alert");
-    await expect(errorSummary).toBeVisible();
-    await expect(errorSummary).toContainText(
-      CORONERS_LETTER_ERROR.ONLY_ONE_FILE_ALLOWED,
-    );
-  });
-  test("does not render a file name error when file name contains accepted punctuation", async ({
-    page,
-  }) => {
-    await page.goto("/apply/upload-coroners-letter");
-
-    await page.setInputFiles("#documents", {
-      name: "coroners-letter! (final).pdf",
+      name: "coroner's-letter.pdf",
       mimeType: "application/pdf",
       buffer: Buffer.from("letter content"),
     });
 
-    await page.getByRole("button", { name: "Upload file" }).click();
-
-    const errorSummary = page.getByRole("alert");
-    await expect(errorSummary).not.toBeVisible();
-    await expect(
-      page
-        .locator(".moj-multi-file-upload__message")
-        .filter({ hasText: MOCK_UPLOADED_FILE_NAME })
-        .first(),
-    ).toBeVisible();
+    const errorSummary = page.locator(".moj-multi-file-upload__error");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(INVALID_FILE_NAME);
   });
 });

@@ -2,6 +2,10 @@ import { initAll as initGOVUK } from "govuk-frontend";
 import { initAll as initMOJ } from "@ministryofjustice/frontend";
 import { MultiFileUpload } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
 import type { MultiFileUploadInstance } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
+import {
+  INVALID_FILE_NAME,
+  INVALID_FILE_NAME_REGEX,
+} from "../locales/constants.js";
 
 const COPY_RESET_DELAY_MS = 4000;
 
@@ -59,13 +63,11 @@ function initialiseMultiFileUpload(): void {
       deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
       hooks: {
         entryHook: (upload: MultiFileUploadInstance, file: File): void => {
-          const filepathPattern = `^(?:&(?:(?:[acegilnorsuz]acut|[aeiou]grav|[aino]tild)e|[c-elnr-tz]caron|(?:[cgklnr-t]cedi|[aeiouy]um)l|[aceg-josuwy]circ|[au]ring|a(?:mp|pos)|nbsp|oslash);|[^\\"';=\\x5c])*$`;
           /* eslint-disable-next-line require-unicode-regexp -- not expected to have unicode in filenames */
-          const filepathRegex = new RegExp(filepathPattern);
+          const filepathRegex = new RegExp(INVALID_FILE_NAME_REGEX);
           if (!filepathRegex.test(file.name)) {
-            const message = `Invalid file name: ${file.name}`;
-            renderClientSideUploadError(upload, file, message);
-            throw new Error(message);
+            renderClientSideUploadError(upload, file, INVALID_FILE_NAME);
+            throw new Error(INVALID_FILE_NAME);
           }
         },
       },
