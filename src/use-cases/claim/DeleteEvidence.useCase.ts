@@ -1,9 +1,5 @@
 import type { DeleteEvidencePort } from "#src/ports/source/inquests-api/DeleteEvidence.port.js";
-import type {
-  TechnicalFailureReason,
-  UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
+import type { DeleteEvidenceResponse } from "#src/adaptors/source/inquests-api/claim/DeleteEvidence/models/DeleteEvidence.types.js";
 
 interface DeleteEvidenceInput {
   evidenceFileId: string;
@@ -17,63 +13,16 @@ export class DeleteEvidenceUseCase {
     this.deleteEvidencePort = deleteEvidencePort;
   }
 
-  async execute(input: DeleteEvidenceInput): Promise<UseCaseResult> {
+  async execute(input: DeleteEvidenceInput): Promise<DeleteEvidenceResponse> {
     const { evidenceFileId, accessToken } = input;
 
     if (evidenceFileId === "") {
-      logger.logWarn({
-        functionName: "deleteEvidenceUseCase_execute",
-        message: "Evidence delete received invalid input",
-        extraContext: {
-          event: "claim_evidence_delete_failed",
-          reason: "INVALID_INPUT_STATE",
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "INVALID_INPUT_STATE",
-      };
+      return { status: "DELETE_REJECTED" };
     }
 
-    try {
-      const responseRaw = await this.deleteEvidencePort.deleteEvidence(
-        { evidenceFileId },
-        accessToken,
-      );
-
-      if (responseRaw.status === "SUCCESS") {
-        return { status: "SUCCESS" };
-      }
-
-      logger.logWarn({
-        functionName: "deleteEvidenceUseCase_execute",
-        message: "Evidence delete rejected by downstream component",
-        extraContext: {
-          event: "claim_evidence_delete_failed",
-          reason: responseRaw.reason,
-          file_id: evidenceFileId,
-        },
-      });
-
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: responseRaw.reason as TechnicalFailureReason,
-      };
-    } catch (err) {
-      logger.logError({
-        functionName: "deleteEvidenceUseCase_execute",
-        message: "Evidence delete failed with exception",
-        err,
-        extraContext: {
-          event: "claim_evidence_delete_failed",
-          reason: "UNEXPECTED_EXCEPTION",
-          file_id: evidenceFileId,
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
-      };
-    }
+    return await this.deleteEvidencePort.deleteEvidence(
+      { evidenceFileId },
+      accessToken,
+    );
   }
 }

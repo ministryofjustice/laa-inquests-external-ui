@@ -39,50 +39,45 @@ describe("UploadEvidenceUseCase", () => {
 
     assert.deepEqual(result, {
       status: "SUCCESS",
-      data: {
-        evidenceFileId,
-        evidenceFileName,
-      },
-    });
-  });
-
-  it("returns technical failure when the API returns TECHNICAL_FAILURE", async () => {
-    uploadEvidencePort.uploadEvidence.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
-    });
-
-    const result = await useCase.execute(uploadInput);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
-    });
-  });
-
-  it("returns technical failure when the API returns success with missing evidenceFileId", async () => {
-    uploadEvidencePort.uploadEvidence.resolves({
-      status: "SUCCESS",
-      evidenceFileId: "",
+      evidenceFileId,
       evidenceFileName,
     });
+  });
+
+  it("returns UPLOAD_REJECTED when the port rejects the upload", async () => {
+    uploadEvidencePort.uploadEvidence.resolves({
+      status: "UPLOAD_REJECTED",
+    });
 
     const result = await useCase.execute(uploadInput);
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
+      status: "UPLOAD_REJECTED",
     });
   });
 
-  it("returns technical failure when the adaptor throws an exception", async () => {
-    uploadEvidencePort.uploadEvidence.rejects(new Error("network failure"));
+  it("returns FILE_SCAN_FOUND_VIRUS when the port reports a scan rejection", async () => {
+    uploadEvidencePort.uploadEvidence.resolves({
+      status: "FILE_SCAN_FOUND_VIRUS",
+    });
 
     const result = await useCase.execute(uploadInput);
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
+      status: "FILE_SCAN_FOUND_VIRUS",
     });
+  });
+
+  it("propagates a port rejection unchanged", async () => {
+    const portError = new Error("network failure");
+    uploadEvidencePort.uploadEvidence.rejects(portError);
+
+    await assert.rejects(
+      async () => useCase.execute(uploadInput),
+      (error: unknown) => {
+        assert.equal(error, portError);
+        return true;
+      },
+    );
   });
 });

@@ -49,47 +49,47 @@ describe("UploadEvidenceAdaptor", () => {
 
     assert.equal(actualUrl, "http://localhost/claims/evidence");
     assert.equal(actualBody instanceof FormData, true);
-    assert.deepEqual(postCall.args[2], {
-      headers: {
-        Authorization: "Bearer token-123",
-      },
+    const options = postCall.args[2] as {
+      headers: Record<string, string>;
+      validateStatus: (status: number) => boolean;
+    };
+    assert.deepEqual(options.headers, {
+      Authorization: "Bearer token-123",
     });
+    assert.equal(typeof options.validateStatus, "function");
   });
 
-  it("returns technical failure when upstream responds with non-created status", async () => {
+  it("returns UPLOAD_REJECTED when upstream responds with a non-created status", async () => {
     axiosStub.post.resolves({ status: 500, data: {} });
 
     const result = await adaptor.uploadEvidence(submitBodyRaw, "token-123");
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
+      status: "UPLOAD_REJECTED",
     });
   });
 
-  it("returns virus scan technical failure on 422 response", async () => {
+  it("returns FILE_SCAN_FOUND_VIRUS on a 422 response", async () => {
     axiosStub.post.resolves({ status: 422, data: {} });
 
     const result = await adaptor.uploadEvidence(submitBodyRaw, "token-123");
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "FILE_SCAN_FOUND_VIRUS",
+      status: "FILE_SCAN_FOUND_VIRUS",
     });
   });
 
-  it("returns technical failure on unexpected exception", async () => {
+  it("returns UPLOAD_REJECTED on unexpected exception", async () => {
     axiosStub.post.rejects(new Error("network error"));
 
     const result = await adaptor.uploadEvidence(submitBodyRaw, "token-123");
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
+      status: "UPLOAD_REJECTED",
     });
   });
 
-  it("returns technical failure when the API payload is malformed", async () => {
+  it("returns UPLOAD_REJECTED when the API payload is malformed", async () => {
     axiosStub.post.resolves({
       status: 201,
       data: {
@@ -100,8 +100,7 @@ describe("UploadEvidenceAdaptor", () => {
     const result = await adaptor.uploadEvidence(submitBodyRaw, "token-123");
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
+      status: "UPLOAD_REJECTED",
     });
   });
 });

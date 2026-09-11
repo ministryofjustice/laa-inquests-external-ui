@@ -11,7 +11,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
+import type { UploadEvidenceResponse } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/models/UploadEvidence.types.js";
 import type { FinalBillTemplateValidator } from "./FinalBillTemplate.validator.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
@@ -120,16 +120,14 @@ export class FinalBillTemplateAdaptor {
         accessToken: req.session.accessToken,
       });
 
-      const hasValidData =
-        result.status === "SUCCESS" &&
-        isNonEmptyString(result.data?.evidenceFileId) &&
-        isNonEmptyString(result.data?.evidenceFileName);
-
-      if (hasValidData) {
+      if (result.status === "SUCCESS") {
         this.#handleUploadSuccess({
           req,
           res,
-          data: result.data!,
+          data: {
+            evidenceFileId: result.evidenceFileId,
+            evidenceFileName: result.evidenceFileName,
+          },
           file: file!,
           isNoJsUpload: isNoJs,
         });
@@ -293,7 +291,7 @@ export class FinalBillTemplateAdaptor {
   #handleUploadFailure(options: {
     req: Request;
     res: Response;
-    result: UseCaseResult<unknown, unknown>;
+    result: UploadEvidenceResponse;
     isNoJsUpload: boolean;
   }): void {
     const { req, res, result, isNoJsUpload } = options;

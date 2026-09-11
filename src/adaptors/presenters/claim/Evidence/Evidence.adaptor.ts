@@ -12,7 +12,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
+import type { UploadEvidenceResponse } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/models/UploadEvidence.types.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -122,16 +122,14 @@ export class EvidenceAdaptor {
         accessToken: req.session.accessToken,
       });
 
-      const hasValidData =
-        result.status === "SUCCESS" &&
-        isNonEmptyString(result.data?.evidenceFileId) &&
-        isNonEmptyString(result.data?.evidenceFileName);
-
-      if (hasValidData) {
+      if (result.status === "SUCCESS") {
         this.#handleUploadSuccess({
           req,
           res,
-          data: result.data!,
+          data: {
+            evidenceFileId: result.evidenceFileId,
+            evidenceFileName: result.evidenceFileName,
+          },
           file: file!,
           isNoJsUpload: isNoJs,
         });
@@ -188,6 +186,7 @@ export class EvidenceAdaptor {
     }
 
     this.#removeEvidenceFileFromSession(req, evidenceFileId);
+    this.#logDeleteSuccess(req, evidenceFileId);
     res.status(HTTP_SUCCESS).json({ success: true });
   }
 
@@ -237,7 +236,20 @@ export class EvidenceAdaptor {
     }
 
     this.#removeEvidenceFileFromSession(req, evidenceFileId);
+    this.#logDeleteSuccess(req, evidenceFileId);
     res.redirect("/claim/evidence");
+  }
+
+  #logDeleteSuccess(req: Request, evidenceFileId: string): void {
+    logger.logInfo({
+      functionName: "evidenceAdaptor_processEvidenceDelete",
+      message: "Evidence deleted successfully",
+      request: req,
+      extraContext: {
+        event: "evidence_deleted",
+        evidence_id: evidenceFileId,
+      },
+    });
   }
 
   #buildUploadedFiles(req: Request): Array<{
@@ -313,7 +325,7 @@ export class EvidenceAdaptor {
   #handleUploadFailure(options: {
     req: Request;
     res: Response;
-    result: UseCaseResult<unknown, unknown>;
+    result: UploadEvidenceResponse;
     isNoJsUpload: boolean;
   }): void {
     const { req, res, result, isNoJsUpload } = options;
@@ -353,7 +365,7 @@ export class EvidenceAdaptor {
 
     if (isNoJsUpload) {
       res.redirect("/claim/evidence");
-      this.#logUploadSuccess(req, isNoJsUpload);
+      this.#logUploadSuccess(req, isNoJsUpload, data.evidenceFileId);
       return;
     }
 
@@ -378,18 +390,19 @@ export class EvidenceAdaptor {
           originalname: file.originalname,
         },
       });
-      this.#logUploadSuccess(req, isNoJsUpload);
+      this.#logUploadSuccess(req, isNoJsUpload, data.evidenceFileId);
     });
   }
 
-  #logUploadSuccess(req: Request, isNoJsUpload: boolean): void {
+  #logUploadSuccess(req: Request, isNoJsUpload: boolean, fileId: string): void {
     logger.logInfo({
       functionName: "evidenceAdaptor_handleUploadSuccess",
       message: "Evidence upload completed successfully",
       request: req,
       extraContext: {
-        event: "claim_evidence_upload_completed",
+        event: "evidence_uploaded",
         no_js_upload: isNoJsUpload,
+        file_id: fileId,
       },
     });
   }

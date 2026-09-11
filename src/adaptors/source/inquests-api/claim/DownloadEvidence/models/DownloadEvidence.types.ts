@@ -7,6 +7,8 @@ export interface DownloadEvidenceRequest {
   disposition: EvidenceDisposition;
 }
 
+// Download is a read/stream: absence is an expected NOT_FOUND value; transport
+// and malformed failures are thrown as sanitized ApplicationError.
 export type DownloadEvidenceResponse =
   | {
       status: "SUCCESS";
@@ -14,7 +16,4 @@ export type DownloadEvidenceResponse =
       contentType: string;
       contentDisposition: string;
     }
-  | {
-      status: "TECHNICAL_FAILURE";
-      reason: "NOT_FOUND" | "UPSTREAM_REJECTED" | "UNEXPECTED_EXCEPTION";
-    };
+  | { status: "NOT_FOUND" };
