@@ -1,8 +1,33 @@
 import { initAll as initGOVUK } from "govuk-frontend";
 import { initAll as initMOJ } from "@ministryofjustice/frontend";
 import { MultiFileUpload } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
+import type { MultiFileUploadInstance } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
+import {
+  INVALID_FILE_NAME,
+  INVALID_FILE_NAME_REGEX,
+} from "../locales/constants.js";
 
 const COPY_RESET_DELAY_MS = 4000;
+
+// Mirrors the row/error markup the widget renders for a server-rejected file, since the
+// ingress blocks invalid filenames before they would ever reach that server-side validation.
+function renderClientSideUploadError(
+  upload: MultiFileUploadInstance,
+  file: File,
+  message: string,
+): void {
+  const $row = upload.getFileRow(file);
+  const $message = $row.querySelector(".moj-multi-file-upload__message");
+  if ($message !== null) {
+    $message.innerHTML = upload.getErrorHtml(new Error(message));
+  }
+
+  upload.$feedbackContainer.classList.remove("moj-hidden");
+  upload.$feedbackContainer
+    .querySelector(".moj-multi-file-upload__list")
+    ?.append($row);
+  upload.$status.textContent = message;
+}
 
 function initialiseMultiFileUpload(): void {
   const multiFileUploadElement = document.querySelector(
@@ -36,6 +61,16 @@ function initialiseMultiFileUpload(): void {
     void new MultiFileUpload(multiFileUploadElement, {
       uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
       deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
+      hooks: {
+        entryHook: (upload: MultiFileUploadInstance, file: File): void => {
+          /* eslint-disable-next-line require-unicode-regexp -- not expected to have unicode in filenames */
+          const filepathRegex = new RegExp(INVALID_FILE_NAME_REGEX);
+          if (!filepathRegex.test(file.name)) {
+            renderClientSideUploadError(upload, file, INVALID_FILE_NAME);
+            throw new Error(INVALID_FILE_NAME);
+          }
+        },
+      },
     });
   }
 }

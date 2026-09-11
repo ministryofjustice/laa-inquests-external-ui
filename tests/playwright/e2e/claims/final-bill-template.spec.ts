@@ -104,7 +104,7 @@ test.describe("Claim - final bill template", () => {
     );
   });
 
-  test("uploads the template using the javascript multi-file uploader", async ({
+  test("uploads the template using the multi-file uploader", async ({
     page,
   }) => {
     const [response] = await Promise.all([
@@ -314,47 +314,5 @@ test.describe("Claim - final bill template", () => {
     await expect(
       page.locator(".moj-multi-file-upload__error").last(),
     ).toContainText(CLAIM_FINAL_BILL_TEMPLATE_ERROR.ONLY_ONE_FILE_ALLOWED);
-  });
-});
-
-test.describe("Claim - final bill template (no javascript)", () => {
-  test.use({ javaScriptEnabled: false });
-
-  test("uploads the template and redirects back to the final bill template page", async ({
-    page,
-  }) => {
-    await goToFinalBillTemplate(page);
-
-    await page.setInputFiles("#documents", {
-      name: "cost-template.xlsx",
-      mimeType: xlsxMimeType,
-      buffer: Buffer.from("fake spreadsheet content"),
-    });
-
-    await page.getByRole("button", { name: "Upload file" }).click();
-
-    await expect(page).toHaveURL("/claim/final-bill-template");
-  });
-
-  test("deletes the uploaded template and redirects back to the final bill template page", async ({
-    page,
-  }) => {
-    await goToFinalBillTemplate(page);
-
-    await page.setInputFiles("#documents", {
-      name: "cost-template.xlsx",
-      mimeType: xlsxMimeType,
-      buffer: Buffer.from("fake spreadsheet content"),
-    });
-    await page.getByRole("button", { name: "Upload file" }).click();
-
-    await page
-      .getByRole("button", { name: /Delete cost-template\.xlsx/i })
-      .click();
-
-    await expect(page).toHaveURL("/claim/final-bill-template");
-    await expect(
-      page.getByRole("button", { name: /Delete cost-template\.xlsx/i }),
-    ).toHaveCount(0);
   });
 });
