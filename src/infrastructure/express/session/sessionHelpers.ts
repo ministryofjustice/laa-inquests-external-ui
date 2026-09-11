@@ -38,6 +38,7 @@ export class SessionHelper {
             "userOfficeAccounts",
             "providerEmail",
             "accessToken",
+            "roles",
           ].includes(k),
       )
       .forEach((key) => {

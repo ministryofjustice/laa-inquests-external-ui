@@ -159,6 +159,34 @@ The endpoint sets `req.session.userId = 'test-user-id'` and saves the session.
 After calling it, browser pages will have the session cookie and can access
 protected routes.
 
+### Role-based access control (RBAC)
+
+Authenticated access is enforced centrally and default-deny at the page level.
+
+- **Recognised Entra roles** (exact display names supplied by SiLAS):
+  - `Inquests - Provider Application User` — grants access to `/apply`.
+  - `Inquests - Provider Claims User` — grants access to `/claim`.
+  - Roles are additive; a user may hold either or both.
+- **Accepted claim key:** roles are read from the Entra ID token's roles claim that is passed to the token.
+- **Normalised session field:** only recognised, de-duplicated roles are stored
+  on `req.session.roles`. Downstream code (guard and views) reads this field
+  only — never the raw token or claims.
+- **Central policy:** `src/infrastructure/config/accessControl.ts` defines the
+  role names, the route policy matrix, and the public/infrastructure routes.
+- **Enforcement:** `globalAccessGuard`
+  (`src/infrastructure/express/middleware/accessControl/globalAccessGuard.ts`)
+  is mounted globally in `src/app.ts` before the routers, so it also covers the
+  early multipart upload/delete endpoints. Unauthenticated requests are deferred
+  to `requireAuth`, which keeps the existing `/auth/login` redirect.
+- **Matching is segment-safe:** `/apply` and `/apply/...` match the Apply
+  policy, while `/application` does not. Query strings do not affect matching.
+- **Views:** the `viewContext` middleware exposes `userRoles`, `hasRole(role)`
+  and `appRoles` to templates for role-specific rendering (e.g. the home page
+  journey links).
+- **Adding a new protected top-level route** requires adding a corresponding
+  entry to the central route policy matrix in `accessControl.ts`. Authenticated
+  requests to routes missing from the policy return `403 Forbidden` by design.
+
 ### GitHub Actions
 
 - These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project.

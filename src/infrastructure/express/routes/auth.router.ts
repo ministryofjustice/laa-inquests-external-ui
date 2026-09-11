@@ -1,6 +1,10 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
+import {
+  APP_ROLES,
+  type AppRole,
+} from "#src/infrastructure/config/accessControl.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 
@@ -13,6 +17,19 @@ function parseOfficeAccountsQueryParam(value: unknown): string[] {
     .split(",")
     .map((officeCode) => officeCode.trim())
     .filter((officeCode) => officeCode !== "");
+}
+
+function parseRolesQueryParam(value: unknown): AppRole[] {
+  if (value === "application") {
+    return [APP_ROLES.APPLICATION_USER];
+  }
+  if (value === "claims") {
+    return [APP_ROLES.CLAIMS_USER];
+  }
+  if (value === "none") {
+    return [];
+  }
+  return [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER];
 }
 
 // Allows E2E tests to exercise upstream auth/failure handling by seeding a
@@ -72,6 +89,7 @@ export function createAuthRouter(
         req.query.officeAccounts,
       );
       req.session.providerEmail = "test@example.com";
+      req.session.roles = parseRolesQueryParam(req.query.role);
 
       // Optional expiry to exercise session-expiry behaviour in E2E tests.
       const tokenExpirySeconds = Number(req.query.tokenExpirySeconds);

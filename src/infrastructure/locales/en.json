@@ -78,7 +78,8 @@
       }
     },
     "error": {
-      "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK"
+      "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
+      "accessDenied": "You do not have permission to access this page."
     }
   },
   "forms": {
