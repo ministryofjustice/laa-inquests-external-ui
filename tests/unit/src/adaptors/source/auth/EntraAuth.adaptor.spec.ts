@@ -3,6 +3,10 @@ import sinon from "sinon";
 import type { ConfidentialClientApplication } from "@azure/msal-node";
 import { stubInterface } from "ts-sinon";
 import { EntraAuthAdaptor } from "#src/adaptors/source/auth/EntraAuth.adaptor.js";
+import {
+  ApplicationError,
+  APPLICATION_ERROR_TYPES,
+} from "#src/use-cases/common/ApplicationError.js";
 
 const SCOPES = ["openid", "profile", "offline_access"];
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
@@ -272,21 +276,35 @@ describe("EntraAuthAdaptor", () => {
       assert.deepEqual(result.accessTokenExpiresOn, expiresOn);
     });
 
-    it("throws when MSAL returns null", async () => {
+    it("translates a null MSAL result into a sanitized ApplicationError", async () => {
       msalClient.acquireTokenByCode.resolves(null as any);
 
       await assert.rejects(
         () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-        /MSAL returned null token result/,
+        (err: unknown) => {
+          assert.ok(err instanceof ApplicationError);
+          assert.equal(err.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
+          assert.equal(err.operation, "acquire_token");
+          assert.equal(err.cause, undefined);
+          assert.doesNotMatch(err.message, /MSAL returned null token result/);
+          return true;
+        },
       );
     });
 
-    it("propagates error when MSAL throws on acquireTokenByCode", async () => {
+    it("translates an MSAL exception into a sanitized ApplicationError", async () => {
       msalClient.acquireTokenByCode.rejects(new Error("token endpoint error"));
 
       await assert.rejects(
         () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
-        /token endpoint error/,
+        (err: unknown) => {
+          assert.ok(err instanceof ApplicationError);
+          assert.equal(err.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
+          assert.equal(err.operation, "acquire_token");
+          assert.equal(err.cause, undefined);
+          assert.doesNotMatch(err.message, /token endpoint error/);
+          return true;
+        },
       );
     });
   });

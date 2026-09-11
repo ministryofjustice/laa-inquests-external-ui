@@ -90,7 +90,6 @@ import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCa
 import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
-import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -118,7 +117,6 @@ const payingPartyRouter = express.Router();
 const evidenceRouter = express.Router();
 const finalBillTemplateRouter = express.Router();
 const counselRouter = express.Router();
-const errorRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 
@@ -150,8 +148,6 @@ indexRouter.get("/status", (req: Request, res: Response): void => {
 indexRouter.get("/health", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).send("Healthy");
 });
-
-indexRouter.use("/", createErrorRouter(errorRouter));
 
 if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
   const { seedDevAuthSession } = (await import(

@@ -7,6 +7,10 @@ import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  ApplicationError,
+  APPLICATION_ERROR_TYPES,
+} from "#src/use-cases/common/ApplicationError.js";
 
 export class EntraAuthAdaptor implements AuthPort {
   constructor(
@@ -45,15 +49,22 @@ export class EntraAuthAdaptor implements AuthPort {
         ...this.#getExpiryField(result),
       };
     } catch (err) {
+      // Log the raw MSAL failure once at this outbound boundary, then throw a
+      // sanitized ApplicationError so no MSAL object crosses into the app layer.
       logger.logError({
         functionName: "entraAuthAdaptor_acquireTokenByCode",
-        message: "Token exchange failed with exception",
+        message: "Token acquisition failed with exception",
         err,
         extraContext: {
-          event: "auth_token_exchange_failed",
+          event: "auth_token_acquisition_failed",
+          operation: "acquire_token",
         },
       });
-      throw err;
+      throw new ApplicationError(
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+        "acquire_token",
+        true,
+      );
     }
   }
 
