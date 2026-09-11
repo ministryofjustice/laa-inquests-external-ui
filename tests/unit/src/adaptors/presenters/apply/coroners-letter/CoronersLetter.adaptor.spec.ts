@@ -177,10 +177,8 @@ describe("Coroners Letter adaptor", () => {
     it("stores the uploaded letter in session and returns 201 on success", async () => {
       uploadCoronersLetterUseCase.execute.resolves({
         status: "SUCCESS",
-        data: {
-          coronersLetterId: testCoronersLetterId,
-          coronersLetterFileName: testCoronersLetterFileName,
-        },
+        coronersLetterId: testCoronersLetterId,
+        coronersLetterFileName: testCoronersLetterFileName,
       });
       const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();
@@ -204,8 +202,7 @@ describe("Coroners Letter adaptor", () => {
 
     it("returns a service unavailable error when the upload fails", async () => {
       uploadCoronersLetterUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
+        status: "UPLOAD_REJECTED",
       });
       const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();
@@ -224,8 +221,7 @@ describe("Coroners Letter adaptor", () => {
 
     it("returns the virus error message as JSON when the scan is positive", async () => {
       uploadCoronersLetterUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "FILE_SCAN_FOUND_VIRUS",
+        status: "FILE_SCAN_FOUND_VIRUS",
       });
       const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();

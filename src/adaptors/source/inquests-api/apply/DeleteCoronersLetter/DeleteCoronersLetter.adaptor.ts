@@ -4,12 +4,13 @@ import type {
   DeleteCoronersLetterRequest,
   DeleteCoronersLetterResponse,
 } from "./models/DeleteCoronersLetter.types.js";
-import { DeleteCoronersLetterResponseSchema } from "./models/DeleteCoronersLetter.schema.js";
-import { HTTP_NOT_FOUND } from "#src/infrastructure/locales/constants.js";
 import { deleteFromInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 const HTTP_NO_CONTENT = 204;
+const OPERATION = "delete_coroners_letter";
+const UPSTREAM_METHOD = "DELETE";
+const UPSTREAM_ROUTE = "/applications/coroners-letter/:coronersLetterId";
 
 export class DeleteCoronersLetterAdaptor implements DeleteCoronersLetterPort {
   constructor(
@@ -21,6 +22,8 @@ export class DeleteCoronersLetterAdaptor implements DeleteCoronersLetterPort {
     body: DeleteCoronersLetterRequest,
     accessToken: string | undefined,
   ): Promise<DeleteCoronersLetterResponse> {
+    const startedAt = Date.now();
+
     try {
       const response: AxiosResponse = await deleteFromInquestsApi({
         http: this.http,
@@ -30,76 +33,45 @@ export class DeleteCoronersLetterAdaptor implements DeleteCoronersLetterPort {
       });
 
       if (response.status !== HTTP_NO_CONTENT) {
-        const reason =
-          response.status === HTTP_NOT_FOUND
-            ? "INVALID_INPUT_STATE"
-            : "UPSTREAM_REJECTED";
         logger.logWarn({
-          functionName: "deleteCoronersLetterAdaptor_deleteCoronersLetter",
-          message:
-            "Delete coroners letter request rejected by upstream service",
+          functionName: "delete_coroners_letter_adaptor",
+          message: "Delete coroners letter rejected by upstream service",
           extraContext: {
-            event: "apply_coroners_letter_delete_failed",
-            reason,
-            status_code: response.status,
-            file_id: body.coronersLetterId,
+            event: "outbound_api_call",
+            operation: OPERATION,
+            upstream_status_code: response.status,
           },
         });
-        return {
-          status: "TECHNICAL_FAILURE",
-          reason,
-        };
-      }
-
-      const parsedResponse = DeleteCoronersLetterResponseSchema.safeParse({
-        status: "SUCCESS",
-      });
-
-      if (!parsedResponse.success) {
-        logger.logError({
-          functionName: "deleteCoronersLetterAdaptor_deleteCoronersLetter",
-          message: "Delete coroners letter returned invalid success payload",
-          extraContext: {
-            event: "apply_coroners_letter_delete_failed",
-            reason: "UNEXPECTED_EXCEPTION",
-            issues: parsedResponse.error.issues,
-            file_id: body.coronersLetterId,
-          },
-        });
-        return {
-          status: "TECHNICAL_FAILURE",
-          reason: "UNEXPECTED_EXCEPTION",
-        };
+        return { status: "DELETE_REJECTED" };
       }
 
       logger.logInfo({
-        functionName: "deleteCoronersLetterAdaptor_deleteCoronersLetter",
+        functionName: "delete_coroners_letter_adaptor",
         message: "Delete coroners letter completed successfully",
         extraContext: {
-          event: "apply_coroners_letter_delete_completed",
-          outcome: "SUCCESS",
-          file_id: body.coronersLetterId,
+          event: "outbound_api_call",
+          operation: OPERATION,
+          upstream_method: UPSTREAM_METHOD,
+          upstream_route: UPSTREAM_ROUTE,
+          duration_ms: Date.now() - startedAt,
         },
       });
 
-      return {
-        status: "SUCCESS",
-      };
-    } catch (err) {
+      return { status: "SUCCESS" };
+    } catch (error) {
       logger.logError({
-        functionName: "deleteCoronersLetterAdaptor_deleteCoronersLetter",
-        message: "Delete coroners letter failed with exception",
-        err,
+        functionName: "delete_coroners_letter_adaptor",
+        message: "Delete coroners letter failed",
+        err: error,
         extraContext: {
-          event: "apply_coroners_letter_delete_failed",
-          reason: "UNEXPECTED_EXCEPTION",
-          file_id: body.coronersLetterId,
+          event: "outbound_api_request_failed",
+          operation: OPERATION,
+          upstream_method: UPSTREAM_METHOD,
+          upstream_route: UPSTREAM_ROUTE,
+          duration_ms: Date.now() - startedAt,
         },
       });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
-      };
+      return { status: "DELETE_REJECTED" };
     }
   }
 }

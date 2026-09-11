@@ -1,9 +1,5 @@
-import type {
-  TechnicalFailureReason,
-  UseCaseResult,
-} from "#src/use-cases/common/useCaseResult.types.js";
 import type { DeleteCoronersLetterPort } from "#src/ports/source/inquests-api/DeleteCoronersLetter.port.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
+import type { DeleteCoronersLetterResponse } from "#src/adaptors/source/inquests-api/apply/DeleteCoronersLetter/models/DeleteCoronersLetter.types.js";
 
 interface DeleteCoronersLetterInput {
   coronersLetterId: string;
@@ -17,64 +13,18 @@ export class DeleteCoronersLetterUseCase {
     this.deleteCoronersLetterPort = deleteCoronersLetterPort;
   }
 
-  async execute(input: DeleteCoronersLetterInput): Promise<UseCaseResult> {
+  async execute(
+    input: DeleteCoronersLetterInput,
+  ): Promise<DeleteCoronersLetterResponse> {
     const { coronersLetterId, accessToken } = input;
 
     if (coronersLetterId === "") {
-      logger.logWarn({
-        functionName: "deleteCoronersLetterUseCase_execute",
-        message: "Coroners letter delete received invalid input",
-        extraContext: {
-          event: "apply_coroners_letter_delete_failed",
-          reason: "INVALID_INPUT_STATE",
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "INVALID_INPUT_STATE",
-      };
+      return { status: "DELETE_REJECTED" };
     }
 
-    try {
-      const responseRaw =
-        await this.deleteCoronersLetterPort.deleteCoronersLetter(
-          { coronersLetterId },
-          accessToken,
-        );
-
-      if (responseRaw.status === "SUCCESS") {
-        return { status: "SUCCESS" };
-      }
-
-      logger.logWarn({
-        functionName: "deleteCoronersLetterUseCase_execute",
-        message: "Coroners letter delete rejected by downstream component",
-        extraContext: {
-          event: "apply_coroners_letter_delete_failed",
-          reason: responseRaw.reason,
-          file_id: coronersLetterId,
-        },
-      });
-
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: responseRaw.reason as TechnicalFailureReason,
-      };
-    } catch (err) {
-      logger.logError({
-        functionName: "deleteCoronersLetterUseCase_execute",
-        message: "Coroners letter delete failed with exception",
-        err,
-        extraContext: {
-          event: "apply_coroners_letter_delete_failed",
-          reason: "UNEXPECTED_EXCEPTION",
-          file_id: coronersLetterId,
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "UNEXPECTED_EXCEPTION",
-      };
-    }
+    return await this.deleteCoronersLetterPort.deleteCoronersLetter(
+      { coronersLetterId },
+      accessToken,
+    );
   }
 }
