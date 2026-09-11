@@ -1,11 +1,3 @@
-export type TechnicalFailureReason =
-  | "INVALID_INPUT_STATE"
-  | "INVALID_RESPONSE"
-  | "UNEXPECTED_EXCEPTION"
-  | "UPSTREAM_REJECTED"
-  | "NOT_FOUND"
-  | "FILE_SCAN_FOUND_VIRUS";
-
 export type UseCaseResult<Data = undefined, ValidationErrors = undefined> =
   | {
       status: "SUCCESS";
@@ -14,8 +6,4 @@ export type UseCaseResult<Data = undefined, ValidationErrors = undefined> =
   | {
       status: "VALIDATION_FAILED";
       errorSummaries: ValidationErrors;
-    }
-  | {
-      status: "TECHNICAL_FAILURE";
-      reason: TechnicalFailureReason;
     };

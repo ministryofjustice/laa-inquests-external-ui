@@ -1,48 +1,26 @@
 import type { CorrespondenceRecipientSelectionValue } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { CORRESPONDENCE_RECIPIENT_TYPE } from "#src/infrastructure/locales/constants.js";
 import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface UpdateCorrespondenceRecipientOutput {
   clientCorrespondenceRecipient: CorrespondenceRecipient | null;
 }
 
 export class UpdateCorrespondenceRecipientUseCase {
+  // Returns undefined when the selection is not a recognised option; the
+  // presenter maps that to a form re-render and owns any logging.
   execute(
     correspondenceRecipient: unknown,
     personName: string | undefined,
     organisationName: string | undefined,
-  ): UseCaseResult<UpdateCorrespondenceRecipientOutput> {
+  ): UpdateCorrespondenceRecipientOutput | undefined {
     if (!this.#isCorrespondenceRecipientSelection(correspondenceRecipient)) {
-      logger.logInfo({
-        functionName: "updateCorrespondenceRecipientUseCase_execute",
-        message: "Correspondence recipient selection was invalid",
-        extraContext: {
-          event: "apply_correspondence_recipient_update_failed",
-          reason: "INVALID_INPUT_STATE",
-        },
-      });
-      return {
-        status: "TECHNICAL_FAILURE",
-        reason: "INVALID_INPUT_STATE",
-      };
+      return undefined;
     }
 
     if (correspondenceRecipient === "NONE") {
-      logger.logDebug({
-        functionName: "updateCorrespondenceRecipientUseCase_execute",
-        message: "Correspondence recipient none",
-        extraContext: {
-          event: "apply_correspondence_recipient_updated",
-          outcome: "CLEARED",
-        },
-      });
       return {
-        status: "SUCCESS",
-        data: {
-          clientCorrespondenceRecipient: null,
-        },
+        clientCorrespondenceRecipient: null,
       };
     }
 
@@ -51,24 +29,11 @@ export class UpdateCorrespondenceRecipientUseCase {
         ? personName
         : organisationName;
 
-    logger.logInfo({
-      functionName: "updateCorrespondenceRecipientUseCase_execute",
-      message: "Correspondence recipient updated",
-      extraContext: {
-        event: "apply_correspondence_recipient_updated",
-        outcome: "SET",
-        recipient_type: correspondenceRecipient,
-      },
-    });
-
     return {
-      status: "SUCCESS",
-      data: {
-        clientCorrespondenceRecipient: new CorrespondenceRecipient(
-          correspondenceRecipient,
-          recipientName ?? "",
-        ),
-      },
+      clientCorrespondenceRecipient: new CorrespondenceRecipient(
+        correspondenceRecipient,
+        recipientName ?? "",
+      ),
     };
   }
 

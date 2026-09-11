@@ -8,8 +8,6 @@ import type {
   ClientPrevApplicationRefError,
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import type { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
-import { logger } from "#src/infrastructure/logging/logger.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 
 type ClientDetailsValidationErrors =
   | Partial<ClientNameDobError>
@@ -28,13 +26,13 @@ type ClientDetailsValidationStep =
   | "CORRESPONDENCE_ADDRESS"
   | "CORRESPONDENCE_RECIPIENT";
 
-interface ProcessClientDetailsJourneyInput {
+export interface ProcessClientDetailsJourneyInput {
   step: ClientDetailsValidationStep;
   formBody: Partial<ClientDetailsFormData>;
   hasNoFixedAbode?: boolean;
 }
 
-interface ProcessClientDetailsJourneyOutput {
+export interface ProcessClientDetailsJourneyOutput {
   errorSummaries: ClientDetailsValidationErrors;
 }
 
@@ -49,14 +47,6 @@ export class ProcessClientDetailsJourneyUseCase {
     input: ProcessClientDetailsJourneyInput,
   ): ProcessClientDetailsJourneyOutput {
     const { step, formBody, hasNoFixedAbode = false } = input;
-    logger.logInfo({
-      functionName: "processClientDetailsJourneyUseCase_execute",
-      message: "Client details validation step started",
-      extraContext: {
-        event: "apply_client_details_validation_step_started",
-        step,
-      },
-    });
 
     if (step === "NAME_DOB") {
       const nameErrors = this.formValidator.validateClientName(formBody);
@@ -65,7 +55,6 @@ export class ProcessClientDetailsJourneyUseCase {
         ...nameErrors,
         ...dobErrors,
       };
-      this.#logValidationOutcome(step, errorSummaries);
       return {
         errorSummaries,
       };
@@ -73,7 +62,6 @@ export class ProcessClientDetailsJourneyUseCase {
 
     if (step === "NINO") {
       const errorSummaries = this.formValidator.validateNino(formBody);
-      this.#logValidationOutcome(step, errorSummaries);
       return {
         errorSummaries,
       };
@@ -82,7 +70,6 @@ export class ProcessClientDetailsJourneyUseCase {
     if (step === "PREV_APPLICATION_REFERENCE") {
       const errorSummaries =
         this.formValidator.validatePrevApplicationReference(formBody);
-      this.#logValidationOutcome(step, errorSummaries);
       return {
         errorSummaries,
       };
@@ -90,7 +77,6 @@ export class ProcessClientDetailsJourneyUseCase {
 
     if (step === "HOME_ADDRESS") {
       const errorSummaries = this.formValidator.validateHomeAddress(formBody);
-      this.#logValidationOutcome(step, errorSummaries);
       return {
         errorSummaries,
       };
@@ -102,7 +88,6 @@ export class ProcessClientDetailsJourneyUseCase {
           formBody,
           hasNoFixedAbode,
         );
-      this.#logValidationOutcome(step, errorSummaries);
       return {
         errorSummaries,
       };
@@ -111,7 +96,6 @@ export class ProcessClientDetailsJourneyUseCase {
     if (step === "CORRESPONDENCE_ADDRESS") {
       const errorSummaries =
         this.formValidator.validateCorrespondenceAddress(formBody);
-      this.#logValidationOutcome(step, errorSummaries);
       return {
         errorSummaries,
       };
@@ -119,38 +103,9 @@ export class ProcessClientDetailsJourneyUseCase {
 
     const errorSummaries =
       this.formValidator.validateCorrespondenceRecipient(formBody);
-    this.#logValidationOutcome(step, errorSummaries);
 
     return {
       errorSummaries,
     };
-  }
-
-  #logValidationOutcome(
-    step: ClientDetailsValidationStep,
-    errorSummaries: ClientDetailsValidationErrors,
-  ): void {
-    const { length: errorCount } = Object.keys(errorSummaries);
-
-    if (errorCount > EMPTY_ARR_LENGTH) {
-      logger.logInfo({
-        functionName: "processClientDetailsJourneyUseCase_execute",
-        message: "Client details validation failed",
-        extraContext: {
-          event: "apply_client_details_validation_failed",
-          step,
-          error_count: errorCount,
-        },
-      });
-    } else {
-      logger.logDebug({
-        functionName: "processClientDetailsJourneyUseCase_execute",
-        message: "Client details validation passed",
-        extraContext: {
-          event: "apply_client_details_validation_passed",
-          step,
-        },
-      });
-    }
   }
 }
