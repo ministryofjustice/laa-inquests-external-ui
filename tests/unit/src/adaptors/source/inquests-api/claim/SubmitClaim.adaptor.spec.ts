@@ -3,6 +3,10 @@ import type { AxiosInstance } from "axios";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { SubmitClaimAdaptor } from "#src/adaptors/source/inquests-api/claim/SubmitClaim/SubmitClaim.adaptor.js";
 import { HTTP_UNPROCESSABLE_CONTENT } from "#src/infrastructure/locales/constants.js";
+import {
+  APPLICATION_ERROR_TYPES,
+  isApplicationError,
+} from "#src/use-cases/common/ApplicationError.js";
 
 describe("SubmitClaimAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
@@ -299,8 +303,12 @@ describe("SubmitClaimAdaptor", () => {
     );
   });
 
-  it("re-throws non-422 errors", async () => {
-    axiosStub.post.rejects(new Error("Network error"));
+  it("translates non-422 errors into an ApplicationError", async () => {
+    axiosStub.post.rejects({
+      isAxiosError: true,
+      code: "ECONNRESET",
+      message: "Network error",
+    });
 
     await assert.rejects(
       async () =>
@@ -317,11 +325,16 @@ describe("SubmitClaimAdaptor", () => {
           },
           "access-token-123",
         ),
-      /Network error/,
+      (error: unknown) => {
+        assert.ok(isApplicationError(error));
+        assert.equal(error.type, APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE);
+        assert.equal(error.operation, "submit_claim");
+        return true;
+      },
     );
   });
 
-  it("throws when the access token is missing", async () => {
+  it("throws an authentication ApplicationError when the access token is missing", async () => {
     await assert.rejects(
       async () =>
         adaptor.submitClaim(
@@ -337,11 +350,19 @@ describe("SubmitClaimAdaptor", () => {
           },
           undefined,
         ),
-      /Missing access token/,
+      (error: unknown) => {
+        assert.ok(isApplicationError(error));
+        assert.equal(
+          error.type,
+          APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+        );
+        assert.equal(error.operation, "submit_claim");
+        return true;
+      },
     );
   });
 
-  it("throws when the access token is an empty string", async () => {
+  it("throws an authentication ApplicationError when the access token is an empty string", async () => {
     await assert.rejects(
       async () =>
         adaptor.submitClaim(
@@ -357,7 +378,15 @@ describe("SubmitClaimAdaptor", () => {
           },
           "",
         ),
-      /Missing access token/,
+      (error: unknown) => {
+        assert.ok(isApplicationError(error));
+        assert.equal(
+          error.type,
+          APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+        );
+        assert.equal(error.operation, "submit_claim");
+        return true;
+      },
     );
   });
 });

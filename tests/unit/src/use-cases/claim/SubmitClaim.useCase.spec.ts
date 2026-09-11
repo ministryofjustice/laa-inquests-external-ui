@@ -88,25 +88,23 @@ describe("SubmitClaimUseCase", () => {
     assert.equal(token, "access-token-123");
   });
 
-  it("returns TECHNICAL_FAILURE when the port throws", async () => {
-    claimSubmitPort.submitClaim.rejects(new Error("Network error"));
+  it("propagates the error when the port throws", async () => {
+    const error = new Error("Network error");
+    claimSubmitPort.submitClaim.rejects(error);
 
-    const result = await useCase.execute({
-      laaReference: "1",
-      claimType: "PAYMENT_ON_ACCOUNT",
-      poaTypeId: "PROFIT_COST",
-      claimantId: "test@provider.co.uk",
-      accessToken: "access-token-123",
-      zeroVatTotal: 0,
-      netTotal: 1000,
-      grossTotal: 1200,
-      claimEvidenceIds: ["evidence-id-1"],
-    });
-
-    assert.equal(result.status, "TECHNICAL_FAILURE");
-    assert.equal(
-      (result as { status: string; reason: string }).reason,
-      "UNEXPECTED_EXCEPTION",
+    await assert.rejects(
+      useCase.execute({
+        laaReference: "1",
+        claimType: "PAYMENT_ON_ACCOUNT",
+        poaTypeId: "PROFIT_COST",
+        claimantId: "test@provider.co.uk",
+        accessToken: "access-token-123",
+        zeroVatTotal: 0,
+        netTotal: 1000,
+        grossTotal: 1200,
+        claimEvidenceIds: ["evidence-id-1"],
+      }),
+      error,
     );
   });
 

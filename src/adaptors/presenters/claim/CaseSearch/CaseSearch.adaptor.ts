@@ -83,26 +83,12 @@ export class CaseSearchAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const result = await this.searchCasesUseCase.execute(
+    const cases = await this.searchCasesUseCase.execute(
       laaReference,
       accessToken,
       "GRANTED",
     );
 
-    if (result.status !== "SUCCESS") {
-      logger.logWarn({
-        functionName: "caseSearchAdaptor_renderResults",
-        message: "Case search results not available",
-        request: req,
-        extraContext: {
-          event: "claim_case_search_failed",
-          laa_reference: laaReference,
-        },
-      });
-      return;
-    }
-
-    const cases = result.data ?? [];
     session.claim = {
       ...session.claim,
       searchResults: this.formatter.formatClientDetails(cases),
