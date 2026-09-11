@@ -9,16 +9,18 @@
     <p class="govuk-body">{{ t('pages.home.defaultTemplate') }}</p>
 
 
-    {{ govukButton({
-        text: "Apply",
-        href: "/apply"
-    }) }}
+    {% if hasRole(appRoles.APPLICATION_USER) %}
+        {{ govukButton({
+            text: "Apply",
+            href: "/apply"
+        }) }}
+    {% endif %}
 
-    </br>
-
-    {{ govukButton({
-        text: "Make a claim",
-        href: "/claim"
-    }) }}
+    {% if hasRole(appRoles.CLAIMS_USER) %}
+        {{ govukButton({
+            text: "Make a claim",
+            href: "/claim"
+        }) }}
+    {% endif %}
 
 {% endblock %}
