@@ -315,4 +315,21 @@ test.describe("Claim - final bill template", () => {
       page.locator(".moj-multi-file-upload__error").last(),
     ).toContainText(CLAIM_FINAL_BILL_TEMPLATE_ERROR.ONLY_ONE_FILE_ALLOWED);
   });
+  test("renders file too large message if file exceeds 12.5MB", async ({
+    page,
+  }) => {
+    const largeBuffer = Buffer.alloc(13000000);
+
+    await page.setInputFiles("#documents", {
+      name: "cost-template.xlsx",
+      mimeType: xlsxMimeType,
+      buffer: largeBuffer,
+    });
+
+    const errorSummary = page.locator(".moj-multi-file-upload__error");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(
+      CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_TOO_LARGE,
+    );
+  });
 });
