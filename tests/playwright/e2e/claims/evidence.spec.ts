@@ -1,6 +1,4 @@
-import {
-  CLAIM_EVIDENCE_ERROR,
-} from "#src/infrastructure/locales/constants.js";
+import { CLAIM_EVIDENCE_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - evidence", () => {
