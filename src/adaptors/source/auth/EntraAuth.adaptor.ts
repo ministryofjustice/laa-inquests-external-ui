@@ -6,6 +6,11 @@ import type {
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  ROLE_CLAIM_KEY,
+  normaliseRoles,
+  type AppRole,
+} from "#src/infrastructure/config/accessControl.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
   ApplicationError,
@@ -45,6 +50,7 @@ export class EntraAuthAdaptor implements AuthPort {
         officeId: this.#extractOfficeId(claims),
         userOfficeAccounts: this.#extractUserOfficeAccounts(claims),
         providerEmail: result.account?.username ?? undefined,
+        roles: this.#extractRoles(claims),
         ...this.#getAccessTokenField(result),
         ...this.#getExpiryField(result),
       };
@@ -113,6 +119,19 @@ export class EntraAuthAdaptor implements AuthPort {
   ): string | undefined {
     const value = claims?.[key];
     return typeof value === "string" && value !== "" ? value : undefined;
+  }
+
+  #extractRoles(claims: Record<string, unknown> | undefined): AppRole[] {
+    const value = claims?.[ROLE_CLAIM_KEY];
+    const rawRoles: unknown[] = Array.isArray(value)
+      ? value
+      : typeof value === "string"
+        ? value.split(",")
+        : [];
+    const trimmedRoles = rawRoles
+      .filter((role): role is string => typeof role === "string")
+      .map((role) => role.trim());
+    return normaliseRoles(trimmedRoles);
   }
 
   // eslint-disable-next-line complexity -- debug method intentionally captures many fields

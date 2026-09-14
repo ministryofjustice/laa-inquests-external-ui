@@ -5,6 +5,7 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
+import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 interface RouteLayer {
   route?: {
@@ -63,6 +64,81 @@ describe("createAuthRouter", () => {
       assert.equal(req.session.providerEmail, "test@example.com");
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
+    });
+
+    it("seeds both provider roles by default", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.roles, [
+        APP_ROLES.APPLICATION_USER,
+        APP_ROLES.CLAIMS_USER,
+      ]);
+    });
+
+    it("seeds only the application role when role=application", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { role: "application" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.roles, [APP_ROLES.APPLICATION_USER]);
+    });
+
+    it("seeds only the claims role when role=claims", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { role: "claims" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.roles, [APP_ROLES.CLAIMS_USER]);
+    });
+
+    it("seeds no roles when role=none", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { role: "none" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.roles, []);
+    });
+
+    it("falls back to both roles for an unrecognised role query param", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { role: "caseworker" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.roles, [
+        APP_ROLES.APPLICATION_USER,
+        APP_ROLES.CLAIMS_USER,
+      ]);
     });
 
     it("overrides userOfficeAccounts from a comma-separated officeAccounts query param", () => {

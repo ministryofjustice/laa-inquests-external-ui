@@ -4,6 +4,7 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response, NextFunction } from "express";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
+import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 const POST_LOGOUT_URI = "http://localhost:3000";
@@ -69,7 +70,7 @@ describe("AuthAdaptor", () => {
       req.session.cookie = {} as any;
     });
 
-    it("stores userId, user.name, firmId, officeId and providerEmail in session and redirects to /", async () => {
+    it("stores required data in session and redirects to /", async () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
@@ -80,6 +81,7 @@ describe("AuthAdaptor", () => {
         providerEmail: "test@example.com",
         accessToken: "access-token-123",
         accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+        roles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
       });
 
       await adaptor.callback(req, res);
@@ -99,6 +101,10 @@ describe("AuthAdaptor", () => {
       assert.deepEqual(req.session["userOfficeAccounts"], ["A001B", "A002B"]);
       assert.equal(req.session["providerEmail"], "test@example.com");
       assert.equal(req.session["accessToken"], "access-token-123");
+      assert.deepEqual(req.session["roles"], [
+        APP_ROLES.APPLICATION_USER,
+        APP_ROLES.CLAIMS_USER,
+      ]);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(res.redirect.firstCall.args[0], "/");
     });
@@ -111,6 +117,7 @@ describe("AuthAdaptor", () => {
         userOfficeAccounts: [],
         accessToken: "access-token-123",
         accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+        roles: [APP_ROLES.APPLICATION_USER],
       });
 
       await adaptor.callback(req, res);
@@ -129,6 +136,7 @@ describe("AuthAdaptor", () => {
         userOfficeAccounts: [],
         accessToken: "access-token-123",
         accessTokenExpiresOn: new Date(Date.now() - ONE_HOUR_MS),
+        roles: [APP_ROLES.APPLICATION_USER],
       });
 
       await adaptor.callback(req, res);
@@ -142,6 +150,7 @@ describe("AuthAdaptor", () => {
         userId: "user-oid-abc",
         userOfficeAccounts: [],
         accessToken: "access-token-123",
+        roles: [APP_ROLES.APPLICATION_USER],
       });
 
       await assert.rejects(

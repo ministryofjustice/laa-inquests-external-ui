@@ -33,6 +33,7 @@ export class AuthAdaptor {
       userOfficeAccounts: user.userOfficeAccounts,
       providerEmail: user.providerEmail,
       accessToken: user.accessToken,
+      roles: user.roles,
     });
     req.session.user = { name: user.userName };
     applySessionExpiry(req.session, user.accessTokenExpiresOn);

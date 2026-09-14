@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 const DEV_SESSION_DATA = {
   userId: "dev-user-id",
@@ -8,6 +9,7 @@ const DEV_SESSION_DATA = {
   userOfficeAccounts: ["A001B", "A002B"],
   providerEmail: "developer@example.com",
   accessToken: "dev-access-token",
+  roles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
 } as const;
 
 export const seedDevAuthSession = (

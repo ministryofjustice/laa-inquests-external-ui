@@ -28,6 +28,8 @@ import {
 } from "./infrastructure/express/middleware/security/setupCsrf.js";
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
+import { globalAccessGuard } from "./infrastructure/express/middleware/accessControl/globalAccessGuard.js";
+import { viewContext } from "./infrastructure/express/middleware/accessControl/viewContext.js";
 import crypto from "node:crypto";
 import multer from "multer";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -144,6 +146,9 @@ app.use(setupLocaleData);
 app.use(nonceMiddleware);
 app.use(helmet(helmetConfig));
 setupNunjucks(app);
+
+app.use(viewContext);
+app.use(globalAccessGuard);
 
 const upload = multer({ storage: multer.memoryStorage() });
 

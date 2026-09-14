@@ -3,6 +3,7 @@ import sinon from "sinon";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response, NextFunction } from "express";
 import { seedDevAuthSession } from "#src/infrastructure/express/middleware/auth/devAuthBypass.js";
+import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
 
 describe("seedDevAuthSession", () => {
   let req: StubbedInstance<Request>;
@@ -31,6 +32,10 @@ describe("seedDevAuthSession", () => {
     assert.deepEqual(req.session.userOfficeAccounts, ["A001B", "A002B"]);
     assert.equal(req.session.providerEmail, "developer@example.com");
     assert.equal(req.session.accessToken, "dev-access-token");
+    assert.deepEqual(req.session.roles, [
+      APP_ROLES.APPLICATION_USER,
+      APP_ROLES.CLAIMS_USER,
+    ]);
     assert.equal(res.locals.userName, "Developer User");
     assert.equal(next.callCount, 1);
   });
