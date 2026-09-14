@@ -125,7 +125,7 @@ function initialiseMultiFileUpload(): void {
         : "";
 
     const { uploadRouteBase, sizeLimit } = resolveUploadConfig();
-
+    /* eslint-disable-next-line @typescript-eslint/no-meaningless-void-operator -- void used to signal no return value from SizeValidatedMultiFileUpload instance */
     void new SizeValidatedMultiFileUpload(
       multiFileUploadElement,
       {
