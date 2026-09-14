@@ -1,9 +1,9 @@
 import type { UploadCoronersLetterError } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CORONERS_LETTER_ALLOWED_FILE_TYPES,
-  CORONERS_LETTER_ERROR,
   CORONERS_LETTER_MAX_FILE_SIZE_BYTES,
   CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES,
+  CORONERS_LETTER_ERROR,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 
@@ -56,9 +56,6 @@ export class UploadCoronersLetterValidator extends FormValidator {
     }
     if (fileInput.size === CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES) {
       return CORONERS_LETTER_ERROR.FILE_IS_EMPTY;
-    }
-    if (/[^A-Za-z0-9.!\(\)_ \-]/v.test(fileInput.originalname)) {
-      return CORONERS_LETTER_ERROR.INVALID_FILE_NAME;
     }
   }
 }

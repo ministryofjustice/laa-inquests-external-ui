@@ -30,11 +30,9 @@ describe("DownloadEvidenceUseCase", () => {
 
     assert.deepEqual(result, {
       status: "SUCCESS",
-      data: {
-        stream: testStream,
-        contentType: "application/pdf",
-        contentDisposition: "inline",
-      },
+      stream: testStream,
+      contentType: "application/pdf",
+      contentDisposition: "inline",
     });
   });
 
@@ -60,10 +58,9 @@ describe("DownloadEvidenceUseCase", () => {
     );
   });
 
-  it("maps a NOT_FOUND port failure to a TECHNICAL_FAILURE result", async () => {
+  it("returns the NOT_FOUND value from the port unchanged", async () => {
     downloadEvidencePort.downloadEvidence.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "NOT_FOUND",
+      status: "NOT_FOUND",
     });
 
     const result = await useCase.execute({
@@ -73,26 +70,25 @@ describe("DownloadEvidenceUseCase", () => {
     });
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "NOT_FOUND",
+      status: "NOT_FOUND",
     });
   });
 
-  it("maps an UNEXPECTED_EXCEPTION port failure to a TECHNICAL_FAILURE result", async () => {
-    downloadEvidencePort.downloadEvidence.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
+  it("propagates a port rejection unchanged", async () => {
+    const portError = new Error("upstream unavailable");
+    downloadEvidencePort.downloadEvidence.rejects(portError);
 
-    const result = await useCase.execute({
-      claimEvidenceId: "evidence-id-1",
-      disposition: "inline",
-      accessToken: "token",
-    });
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
+    let caught: unknown;
+    try {
+      await useCase.execute({
+        claimEvidenceId: "evidence-id-1",
+        disposition: "inline",
+        accessToken: "token",
+      });
+      assert.fail("expected rejection");
+    } catch (error) {
+      caught = error;
+    }
+    assert.equal(caught, portError);
   });
 });

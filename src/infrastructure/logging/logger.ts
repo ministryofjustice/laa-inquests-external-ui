@@ -4,7 +4,8 @@ import { randomUUID } from "node:crypto";
 import type {
   LogLevel,
   OpenSearchLog,
-} from "#src/infrastructure/express/middleware/logger/opensearchlog.types.js";
+} from "#src/infrastructure/logging/opensearchlog.types.js";
+import { getRequestContext } from "#src/infrastructure/logging/requestContext.js";
 
 export const LOG_LEVELS = ["debug", "info", "warn", "error", "fatal"] as const;
 
@@ -78,15 +79,22 @@ export function shouldLog(
 }
 
 function extractContext(request: Request | undefined): LogContext {
-  const requestIdHeader = request?.headers["x-request-id"];
-  const correlationIdHeader = request?.headers["x-correlation-id"];
-  const requestId = headerValueToString(requestIdHeader) ?? randomUUID();
-  const correlationId = headerValueToString(correlationIdHeader) ?? requestId;
+  if (request !== undefined) {
+    const requestId =
+      headerValueToString(request.headers["x-request-id"]) ?? randomUUID();
+    const correlationId =
+      headerValueToString(request.headers["x-correlation-id"]) ?? requestId;
 
-  return {
-    requestId,
-    correlationId,
-  };
+    return { requestId, correlationId };
+  }
+
+  const storedContext = getRequestContext();
+  if (storedContext !== undefined) {
+    return storedContext;
+  }
+
+  const requestId = randomUUID();
+  return { requestId, correlationId: requestId };
 }
 
 function headerValueToString(

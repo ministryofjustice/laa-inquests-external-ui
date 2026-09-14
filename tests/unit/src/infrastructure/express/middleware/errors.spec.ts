@@ -2,8 +2,16 @@ import { strict as assert } from "assert";
 import sinon from "sinon";
 import type { NextFunction, Request, Response } from "express";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
-import { handleServerErrors } from "#src/infrastructure/express/middleware/errors/errors.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import {
+  handleRouteNotFound,
+  handleServerErrors,
+} from "#src/infrastructure/express/middleware/errors/errors.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { ERROR_PAGE_MESSAGE } from "#src/infrastructure/locales/constants.js";
+import {
+  ApplicationError,
+  APPLICATION_ERROR_TYPES,
+} from "#src/use-cases/common/ApplicationError.js";
 
 describe("error middleware", () => {
   let req: StubbedInstance<Request>;
@@ -20,10 +28,38 @@ describe("error middleware", () => {
     sinon.restore();
   });
 
+  describe("handleRouteNotFound", () => {
+    it("logs and renders the 404 page with a message", () => {
+      const logSpy = sinon.spy(logger, "logWarn");
+      res.status.returns(res);
+      req.route = { path: "/missing-path" } as Request["route"];
+      req.method = "GET";
+
+      handleRouteNotFound(
+        req as unknown as Request,
+        res as unknown as Response,
+      );
+
+      assert.equal(logSpy.callCount, 1);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], 404);
+      assert.ok(res.status.firstCall.calledBefore(res.render.firstCall));
+      assert.equal(res.render.callCount, 1);
+      assert.deepEqual(res.render.firstCall.args, [
+        "main/error",
+        {
+          status: 404,
+          message: ERROR_PAGE_MESSAGE.NOT_FOUND,
+        },
+      ]);
+    });
+  });
+
   describe("handleServerErrors", () => {
     it("logs and renders the fallback 500 page", () => {
       const err = new Error("plain error");
       const logSpy = sinon.spy(logger, "logError");
+      res.status.returns(res);
       req.route = { path: "/test-path" } as Request["route"];
       req.method = "POST";
 
@@ -43,21 +79,56 @@ describe("error middleware", () => {
           request: req,
           extraContext: {
             event: "http_request_failed",
+            error_type: "UNKNOWN",
             route: "/test-path",
             method: "POST",
             status_code: 500,
           },
         },
       ]);
+      assert.equal(res.status.callCount, 1);
+      assert.equal(res.status.firstCall.args[0], 500);
+      assert.ok(res.status.firstCall.calledBefore(res.render.firstCall));
       assert.equal(res.render.callCount, 1);
       assert.deepEqual(res.render.firstCall.args, [
         "main/error",
         {
           status: 500,
-          message: "Internal Server Error",
+          message: ERROR_PAGE_MESSAGE.INTERNAL_SERVER_ERROR,
         },
       ]);
       assert.equal(next.callCount, 0);
+    });
+
+    it("includes application error classification in the log", () => {
+      const err = new ApplicationError(
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+        "get_public_bodies",
+        true,
+      );
+      const logSpy = sinon.spy(logger, "logError");
+      res.status.returns(res);
+      req.route = { path: "/apply/public-authority" } as Request["route"];
+      req.method = "GET";
+
+      handleServerErrors(
+        err,
+        req as unknown as Request,
+        res as unknown as Response,
+        next as unknown as NextFunction,
+      );
+
+      assert.equal(logSpy.callCount, 1);
+      assert.deepEqual(logSpy.firstCall.args[0].extraContext, {
+        event: "http_request_failed",
+        error_type: "UPSTREAM_UNAVAILABLE",
+        operation: "get_public_bodies",
+        retryable: true,
+        route: "/apply/public-authority",
+        method: "GET",
+        status_code: 500,
+      });
+      assert.equal(res.status.firstCall.args[0], 500);
     });
   });
 });

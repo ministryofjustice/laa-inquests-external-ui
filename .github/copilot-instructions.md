@@ -69,6 +69,14 @@ Use Axios injected via the constructor. Never instantiate Axios inside an adapto
 - Do not access `process.env` directly — use the typed `config` object in `src/infrastructure/config/config.ts`.
 - Use if/else for control flow in conditional statements.
 
+### Error handling
+
+- Follow the `error-handling` skill for every error-path change.
+- Expected outcomes use typed values; technical failures use sanitized application exceptions.
+- External client errors never escape outbound adapters, including through `cause`.
+- Presenters do not render generic 500s or redirect to `/error`; Express error middleware owns fallback responses.
+- Do not import infrastructure loggers into use cases.
+
 ### Naming
 
 | Thing                 | Convention                  | Example                         |

@@ -35,40 +35,39 @@ describe("DeleteEvidenceUseCase", () => {
     });
   });
 
-  it("returns technical failure when evidenceFileId is blank", async () => {
+  it("returns DELETE_REJECTED when evidenceFileId is blank", async () => {
     const result = await useCase.execute({
       evidenceFileId: "",
       accessToken: deleteInput.accessToken,
     });
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "INVALID_INPUT_STATE",
+      status: "DELETE_REJECTED",
     });
   });
 
-  it("returns technical failure when API returns TECHNICAL_FAILURE", async () => {
+  it("returns DELETE_REJECTED when the port rejects the delete", async () => {
     deleteEvidencePort.deleteEvidence.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
+      status: "DELETE_REJECTED",
     });
 
     const result = await useCase.execute(deleteInput);
 
     assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
+      status: "DELETE_REJECTED",
     });
   });
 
-  it("returns technical failure when adaptor throws", async () => {
-    deleteEvidencePort.deleteEvidence.rejects(new Error("network failure"));
+  it("propagates a port rejection unchanged", async () => {
+    const portError = new Error("network failure");
+    deleteEvidencePort.deleteEvidence.rejects(portError);
 
-    const result = await useCase.execute(deleteInput);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
+    await assert.rejects(
+      async () => useCase.execute(deleteInput),
+      (error: unknown) => {
+        assert.equal(error, portError);
+        return true;
+      },
+    );
   });
 });

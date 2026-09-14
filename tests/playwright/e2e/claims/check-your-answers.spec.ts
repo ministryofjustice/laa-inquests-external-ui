@@ -221,6 +221,7 @@ test.describe("Claim - confirm and submit", () => {
     );
 
     expect(response.status()).toBe(404);
+    expect(await response.text()).toContain("Page not found");
   });
 
   test("renders Change links pointing to the correct pages", async ({
@@ -295,7 +296,7 @@ test.describe("Claim - confirm and submit", () => {
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
-      .fill("1");
+      .fill("INQ-YYY-001");
     await page
       .getByTestId("case-search-form")
       .getByRole("button", { name: "Continue" })
@@ -313,7 +314,9 @@ test.describe("Claim - confirm and submit", () => {
     await page.goto("/claim/check-your-answers");
 
     const caseDetails = page.getByTestId("case-details-summary-list");
-    await expect(caseDetails.getByText("1", { exact: true })).toBeVisible();
+    await expect(
+      caseDetails.getByText("INQ-YYY-001", { exact: true }),
+    ).toBeVisible();
     const texts = await caseDetails.getByRole("definition").allInnerTexts();
     assert.equal(texts.length, 5);
   });

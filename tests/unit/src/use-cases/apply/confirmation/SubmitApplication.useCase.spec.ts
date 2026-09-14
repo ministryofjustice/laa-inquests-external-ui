@@ -7,7 +7,6 @@ import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/Subm
 import {
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
-  HTTP_CREATED,
 } from "#src/infrastructure/locales/constants.js";
 import { formatDateISOYYYYMMDD } from "#src/utils/dateFormatter.js";
 
@@ -20,27 +19,22 @@ describe("SubmitApplicationUseCase", () => {
     useCase = new SubmitApplicationUseCase(applySubmitPort);
   });
 
-  it("returns success with laa reference when the API returns HTTP_CREATED", async () => {
+  it("returns the laa reference when the API succeeds", async () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({
-      statusCode: HTTP_CREATED,
       laaReference: "123456",
     });
 
     const result = await useCase.execute(state);
 
     assert.deepEqual(result, {
-      status: "SUCCESS",
-      data: {
-        laaReference: "123456",
-      },
+      laaReference: "123456",
     });
   });
 
   it("sends the mapped submit body to the apply submit port", async () => {
     const state = createValidState();
     applySubmitPort.submitApplication.resolves({
-      statusCode: HTTP_CREATED,
       laaReference: "123456",
     });
 
@@ -115,60 +109,21 @@ describe("SubmitApplicationUseCase", () => {
     assert.equal(submittedAccessToken, state.accessToken);
   });
 
-  it("returns invalid input state and does not call adapter when required state is missing", async () => {
+  it("throws and does not call the adapter when required state is missing", async () => {
     const state = createValidState({
       officeId: undefined,
     });
 
-    const result = await useCase.execute(state);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "INVALID_INPUT_STATE",
-    });
+    await assert.rejects(useCase.execute(state));
     assert.equal(applySubmitPort.submitApplication.called, false);
   });
 
-  it("returns invalid response when adapter response fails schema validation", async () => {
+  it("propagates errors thrown by the adapter", async () => {
     const state = createValidState();
-    applySubmitPort.submitApplication.resolves({
-      statusCode: HTTP_CREATED,
-      laaReference: null,
-    } as unknown as { statusCode: number; laaReference: string });
+    const error = new Error("network failure");
+    applySubmitPort.submitApplication.rejects(error);
 
-    const result = await useCase.execute(state);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "INVALID_RESPONSE",
-    });
-  });
-
-  it("returns upstream rejected when API status code is not HTTP_CREATED", async () => {
-    const state = createValidState();
-    applySubmitPort.submitApplication.resolves({
-      statusCode: 500,
-      laaReference: "123456",
-    });
-
-    const result = await useCase.execute(state);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
-    });
-  });
-
-  it("returns unexpected exception when adapter throws", async () => {
-    const state = createValidState();
-    applySubmitPort.submitApplication.rejects(new Error("network failure"));
-
-    const result = await useCase.execute(state);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
+    await assert.rejects(useCase.execute(state), error);
   });
 });
 

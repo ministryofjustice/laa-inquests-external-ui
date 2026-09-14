@@ -14,8 +14,13 @@ import { ClientDetailsFormatter } from "#src/adaptors/presenters/apply/ClientDet
 import type { Address } from "#src/domain/Client/Address.js";
 import type { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 import { UpdateCorrespondenceRecipientUseCase } from "#src/use-cases/apply/clientDetails/UpdateCorrespondenceRecipient.useCase.js";
-import { ProcessClientDetailsJourneyUseCase } from "#src/use-cases/apply/clientDetails/ProcessClientDetailsJourney.useCase.js";
+import {
+  ProcessClientDetailsJourneyUseCase,
+  type ProcessClientDetailsJourneyInput,
+  type ProcessClientDetailsJourneyOutput,
+} from "#src/use-cases/apply/clientDetails/ProcessClientDetailsJourney.useCase.js";
 import { getStringValue } from "#src/utils/sessionValue.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface ClientDetailsUseCases {
   updateCorrespondenceRecipient: UpdateCorrespondenceRecipientUseCase;
@@ -62,6 +67,72 @@ export class ClientDetailsAdaptor {
       ...defaultUseCases,
       ...useCases,
     };
+  }
+
+  // Owns the observability for the journey use case so the use case stays free
+  // of the concrete logger.
+  #processClientDetailsStep(
+    input: ProcessClientDetailsJourneyInput,
+  ): ProcessClientDetailsJourneyOutput {
+    logger.logInfo({
+      functionName: "clientDetailsAdaptor_processClientDetailsStep",
+      message: "Client details validation step started",
+      extraContext: {
+        event: "apply_client_details_validation_step_started",
+        step: input.step,
+      },
+    });
+
+    const result = this.processClientDetailsJourneyUseCase.execute(input);
+    const { length: errorCount } = Object.keys(result.errorSummaries);
+
+    if (errorCount > EMPTY_ARR_LENGTH) {
+      logger.logInfo({
+        functionName: "clientDetailsAdaptor_processClientDetailsStep",
+        message: "Client details validation failed",
+        extraContext: {
+          event: "apply_client_details_validation_failed",
+          step: input.step,
+          error_count: errorCount,
+        },
+      });
+    } else {
+      logger.logDebug({
+        functionName: "clientDetailsAdaptor_processClientDetailsStep",
+        message: "Client details validation passed",
+        extraContext: {
+          event: "apply_client_details_validation_passed",
+          step: input.step,
+        },
+      });
+    }
+
+    return result;
+  }
+
+  #logCorrespondenceRecipientUpdated(
+    recipient: CorrespondenceRecipient | null,
+  ): void {
+    if (recipient === null) {
+      logger.logDebug({
+        functionName: "clientDetailsAdaptor_processCorrespondenceRecipientForm",
+        message: "Correspondence recipient none",
+        extraContext: {
+          event: "apply_correspondence_recipient_updated",
+          outcome: "CLEARED",
+        },
+      });
+    } else {
+      logger.logInfo({
+        functionName: "clientDetailsAdaptor_processCorrespondenceRecipientForm",
+        message: "Correspondence recipient updated",
+        extraContext: {
+          event: "apply_correspondence_recipient_updated",
+          outcome: "SET",
+          recipient_type: recipient.recipientType,
+        },
+      });
+    }
   }
 
   renderNameForm(req: Request, res: Response): void {
@@ -116,7 +187,7 @@ export class ClientDetailsAdaptor {
     req.session.clientLastNameAtBirth =
       hasNameChanged === "true" ? lastNameAtBirth : null;
 
-    const { errorSummaries } = this.processClientDetailsJourneyUseCase.execute({
+    const { errorSummaries } = this.#processClientDetailsStep({
       step: "NAME_DOB",
       formBody: req.body,
     });
@@ -179,11 +250,10 @@ export class ClientDetailsAdaptor {
     req.session.clientHasNino = hasNino;
     req.session.clientNino = hasNino === "true" ? ninoInput : null;
 
-    const { errorSummaries: ninoErrors } =
-      this.processClientDetailsJourneyUseCase.execute({
-        step: "NINO",
-        formBody: req.body,
-      });
+    const { errorSummaries: ninoErrors } = this.#processClientDetailsStep({
+      step: "NINO",
+      formBody: req.body,
+    });
     if (Object.keys(ninoErrors).length > EMPTY_ARR_LENGTH) {
       res.render("apply/client-details/nino", {
         csrfToken,
@@ -277,7 +347,7 @@ export class ClientDetailsAdaptor {
     req.session.clientHomeAddress = homeAddress;
 
     const { errorSummaries: homeAddressErrors } =
-      this.processClientDetailsJourneyUseCase.execute({
+      this.#processClientDetailsStep({
         step: "HOME_ADDRESS",
         formBody: req.body,
       });
@@ -344,12 +414,11 @@ export class ClientDetailsAdaptor {
       body: { "correspondence-address-source": correspondenceAddressSource },
     } = req;
 
-    const { errorSummaries: sourceErrors } =
-      this.processClientDetailsJourneyUseCase.execute({
-        step: "CORRESPONDENCE_ADDRESS_SOURCE",
-        formBody: req.body,
-        hasNoFixedAbode: this.#isClientNoFixedAbode(req),
-      });
+    const { errorSummaries: sourceErrors } = this.#processClientDetailsStep({
+      step: "CORRESPONDENCE_ADDRESS_SOURCE",
+      formBody: req.body,
+      hasNoFixedAbode: this.#isClientNoFixedAbode(req),
+    });
 
     if (Object.keys(sourceErrors).length > EMPTY_ARR_LENGTH) {
       const correspondenceAddressSourceView =
@@ -436,7 +505,7 @@ export class ClientDetailsAdaptor {
       this.formatter.buildClientCorrespondenceAddress(req.body);
     req.session.clientCorrespondenceAddress = correspondenceAddress;
     const { errorSummaries: correspondenceAddressErrors } =
-      this.processClientDetailsJourneyUseCase.execute({
+      this.#processClientDetailsStep({
         step: "CORRESPONDENCE_ADDRESS",
         formBody: req.body,
       });
@@ -534,11 +603,10 @@ export class ClientDetailsAdaptor {
       },
     } = req;
 
-    const { errorSummaries: recipientErrors } =
-      this.processClientDetailsJourneyUseCase.execute({
-        step: "CORRESPONDENCE_RECIPIENT",
-        formBody: req.body,
-      });
+    const { errorSummaries: recipientErrors } = this.#processClientDetailsStep({
+      step: "CORRESPONDENCE_RECIPIENT",
+      formBody: req.body,
+    });
 
     if (Object.keys(recipientErrors).length > EMPTY_ARR_LENGTH) {
       this.renderCorrespondenceRecipientForm(req, res, {
@@ -550,17 +618,21 @@ export class ClientDetailsAdaptor {
       return;
     }
 
-    const updatedRecipientResult =
-      this.updateCorrespondenceRecipientUseCase.execute(
-        correspondenceRecipient,
-        personName,
-        organisationName,
-      );
+    const updatedRecipient = this.updateCorrespondenceRecipientUseCase.execute(
+      correspondenceRecipient,
+      personName,
+      organisationName,
+    );
 
-    if (
-      updatedRecipientResult.status !== "SUCCESS" ||
-      updatedRecipientResult.data === undefined
-    ) {
+    if (updatedRecipient === undefined) {
+      logger.logInfo({
+        functionName: "clientDetailsAdaptor_processCorrespondenceRecipientForm",
+        message: "Correspondence recipient selection was invalid",
+        extraContext: {
+          event: "apply_correspondence_recipient_update_failed",
+          reason: "INVALID_INPUT_STATE",
+        },
+      });
       this.renderCorrespondenceRecipientForm(req, res, {
         errorSummaries: recipientErrors,
         correspondenceRecipient: "",
@@ -570,8 +642,8 @@ export class ClientDetailsAdaptor {
       return;
     }
 
-    const { data } = updatedRecipientResult;
-    const { clientCorrespondenceRecipient } = data;
+    const { clientCorrespondenceRecipient } = updatedRecipient;
+    this.#logCorrespondenceRecipientUpdated(clientCorrespondenceRecipient);
     req.session.clientCorrespondenceRecipient = clientCorrespondenceRecipient;
     this.#redirectAfterSuccess(req, res, "/apply/proceeding");
   }
@@ -611,7 +683,7 @@ export class ClientDetailsAdaptor {
       hasPrevApplication === "true" ? prevLaaReferenceInput : null;
 
     const { errorSummaries: prevApplicationRefErrors } =
-      this.processClientDetailsJourneyUseCase.execute({
+      this.#processClientDetailsStep({
         step: "PREV_APPLICATION_REFERENCE",
         formBody: req.body,
       });

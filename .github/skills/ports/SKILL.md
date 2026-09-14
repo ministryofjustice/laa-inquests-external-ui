@@ -24,6 +24,10 @@ A port is an interface (or abstract type) that defines how the application commu
 - Use domain types or simple value objects in signatures — no framework or infrastructure types.
 - Each port should represent a single, cohesive capability (e.g. `UserRepository`, `EmailSender`). Ports SHOULD refer to the needs of a single usecase.
 
+## Error handling
+
+Load the `error-handling` skill before changing any failure path. Port methods return domain/simple values and expected outcomes (including `undefined` for expected absence). Unexpected technical failures surface as a thrown sanitized `ApplicationError`, defined in the application layer — not in a port. Never add framework/SDK error types or a `cause?: unknown` field to a port-facing result.
+
 ## Anti-patterns to avoid
 
 - Adding infrastructure-specific types (SQL result sets, HTTP responses) to port signatures.

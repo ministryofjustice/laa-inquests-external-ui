@@ -3,15 +3,12 @@ import { CORRESPONDENCE_RECIPIENT_TYPE } from "#src/infrastructure/locales/const
 import { UpdateCorrespondenceRecipientUseCase } from "#src/use-cases/apply/clientDetails/UpdateCorrespondenceRecipient.useCase.js";
 
 describe("UpdateCorrespondenceRecipientUseCase", () => {
-  it("returns technical failure when recipient selection is invalid", () => {
+  it("returns undefined when recipient selection is invalid", () => {
     const useCase = new UpdateCorrespondenceRecipientUseCase();
 
     const result = useCase.execute("INVALID", undefined, undefined);
 
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "INVALID_INPUT_STATE",
-    });
+    assert.equal(result, undefined);
   });
 
   it("returns null recipient when NONE is selected", () => {
@@ -20,10 +17,7 @@ describe("UpdateCorrespondenceRecipientUseCase", () => {
     const result = useCase.execute("NONE", undefined, undefined);
 
     assert.deepEqual(result, {
-      status: "SUCCESS",
-      data: {
-        clientCorrespondenceRecipient: null,
-      },
+      clientCorrespondenceRecipient: null,
     });
   });
 
@@ -36,22 +30,18 @@ describe("UpdateCorrespondenceRecipientUseCase", () => {
       undefined,
     );
 
-    assert.equal(result.status, "SUCCESS");
-
-    if (result.status === "SUCCESS") {
-      assert.ok(result.data);
-      assert.equal(
-        result.data.clientCorrespondenceRecipient?.recipientType,
-        CORRESPONDENCE_RECIPIENT_TYPE.PERSON,
-      );
-      assert.equal(
-        result.data.clientCorrespondenceRecipient?.recipientName,
-        "Jane Doe",
-      );
-    }
+    assert.ok(result);
+    assert.equal(
+      result.clientCorrespondenceRecipient?.recipientType,
+      CORRESPONDENCE_RECIPIENT_TYPE.PERSON,
+    );
+    assert.equal(
+      result.clientCorrespondenceRecipient?.recipientName,
+      "Jane Doe",
+    );
   });
 
-  it("builds an orgainisation correspondence recipient when organisation is selected", () => {
+  it("builds an organisation correspondence recipient when organisation is selected", () => {
     const useCase = new UpdateCorrespondenceRecipientUseCase();
 
     const result = useCase.execute(
@@ -60,18 +50,14 @@ describe("UpdateCorrespondenceRecipientUseCase", () => {
       "Example co.",
     );
 
-    assert.equal(result.status, "SUCCESS");
-
-    if (result.status === "SUCCESS") {
-      assert.ok(result.data);
-      assert.equal(
-        result.data.clientCorrespondenceRecipient?.recipientType,
-        CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION,
-      );
-      assert.equal(
-        result.data.clientCorrespondenceRecipient?.recipientName,
-        "Example co.",
-      );
-    }
+    assert.ok(result);
+    assert.equal(
+      result.clientCorrespondenceRecipient?.recipientType,
+      CORRESPONDENCE_RECIPIENT_TYPE.ORGANISATION,
+    );
+    assert.equal(
+      result.clientCorrespondenceRecipient?.recipientName,
+      "Example co.",
+    );
   });
 });

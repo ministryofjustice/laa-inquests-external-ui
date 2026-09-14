@@ -9,7 +9,7 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { SearchCasesPort } from "#src/ports/source/inquests-api/SearchCases.port.js";
 import { CaseSearchFormatter } from "./CaseSearch.formatter.js";
 import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
@@ -83,26 +83,12 @@ export class CaseSearchAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const result = await this.searchCasesUseCase.execute(
+    const cases = await this.searchCasesUseCase.execute(
       laaReference,
       accessToken,
       "GRANTED",
     );
 
-    if (result.status !== "SUCCESS") {
-      logger.logWarn({
-        functionName: "caseSearchAdaptor_renderResults",
-        message: "Case search results not available",
-        request: req,
-        extraContext: {
-          event: "claim_case_search_failed",
-          laa_reference: laaReference,
-        },
-      });
-      return;
-    }
-
-    const cases = result.data ?? [];
     session.claim = {
       ...session.claim,
       searchResults: this.formatter.formatClientDetails(cases),

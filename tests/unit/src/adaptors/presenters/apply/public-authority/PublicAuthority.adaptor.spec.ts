@@ -147,12 +147,11 @@ describe("PublicAuthority adaptor", () => {
       );
     });
 
-    it("throws when loading public bodies fails", async () => {
+    it("propagates the error unchanged when loading public bodies fails", async () => {
       const getPublicAuthoritiesPort =
         stubInterface<GetPublicAuthoritiesPort>();
-      getPublicAuthoritiesPort.getPublicAuthorities.rejects(
-        new Error("Network error"),
-      );
+      const portError = new Error("Network error");
+      getPublicAuthoritiesPort.getPublicAuthorities.rejects(portError);
       const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
@@ -161,7 +160,10 @@ describe("PublicAuthority adaptor", () => {
       await assert.rejects(
         () =>
           adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub),
-        { message: "UNEXPECTED_EXCEPTION" },
+        (error: unknown) => {
+          assert.equal(error, portError);
+          return true;
+        },
       );
     });
 
@@ -300,12 +302,11 @@ describe("PublicAuthority adaptor", () => {
       });
     });
 
-    it("throws when loading public bodies fails", async () => {
+    it("propagates the error unchanged when loading public bodies fails", async () => {
       const getPublicAuthoritiesPort =
         stubInterface<GetPublicAuthoritiesPort>();
-      getPublicAuthoritiesPort.getPublicAuthorities.rejects(
-        new Error("Network error"),
-      );
+      const portError = new Error("Network error");
+      getPublicAuthoritiesPort.getPublicAuthorities.rejects(portError);
       const adaptor = buildAdaptor(getPublicAuthoritiesPort);
 
       const responseStub = stubInterface<Response>();
@@ -313,7 +314,10 @@ describe("PublicAuthority adaptor", () => {
 
       await assert.rejects(
         () => adaptor.processPublicAuthorityForm(requestStub, responseStub),
-        { message: "UNEXPECTED_EXCEPTION" },
+        (error: unknown) => {
+          assert.equal(error, portError);
+          return true;
+        },
       );
     });
 

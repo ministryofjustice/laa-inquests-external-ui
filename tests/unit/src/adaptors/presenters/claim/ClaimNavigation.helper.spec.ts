@@ -2,7 +2,7 @@ import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import type { Request } from "express";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
-import { CLAIM_CHECK_YOUR_ANSWERS_PATH } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 
 describe("ClaimNavigationHelper", () => {
   describe("captureCheckYourAnswersEntry", () => {
@@ -78,7 +78,7 @@ describe("ClaimNavigationHelper", () => {
 
       assert.equal(
         helper.resolveBackHref(req, "/claim/evidence"),
-        CLAIM_CHECK_YOUR_ANSWERS_PATH,
+        CLAIM_PATHS.CHECK_YOUR_ANSWERS,
       );
     });
 
@@ -169,7 +169,7 @@ describe("ClaimNavigationHelper", () => {
 
       assert.equal(
         helper.resolveCostPageBackHref(req, "/claim/inquest-outcome-recovery"),
-        CLAIM_CHECK_YOUR_ANSWERS_PATH,
+        CLAIM_PATHS.CHECK_YOUR_ANSWERS,
       );
     });
 

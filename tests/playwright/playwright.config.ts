@@ -27,6 +27,7 @@ export const TEST_CONFIG = {
  */
 export default defineConfig({
   testDir: "./e2e",
+  timeout: 10000,
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 1 : 0,

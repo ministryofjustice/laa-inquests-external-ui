@@ -6,9 +6,7 @@ export const UploadCoronersLetterRequestSchema = z.object({
   originalname: z.string(),
 });
 
-export const UploadCoronersLetterResponseSchema = z.object({
-  status: z.string(),
-  coronersLetterId: z.string().optional(),
-  coronersLetterFileName: z.string().optional(),
-  reason: z.string().optional(),
+export const UploadCoronersLetterApiResponseSchema = z.object({
+  coronersLetterId: z.string(),
+  coronersLetterFileName: z.string(),
 });

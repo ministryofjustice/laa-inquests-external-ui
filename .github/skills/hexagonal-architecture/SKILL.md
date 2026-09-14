@@ -16,9 +16,12 @@ The architecture is divided into the following layers. Consult the dedicated ski
 - **Ports** — interfaces that define boundaries between layers (`ports` skill)
 - **Inbound Adapters** — drive the application from the outside world (`inbound-adapters` skill)
 - **Outbound Adapters** — allow the application to reach the outside world (`outbound-adapters` skill)
+- **Error handling** — how failures cross the layers (`error-handling` skill)
 
 YOU MUST look at the specific skill WHENEVER making judgements about how a layer should work.
 ONLY load the skill when you need it.
+
+WHENEVER you touch an error path (translation, failure results, exceptions, error middleware, or error logging), load the `error-handling` skill. Legacy hybrid error handling is not precedent for new or migrated paths.
 
 ## Dependency Rule
 

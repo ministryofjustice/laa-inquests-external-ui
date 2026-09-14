@@ -1,11 +1,9 @@
 import type { z } from "zod";
-import type {
-  DeleteEvidenceRequestSchema,
-  DeleteEvidenceResponseSchema,
-} from "./DeleteEvidence.schema.js";
+import type { DeleteEvidenceRequestSchema } from "./DeleteEvidence.schema.js";
 
 export type DeleteEvidenceRequest = z.infer<typeof DeleteEvidenceRequestSchema>;
 
-export type DeleteEvidenceResponse = z.infer<
-  typeof DeleteEvidenceResponseSchema
->;
+// Value-based protocol: a non-success delete is an expected outcome surfaced
+// inline, never an ApplicationError.
+export type DeleteEvidenceResponse =
+  { status: "SUCCESS" } | { status: "DELETE_REJECTED" };

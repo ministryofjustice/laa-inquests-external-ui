@@ -1,3 +1,4 @@
+import { CLAIM_EVIDENCE_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - evidence", () => {
@@ -97,9 +98,7 @@ test.describe("Claim - evidence", () => {
     );
   });
 
-  test("uploads evidence using javascript multi-file uploader", async ({
-    page,
-  }) => {
+  test("uploads evidence using multi-file uploader", async ({ page }) => {
     const [response] = await Promise.all([
       page.waitForResponse(
         (r) =>
@@ -187,24 +186,21 @@ test.describe("Claim - evidence", () => {
         .filter({ hasText: "test-evidence.pdf" }),
     ).toHaveCount(0);
   });
-});
-
-test.describe("Claim - evidence (no javascript)", () => {
-  test.use({ javaScriptEnabled: false });
-
-  test("uploads evidence and redirects back to evidence page", async ({
+  test("renders file too large message if file exceeds 12.5MB", async ({
     page,
   }) => {
-    await page.goto("/claim/evidence");
+    const largeBuffer = Buffer.alloc(13000000);
 
     await page.setInputFiles("#documents", {
       name: "test-evidence.pdf",
       mimeType: "application/pdf",
-      buffer: Buffer.from("fake evidence content"),
+      buffer: largeBuffer,
     });
 
-    await page.getByRole("button", { name: "Upload file" }).click();
-
-    await expect(page).toHaveURL("/claim/evidence");
+    const errorSummary = page.locator(".moj-multi-file-upload__error");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(
+      CLAIM_EVIDENCE_ERROR.FILE_TOO_LARGE,
+    );
   });
 });

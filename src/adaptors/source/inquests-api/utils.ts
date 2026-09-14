@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosResponse, ResponseType } from "axios";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface PostToInquestsApiParams<TBody> {
   http: AxiosInstance;

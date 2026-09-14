@@ -12,6 +12,7 @@ import {
 import { ConfirmationSessionStateMapper } from "#src/use-cases/apply/confirmation/ConfirmationSessionState.mapper.js";
 import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface ConfirmationUseCases {
   buildCheckYourAnswers: BuildCheckYourAnswersUseCase;
@@ -137,17 +138,20 @@ export class ConfirmationAdaptor {
     }
 
     const { session } = req;
-    if (result.status === "SUCCESS") {
-      const submitResult =
-        await this.submitApplicationUseCase.execute(sessionState);
-      if (submitResult.status !== "SUCCESS") {
-        return;
-      }
-      this.sessionHelper.clearApplyFormData(req);
-      session.applicationReferenceNumber =
-        submitResult.data?.laaReference.toString() ?? "";
-      res.redirect("/apply/confirmation/success");
-    }
+    const { laaReference } =
+      await this.submitApplicationUseCase.execute(sessionState);
+    logger.logInfo({
+      functionName: "confirmation_presenter",
+      message: "Application submitted",
+      request: req,
+      extraContext: {
+        event: "application_submitted",
+        laa_reference: laaReference,
+      },
+    });
+    this.sessionHelper.clearApplyFormData(req);
+    session.applicationReferenceNumber = laaReference;
+    res.redirect("/apply/confirmation/success");
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {

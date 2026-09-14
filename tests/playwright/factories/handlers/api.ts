@@ -24,13 +24,23 @@ const bypassCreateApplicationMocks =
 
 // Sentinel laaReference used in E2E tests to trigger a 422 response from the claim submit endpoint.
 // The GET search handler returns a mock case with this numeric laaReference when the search term is "force-422".
-const FORCE_422_LAA_REFERENCE = "422";
-const FORCE_REJECTED_LAA_REFERENCE = "299";
+const FORCE_422_LAA_REFERENCE = "INQ-YYY-422";
+const FORCE_REJECTED_LAA_REFERENCE = "INQ-YYY-299";
 const VIRUS_FILE_NAME = "virus.pdf";
 
 export const apiHandlers = [
-  http.get("*/applications/public-bodies", () =>
-    HttpResponse.json([
+  http.get("*/applications/public-bodies", ({ request }) => {
+    const authorization = request.headers.get("authorization");
+    if (authorization === "Bearer FORCE_401") {
+      return new HttpResponse(null, { status: 401 });
+    }
+    if (authorization === "Bearer FORCE_403") {
+      return new HttpResponse(null, { status: 403 });
+    }
+    if (authorization === "Bearer FORCE_500") {
+      return new HttpResponse(null, { status: 500 });
+    }
+    return HttpResponse.json([
       {
         publicBodyId: "DEPARTMENT_FOR_TRANSPORT",
         publicBodyDescription: "Department for Transport",
@@ -43,8 +53,52 @@ export const apiHandlers = [
         publicBodyId: "MINISTRY_OF_DEFENCE",
         publicBodyDescription: "Ministry of Defence",
       },
-    ]),
-  ),
+    ]);
+  }),
+  http.get("*/applications/provider-offices/:firmId", ({ request }) => {
+    const authorization = request.headers.get("authorization");
+    if (authorization === "Bearer FORCE_401") {
+      return new HttpResponse(null, { status: 401 });
+    }
+    if (authorization === "Bearer FORCE_403") {
+      return new HttpResponse(null, { status: 403 });
+    }
+    if (authorization === "Bearer FORCE_500") {
+      return new HttpResponse(null, { status: 500 });
+    }
+    return HttpResponse.json([
+      {
+        officeCode: "A001B",
+        address: {
+          addressLine1: "1 Test Street",
+          addressLine2: "Suite 2",
+          townOrCity: "London",
+          county: "Greater London",
+          postcode: "SW1A 1AA",
+        },
+      },
+      {
+        officeCode: "A002B",
+        address: {
+          addressLine1: "2 Test Street",
+          addressLine2: null,
+          townOrCity: "Manchester",
+          county: null,
+          postcode: "M1A 1AA",
+        },
+      },
+      {
+        officeCode: "A003B",
+        address: {
+          addressLine1: "3 Test Street",
+          addressLine2: "Suite 4",
+          townOrCity: "Leeds",
+          county: "West Yorkshire",
+          postcode: "LS1 1AA",
+        },
+      },
+    ]);
+  }),
   http.get("*/applications/search", ({ request }) => {
     const url = new URL(request.url);
     const laaReference = url.searchParams.get("laa_reference");
@@ -56,7 +110,7 @@ export const apiHandlers = [
     if (laaReference === "force-rejected") {
       return HttpResponse.json([
         {
-          laaReference: 299,
+          laaReference: FORCE_REJECTED_LAA_REFERENCE,
           clientFirstName: "Force",
           clientLastName: "Rejected",
           clientDateOfBirth: "01/01/2000",
@@ -71,7 +125,7 @@ export const apiHandlers = [
     if (laaReference === "force-422") {
       return HttpResponse.json([
         {
-          laaReference: 422,
+          laaReference: FORCE_422_LAA_REFERENCE,
           clientFirstName: "Force",
           clientLastName: "422",
           clientDateOfBirth: "01/01/2000",
@@ -83,10 +137,10 @@ export const apiHandlers = [
       ]);
     }
 
-    if (laaReference === "1") {
+    if (laaReference === "INQ-YYY-001") {
       return HttpResponse.json([
         {
-          laaReference: 1,
+          laaReference: "INQ-YYY-001",
           clientFirstName: "Seed",
           clientLastName: "Provider",
           clientDateOfBirth: "01-01-1990",
@@ -179,7 +233,7 @@ export const apiHandlers = [
 
     return HttpResponse.json(
       {
-        laaReference: 123,
+        laaReference: "INQ-YYY-123",
       },
       { status: 201 },
     );
@@ -211,7 +265,7 @@ export const apiHandlers = [
       return HttpResponse.json(
         {
           claimId: 42,
-          laaReference: 299,
+          laaReference: "INQ-YYY-299",
           claimTypeId: "PAYMENT_ON_ACCOUNT",
           statusId: "REJECTED",
           submissionDate: "2026-07-07T12:25:08.407881",
@@ -232,7 +286,7 @@ export const apiHandlers = [
     return HttpResponse.json(
       {
         claimId: 42,
-        laaReference: 1,
+        laaReference: "INQ-YYY-001",
         claimTypeId: "PAYMENT_ON_ACCOUNT",
         statusId: "SUBMITTED",
         submissionDate: "2026-07-07T12:25:08.407881",

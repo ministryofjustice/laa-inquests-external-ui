@@ -1,5 +1,3 @@
-import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
-
 export interface JsonUploadErrorResponse {
   error: { message: string };
   file: {
@@ -47,12 +45,11 @@ export function buildJsonUploadErrorResponse(
 }
 
 export function resolveUploadFailureMessage(
-  result: UseCaseResult<unknown, unknown>,
+  result: { status: string },
   virusErrorMessage: string,
   defaultMessage: string,
 ): string {
-  return result.status === "TECHNICAL_FAILURE" &&
-    result.reason === "FILE_SCAN_FOUND_VIRUS"
+  return result.status === "FILE_SCAN_FOUND_VIRUS"
     ? virusErrorMessage
     : defaultMessage;
 }

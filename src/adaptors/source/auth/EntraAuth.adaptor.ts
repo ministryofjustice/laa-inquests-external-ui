@@ -6,7 +6,16 @@ import type {
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import type { AuthTokenResult } from "#src/adaptors/source/auth/models/Auth.types.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import {
+  ROLE_CLAIM_KEY,
+  normaliseRoles,
+  type AppRole,
+} from "#src/infrastructure/config/accessControl.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  ApplicationError,
+  APPLICATION_ERROR_TYPES,
+} from "#src/use-cases/common/ApplicationError.js";
 
 export class EntraAuthAdaptor implements AuthPort {
   constructor(
@@ -33,24 +42,35 @@ export class EntraAuthAdaptor implements AuthPort {
       }
 
       this.#logTokenDetails(result);
+      const claims = result.account?.idTokenClaims;
       return {
         userId: result.account?.homeAccountId ?? result.uniqueId,
         userName: result.account?.name ?? undefined,
-        officeId: this.#extractOfficeId(result.account?.idTokenClaims),
+        firmId: this.#getClaim(claims, "FIRM_CODE"),
+        officeId: this.#extractOfficeId(claims),
+        userOfficeAccounts: this.#extractUserOfficeAccounts(claims),
         providerEmail: result.account?.username ?? undefined,
+        roles: this.#extractRoles(claims),
         ...this.#getAccessTokenField(result),
         ...this.#getExpiryField(result),
       };
     } catch (err) {
+      // Log the raw MSAL failure once at this outbound boundary, then throw a
+      // sanitized ApplicationError so no MSAL object crosses into the app layer.
       logger.logError({
         functionName: "entraAuthAdaptor_acquireTokenByCode",
-        message: "Token exchange failed with exception",
+        message: "Token acquisition failed with exception",
         err,
         extraContext: {
-          event: "auth_token_exchange_failed",
+          event: "auth_token_acquisition_failed",
+          operation: "acquire_token",
         },
       });
-      throw err;
+      throw new ApplicationError(
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+        "acquire_token",
+        true,
+      );
     }
   }
 
@@ -75,18 +95,22 @@ export class EntraAuthAdaptor implements AuthPort {
   #extractOfficeId(
     claims: Record<string, unknown> | undefined,
   ): string | undefined {
+    const [firstOfficeCode] = this.#extractUserOfficeAccounts(claims);
+    return firstOfficeCode;
+  }
+
+  #extractUserOfficeAccounts(
+    claims: Record<string, unknown> | undefined,
+  ): string[] {
     const value = claims?.ACCOUNTS;
-    if (typeof value === "string" && value !== "") {
-      return value;
-    }
-    if (
-      Array.isArray(value) &&
-      value.length > EMPTY_ARR_LENGTH &&
-      typeof value[EMPTY_ARR_LENGTH] === "string"
-    ) {
-      return value[EMPTY_ARR_LENGTH];
-    }
-    return undefined;
+    const rawAccountCodes = Array.isArray(value)
+      ? value.map((accountCode) => String(accountCode))
+      : typeof value === "string"
+        ? value.split(",")
+        : [];
+    return rawAccountCodes
+      .map((accountCode) => accountCode.trim())
+      .filter((accountCode) => accountCode !== "");
   }
 
   #getClaim(
@@ -95,6 +119,19 @@ export class EntraAuthAdaptor implements AuthPort {
   ): string | undefined {
     const value = claims?.[key];
     return typeof value === "string" && value !== "" ? value : undefined;
+  }
+
+  #extractRoles(claims: Record<string, unknown> | undefined): AppRole[] {
+    const value = claims?.[ROLE_CLAIM_KEY];
+    const rawRoles: unknown[] = Array.isArray(value)
+      ? value
+      : typeof value === "string"
+        ? value.split(",")
+        : [];
+    const trimmedRoles = rawRoles
+      .filter((role): role is string => typeof role === "string")
+      .map((role) => role.trim());
+    return normaliseRoles(trimmedRoles);
   }
 
   // eslint-disable-next-line complexity -- debug method intentionally captures many fields

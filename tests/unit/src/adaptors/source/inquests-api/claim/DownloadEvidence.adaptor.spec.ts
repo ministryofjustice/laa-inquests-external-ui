@@ -3,7 +3,20 @@ import { AxiosInstance } from "axios";
 import { Readable } from "node:stream";
 import { StubbedInstance, stubInterface } from "ts-sinon";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
+import {
+  ApplicationError,
+  APPLICATION_ERROR_TYPES,
+} from "#src/use-cases/common/ApplicationError.js";
 import { v4 as uuidv4 } from "uuid";
+
+function axiosErrorWith(options: { status?: number; code?: string }): unknown {
+  return Object.assign(new Error("upstream failure"), {
+    isAxiosError: true,
+    code: options.code,
+    response:
+      options.status === undefined ? undefined : { status: options.status },
+  });
+}
 
 describe("DownloadEvidenceAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
@@ -42,46 +55,68 @@ describe("DownloadEvidenceAdaptor", () => {
     });
   });
 
-  it("returns a NOT_FOUND technical failure when the api responds with 404", async () => {
-    axiosStub.get.resolves({ status: 404, data: {}, headers: {} });
+  it("returns NOT_FOUND when the api responds with 404", async () => {
+    axiosStub.get.rejects(axiosErrorWith({ status: 404 }));
 
     const response = await downloadEvidenceAdaptor.downloadEvidence(
       { claimEvidenceId: testEvidenceId, disposition: "inline" },
       "access-token-123",
     );
 
-    assert.deepEqual(response, {
-      status: "TECHNICAL_FAILURE",
-      reason: "NOT_FOUND",
-    });
+    assert.deepEqual(response, { status: "NOT_FOUND" });
   });
 
-  it("returns an UPSTREAM_REJECTED technical failure on other non-200 responses", async () => {
-    axiosStub.get.resolves({ status: 500, data: {}, headers: {} });
-
-    const response = await downloadEvidenceAdaptor.downloadEvidence(
-      { claimEvidenceId: testEvidenceId, disposition: "attachment" },
-      "access-token-123",
-    );
-
-    assert.deepEqual(response, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
-    });
+  it("throws AUTHENTICATION_REQUIRED without calling the api when token is missing", async () => {
+    try {
+      await downloadEvidenceAdaptor.downloadEvidence(
+        { claimEvidenceId: testEvidenceId, disposition: "inline" },
+        undefined,
+      );
+      assert.fail("expected ApplicationError");
+    } catch (error) {
+      assert.instanceOf(error, ApplicationError);
+      assert.equal(
+        (error as ApplicationError).type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+      );
+    }
+    assert.equal(axiosStub.get.callCount, 0);
   });
 
-  it("returns an UNEXPECTED_EXCEPTION technical failure when the request throws", async () => {
-    axiosStub.get.rejects(new Error("Unexpected error"));
+  it("throws UPSTREAM_UNAVAILABLE on a 5xx response", async () => {
+    axiosStub.get.rejects(axiosErrorWith({ status: 502 }));
 
-    const response = await downloadEvidenceAdaptor.downloadEvidence(
-      { claimEvidenceId: testEvidenceId, disposition: "inline" },
-      "access-token-123",
-    );
+    try {
+      await downloadEvidenceAdaptor.downloadEvidence(
+        { claimEvidenceId: testEvidenceId, disposition: "attachment" },
+        "access-token-123",
+      );
+      assert.fail("expected ApplicationError");
+    } catch (error) {
+      assert.instanceOf(error, ApplicationError);
+      assert.equal(
+        (error as ApplicationError).type,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+      );
+    }
+  });
 
-    assert.deepEqual(response, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
+  it("throws UPSTREAM_UNAVAILABLE when the request fails with a network error", async () => {
+    axiosStub.get.rejects(axiosErrorWith({ code: "ECONNREFUSED" }));
+
+    try {
+      await downloadEvidenceAdaptor.downloadEvidence(
+        { claimEvidenceId: testEvidenceId, disposition: "inline" },
+        "access-token-123",
+      );
+      assert.fail("expected ApplicationError");
+    } catch (error) {
+      assert.instanceOf(error, ApplicationError);
+      assert.equal(
+        (error as ApplicationError).type,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+      );
+    }
   });
 
   it("calls the correct api endpoint with parameters", async () => {

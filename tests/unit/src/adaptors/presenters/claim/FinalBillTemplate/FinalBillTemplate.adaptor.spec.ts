@@ -152,10 +152,8 @@ describe("FinalBillTemplate adaptor", () => {
     it("stores the uploaded template in session and returns 201 on success", async () => {
       uploadEvidenceUseCase.execute.resolves({
         status: "SUCCESS",
-        data: {
-          evidenceFileId: "template-id-123",
-          evidenceFileName: "cost-template.xlsx",
-        },
+        evidenceFileId: "template-id-123",
+        evidenceFileName: "cost-template.xlsx",
       });
       const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();
@@ -185,8 +183,7 @@ describe("FinalBillTemplate adaptor", () => {
 
     it("returns a service unavailable error when the upload fails", async () => {
       uploadEvidenceUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
+        status: "UPLOAD_REJECTED",
       });
       const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();

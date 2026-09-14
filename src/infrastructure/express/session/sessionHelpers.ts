@@ -33,9 +33,12 @@ export class SessionHelper {
             "cookie",
             "user",
             "userId",
+            "firmId",
             "officeId",
+            "userOfficeAccounts",
             "providerEmail",
             "accessToken",
+            "roles",
           ].includes(k),
       )
       .forEach((key) => {

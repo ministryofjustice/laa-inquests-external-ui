@@ -21,6 +21,14 @@ An outbound adapter implements an outbound port so that the application can inte
 - Own the mapping between domain types and external representations. External types MUST NOT escape this layer (e.g. database models)
 - Keep all infrastructure-specific concerns (ORMs, HTTP clients, SDK calls) inside this layer.
 
+## Failure translation
+
+Load the `error-handling` skill before changing any failure path. In short:
+
+- Expected absence (e.g. no results) is a value or `undefined`; an upload virus-scan rejection is an expected result value. These are not exceptions.
+- Every unexpected technical failure (missing credentials, 401, 403, timeout, network, upstream 4xx/5xx, invalid response) is translated to a sanitized `ApplicationError` before it crosses the boundary.
+- Log the raw Axios/MSAL error exactly once at the boundary with safe transport metadata, then translate. Never retain the SDK error as `cause` and never return `cause?: unknown` in a port-facing result.
+
 ## Anti-patterns to avoid
 
 - Leaking ORM entities, HTTP response models, or SDK types into use cases or the domain.

@@ -69,6 +69,9 @@ import { createCoronersLetterRouter } from "./apply/coronersLetter.router.js";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 import { GetPublicAuthoritiesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/GetPublicAuthorities.adaptor.js";
+import { GetProviderOfficesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/GetProviderOffices.adaptor.js";
+import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
+import { createOfficeAccountsRouter } from "#src/infrastructure/express/routes/apply/officeAccounts.router.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import axios from "axios";
 
@@ -87,7 +90,6 @@ import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCa
 import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
-import { createErrorRouter } from "./error.router.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -101,6 +103,7 @@ const proceedingsRouter = express.Router();
 const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
 const coronersLetterRouter = express.Router();
+const officeAccountsRouter = express.Router();
 const claimTypeRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
@@ -114,7 +117,6 @@ const payingPartyRouter = express.Router();
 const evidenceRouter = express.Router();
 const finalBillTemplateRouter = express.Router();
 const counselRouter = express.Router();
-const errorRouter = express.Router();
 
 const SUCCESSFUL_REQUEST = 200;
 
@@ -146,8 +148,6 @@ indexRouter.get("/status", (req: Request, res: Response): void => {
 indexRouter.get("/health", (req: Request, res: Response): void => {
   res.status(SUCCESSFUL_REQUEST).send("Healthy");
 });
-
-indexRouter.use("/", createErrorRouter(errorRouter));
 
 if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
   const { seedDevAuthSession } = (await import(
@@ -389,6 +389,19 @@ indexRouter.use(
   createConfirmationRouter(confirmationRouter, confirmationAdaptor),
   createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
   createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
+);
+
+const getProviderOfficesSource = new GetProviderOfficesAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
+const officeAccountsAdaptor = new OfficeAccountsAdaptor(
+  getProviderOfficesSource,
+);
+
+indexRouter.use(
+  "/apply",
+  createOfficeAccountsRouter(officeAccountsRouter, officeAccountsAdaptor),
 );
 
 export default indexRouter;

@@ -3,8 +3,12 @@ import sinon from "sinon";
 import { AxiosInstance } from "axios";
 import { stubInterface } from "ts-sinon";
 import { SubmitApplicationAdaptor } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/SubmitApplication.adaptor.js";
-import { logger } from "#src/infrastructure/express/middleware/logger/logger.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
 import { formatDateDDMMYYYY } from "#src/utils/dateFormatter.js";
+import {
+  APPLICATION_ERROR_TYPES,
+  isApplicationError,
+} from "#src/use-cases/common/ApplicationError.js";
 import { v4 as uuidv4 } from "uuid";
 
 describe("SubmitApplicationAdaptor", () => {
@@ -16,13 +20,12 @@ describe("SubmitApplicationAdaptor", () => {
     it("submits an application", async () => {
       let axiosStub = stubInterface<AxiosInstance>();
       axiosStub.post.resolves({
-        data: { laaReference: 12345678910 },
+        data: { laaReference: "12345678910" },
         status: 201,
       });
 
       const expectedApiResponse = {
         laaReference: "12345678910",
-        statusCode: 201,
       };
 
       const submitApplicationAdaptor = new SubmitApplicationAdaptor(
@@ -93,7 +96,7 @@ describe("SubmitApplicationAdaptor", () => {
 
     it("logs the payload when payloadDebugEnabled is true", async () => {
       const axiosStub = stubInterface<AxiosInstance>();
-      axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
+      axiosStub.post.resolves({ data: { laaReference: "1" }, status: 201 });
       const logDebugSpy = sinon.spy(logger, "logDebug");
 
       const adaptor = new SubmitApplicationAdaptor(
@@ -144,7 +147,7 @@ describe("SubmitApplicationAdaptor", () => {
 
     it("does not log the payload when payloadDebugEnabled is false", async () => {
       const axiosStub = stubInterface<AxiosInstance>();
-      axiosStub.post.resolves({ data: { laaReference: 1 }, status: 201 });
+      axiosStub.post.resolves({ data: { laaReference: "1" }, status: 201 });
       const logDebugSpy = sinon.spy(logger, "logDebug");
 
       const adaptor = new SubmitApplicationAdaptor(
@@ -184,50 +187,87 @@ describe("SubmitApplicationAdaptor", () => {
       assert.ok(logDebugSpy.notCalled);
     });
 
-    it("transforms laaReference from number to string (backwards compatibility)", async () => {
+    it("throws an authentication ApplicationError when the access token is missing", async () => {
       const axiosStub = stubInterface<AxiosInstance>();
-      axiosStub.post.resolves({
-        data: { laaReference: 987654321 },
-        status: 201,
-      });
-
       const adaptor = new SubmitApplicationAdaptor(
         axiosStub,
         "http://localhost",
       );
 
-      const minimalBody = {
-        coronersLetterId: "x",
-        client: {
-          clientFirstName: "A",
-          clientLastName: "B",
-          dateOfBirth: "01/01/1990",
-          hasNoFixedAbode: false,
-          correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
-        },
-        deceased: {
-          deceasedFirstName: "D",
-          deceasedLastName: "E",
-          deceasedDateOfBirth: "01/01/1960",
-          deceasedDateOfDeath: "01/01/2020",
-          coronersReference: "",
-          furtherInformation: "",
-          clientRelationshipToDeceased: "child",
-        },
-        proceeding: {
-          proceedingId: "IQCA",
-        },
-        publicBodies: [],
-        provider: { officeId: "Y", emailAddress: "z@z.com" },
-      };
+      let thrown: unknown;
+      try {
+        await adaptor.submitApplication(minimalSubmitBody, undefined);
+        assert.fail("expected submitApplication to throw");
+      } catch (error) {
+        thrown = error;
+      }
 
-      const result = await adaptor.submitApplication(
-        minimalBody,
-        "access-token-123",
+      assert.isTrue(isApplicationError(thrown));
+      assert.equal(
+        (thrown as { type: string }).type,
+        APPLICATION_ERROR_TYPES.AUTHENTICATION_REQUIRED,
+      );
+      assert.equal(
+        (thrown as { operation: string }).operation,
+        "submit_application",
+      );
+      assert.isTrue(axiosStub.post.notCalled);
+    });
+
+    it("translates upstream failures into an ApplicationError", async () => {
+      const axiosStub = stubInterface<AxiosInstance>();
+      axiosStub.post.rejects({
+        isAxiosError: true,
+        code: "ECONNRESET",
+        message: "Network error",
+      });
+      const adaptor = new SubmitApplicationAdaptor(
+        axiosStub,
+        "http://localhost",
       );
 
-      assert.equal(result.laaReference, "987654321");
-      assert.equal(typeof result.laaReference, "string");
+      let thrown: unknown;
+      try {
+        await adaptor.submitApplication(minimalSubmitBody, "access-token-123");
+        assert.fail("expected submitApplication to throw");
+      } catch (error) {
+        thrown = error;
+      }
+
+      assert.isTrue(isApplicationError(thrown));
+      assert.equal(
+        (thrown as { type: string }).type,
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+      );
+      assert.equal(
+        (thrown as { operation: string }).operation,
+        "submit_application",
+      );
     });
   });
 });
+
+const minimalSubmitBody = {
+  coronersLetterId: "x",
+  client: {
+    clientFirstName: "A",
+    clientLastName: "B",
+    dateOfBirth: "01/01/1990",
+    hasNoFixedAbode: false,
+    correspondenceAddressSource: "USE_PROVIDER_ADDRESS" as const,
+  },
+  deceased: {
+    deceasedFirstName: "D",
+    deceasedLastName: "E",
+    deceasedDateOfBirth: "01/01/1960",
+    deceasedDateOfDeath: "01/01/2020",
+    coronersReference: "",
+    furtherInformation: "",
+    clientRelationshipToDeceased: "child",
+  },
+  proceeding: {
+    proceedingId: "IQCA",
+  },
+  publicBodies: [],
+  provider: { officeId: "Y", emailAddress: "z@z.com" },
+};

@@ -288,10 +288,8 @@ describe("Evidence adaptor", () => {
       const responseStub = stubInterface<Response>();
       uploadEvidenceUseCase.execute.resolves({
         status: "SUCCESS",
-        data: {
-          evidenceFileId,
-          evidenceFileName,
-        },
+        evidenceFileId,
+        evidenceFileName,
       });
 
       await adaptor.processEvidenceUpload(requestStub, responseStub);
@@ -327,10 +325,8 @@ describe("Evidence adaptor", () => {
 
       uploadEvidenceUseCase.execute.resolves({
         status: "SUCCESS",
-        data: {
-          evidenceFileId,
-          evidenceFileName,
-        },
+        evidenceFileId,
+        evidenceFileName,
       });
 
       await adaptor.processEvidenceUpload(requestStub, responseStub);
@@ -430,8 +426,7 @@ describe("Evidence adaptor", () => {
       responseStub.locals = { csrfToken: "csrf-token" };
 
       uploadEvidenceUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "FILE_SCAN_FOUND_VIRUS",
+        status: "FILE_SCAN_FOUND_VIRUS",
       });
 
       await adaptor.processEvidenceUpload(requestStub, responseStub);
@@ -539,8 +534,7 @@ describe("Evidence adaptor", () => {
       responseStub.status.returns(responseStub);
 
       deleteEvidenceUseCase.execute.resolves({
-        status: "TECHNICAL_FAILURE",
-        reason: "UPSTREAM_REJECTED",
+        status: "DELETE_REJECTED",
       });
 
       await adaptor.processEvidenceDelete(requestStub, responseStub);

@@ -30,7 +30,6 @@ export const COUNSEL_PAY_CONFIRMATION_ERROR = {
 export const COUNSEL_NUMBER_ZERO = "0";
 
 export const CHECK_YOUR_ANSWERS_ORIGIN = "check-your-answers";
-export const CLAIM_CHECK_YOUR_ANSWERS_PATH = "/claim/check-your-answers";
 
 export const COUNSEL_NUMBER_OPTIONS = [
   { value: "0", text: "0" },
@@ -541,12 +540,13 @@ export const CORONERS_LETTER_ERROR = {
   FILE_IS_EMPTY: "The selected file is empty",
   INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
   FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
-  INVALID_FILE_NAME:
-    "Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-",
   ONLY_ONE_FILE_ALLOWED:
     "You can only upload one file. Delete the existing file before uploading a new one",
 };
 
+export const INVALID_FILE_NAME_REGEX = /^[A-Za-z0-9.!\(\)_ \-]+$/iv;
+export const INVALID_FILE_NAME =
+  "Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-";
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
 export const CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES = 0;
 
@@ -617,3 +617,9 @@ export const HTTP_INTERNAL_SERVER_ERROR = 500;
 export const HTTP_BAD_GATEWAY = 502;
 export const HTTP_SERVICE_UNAVAILABLE = 503;
 export const HTTP_GATEWAY_TIMEOUT = 504;
+
+export const ERROR_PAGE_MESSAGE = {
+  FORBIDDEN: "Forbidden",
+  NOT_FOUND: "Page not found",
+  INTERNAL_SERVER_ERROR: "Internal Server Error",
+};

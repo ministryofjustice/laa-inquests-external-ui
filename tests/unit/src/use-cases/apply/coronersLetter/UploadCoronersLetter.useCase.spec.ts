@@ -43,51 +43,45 @@ describe("UploadCoronersLetterUseCase", () => {
 
     assert.deepEqual(result, {
       status: "SUCCESS",
-      data: {
-        coronersLetterId: testCoronersLetterId,
-        coronersLetterFileName: testCoronersLetterFileName,
+      coronersLetterId: testCoronersLetterId,
+      coronersLetterFileName: testCoronersLetterFileName,
+    });
+  });
+
+  it("returns UPLOAD_REJECTED when the port rejects the upload", async () => {
+    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
+      status: "UPLOAD_REJECTED",
+    });
+
+    const result = await useCase.execute(testCoronerLetter);
+
+    assert.deepEqual(result, {
+      status: "UPLOAD_REJECTED",
+    });
+  });
+
+  it("returns FILE_SCAN_FOUND_VIRUS when the port reports a scan rejection", async () => {
+    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
+      status: "FILE_SCAN_FOUND_VIRUS",
+    });
+
+    const result = await useCase.execute(testCoronerLetter);
+
+    assert.deepEqual(result, {
+      status: "FILE_SCAN_FOUND_VIRUS",
+    });
+  });
+
+  it("propagates a port rejection unchanged", async () => {
+    const portError = new Error("network failure");
+    uploadCoronersLetterPort.uploadCoronersLetter.rejects(portError);
+
+    await assert.rejects(
+      async () => useCase.execute(testCoronerLetter),
+      (error: unknown) => {
+        assert.equal(error, portError);
+        return true;
       },
-    });
-  });
-
-  it("returns upstream TECHNICAL_FAILURE when API status is TECHNICAL_FAILURE", async () => {
-    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
-    });
-
-    const result = await useCase.execute(testCoronerLetter);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UPSTREAM_REJECTED",
-    });
-  });
-
-  it("returns file scan TECHNICAL_FAILURE when API status is TECHNICAL_FAILURE with FILE_SCAN_FOUND_VIRUS reason", async () => {
-    uploadCoronersLetterPort.uploadCoronersLetter.resolves({
-      status: "TECHNICAL_FAILURE",
-      reason: "FILE_SCAN_FOUND_VIRUS",
-    });
-
-    const result = await useCase.execute(testCoronerLetter);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "FILE_SCAN_FOUND_VIRUS",
-    });
-  });
-
-  it("returns unexpected exception when adapter throws", async () => {
-    uploadCoronersLetterPort.uploadCoronersLetter.rejects(
-      new Error("network failure"),
     );
-
-    const result = await useCase.execute(testCoronerLetter);
-
-    assert.deepEqual(result, {
-      status: "TECHNICAL_FAILURE",
-      reason: "UNEXPECTED_EXCEPTION",
-    });
   });
 });
