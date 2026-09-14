@@ -1,3 +1,4 @@
+import { CLAIM_EVIDENCE_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - evidence", () => {
@@ -184,5 +185,22 @@ test.describe("Claim - evidence", () => {
         .locator(".moj-multi-file-upload__message")
         .filter({ hasText: "test-evidence.pdf" }),
     ).toHaveCount(0);
+  });
+  test("renders file too large message if file exceeds 12.5MB", async ({
+    page,
+  }) => {
+    const largeBuffer = Buffer.alloc(13000000);
+
+    await page.setInputFiles("#documents", {
+      name: "test-evidence.pdf",
+      mimeType: "application/pdf",
+      buffer: largeBuffer,
+    });
+
+    const errorSummary = page.locator(".moj-multi-file-upload__error");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(
+      CLAIM_EVIDENCE_ERROR.FILE_TOO_LARGE,
+    );
   });
 });

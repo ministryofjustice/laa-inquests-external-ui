@@ -163,4 +163,22 @@ test.describe("Apply - upload coroner's letter", () => {
     await expect(errorSummary).toBeVisible();
     await expect(errorSummary).toContainText(INVALID_FILE_NAME);
   });
+  test("renders file too large message if file exceeds 12.5MB", async ({
+    page,
+  }) => {
+    await page.goto("/apply/upload-coroners-letter");
+    const largeBuffer = Buffer.alloc(13000000);
+
+    await page.setInputFiles("#documents", {
+      name: "coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: largeBuffer,
+    });
+
+    const errorSummary = page.locator(".moj-multi-file-upload__error");
+    await expect(errorSummary).toBeVisible();
+    await expect(errorSummary).toContainText(
+      CORONERS_LETTER_ERROR.FILE_TOO_LARGE,
+    );
+  });
 });
