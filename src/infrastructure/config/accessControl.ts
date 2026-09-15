@@ -18,15 +18,16 @@ export const APP_ROLES = {
   CLAIMS_USER: "Inquests - Provider Claims User",
 };
 
-export type AppRole = (typeof APP_ROLES)[keyof typeof APP_ROLES];
+export type ProviderRole = (typeof APP_ROLES)[keyof typeof APP_ROLES];
 
-export const RECOGNISED_ROLES: readonly AppRole[] = Object.values(APP_ROLES);
+export const RECOGNISED_ROLES: readonly ProviderRole[] =
+  Object.values(APP_ROLES);
 
 export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
 
 export interface RoutePolicy {
   readonly prefix: string;
-  readonly allowedRoles: readonly AppRole[];
+  readonly allowedRoles: readonly ProviderRole[];
 }
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
@@ -42,11 +43,11 @@ const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
 
 const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
 
-export function isRecognisedRole(value: unknown): value is AppRole {
+export function isRecognisedRole(value: unknown): value is ProviderRole {
   return typeof value === "string" && RECOGNISED_ROLES.includes(value);
 }
 
-export function normaliseRoles(values: readonly unknown[]): AppRole[] {
+export function normaliseRoles(values: readonly unknown[]): ProviderRole[] {
   const rawRoles: string[] = [];
 
   for (const value of values) {
@@ -62,7 +63,7 @@ export function normaliseRoles(values: readonly unknown[]): AppRole[] {
     }
   }
 
-  const recognised: AppRole[] = [];
+  const recognised: ProviderRole[] = [];
   for (const role of rawRoles) {
     if (!isRecognisedRole(role)) {
       throw new Error(`Unknown role in token claims: "${String(role)}"`);
@@ -92,13 +93,13 @@ export function findRoutePolicy(path: string): RoutePolicy | undefined {
 }
 
 export function hasAllowedRole(
-  userRoles: readonly AppRole[],
+  userRoles: readonly ProviderRole[],
   policy: RoutePolicy,
 ): boolean {
   return userRoles.some((role) => policy.allowedRoles.includes(role));
 }
 
-export function validateRolesNotEmpty(roles: readonly AppRole[]): void {
+export function validateRolesNotEmpty(roles: readonly ProviderRole[]): void {
   if (roles.length === EMPTY_ARR_LENGTH) {
     throw new Error(
       "User has no provider roles assigned. Authentication denied.",

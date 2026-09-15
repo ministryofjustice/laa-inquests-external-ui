@@ -3,7 +3,7 @@ import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js"
 import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
 import {
   APP_ROLES,
-  type AppRole,
+  type ProviderRole,
 } from "#src/infrastructure/config/accessControl.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;
@@ -19,7 +19,7 @@ function parseOfficeAccountsQueryParam(value: unknown): string[] {
     .filter((officeCode) => officeCode !== "");
 }
 
-function parseRolesQueryParam(value: unknown): AppRole[] {
+function parseRolesQueryParam(value: unknown): ProviderRole[] {
   if (value === "application") {
     return [APP_ROLES.APPLICATION_USER];
   }
