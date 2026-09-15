@@ -8,6 +8,7 @@ import {
   isPublicPath,
   findRoutePolicy,
   hasAllowedRole,
+  validateRolesNotEmpty,
 } from "#src/infrastructure/config/accessControl.js";
 
 describe("accessControl config", () => {
@@ -41,10 +42,9 @@ describe("accessControl config", () => {
   });
 
   describe("normaliseRoles", () => {
-    it("keeps only recognised roles", () => {
+    it("returns recognised roles from array", () => {
       const result = normaliseRoles([
         APP_ROLES.APPLICATION_USER,
-        "Inquests - Random Role",
         APP_ROLES.CLAIMS_USER,
       ]);
 
@@ -63,10 +63,11 @@ describe("accessControl config", () => {
       assert.deepEqual(result, [APP_ROLES.APPLICATION_USER]);
     });
 
-    it("ignores malformed values", () => {
+    it("handles non-string values (ignores them)", () => {
       const result = normaliseRoles([
         undefined,
         null,
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         42,
         {},
         APP_ROLES.CLAIMS_USER,
@@ -75,8 +76,26 @@ describe("accessControl config", () => {
       assert.deepEqual(result, [APP_ROLES.CLAIMS_USER]);
     });
 
-    it("returns an empty array when no recognised role is present", () => {
-      assert.deepEqual(normaliseRoles(["Unknown", ""]), []);
+    it("throws error when unknown role is encountered", () => {
+      assert.throws(
+        () => normaliseRoles(["Inquests - Random Role"]),
+        /Unknown role in token claims/,
+      );
+    });
+
+    it("throws error when mixed known and unknown roles are present", () => {
+      assert.throws(
+        () =>
+          normaliseRoles([
+            APP_ROLES.APPLICATION_USER,
+            "Inquests - Random Role",
+          ]),
+        /Unknown role in token claims/,
+      );
+    });
+
+    it("returns an empty array when no values provided", () => {
+      assert.deepEqual(normaliseRoles([]), []);
     });
   });
 
@@ -181,6 +200,44 @@ describe("accessControl config", () => {
     it("returns false when the user has no roles", () => {
       assert.ok(applyPolicy);
       assert.equal(hasAllowedRole([], applyPolicy), false);
+    });
+  });
+
+  describe("validateRolesNotEmpty", () => {
+    it("does not throw when user has a role", () => {
+      assert.doesNotThrow(() =>
+        validateRolesNotEmpty([APP_ROLES.APPLICATION_USER]),
+      );
+    });
+
+    it("does not throw when user has multiple roles", () => {
+      assert.doesNotThrow(() =>
+        validateRolesNotEmpty([
+          APP_ROLES.APPLICATION_USER,
+          APP_ROLES.CLAIMS_USER,
+        ]),
+      );
+    });
+
+    it("throws error when user has no roles", () => {
+      assert.throws(
+        () => validateRolesNotEmpty([]),
+        /User has no provider roles assigned/,
+      );
+    });
+
+    it("throws specific error message", () => {
+      assert.throws(
+        () => validateRolesNotEmpty([]),
+        (err: unknown) => {
+          assert.ok(err instanceof Error);
+          assert.equal(
+            err.message,
+            "User has no provider roles assigned. Authentication denied.",
+          );
+          return true;
+        },
+      );
     });
   });
 });
