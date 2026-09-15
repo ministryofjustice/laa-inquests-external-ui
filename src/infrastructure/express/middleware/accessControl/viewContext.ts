@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import {
   APP_ROLES,
-  type AppRole,
+  type ProviderRole,
 } from "#src/infrastructure/config/accessControl.js";
 
 /**
@@ -19,11 +19,11 @@ export const viewContext = (
   res: Response,
   next: NextFunction,
 ): void => {
-  const roles: AppRole[] = req.session.roles ?? [];
+  const roles: ProviderRole[] = req.session.roles ?? [];
 
   res.locals.userRoles = roles;
   res.locals.appRoles = APP_ROLES;
-  res.locals.hasRole = (role: AppRole): boolean => roles.includes(role);
+  res.locals.hasRole = (role: ProviderRole): boolean => roles.includes(role);
 
   next();
 };
