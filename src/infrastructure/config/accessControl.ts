@@ -1,3 +1,5 @@
+import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+
 /**
  * Central role-based access-control (RBAC) configuration.
  *
@@ -18,7 +20,6 @@ export const APP_ROLES = {
 
 export type AppRole = (typeof APP_ROLES)[keyof typeof APP_ROLES];
 
-/** The complete set of roles the service recognises. */
 export const RECOGNISED_ROLES: readonly AppRole[] = Object.values(APP_ROLES);
 
 export const ROLE_CLAIM_KEY = "LAA_APP_ROLES";
@@ -28,10 +29,6 @@ export interface RoutePolicy {
   readonly allowedRoles: readonly AppRole[];
 }
 
-/**
- * Central route policy matrix. Order matters: more specific prefixes must come
- * before the shared `/` entry so that `/apply` and `/claim` are matched first.
- */
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   { prefix: "/apply", allowedRoles: [APP_ROLES.APPLICATION_USER] },
   { prefix: "/claim", allowedRoles: [APP_ROLES.CLAIMS_USER] },
@@ -49,12 +46,30 @@ export function isRecognisedRole(value: unknown): value is AppRole {
   return typeof value === "string" && RECOGNISED_ROLES.includes(value);
 }
 
-/**
- * Normalise arbitrary role claim values into a deduplicated list of recognised
- * roles. Accepts strings and arrays; unknown or malformed values are ignored.
- */
 export function normaliseRoles(values: readonly unknown[]): AppRole[] {
-  const recognised = values.filter(isRecognisedRole);
+  const rawRoles: string[] = [];
+
+  for (const value of values) {
+    if (typeof value === "string") {
+      // Handle comma-separated roles
+      const parts = value.split(",");
+      for (const part of parts) {
+        const trimmed = part.trim();
+        if (trimmed !== "") {
+          rawRoles.push(trimmed);
+        }
+      }
+    }
+  }
+
+  const recognised: AppRole[] = [];
+  for (const role of rawRoles) {
+    if (!isRecognisedRole(role)) {
+      throw new Error(`Unknown role in token claims: "${String(role)}"`);
+    }
+    recognised.push(role);
+  }
+
   return [...new Set(recognised)];
 }
 
@@ -81,4 +96,12 @@ export function hasAllowedRole(
   policy: RoutePolicy,
 ): boolean {
   return userRoles.some((role) => policy.allowedRoles.includes(role));
+}
+
+export function validateRolesNotEmpty(roles: readonly AppRole[]): void {
+  if (roles.length === EMPTY_ARR_LENGTH) {
+    throw new Error(
+      "User has no provider roles assigned. Authentication denied.",
+    );
+  }
 }

@@ -339,7 +339,7 @@ describe("EntraAuthAdaptor", () => {
         ]);
       });
 
-      it("ignores unrecognised roles in the LAA_APP_ROLES claim", async () => {
+      it("translates unknown roles in the LAA_APP_ROLES claim into a sanitized ApplicationError", async () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
@@ -353,13 +353,20 @@ describe("EntraAuthAdaptor", () => {
           },
         } as any);
 
-        const result = await adaptor.acquireTokenByCode(
-          "auth-code",
-          SCOPES,
-          REDIRECT_URI,
+        await assert.rejects(
+          () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
+          (err: unknown) => {
+            assert.ok(err instanceof ApplicationError);
+            assert.equal(
+              err.type,
+              APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+            );
+            assert.equal(err.operation, "acquire_token");
+            assert.equal(err.cause, undefined);
+            assert.doesNotMatch(err.message, /Unknown role in token claims/);
+            return true;
+          },
         );
-
-        assert.deepEqual(result.roles, ["Inquests - Provider Claims User"]);
       });
 
       it("returns an empty roles array when the LAA_APP_ROLES claim is missing", async () => {
