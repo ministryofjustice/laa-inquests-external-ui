@@ -9,7 +9,8 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import {
   ROLE_CLAIM_KEY,
   normaliseRoles,
-  type AppRole,
+  validateRolesNotEmpty,
+  type ProviderRole,
 } from "#src/infrastructure/config/accessControl.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
@@ -121,17 +122,33 @@ export class EntraAuthAdaptor implements AuthPort {
     return typeof value === "string" && value !== "" ? value : undefined;
   }
 
-  #extractRoles(claims: Record<string, unknown> | undefined): AppRole[] {
-    const value = claims?.[ROLE_CLAIM_KEY];
-    const rawRoles: unknown[] = Array.isArray(value)
-      ? value
-      : typeof value === "string"
-        ? value.split(",")
-        : [];
-    const trimmedRoles = rawRoles
-      .filter((role): role is string => typeof role === "string")
-      .map((role) => role.trim());
-    return normaliseRoles(trimmedRoles);
+  #extractRoles(claims: Record<string, unknown> | undefined): ProviderRole[] {
+    try {
+      const value = claims?.[ROLE_CLAIM_KEY];
+      const rawRoles: unknown[] = Array.isArray(value)
+        ? value
+        : typeof value === "string"
+          ? value.split(",")
+          : [];
+      const trimmedRoles = rawRoles
+        .filter((role): role is string => typeof role === "string")
+        .map((role) => role.trim());
+      const roles = normaliseRoles(trimmedRoles);
+      validateRolesNotEmpty(roles);
+      return roles;
+    } catch (error: unknown) {
+      logger.logError({
+        functionName: "entraAuthAdaptor_extractRoles",
+        message: "Role extraction failed",
+        err: error,
+        extraContext: { event: "auth_token_acquisition_failed" },
+      });
+      throw new ApplicationError(
+        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+        "acquire_token",
+        true,
+      );
+    }
   }
 
   // eslint-disable-next-line complexity -- debug method intentionally captures many fields
