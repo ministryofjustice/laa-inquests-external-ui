@@ -45,8 +45,15 @@ function renderClientSideUploadError(
 
 // Rejects oversized files in the browser so they never leave the page: otherwise the request
 // is sent and blocked at the ingress (ModSecurity 403) before the server can return the error.
+//
+// Uploads are also serialised: the widget normally fires one XHR per file concurrently, and each
+// request appends to the same session-held file list. Concurrent requests read the same snapshot
+// and overwrite one another's changes, so only the last upload survives. Queuing the uploads makes
+// each request finish (and persist its session change) before the next one starts.
 class SizeValidatedMultiFileUpload extends MultiFileUpload {
   readonly #sizeLimit: FileSizeLimit;
+  readonly #pendingFiles: File[] = [];
+  #isUploading = false;
 
   constructor(
     root: Element,
@@ -55,6 +62,53 @@ class SizeValidatedMultiFileUpload extends MultiFileUpload {
   ) {
     super(root, config);
     this.#sizeLimit = sizeLimit;
+
+    // Detect upload completion by wrapping the widget's own exit/error hooks, which fire once the
+    // XHR resolves. The base class populates these hooks with no-ops, so wrapping is safe.
+    const {
+      config: { hooks },
+    } = this;
+    if (hooks !== undefined) {
+      const { exitHook: originalExitHook, errorHook: originalErrorHook } =
+        hooks;
+      hooks.exitHook = (upload, file, xhr, textStatus): void => {
+        originalExitHook?.(upload, file, xhr, textStatus);
+        this.#onUploadComplete();
+      };
+      hooks.errorHook = (upload, file, xhr, textStatus): void => {
+        originalErrorHook?.(upload, file, xhr, textStatus);
+        this.#onUploadComplete();
+      };
+    }
+  }
+
+  override uploadFiles(files: FileList): void {
+    this.#pendingFiles.push(...Array.from(files));
+    this.#processNextFile();
+  }
+
+  #processNextFile(): void {
+    if (this.#isUploading) {
+      return;
+    }
+
+    const file = this.#pendingFiles.shift();
+    if (file === undefined) {
+      return;
+    }
+
+    this.#isUploading = true;
+    try {
+      this.uploadFile(file);
+    } catch {
+      // entryHook rejected the file (e.g. invalid name), so no XHR was sent.
+      this.#onUploadComplete();
+    }
+  }
+
+  #onUploadComplete(): void {
+    this.#isUploading = false;
+    this.#processNextFile();
   }
 
   override uploadFile(file: File): void {
@@ -64,6 +118,8 @@ class SizeValidatedMultiFileUpload extends MultiFileUpload {
         file,
         this.#sizeLimit.fileTooLargeMessage,
       );
+      // Rejected in the browser, so no XHR completion hook will fire.
+      this.#onUploadComplete();
     } else {
       super.uploadFile(file);
     }
@@ -125,8 +181,10 @@ function initialiseMultiFileUpload(): void {
         : "";
 
     const { uploadRouteBase, sizeLimit } = resolveUploadConfig();
-    /* eslint-disable-next-line @typescript-eslint/no-meaningless-void-operator -- void used to signal no return value from SizeValidatedMultiFileUpload instance */
-    void new SizeValidatedMultiFileUpload(
+
+    // Constructed for its side effects (registers DOM listeners); the instance is not retained.
+    // eslint-disable-next-line no-new -- see comment above
+    new SizeValidatedMultiFileUpload(
       multiFileUploadElement,
       {
         uploadUrl: `${uploadRouteBase}/upload${csrfQuery}`,
