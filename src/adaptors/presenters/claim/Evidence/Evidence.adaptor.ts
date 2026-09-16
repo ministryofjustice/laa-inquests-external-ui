@@ -17,6 +17,11 @@ import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import {
+  runExclusivePerSession,
+  saveSession,
+  reloadSession,
+} from "#src/infrastructure/express/session/sessionConcurrency.js";
+import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,
   extractFileId,
@@ -123,7 +128,7 @@ export class EvidenceAdaptor {
       });
 
       if (result.status === "SUCCESS") {
-        this.#handleUploadSuccess({
+        await this.#handleUploadSuccess({
           req,
           res,
           data: {
@@ -347,21 +352,20 @@ export class EvidenceAdaptor {
     }
   }
 
-  #handleUploadSuccess(options: {
+  async #handleUploadSuccess(options: {
     req: Request;
     res: Response;
     data: { evidenceFileId: string; evidenceFileName: string };
     file: Express.Multer.File;
     isNoJsUpload: boolean;
-  }): void {
+  }): Promise<void> {
     const { req, res, data, file, isNoJsUpload } = options;
 
-    this.#storeUploadedFile(
-      req,
-      data.evidenceFileId,
-      data.evidenceFileName,
-      file.size,
-    );
+    await this.#appendUploadedFileToSession(req, {
+      evidenceFileId: data.evidenceFileId,
+      evidenceFileName: data.evidenceFileName,
+      fileSize: file.size,
+    });
 
     if (isNoJsUpload) {
       res.redirect("/claim/evidence");
@@ -369,29 +373,55 @@ export class EvidenceAdaptor {
       return;
     }
 
-    // ensure the session is persisted before the client's next request arrives
-    req.session.save((err: unknown) => {
-      if (err !== null && err !== undefined) {
-        logger.logError({
-          functionName: "evidenceAdaptor_handleUploadSuccess",
-          message: "Failed to save session after evidence upload",
-          request: req,
-          err,
-        });
-      }
-
-      res.status(HTTP_CREATED).json({
-        success: {
-          messageText: `${file.originalname} uploaded`,
-          messageHtml: `${file.originalname} uploaded`,
-        },
-        file: {
-          filename: data.evidenceFileId,
-          originalname: file.originalname,
-        },
-      });
-      this.#logUploadSuccess(req, isNoJsUpload, data.evidenceFileId);
+    res.status(HTTP_CREATED).json({
+      success: {
+        messageText: `${file.originalname} uploaded`,
+        messageHtml: `${file.originalname} uploaded`,
+      },
+      file: {
+        filename: data.evidenceFileId,
+        originalname: file.originalname,
+      },
     });
+    this.#logUploadSuccess(req, isNoJsUpload, data.evidenceFileId);
+  }
+
+  // Appends the file under a per-session lock, re-reading the persisted session first so the new
+  // file is merged onto any uploads that completed while this request was in flight. Without this
+  // the read-modify-write on the stale request snapshot loses concurrently uploaded files.
+  async #appendUploadedFileToSession(
+    req: Request,
+    file: {
+      evidenceFileId: string;
+      evidenceFileName: string;
+      fileSize: number | undefined;
+    },
+  ): Promise<void> {
+    await runExclusivePerSession(req.sessionID, async () => {
+      await this.#reloadSessionForAppend(req);
+      this.#storeUploadedFile(
+        req,
+        file.evidenceFileId,
+        file.evidenceFileName,
+        file.fileSize,
+      );
+      await saveSession(req);
+    });
+  }
+
+  async #reloadSessionForAppend(req: Request): Promise<void> {
+    try {
+      await reloadSession(req);
+    } catch (err) {
+      // Fall back to the in-request session snapshot; still persisted under the lock below.
+      logger.logError({
+        functionName: "evidenceAdaptor_appendUploadedFileToSession",
+        message: "Failed to reload session before appending evidence",
+        request: req,
+        err,
+        extraContext: { event: "claim_evidence_session_reload_failed" },
+      });
+    }
   }
 
   #logUploadSuccess(req: Request, isNoJsUpload: boolean, fileId: string): void {
@@ -418,6 +448,10 @@ export class EvidenceAdaptor {
       isNonEmptyString(evidenceFileName)
     ) {
       const existingFiles = req.session.claim?.evidenceFiles ?? [];
+      if (existingFiles.some((existing) => existing.id === evidenceFileId)) {
+        return;
+      }
+
       req.session.claim = {
         ...req.session.claim,
         evidenceFiles: [
