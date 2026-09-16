@@ -265,6 +265,9 @@ describe("Evidence adaptor", () => {
       requestStub.session.save = ((callback: (err?: Error) => void): void => {
         callback();
       }) as Request["session"]["save"];
+      requestStub.session.reload = ((callback: (err?: Error) => void): void => {
+        callback();
+      }) as Request["session"]["reload"];
       return requestStub;
     };
 
@@ -473,6 +476,82 @@ describe("Evidence adaptor", () => {
       ]);
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(responseStub.redirect.getCall(0).args[0], "/claim/evidence");
+    });
+
+    it("does not lose files when uploads for the same session overlap", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+
+      // Shared persisted state that reload reads and save writes, mirroring the session store.
+      let storedEvidenceFiles: Array<{
+        id: string;
+        fileName: string;
+        fileSize?: number;
+      }> = [];
+
+      const buildConcurrentRequest = (
+        fileName: string,
+      ): StubbedInstance<Request> => {
+        const requestStub = stubInterface<Request>();
+        requestStub.sessionID = "shared-session";
+        requestStub.body = {};
+        requestStub.file = {
+          buffer: Buffer.from("evidence-content"),
+          mimetype: "application/pdf",
+          originalname: fileName,
+          size: 16,
+        } as Express.Multer.File;
+        requestStub.session.claim = { evidenceFiles: [] };
+        requestStub.session.reload = ((
+          callback: (err?: Error) => void,
+        ): void => {
+          requestStub.session.claim = {
+            evidenceFiles: storedEvidenceFiles.map((file) => ({ ...file })),
+          };
+          callback();
+        }) as Request["session"]["reload"];
+        requestStub.session.save = ((callback: (err?: Error) => void): void => {
+          storedEvidenceFiles = (
+            requestStub.session.claim?.evidenceFiles ?? []
+          ).map((file) => ({ ...file }));
+          callback();
+        }) as Request["session"]["save"];
+        return requestStub;
+      };
+
+      uploadEvidenceUseCase.execute.callsFake((input) =>
+        Promise.resolve({
+          status: "SUCCESS" as const,
+          evidenceFileId: `id-${input.originalname}`,
+          evidenceFileName: input.originalname,
+        }),
+      );
+
+      const responseA = stubInterface<Response>();
+      responseA.status.returns(responseA);
+      const responseB = stubInterface<Response>();
+      responseB.status.returns(responseB);
+
+      await Promise.all([
+        adaptor.processEvidenceUpload(
+          buildConcurrentRequest("file-a.pdf"),
+          responseA,
+        ),
+        adaptor.processEvidenceUpload(
+          buildConcurrentRequest("file-b.pdf"),
+          responseB,
+        ),
+      ]);
+
+      assert.deepEqual(
+        storedEvidenceFiles
+          .map((file) => file.id)
+          .sort((a, b) => a.localeCompare(b)),
+        ["id-file-a.pdf", "id-file-b.pdf"],
+      );
     });
   });
 
