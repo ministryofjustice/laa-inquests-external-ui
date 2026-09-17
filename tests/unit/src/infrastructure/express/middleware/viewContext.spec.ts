@@ -91,4 +91,10 @@ describe("viewContext", () => {
       assert.equal(hasRole(APP_ROLES.CLAIMS_USER), true);
     });
   });
+
+  it("calls next() unconditionally", () => {
+    viewContext(req, res, next as NextFunction);
+
+    assert.equal(next.callCount, 1);
+  });
 });
