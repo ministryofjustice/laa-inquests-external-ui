@@ -63,7 +63,11 @@ describe("EntraAuthAdaptor", () => {
             homeAccountId: "user-oid-123",
             name: "Test User",
             username: "test@example.com",
-            idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              ACCOUNTS: "A001B",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
+            },
           },
           accessToken: "access-token-123",
         } as any);
@@ -81,7 +85,7 @@ describe("EntraAuthAdaptor", () => {
           officeId: "A001B",
           userOfficeAccounts: ["A001B"],
           providerEmail: "test@example.com",
-          roles: [],
+          roles: ["Inquests - Provider Application User"],
           accessToken: "access-token-123",
         });
         assert.ok(
@@ -98,7 +102,11 @@ describe("EntraAuthAdaptor", () => {
           account: {
             homeAccountId: "user-oid-123",
             username: "test@example.com",
-            idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              ACCOUNTS: "A001B",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
+            },
           },
           uniqueId: "user-oid-123",
         } as any);
@@ -116,7 +124,7 @@ describe("EntraAuthAdaptor", () => {
           officeId: "A001B",
           userOfficeAccounts: ["A001B"],
           providerEmail: "test@example.com",
-          roles: [],
+          roles: ["Inquests - Provider Application User"],
         });
       });
 
@@ -124,7 +132,11 @@ describe("EntraAuthAdaptor", () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
-            idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              ACCOUNTS: "A001B",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
+            },
           },
         } as any);
 
@@ -143,7 +155,10 @@ describe("EntraAuthAdaptor", () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
-            idTokenClaims: { FIRM_CODE: "123" },
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
+            },
           },
         } as any);
 
@@ -163,6 +178,7 @@ describe("EntraAuthAdaptor", () => {
             idTokenClaims: {
               FIRM_CODE: "123",
               ACCOUNTS: "2P223Y, 2N861E,2P224Z ,2F761M",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
             },
           },
         } as any);
@@ -185,7 +201,10 @@ describe("EntraAuthAdaptor", () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
-            idTokenClaims: { FIRM_CODE: "123" },
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
+            },
           },
         } as any);
 
@@ -205,6 +224,7 @@ describe("EntraAuthAdaptor", () => {
             idTokenClaims: {
               FIRM_CODE: "123",
               ACCOUNTS: ["2P223Y", "2N861E", "2P224Z", "2F761M"],
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
             },
           },
         } as any);
@@ -230,6 +250,7 @@ describe("EntraAuthAdaptor", () => {
             idTokenClaims: {
               FIRM_CODE: "123",
               ACCOUNTS: ["2P223Y", "2N861E"],
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
             },
           },
         } as any);
@@ -249,7 +270,10 @@ describe("EntraAuthAdaptor", () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
-            idTokenClaims: { ACCOUNTS: "A001B" },
+            idTokenClaims: {
+              ACCOUNTS: "A001B",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
+            },
           },
         } as any);
 
@@ -263,7 +287,7 @@ describe("EntraAuthAdaptor", () => {
       });
     });
 
-    describe("role extraction", () => {
+    describe("Role extraction", () => {
       it("extracts recognised roles from an array-valued LAA_APP_ROLES claim", async () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
@@ -339,7 +363,7 @@ describe("EntraAuthAdaptor", () => {
         ]);
       });
 
-      it("ignores unrecognised roles in the LAA_APP_ROLES claim", async () => {
+      it("translates unknown roles in the LAA_APP_ROLES claim into a sanitized ApplicationError", async () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
@@ -353,16 +377,23 @@ describe("EntraAuthAdaptor", () => {
           },
         } as any);
 
-        const result = await adaptor.acquireTokenByCode(
-          "auth-code",
-          SCOPES,
-          REDIRECT_URI,
+        await assert.rejects(
+          () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
+          (err: unknown) => {
+            assert.ok(err instanceof ApplicationError);
+            assert.equal(
+              err.type,
+              APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+            );
+            assert.equal(err.operation, "acquire_token");
+            assert.equal(err.cause, undefined);
+            assert.doesNotMatch(err.message, /Unknown role in token claims/);
+            return true;
+          },
         );
-
-        assert.deepEqual(result.roles, ["Inquests - Provider Claims User"]);
       });
 
-      it("returns an empty roles array when the LAA_APP_ROLES claim is missing", async () => {
+      it("throws an error when the LAA_APP_ROLES claim is missing", async () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
@@ -370,16 +401,22 @@ describe("EntraAuthAdaptor", () => {
           },
         } as any);
 
-        const result = await adaptor.acquireTokenByCode(
-          "auth-code",
-          SCOPES,
-          REDIRECT_URI,
+        await assert.rejects(
+          () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
+          (err: unknown) => {
+            assert.ok(err instanceof ApplicationError);
+            assert.equal(
+              err.type,
+              APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+            );
+            assert.equal(err.operation, "acquire_token");
+            assert.doesNotMatch(err.message, /no provider roles/);
+            return true;
+          },
         );
-
-        assert.deepEqual(result.roles, []);
       });
 
-      it("returns an empty roles array when the LAA_APP_ROLES claim is malformed", async () => {
+      it("throws an error when the LAA_APP_ROLES claim is malformed", async () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
@@ -390,13 +427,45 @@ describe("EntraAuthAdaptor", () => {
           },
         } as any);
 
-        const result = await adaptor.acquireTokenByCode(
-          "auth-code",
-          SCOPES,
-          REDIRECT_URI,
+        await assert.rejects(
+          () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
+          (err: unknown) => {
+            assert.ok(err instanceof ApplicationError);
+            assert.equal(
+              err.type,
+              APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+            );
+            assert.equal(err.operation, "acquire_token");
+            assert.doesNotMatch(err.message, /no provider roles/);
+            return true;
+          },
         );
+      });
 
-        assert.deepEqual(result.roles, []);
+      it("throws an error when the LAA_APP_ROLES claim is empty", async () => {
+        msalClient.acquireTokenByCode.resolves({
+          account: {
+            homeAccountId: "user-oid-123",
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              LAA_APP_ROLES: [],
+            },
+          },
+        } as any);
+
+        await assert.rejects(
+          () => adaptor.acquireTokenByCode("auth-code", SCOPES, REDIRECT_URI),
+          (err: unknown) => {
+            assert.ok(err instanceof ApplicationError);
+            assert.equal(
+              err.type,
+              APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+            );
+            assert.equal(err.operation, "acquire_token");
+            assert.doesNotMatch(err.message, /no provider roles/);
+            return true;
+          },
+        );
       });
     });
 
@@ -407,7 +476,11 @@ describe("EntraAuthAdaptor", () => {
           account: {
             homeAccountId: "user-oid-123",
             name: "Test User",
-            idTokenClaims: { FIRM_CODE: "123", ACCOUNTS: "A001B" },
+            idTokenClaims: {
+              FIRM_CODE: "123",
+              ACCOUNTS: "A001B",
+              LAA_APP_ROLES: ["Inquests - Provider Application User"],
+            },
           },
           accessToken: "access-token-123",
           expiresOn,
