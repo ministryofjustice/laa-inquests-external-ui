@@ -462,7 +462,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("calls the submit claim use case with session data", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 99 },
+        data: { claimReference: "INQC-TEST-0099" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -516,7 +516,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("maps final bill fields into submit payload and keeps evidence ids separate from cost template", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 99 },
+        data: { claimReference: "INQC-TEST-0099" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -577,7 +577,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("excludes leftover POA cost values when submitting a final bill", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 99 },
+        data: { claimReference: "INQC-TEST-0099" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -610,7 +610,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("classifies a final bill as NIL_BILL and omits POA and evidence fields when the gross total entered is £0", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 99 },
+        data: { claimReference: "INQC-TEST-0099" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -643,7 +643,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("defaults hasRecoveryCostsAwarded to false when funding is NO and recovery was never asked", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 99 },
+        data: { claimReference: "INQC-TEST-0099" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -678,7 +678,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("defaults claimEvidenceIds to an empty array when no evidence files are in session", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 99 },
+        data: { claimReference: "INQC-TEST-0099" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -703,7 +703,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("defaults poaTypeId to null when no subtype is in session", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 99 },
+        data: { claimReference: "INQC-TEST-0099" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -727,7 +727,7 @@ describe("ConfirmAndSubmit adaptor", () => {
     it("stores the claimReferenceNumber in the session and redirects to the confirmation page on success", async () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
-        data: { claimId: 42 },
+        data: { claimReference: "INQC-TEST-0042" },
       });
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
         submitClaim: submitClaimUseCase,
@@ -749,7 +749,7 @@ describe("ConfirmAndSubmit adaptor", () => {
 
       await adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claimReferenceNumber, "42");
+      assert.equal(requestStub.session.claimReferenceNumber, "INQC-TEST-0042");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/confirmation/success");
@@ -760,7 +760,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       submitClaimUseCase.execute.resolves({
         status: "SUCCESS",
         data: {
-          claimId: 42,
+          claimReference: "INQC-TEST-0042",
           rejectionReasons: ["MAX_POA_CLAIMS_EXCEEDED"],
         },
       });
@@ -778,7 +778,7 @@ describe("ConfirmAndSubmit adaptor", () => {
 
       await adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claimReferenceNumber, "42");
+      assert.equal(requestStub.session.claimReferenceNumber, "INQC-TEST-0042");
       assert.deepEqual(requestStub.session.claimRejectionReasons, [
         "MAX_POA_CLAIMS_EXCEEDED",
       ]);

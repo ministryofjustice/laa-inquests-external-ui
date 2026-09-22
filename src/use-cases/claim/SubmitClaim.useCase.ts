@@ -32,7 +32,7 @@ export interface SubmitClaimInput {
 }
 
 interface SubmitClaimSuccess {
-  claimId: number;
+  claimReference: string;
   rejectionReasons?: string[];
 }
 
@@ -87,12 +87,15 @@ export class SubmitClaimUseCase {
       return {
         status: "SUCCESS",
         data: {
-          claimId: result.data.claimId,
+          claimReference: result.data.claimReference,
           rejectionReasons: result.data.rejectionReasons,
         },
       };
     } else {
-      return { status: "SUCCESS", data: { claimId: result.data.claimId } };
+      return {
+        status: "SUCCESS",
+        data: { claimReference: result.data.claimReference },
+      };
     }
   }
 

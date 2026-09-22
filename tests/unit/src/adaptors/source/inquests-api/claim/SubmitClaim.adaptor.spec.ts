@@ -12,15 +12,15 @@ describe("SubmitClaimAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
   let adaptor: SubmitClaimAdaptor;
 
-  const mockResponse = { claimId: 1 };
+  const mockResponse = { claimReference: "INQC-TEST-0001" };
 
   const rejectedMockResponse = {
-    claimId: 2,
+    claimReference: "INQC-TEST-0002",
     rejectionReasons: ["MAX_POA_CLAIMS_EXCEEDED"],
   };
 
   const rejectedUnknownCodeResponse = {
-    claimId: 3,
+    claimReference: "INQC-TEST-0003",
     rejectionReasons: ["UNLISTED_REJECTION_REASON_CODE"],
   };
 
@@ -108,8 +108,8 @@ describe("SubmitClaimAdaptor", () => {
 
     assert.equal(result.status, "CREATED");
     assert.deepEqual(
-      (result as { status: string; data: { claimId: number } }).data,
-      { claimId: 1 },
+      (result as { status: string; data: { claimReference: string } }).data,
+      { claimReference: "INQC-TEST-0001" },
     );
   });
 
@@ -261,11 +261,11 @@ describe("SubmitClaimAdaptor", () => {
       (
         result as {
           status: string;
-          data: { claimId: number; rejectionReasons: string[] };
+          data: { claimReference: string; rejectionReasons: string[] };
         }
       ).data,
       {
-        claimId: 2,
+        claimReference: "INQC-TEST-0002",
         rejectionReasons: ["MAX_POA_CLAIMS_EXCEEDED"],
       },
     );
@@ -293,11 +293,11 @@ describe("SubmitClaimAdaptor", () => {
       (
         result as {
           status: string;
-          data: { claimId: number; rejectionReasons: string[] };
+          data: { claimReference: string; rejectionReasons: string[] };
         }
       ).data,
       {
-        claimId: 3,
+        claimReference: "INQC-TEST-0003",
         rejectionReasons: ["UNLISTED_REJECTION_REASON_CODE"],
       },
     );
