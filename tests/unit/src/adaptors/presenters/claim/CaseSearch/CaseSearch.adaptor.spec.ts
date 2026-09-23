@@ -7,11 +7,30 @@ import { CaseSearchFormatter } from "#src/adaptors/presenters/claim/CaseSearch/C
 import { CASE_SEARCH_ERROR } from "#src/infrastructure/locales/constants.js";
 import type { SearchCasesPort } from "#src/ports/source/inquests-api/SearchCases.port.js";
 import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js";
+import { ListClaimsPort } from "#src/ports/source/inquests-api/ListClaims.port.js";
+import { CheckClaimBlockUseCase } from "#src/use-cases/claim/CheckClaimBlock.useCase.js";
 
-function buildAdaptor(searchCasesPort?: SearchCasesPort): CaseSearchAdaptor {
+function buildAdaptor(
+  searchCasesPort?: SearchCasesPort,
+  listClaimsPort?: ListClaimsPort,
+  checkClaimBlockUseCase?: CheckClaimBlockUseCase,
+) {
   const validator = new CaseSearchValidator();
-  const port = searchCasesPort ?? stubInterface<SearchCasesPort>();
-  return new CaseSearchAdaptor(validator, port);
+  const searchCasesPortInstance =
+    searchCasesPort ?? stubInterface<SearchCasesPort>();
+  const listClaimsPortInstance =
+    listClaimsPort ?? stubInterface<ListClaimsPort>();
+  const caseSearchFormatter = new CaseSearchFormatter();
+  const checkClaimBlockUseCaseInstance =
+    checkClaimBlockUseCase ?? stubInterface<CheckClaimBlockUseCase>();
+  return new CaseSearchAdaptor(
+    validator,
+    searchCasesPortInstance,
+    listClaimsPortInstance,
+    caseSearchFormatter,
+    undefined,
+    checkClaimBlockUseCaseInstance,
+  );
 }
 
 describe("CaseSearch adaptor", () => {
@@ -115,11 +134,13 @@ describe("CaseSearch adaptor", () => {
       searchCasesUseCase.execute.resolves([mockCase]);
 
       const validator = new CaseSearchValidator();
-      const port = stubInterface<SearchCasesPort>();
+      const searchCasesPort = stubInterface<SearchCasesPort>();
+      const listCasesPort = stubInterface<ListClaimsPort>();
       const formatter = new CaseSearchFormatter();
       const adaptor = new CaseSearchAdaptor(
         validator,
-        port,
+        searchCasesPort,
+        listCasesPort,
         formatter,
         searchCasesUseCase,
       );
@@ -161,6 +182,7 @@ describe("CaseSearch adaptor", () => {
       const adaptor = new CaseSearchAdaptor(
         new CaseSearchValidator(),
         stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
         new CaseSearchFormatter(),
         searchCasesUseCase,
       );
@@ -189,10 +211,12 @@ describe("CaseSearch adaptor", () => {
       searchCasesUseCase.execute.rejects(useCaseError);
 
       const validator = new CaseSearchValidator();
-      const port = stubInterface<SearchCasesPort>();
+      const searchCasesPort = stubInterface<SearchCasesPort>();
+      const listClaimsPort = stubInterface<ListClaimsPort>();
       const adaptor = new CaseSearchAdaptor(
         validator,
-        port,
+        searchCasesPort,
+        listClaimsPort,
         new CaseSearchFormatter(),
         searchCasesUseCase,
       );
@@ -227,11 +251,13 @@ describe("CaseSearch adaptor", () => {
       searchCasesUseCase.execute.resolves([mockCase]);
 
       const validator = new CaseSearchValidator();
-      const port = stubInterface<SearchCasesPort>();
+      const searchCasesPort = stubInterface<SearchCasesPort>();
+      const listClaimsPort = stubInterface<ListClaimsPort>();
       const formatter = new CaseSearchFormatter();
       const adaptor = new CaseSearchAdaptor(
         validator,
-        port,
+        searchCasesPort,
+        listClaimsPort,
         formatter,
         searchCasesUseCase,
       );
@@ -255,10 +281,12 @@ describe("CaseSearch adaptor", () => {
       searchCasesUseCase.execute.resolves([]);
 
       const validator = new CaseSearchValidator();
-      const port = stubInterface<SearchCasesPort>();
+      const searchCasesPort = stubInterface<SearchCasesPort>();
+      const listClaimsPort = stubInterface<ListClaimsPort>();
       const adaptor = new CaseSearchAdaptor(
         validator,
-        port,
+        searchCasesPort,
+        listClaimsPort,
         new CaseSearchFormatter(),
         searchCasesUseCase,
       );
@@ -287,15 +315,21 @@ describe("CaseSearch adaptor", () => {
       dateOfBirth: "01/01/2000",
     };
 
-    it("saves the case reference to session and redirects to /claim/type", () => {
-      const adaptor = buildAdaptor();
+    it("saves the case reference to session and redirects to /claim/type", async () => {
+      const checkClaimBlockUseCase = stubInterface<CheckClaimBlockUseCase>();
+      checkClaimBlockUseCase.execute.resolves({ status: "ALLOWED" });
+      const adaptor = buildAdaptor(
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        checkClaimBlockUseCase,
+      );
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.params = { reference: "12345" };
       requestStub.session.claim = { searchResults: [storedClient] };
 
-      adaptor.selectCase(requestStub, responseStub);
+      await adaptor.selectCase(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.caseReference, "12345");
       assert.equal(responseStub.redirect.callCount, 1);

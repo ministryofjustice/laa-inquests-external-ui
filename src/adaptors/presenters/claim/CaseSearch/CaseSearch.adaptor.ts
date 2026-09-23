@@ -7,25 +7,35 @@ import type {
 } from "./CaseSearch.validator.js";
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import type { SearchCasesPort } from "#src/ports/source/inquests-api/SearchCases.port.js";
+import type { ListClaimsPort } from "#src/ports/source/inquests-api/ListClaims.port.js";
 import { CaseSearchFormatter } from "./CaseSearch.formatter.js";
 import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js";
+import { CheckClaimBlockUseCase } from "#src/use-cases/claim/CheckClaimBlock.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
   formatter: CaseSearchFormatter;
   searchCasesUseCase: SearchCasesUseCase;
+  checkClaimBlockUseCase: CheckClaimBlockUseCase;
 
+  // eslint-disable-next-line @typescript-eslint/max-params -- ideally refactor to bundle ports and use cases in constructor
   constructor(
     formValidator: CaseSearchValidator,
     searchCasesPort: SearchCasesPort,
+    listClaimsPort: ListClaimsPort,
     formatter: CaseSearchFormatter = new CaseSearchFormatter(),
-    searchCasesUseCase?: SearchCasesUseCase,
+    searchCasesUseCase: SearchCasesUseCase = new SearchCasesUseCase(
+      searchCasesPort,
+    ),
+    checkClaimBlockUseCase: CheckClaimBlockUseCase = new CheckClaimBlockUseCase(
+      listClaimsPort,
+    ),
   ) {
     this.formValidator = formValidator;
     this.formatter = formatter;
-    this.searchCasesUseCase =
-      searchCasesUseCase ?? new SearchCasesUseCase(searchCasesPort);
+    this.searchCasesUseCase = searchCasesUseCase;
+    this.checkClaimBlockUseCase = checkClaimBlockUseCase;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -100,10 +110,10 @@ export class CaseSearchAdaptor {
     });
   }
 
-  selectCase(req: Request, res: Response): void {
+  async selectCase(req: Request, res: Response): Promise<void> {
     const {
       params: { reference },
-      session: { claim },
+      session: { claim, accessToken },
     } = req;
     const selectedReference = String(reference);
 
@@ -131,6 +141,26 @@ export class CaseSearchAdaptor {
       caseReference: selectedReference,
       client: selectedClient,
     };
+
+    const blockResult = await this.checkClaimBlockUseCase.execute(
+      selectedReference,
+      accessToken,
+    );
+
+    if (blockResult.status === "BLOCKED") {
+      req.session.claim = { ...req.session.claim, claimBlocked: true };
+      logger.logInfo({
+        functionName: "caseSearchAdaptor_selectCase",
+        message: "Claim submission blocked by an active final or nil bill",
+        request: req,
+        extraContext: {
+          event: "claim_blocked",
+          laa_reference: selectedReference,
+        },
+      });
+      res.redirect("/claim/cannot-claim");
+      return;
+    }
 
     res.redirect("/claim/type");
   }

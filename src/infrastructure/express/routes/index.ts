@@ -21,6 +21,9 @@ import { createCaseSearchRouter } from "./claim/caseSearch.router.js";
 import { CaseSearchAdaptor } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.adaptor.js";
 import { CaseSearchValidator } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.validator.js";
 import { SearchCasesAdaptor } from "#src/adaptors/source/inquests-api/claim/SearchCases/SearchCases.adaptor.js";
+import { ListClaimsAdaptor } from "#src/adaptors/source/inquests-api/claim/ListClaims/ListClaims.adaptor.js";
+import { createCannotClaimRouter } from "./claim/cannotClaim.router.js";
+import { CannotClaimAdaptor } from "#src/adaptors/presenters/claim/CannotClaim/CannotClaim.adaptor.js";
 import { createClaimTypeRouter } from "./claim/claimType.router.js";
 import { ClaimTypeAdaptor } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.adaptor.js";
 import { ClaimTypeValidator } from "#src/adaptors/presenters/claim/ClaimType/ClaimType.validator.js";
@@ -105,6 +108,7 @@ const publicAuthorityRouter = express.Router();
 const coronersLetterRouter = express.Router();
 const officeAccountsRouter = express.Router();
 const claimTypeRouter = express.Router();
+const cannotClaimRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
 const totalClaimRouter = express.Router();
 const endDateRouter = express.Router();
@@ -241,10 +245,17 @@ const searchCasesSource = new SearchCasesAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
 );
+const listClaimsSource = new ListClaimsAdaptor(
+  axios.create(),
+  config.INQUESTS_API_URL,
+);
 const caseSearchAdaptor = new CaseSearchAdaptor(
   caseSearchValidator,
   searchCasesSource,
+  listClaimsSource,
 );
+
+const cannotClaimAdaptor = new CannotClaimAdaptor();
 
 const claimNavigationHelper = new ClaimNavigationHelper();
 
@@ -346,6 +357,7 @@ const counselPayConfirmationAdaptor = new CounselPayConfirmationAdaptor(
 indexRouter.use(
   "/claim",
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
+  createCannotClaimRouter(cannotClaimRouter, cannotClaimAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
   createTotalClaimCostRouter(totalClaimRouter, totalClaimCostAdaptor),
   createFinalBillTemplateRouter(

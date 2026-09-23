@@ -44,10 +44,7 @@ describe("ListClaimsAdaptor", () => {
     assert(axiosStub.get.calledOnce);
 
     const getCall = axiosStub.get.getCall(0);
-    assert.equal(
-      getCall.args[0],
-      "http://localhost/applications/INQ-1/claims",
-    );
+    assert.equal(getCall.args[0], "http://localhost/applications/INQ-1/claims");
     assert.deepEqual(getCall.args[1], {
       params: { assessed: "false" },
       headers: { Authorization: "Bearer access-token-123" },
