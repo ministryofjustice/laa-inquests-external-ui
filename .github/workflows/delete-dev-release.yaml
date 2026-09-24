@@ -12,7 +12,6 @@ jobs:
     permissions:
       contents: read
       actions: read
-      packages: read
     outputs:
       branch-name: ${{ steps.extract_branch.outputs.branch }}
       release-name: ${{ steps.extract_release.outputs.release }}
