@@ -7,7 +7,7 @@ export type SubmitClaimPortResult =
   | { status: "CREATED"; data: SubmitClaimResponseAccepted }
   | {
       status: "REJECTED";
-      data: { claimId: number; rejectionReasons: string[] };
+      data: { claimReference: string; rejectionReasons: string[] };
     }
   | { status: "UNPROCESSABLE"; errorCode: string };
 

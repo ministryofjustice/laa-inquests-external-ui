@@ -45,7 +45,7 @@ export const SubmitClaimRequestSchema = z.object({
 });
 
 const SubmitClaimResponseBaseSchema = z.object({
-  claimId: z.number(),
+  claimReference: z.string(),
 });
 
 export const ClaimRejectionReasonCodeSchema = z.enum(

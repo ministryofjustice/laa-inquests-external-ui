@@ -264,7 +264,7 @@ export const apiHandlers = [
     if (laaReference === FORCE_REJECTED_LAA_REFERENCE) {
       return HttpResponse.json(
         {
-          claimId: 42,
+          claimReference: "INQC-TEST-0042",
           laaReference: "INQ-YYY-299",
           claimTypeId: "PAYMENT_ON_ACCOUNT",
           statusId: "REJECTED",
@@ -285,7 +285,7 @@ export const apiHandlers = [
 
     return HttpResponse.json(
       {
-        claimId: 42,
+        claimReference: "INQC-TEST-0042",
         laaReference: "INQ-YYY-001",
         claimTypeId: "PAYMENT_ON_ACCOUNT",
         statusId: "SUBMITTED",

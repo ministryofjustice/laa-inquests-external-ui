@@ -78,7 +78,7 @@ export class ConfirmAndSubmitAdaptor {
   #handleSuccessfulSubmission(
     req: Request,
     res: Response,
-    data: { claimId: number; rejectionReasons?: string[] } | undefined,
+    data: { claimReference: string; rejectionReasons?: string[] } | undefined,
   ): void {
     const { session } = req;
     appLogger.logInfo({
@@ -87,10 +87,10 @@ export class ConfirmAndSubmitAdaptor {
       request: req,
       extraContext: {
         event: "claim_submitted",
-        claim_id: data?.claimId,
+        claim_reference: data?.claimReference,
       },
     });
-    session.claimReferenceNumber = data?.claimId.toString() ?? "";
+    session.claimReferenceNumber = data?.claimReference ?? "";
     session.claimRejectionReasons = data?.rejectionReasons;
     const hasRejectionReasons =
       (data?.rejectionReasons?.length ?? EMPTY_ARR_LENGTH) > EMPTY_ARR_LENGTH;

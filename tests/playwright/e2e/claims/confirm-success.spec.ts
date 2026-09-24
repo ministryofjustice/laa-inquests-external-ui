@@ -50,7 +50,9 @@ test.describe("Claim - confirm success", () => {
     page,
   }) => {
     await expect(page.getByText("Claim reference number")).toBeVisible();
-    await expect(page.locator(".govuk-panel__body")).toContainText("42");
+    await expect(page.locator(".govuk-panel__body")).toContainText(
+      "INQC-TEST-0042",
+    );
   });
 
   test("renders the What happens next heading", async ({ page }) => {
@@ -108,6 +110,6 @@ test.describe("Claim - confirm success", () => {
               .copiedClaimReference,
         ),
       )
-      .toBe("42");
+      .toBe("INQC-TEST-0042");
   });
 });

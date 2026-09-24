@@ -72,7 +72,7 @@ export class SubmitClaimAdaptor implements ClaimSubmitPort {
         return {
           status: "REJECTED",
           data: {
-            claimId: rejectedKnown.data.claimId,
+            claimReference: rejectedKnown.data.claimReference,
             rejectionReasons: rejectedKnown.data.rejectionReasons,
           },
         };
@@ -85,7 +85,7 @@ export class SubmitClaimAdaptor implements ClaimSubmitPort {
         return {
           status: "REJECTED",
           data: {
-            claimId: rejectedFallback.data.claimId,
+            claimReference: rejectedFallback.data.claimReference,
             rejectionReasons: rejectedFallback.data.rejectionReasons,
           },
         };
