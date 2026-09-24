@@ -78,11 +78,10 @@ export class CaseSearchAdaptor {
         caseReference,
         errorSummaries,
       });
-      return;
+    } else {
+      req.session.claim = { ...req.session.claim, caseReference };
+      res.redirect("/claim/results");
     }
-
-    req.session.claim = { ...req.session.claim, caseReference };
-    res.redirect("/claim/results");
   }
 
   async renderResults(req: Request, res: Response): Promise<void> {
@@ -133,35 +132,33 @@ export class CaseSearchAdaptor {
         },
       });
       res.redirect("/claim/results");
-      return;
+    } else {
+      req.session.claim = {
+        ...claim,
+        caseReference: selectedReference,
+        client: selectedClient,
+      };
+
+      const blockResult = await this.checkClaimBlockUseCase.execute(
+        selectedReference,
+        accessToken,
+      );
+
+      if (blockResult.status === "BLOCKED") {
+        req.session.claim = { ...req.session.claim, claimBlocked: true };
+        logger.logInfo({
+          functionName: "caseSearchAdaptor_selectCase",
+          message: "Claim submission blocked by an active final or nil bill",
+          request: req,
+          extraContext: {
+            event: "claim_blocked",
+            laa_reference: selectedReference,
+          },
+        });
+        res.redirect("/claim/cannot-claim");
+      } else {
+        res.redirect("/claim/type");
+      }
     }
-
-    req.session.claim = {
-      ...claim,
-      caseReference: selectedReference,
-      client: selectedClient,
-    };
-
-    const blockResult = await this.checkClaimBlockUseCase.execute(
-      selectedReference,
-      accessToken,
-    );
-
-    if (blockResult.status === "BLOCKED") {
-      req.session.claim = { ...req.session.claim, claimBlocked: true };
-      logger.logInfo({
-        functionName: "caseSearchAdaptor_selectCase",
-        message: "Claim submission blocked by an active final or nil bill",
-        request: req,
-        extraContext: {
-          event: "claim_blocked",
-          laa_reference: selectedReference,
-        },
-      });
-      res.redirect("/claim/cannot-claim");
-      return;
-    }
-
-    res.redirect("/claim/type");
   }
 }
