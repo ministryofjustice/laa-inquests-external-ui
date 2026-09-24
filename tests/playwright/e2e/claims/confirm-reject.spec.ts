@@ -50,7 +50,10 @@ test.describe("Claim - confirm reject", () => {
     await page.waitForURL("**/claim/confirmation/reject");
   });
 
-  test("renders the red rejection panel heading", async ({ page }) => {
+  test("renders the red rejection panel heading", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await expect(
       page.getByRole("heading", {
         level: 1,
@@ -61,6 +64,8 @@ test.describe("Claim - confirm reject", () => {
     await expect(
       page.locator(".govuk-panel.app-panel--rejected"),
     ).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("renders the rejection reasons heading and mapped descriptions", async ({
