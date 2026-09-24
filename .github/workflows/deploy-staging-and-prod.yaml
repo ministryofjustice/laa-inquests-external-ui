@@ -41,10 +41,10 @@ jobs:
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
 
   notify-slack-staging:
-    environment: staging
-    needs: deploy-staging
     permissions:
       contents: read
+    environment: staging
+    needs: deploy-staging
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
     steps:
@@ -93,10 +93,10 @@ jobs:
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
 
   notify-slack-prod:
-    environment: production
-    needs: deploy-production
     permissions:
       contents: read
+    environment: production
+    needs: deploy-production
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
     steps:
