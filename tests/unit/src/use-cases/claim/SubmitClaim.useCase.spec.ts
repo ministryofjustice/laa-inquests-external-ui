@@ -12,7 +12,7 @@ describe("SubmitClaimUseCase", () => {
   let claimSubmitPort: StubbedInstance<ClaimSubmitPort>;
   let useCase: SubmitClaimUseCase;
 
-  const mockApiResponse = { claimId: 42 };
+  const mockApiResponse = { claimReference: "INQC-TEST-0042" };
 
   beforeEach(() => {
     claimSubmitPort = stubInterface<ClaimSubmitPort>();
@@ -23,7 +23,7 @@ describe("SubmitClaimUseCase", () => {
     useCase = new SubmitClaimUseCase(claimSubmitPort);
   });
 
-  it("returns SUCCESS with claimId when the API call succeeds", async () => {
+  it("returns SUCCESS with claimReference when the API call succeeds", async () => {
     const result = await useCase.execute({
       laaReference: "1",
       claimType: "PAYMENT_ON_ACCOUNT",
@@ -38,8 +38,9 @@ describe("SubmitClaimUseCase", () => {
 
     assert.equal(result.status, "SUCCESS");
     assert.equal(
-      (result as { status: string; data: { claimId: number } }).data.claimId,
-      42,
+      (result as { status: string; data: { claimReference: string } }).data
+        .claimReference,
+      "INQC-TEST-0042",
     );
   });
 
@@ -309,7 +310,7 @@ describe("SubmitClaimUseCase", () => {
     claimSubmitPort.submitClaim.resolves({
       status: "REJECTED",
       data: {
-        claimId: 42,
+        claimReference: "INQC-TEST-0042",
         rejectionReasons: [
           "MAX_POA_CLAIMS_EXCEEDED",
           "UNLISTED_REJECTION_REASON_CODE",
@@ -334,11 +335,11 @@ describe("SubmitClaimUseCase", () => {
       (
         result as {
           status: string;
-          data: { claimId: number; rejectionReasons: string[] };
+          data: { claimReference: string; rejectionReasons: string[] };
         }
       ).data,
       {
-        claimId: 42,
+        claimReference: "INQC-TEST-0042",
         rejectionReasons: [
           "MAX_POA_CLAIMS_EXCEEDED",
           "UNLISTED_REJECTION_REASON_CODE",
