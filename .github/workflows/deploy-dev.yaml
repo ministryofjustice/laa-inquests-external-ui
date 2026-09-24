@@ -102,8 +102,6 @@ jobs:
     uses: ./.github/workflows/e2e-tests.yaml
     permissions:
       contents: read
-      actions: read
-      packages: read
     secrets:
       E2E_AUTH_DIRECTORY_URL: ${{ secrets.E2E_AUTH_DIRECTORY_URL }}
       E2E_AUTH_CLIENT_ID: ${{ secrets.E2E_AUTH_CLIENT_ID }}
