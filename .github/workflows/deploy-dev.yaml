@@ -30,8 +30,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
-      packages: read
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -47,8 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
-      packages: read
     steps:
       - name: Checkout code
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -64,8 +60,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
-      packages: read
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -167,8 +161,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
-      packages: read
     if: always() && github.ref_name == 'main'
     steps:
       - name: Checkout Code
