@@ -40,7 +40,7 @@ export interface BuildCheckYourAnswersOutput {
   publicAuthorities: PublicAuthority[];
   coronersLetterFileName: string | undefined;
 }
-//test
+
 export class BuildCheckYourAnswersUseCase {
   execute(state: ConfirmationSessionState): BuildCheckYourAnswersOutput {
     return {
