@@ -16,7 +16,10 @@ const nextPage = "/apply/confirmation/success";
 const headerText = "Confirm the following";
 
 test.describe("Provider can", () => {
-  test("view the client declaration page", async ({ page }) => {
+  test("view the client declaration page", async ({
+    page,
+    checkAccessibility,
+  }) => {
     await page.goto("/apply/client-details/name-and-dob");
     const nameForm = page.getByTestId("client-details-form");
 
@@ -80,6 +83,7 @@ test.describe("Provider can", () => {
       name: "I confirm the above is correct and that I'll get a signed declaration from my client",
     });
     await expect(checkBox).toBeVisible();
+    await checkAccessibility();
   });
 
   test("clicking continue redirects to confirmation success", async ({
@@ -246,6 +250,7 @@ test.describe("Provider can", () => {
 
   test("sees validation error when declaration is not confirmed", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto(currentPage);
     const form = await page.getByTestId("client-declaration-form");
@@ -257,5 +262,6 @@ test.describe("Provider can", () => {
     await expect(errorSummary).toContainText(
       "You need to confirm the declaration to submit this application",
     );
+    await checkAccessibility();
   });
 });
