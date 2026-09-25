@@ -33,6 +33,7 @@ test.describe("Claim - case search results", () => {
 
   test("renders results table with correct column headings", async ({
     page,
+    checkAccessibility,
   }) => {
     const table = page.getByRole("table");
 
@@ -55,6 +56,8 @@ test.describe("Claim - case search results", () => {
     await expect(
       table.getByRole("columnheader", { name: "Status" }),
     ).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("renders at least one result row", async ({ page }) => {

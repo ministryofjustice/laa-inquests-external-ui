@@ -31,13 +31,15 @@ test.describe("Claim - confirm success", () => {
     await page.waitForURL("**/claim/confirmation/success");
   });
 
-  test("renders the panel heading", async ({ page }) => {
+  test("renders the panel heading", async ({ page, checkAccessibility }) => {
     await expect(
       page.getByRole("heading", {
         level: 1,
         name: "Payment on account claim has been submitted",
       }),
     ).toBeVisible();
+
+    await checkAccessibility();
   });
 
   test("sets the browser tab title from the page heading", async ({ page }) => {

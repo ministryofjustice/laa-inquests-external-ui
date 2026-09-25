@@ -4,13 +4,14 @@ on:
   push:
     tags:
       - "*.*.*"
+
 jobs:
   deploy-staging:
-    environment: staging
-    runs-on: ubuntu-latest
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
+    environment: staging
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -40,6 +41,8 @@ jobs:
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
 
   notify-slack-staging:
+    permissions:
+      contents: read
     environment: staging
     needs: deploy-staging
     runs-on: ubuntu-latest
@@ -55,12 +58,12 @@ jobs:
           pipeline_status: "${{ job.status }} ${{ join(needs.*.result, ' ') }}"
 
   deploy-production:
-    environment: prod
-    runs-on: ubuntu-latest
-    needs: deploy-staging
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read # This is required for actions/checkout
+    environment: prod
+    runs-on: ubuntu-latest
+    needs: deploy-staging
     steps:
       - name: Checkout
         uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
@@ -90,6 +93,8 @@ jobs:
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
 
   notify-slack-prod:
+    permissions:
+      contents: read
     environment: production
     needs: deploy-production
     runs-on: ubuntu-latest

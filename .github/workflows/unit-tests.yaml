@@ -6,6 +6,8 @@ on:
 jobs:
   mocha-unit-tests:
     name: Mocha Unit Tests
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
