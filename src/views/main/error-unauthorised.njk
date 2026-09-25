@@ -1,0 +1,21 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageTitle %}{{ t('pages.error.pageTitle') }}{% endblock %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ t('pages.error.unauthorisedError.heading') }}</h1>
+            <p class="govuk-body">{{ t('pages.error.unauthorisedError.body1') }}</p>
+            {{ govukButton({
+                        text: t('pages.error.unauthorisedError.button'),
+                        href: "/",
+                        classes: "govuk-!-margin-top-3"
+                    }) }}
+            <p class="govuk-body">{{ t('pages.error.unauthorisedError.body2') }}</p>
+        </div>
+    </div>
+{% endblock %}
