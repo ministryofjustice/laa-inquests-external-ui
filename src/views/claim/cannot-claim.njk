@@ -1,0 +1,42 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% set pageHeading = t("pages.claim.cannotClaim.title") %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+  <main class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+
+        <p class="govuk-body">
+          {{ t("pages.claim.cannotClaim.referenceLabel") }}:
+          <span class="govuk-!-font-weight-bold">{{ caseReference }}</span>
+        </p>
+
+        {% if variant == "submit" %}
+          <p class="govuk-body">Your claim has not been submitted.</p>
+          <p class="govuk-body">{{ t("pages.claim.cannotClaim.pendingReviewBody") }}</p>
+          <p class="govuk-body">{{ t("pages.claim.cannotClaim.cannotSubmitBody") }}</p>
+          {{ govukButton({
+            text: t("pages.claim.cannotClaim.backToStart"),
+            href: "/claim",
+            classes: "govuk-!-margin-top-4"
+          }) }}
+        {% else %}
+          <p class="govuk-body">{{ t("pages.claim.cannotClaim.pendingReviewBody") }}</p>
+          <p class="govuk-body">{{ t("pages.claim.cannotClaim.cannotSubmitBody") }}</p>
+          {{ govukButton({
+            text: t("pages.claim.cannotClaim.backToSearch"),
+            href: "/claim",
+            classes: "govuk-!-margin-top-4"
+          }) }}
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+
+{% endblock %}

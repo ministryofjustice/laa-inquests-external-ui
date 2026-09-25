@@ -26,6 +26,9 @@ const bypassCreateApplicationMocks =
 // The GET search handler returns a mock case with this numeric laaReference when the search term is "force-422".
 const FORCE_422_LAA_REFERENCE = "INQ-YYY-422";
 const FORCE_REJECTED_LAA_REFERENCE = "INQ-YYY-299";
+// Sentinel laaReference used in E2E tests to trigger the "cannot make a claim"
+// block. The GET claims handler returns an active final bill for this reference.
+const FORCE_BLOCKED_LAA_REFERENCE = "INQ-YYY-BLOCKED";
 const VIRUS_FILE_NAME = "virus.pdf";
 
 export const apiHandlers = [
@@ -137,6 +140,21 @@ export const apiHandlers = [
       ]);
     }
 
+    if (laaReference === "force-blocked") {
+      return HttpResponse.json([
+        {
+          laaReference: FORCE_BLOCKED_LAA_REFERENCE,
+          clientFirstName: "Force",
+          clientLastName: "Blocked",
+          clientDateOfBirth: "01/01/2000",
+          dateSubmitted: "2026-01-01T00:00:00",
+          firmName: "Test Firm",
+          firmNumber: "123",
+          overallDecision: "GRANTED",
+        },
+      ]);
+    }
+
     if (laaReference === "INQ-YYY-001") {
       return HttpResponse.json([
         {
@@ -149,6 +167,19 @@ export const apiHandlers = [
           firmNumber: "Seed",
           overallDecision: "GRANTED",
         },
+      ]);
+    }
+
+    return HttpResponse.json([]);
+  }),
+  http.get("*/applications/:laaReference/claims", ({ request, params }) => {
+    const { laaReference } = params;
+    const url = new URL(request.url);
+    const assessed = url.searchParams.get("assessed") === "true";
+
+    if (laaReference === FORCE_BLOCKED_LAA_REFERENCE && !assessed) {
+      return HttpResponse.json([
+        { claimTypeId: "FINAL_BILL", statusId: "SUBMITTED" },
       ]);
     }
 
