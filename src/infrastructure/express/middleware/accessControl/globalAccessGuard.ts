@@ -6,7 +6,6 @@ import {
 } from "#src/infrastructure/config/accessControl.js";
 import { HTTP_FORBIDDEN } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
-import { t } from "#src/infrastructure/express/middleware/nunjucks/i18nLoader.js";
 
 type DenyReason = "unconfigured_route" | "insufficient_role";
 
@@ -69,8 +68,5 @@ function denyAccess(req: Request, res: Response, reason: DenyReason): void {
     },
   });
 
-  res.status(HTTP_FORBIDDEN).render("main/error", {
-    status: HTTP_FORBIDDEN,
-    error: t("pages.error.accessDenied"),
-  });
+  res.status(HTTP_FORBIDDEN).render("main/error-unauthorised");
 }

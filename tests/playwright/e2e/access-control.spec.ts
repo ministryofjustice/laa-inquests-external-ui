@@ -93,7 +93,6 @@ test.describe("Role-based access control", () => {
       const response = await page.goto("/claim");
 
       expect(response?.status()).toBe(HTTP_FORBIDDEN);
-      await expect(page.locator("h1")).toHaveText("403");
     });
   });
 
@@ -112,7 +111,6 @@ test.describe("Role-based access control", () => {
       const response = await page.goto("/apply");
 
       expect(response?.status()).toBe(HTTP_FORBIDDEN);
-      await expect(page.locator("h1")).toHaveText("403");
       await expectNoAccessibilityViolations(page);
     });
 
@@ -139,7 +137,6 @@ test.describe("Role-based access control", () => {
       const response = await page.goto("/random-page");
 
       expect(response?.status()).toBe(HTTP_FORBIDDEN);
-      await expect(page.locator("h1")).toHaveText("403");
     });
   });
 
