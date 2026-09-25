@@ -13,44 +13,42 @@
     text: "Back",
     href: backHref or "/claim/recovery-costs"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-        {% if errorSummaries.payingPartyInputError %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [
-            {
-              text: errorSummaries.payingPartyInputError.text,
-              href: "#paying-party"
-            }
-          ]
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+      {% if errorSummaries.payingPartyInputError %}
+      {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+          {
+            text: errorSummaries.payingPartyInputError.text,
+            href: "#paying-party"
+          }
+        ]
+      }) }}
+      {% endif %}
+      <form data-testid="paying-party-form" action="/claim/paying-party" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukInput({
+          label: {
+            text: pageHeading,
+            classes: "govuk-visually-hidden"
+          },
+          id: "paying-party",
+          name: "paying-party",
+          value: payingParty,
+          errorMessage: errorSummaries.payingPartyInputError,
+          hint: {
+            text: "Add the name of the organisation where the costs are being claimed back from"
+          }
         }) }}
-        {% endif %}
-        <form data-testid="paying-party-form" action="/claim/paying-party" method="post">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-          {{ govukInput({
-            label: {
-              text: pageHeading,
-              classes: "govuk-visually-hidden"
-            },
-            id: "paying-party",
-            name: "paying-party",
-            value: payingParty,
-            errorMessage: errorSummaries.payingPartyInputError,
-            hint: {
-              text: "Add the name of the organisation where the costs are being claimed back from"
-            }
-          }) }}
-          {{ govukButton({
-            text: "Continue",
-            type: "submit"
-          }) }}
-        </form>
-      </div>
+        {{ govukButton({
+          text: "Continue",
+          type: "submit"
+        }) }}
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 {% endblock %}

@@ -13,401 +13,399 @@
     text: "Back",
     href: "/claim/evidence"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries and errorSummaries.submitError %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [{ text: errorSummaries.submitError.text }]
-          }) }}
-        {% endif %}
-        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummaries and errorSummaries.submitError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [{ text: errorSummaries.submitError.text }]
+        }) }}
+      {% endif %}
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
-        <h2 class="govuk-heading-m">Case details</h2>
-        <div data-testid="case-details-summary-list">
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Case details"
+      <h2 class="govuk-heading-m">Case details</h2>
+      <div data-testid="case-details-summary-list">
+        {{ govukSummaryList({
+          card: {
+            title: {
+              text: "Case details"
+            }
+          },
+          rows: [
+            {
+              key: { text: "Case reference number" },
+              value: { text: caseDetails.caseReference },
+              actions: {
+                items: [
+                  {
+                    href: "/claim",
+                    text: "Change",
+                    visuallyHiddenText: "case reference number"
+                  }
+                ]
               }
             },
-            rows: [
-              {
-                key: { text: "Case reference number" },
-                value: { text: caseDetails.caseReference },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim",
-                      text: "Change",
-                      visuallyHiddenText: "case reference number"
-                    }
-                  ]
-                }
-              },
-              {
-                key: { text: "Client first name" },
-                value: { text: caseDetails.clientFirstName }
-              },
-              {
-                key: { text: "Client last name" },
-                value: { text: caseDetails.clientLastName }
-              },
-              {
-                key: { text: "Client date of birth" },
-                value: { text: caseDetails.clientDateOfBirth }
-              }
-            ]
-          }) }}
-        </div>
-
-        <h2 class="govuk-heading-m">Claim details</h2>
-        <div data-testid="claim-details-summary-list">
-          {% set claimRows = [
             {
-              key: { text: "Type of claim" },
-              value: { text: claimDetails.claimType },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/type?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "type of claim"
-                  }
-                ]
-              }
+              key: { text: "Client first name" },
+              value: { text: caseDetails.clientFirstName }
+            },
+            {
+              key: { text: "Client last name" },
+              value: { text: caseDetails.clientLastName }
+            },
+            {
+              key: { text: "Client date of birth" },
+              value: { text: caseDetails.clientDateOfBirth }
             }
-          ] %}
-          {% if claimDetails.claimSubtype %}
-            {% set claimRows = (claimRows.push({
-              key: { text: "Type of POA" },
-              value: { text: claimDetails.claimSubtype },
+          ]
+        }) }}
+      </div>
+
+      <h2 class="govuk-heading-m">Claim details</h2>
+      <div data-testid="claim-details-summary-list">
+        {% set claimRows = [
+          {
+            key: { text: "Type of claim" },
+            value: { text: claimDetails.claimType },
+            actions: {
+              items: [
+                {
+                  href: "/claim/type?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "type of claim"
+                }
+              ]
+            }
+          }
+        ] %}
+        {% if claimDetails.claimSubtype %}
+          {% set claimRows = (claimRows.push({
+            key: { text: "Type of POA" },
+            value: { text: claimDetails.claimSubtype },
+            actions: {
+              items: [
+                {
+                  href: "/claim/subtype?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "type of POA"
+                }
+              ]
+            }
+          }), claimRows) %}
+        {% endif %}
+        {% if isFinalBill %}
+          {% set claimRows = (claimRows.push({
+            key: { text: "Total claim costs" },
+            value: { text: cost.grossTotal },
+            actions: {
+              items: [
+                {
+                  href: cost.changeHref,
+                  text: "Change",
+                  visuallyHiddenText: "total claim costs"
+                }
+              ]
+            }
+          }), claimRows) %}
+        {% endif %}
+        {{ govukSummaryList({
+          card: {
+            title: {
+              text: "Overview"
+            }
+          },
+          rows: claimRows
+        }) }}
+      </div>
+
+      {% if not isFinalBill %}
+      <h2 class="govuk-heading-m">Cost</h2>
+      <div data-testid="cost-summary-list">
+        {{ govukSummaryList({
+          card: {
+            title: {
+              text: "Total claim cost"
+            }
+          },
+          rows: [
+            {
+              key: { text: "Total at 0%" },
+              value: { text: cost.zeroVatTotal },
               actions: {
                 items: [
                   {
-                    href: "/claim/subtype?from=check-your-answers",
+                    href: cost.changeHref,
                     text: "Change",
-                    visuallyHiddenText: "type of POA"
+                    visuallyHiddenText: "total at 0%"
                   }
                 ]
               }
-            }), claimRows) %}
-          {% endif %}
-          {% if isFinalBill %}
-            {% set claimRows = (claimRows.push({
-              key: { text: "Total claim costs" },
+            },
+            {
+              key: { text: "Net total at 20%" },
+              value: { text: cost.netTotal },
+              actions: {
+                items: [
+                  {
+                    href: cost.changeHref,
+                    text: "Change",
+                    visuallyHiddenText: "net total at 20%"
+                  }
+                ]
+              }
+            },
+            {
+              key: { text: "Gross total at 20%" },
               value: { text: cost.grossTotal },
               actions: {
                 items: [
                   {
                     href: cost.changeHref,
                     text: "Change",
-                    visuallyHiddenText: "total claim costs"
-                  }
-                ]
-              }
-            }), claimRows) %}
-          {% endif %}
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Overview"
-              }
-            },
-            rows: claimRows
-          }) }}
-        </div>
-
-        {% if not isFinalBill %}
-        <h2 class="govuk-heading-m">Cost</h2>
-        <div data-testid="cost-summary-list">
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Total claim cost"
-              }
-            },
-            rows: [
-              {
-                key: { text: "Total at 0%" },
-                value: { text: cost.zeroVatTotal },
-                actions: {
-                  items: [
-                    {
-                      href: cost.changeHref,
-                      text: "Change",
-                      visuallyHiddenText: "total at 0%"
-                    }
-                  ]
-                }
-              },
-              {
-                key: { text: "Net total at 20%" },
-                value: { text: cost.netTotal },
-                actions: {
-                  items: [
-                    {
-                      href: cost.changeHref,
-                      text: "Change",
-                      visuallyHiddenText: "net total at 20%"
-                    }
-                  ]
-                }
-              },
-              {
-                key: { text: "Gross total at 20%" },
-                value: { text: cost.grossTotal },
-                actions: {
-                  items: [
-                    {
-                      href: cost.changeHref,
-                      text: "Change",
-                      visuallyHiddenText: "gross total at 20%"
-                    }
-                  ]
-                }
-              }
-            ]
-          }) }}
-        </div>
-        {% endif %}
-
-        {% if not isNilBill %}
-        <h2 class="govuk-heading-m">Evidence</h2>
-        {% if costTemplateFile %}
-          {% include "claim/partials/check-your-answers/evidence/final-bill-cost-template.njk" %}
-        {% endif %}
-        <div class="govuk-summary-card" data-testid="evidence-summary-list">
-          <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">Supporting files</h2>
-            <ul class="govuk-summary-card__actions">
-              <li class="govuk-summary-card__action">
-                <a class="govuk-link govuk-!-font-weight-regular" href="/claim/evidence?from=check-your-answers">Change<span class="govuk-visually-hidden"> evidence</span></a>
-              </li>
-            </ul>
-          </div>
-          <div class="govuk-summary-card__content">
-            <dl class="govuk-summary-list">
-              {% for file in evidence.uploadedFiles %}
-              <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">{{ file.name }}</dt>
-                <dd class="govuk-summary-list__value">
-                  <a class="govuk-link govuk-!-font-weight-bold" href="/claim/evidence/{{ file.id }}/view" target="_blank" rel="noopener noreferrer">View</a>
-                  |
-                  <a class="govuk-link" href="/claim/evidence/{{ file.id }}/download">Download ({{ file.type }} {{ file.fileSize }})</a>
-                </dd>
-              </div>
-              {% endfor %}
-            </dl>
-          </div>
-        </div>
-        {% endif %}
-
-        {% if counsel.show %}
-        <h2 class="govuk-heading-m">Counsel</h2>
-        <div data-testid="counsel-summary-list">
-          {% set counselRows = [
-            {
-              key: { text: "Number of counsel instructed" },
-              value: { text: counsel.counselNumber },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/counsel-number?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "number of counsel instructed"
+                    visuallyHiddenText: "gross total at 20%"
                   }
                 ]
               }
             }
-          ] %}
-          {% if counsel.hasCounsel %}
-            {% set counselRows = (counselRows.push({
-              key: { text: "Counsel has been paid" },
-              value: { text: counsel.counselPaid },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/counsel-pay-confirmation?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "counsel has been paid"
-                  }
-                ]
-              }
-            }), counselRows) %}
-            {% set counselRows = (counselRows.push({
-              key: { text: "Last working date" },
-              value: { text: counsel.endDate },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/end-date?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "last working date"
-                  }
-                ]
-              }
-            }), counselRows) %}
-          {% endif %}
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Counsel"
-              }
-            },
-            rows: counselRows
-          }) }}
-        </div>
-        {% endif %}
+          ]
+        }) }}
+      </div>
+      {% endif %}
 
-        <h2 class="govuk-heading-m">Other claim details</h2>
-        <div data-testid="inquest-details-summary-list">
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Inquest details"
-              }
-            },
-            rows: [
-              {
-                key: { text: "Inquest outcome" },
-                value: { text: inquestDetails.inquestOutcomes },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/inquest-outcome?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "inquest outcome"
-                    }
-                  ]
-                }
-              },
-              {
-                key: { text: "Alternative funding post-inquest" },
-                value: { text: inquestDetails.funding },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/funding-post-inquest?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "alternative funding post-inquest"
-                    }
-                  ]
-                }
-              }
-            ]
-          }) }}
+      {% if not isNilBill %}
+      <h2 class="govuk-heading-m">Evidence</h2>
+      {% if costTemplateFile %}
+        {% include "claim/partials/check-your-answers/evidence/final-bill-cost-template.njk" %}
+      {% endif %}
+      <div class="govuk-summary-card" data-testid="evidence-summary-list">
+        <div class="govuk-summary-card__title-wrapper">
+          <h2 class="govuk-summary-card__title">Supporting files</h2>
+          <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link govuk-!-font-weight-regular" href="/claim/evidence?from=check-your-answers">Change<span class="govuk-visually-hidden"> evidence</span></a>
+            </li>
+          </ul>
         </div>
+        <div class="govuk-summary-card__content">
+          <dl class="govuk-summary-list">
+            {% for file in evidence.uploadedFiles %}
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">{{ file.name }}</dt>
+              <dd class="govuk-summary-list__value">
+                <a class="govuk-link govuk-!-font-weight-bold" href="/claim/evidence/{{ file.id }}/view" target="_blank" rel="noopener noreferrer">View</a>
+                |
+                <a class="govuk-link" href="/claim/evidence/{{ file.id }}/download">Download ({{ file.type }} {{ file.fileSize }})</a>
+              </dd>
+            </div>
+            {% endfor %}
+          </dl>
+        </div>
+      </div>
+      {% endif %}
 
-        {% if inquestDetails.showRecovery %}
-        <div data-testid="alternative-funding-details-summary-list">
-          {% set alternativeFundingRows = [
-            {
-              key: { text: "Recovery cost made" },
-              value: { text: inquestDetails.recoveryCostMade },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/inquest-outcome-recovery?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "recovery cost made"
-                  }
-                ]
-              }
-            }
-          ] %}
-          {% if inquestDetails.showPreCertificateCosts %}
-            {% set alternativeFundingRows = (alternativeFundingRows.push({
-              key: { text: "Previous pre-certificate costs" },
-              value: { text: inquestDetails.preCertificateCosts },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/pre-cert-costs?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "previous pre-certificate costs"
-                  }
-                ]
-              }
-            }), alternativeFundingRows) %}
-          {% endif %}
-          {% set alternativeFundingRows = (alternativeFundingRows.push({
-            key: { text: "The paying party" },
-            value: { text: inquestDetails.payingParty },
+      {% if counsel.show %}
+      <h2 class="govuk-heading-m">Counsel</h2>
+      <div data-testid="counsel-summary-list">
+        {% set counselRows = [
+          {
+            key: { text: "Number of counsel instructed" },
+            value: { text: counsel.counselNumber },
             actions: {
               items: [
                 {
-                  href: "/claim/paying-party?from=check-your-answers",
+                  href: "/claim/counsel-number?from=check-your-answers",
                   text: "Change",
-                  visuallyHiddenText: "the paying party"
+                  visuallyHiddenText: "number of counsel instructed"
+                }
+              ]
+            }
+          }
+        ] %}
+        {% if counsel.hasCounsel %}
+          {% set counselRows = (counselRows.push({
+            key: { text: "Counsel has been paid" },
+            value: { text: counsel.counselPaid },
+            actions: {
+              items: [
+                {
+                  href: "/claim/counsel-pay-confirmation?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "counsel has been paid"
+                }
+              ]
+            }
+          }), counselRows) %}
+          {% set counselRows = (counselRows.push({
+            key: { text: "Last working date" },
+            value: { text: counsel.endDate },
+            actions: {
+              items: [
+                {
+                  href: "/claim/end-date?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "last working date"
+                }
+              ]
+            }
+          }), counselRows) %}
+        {% endif %}
+        {{ govukSummaryList({
+          card: {
+            title: {
+              text: "Counsel"
+            }
+          },
+          rows: counselRows
+        }) }}
+      </div>
+      {% endif %}
+
+      <h2 class="govuk-heading-m">Other claim details</h2>
+      <div data-testid="inquest-details-summary-list">
+        {{ govukSummaryList({
+          card: {
+            title: {
+              text: "Inquest details"
+            }
+          },
+          rows: [
+            {
+              key: { text: "Inquest outcome" },
+              value: { text: inquestDetails.inquestOutcomes },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/inquest-outcome?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "inquest outcome"
+                  }
+                ]
+              }
+            },
+            {
+              key: { text: "Alternative funding post-inquest" },
+              value: { text: inquestDetails.funding },
+              actions: {
+                items: [
+                  {
+                    href: "/claim/funding-post-inquest?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: "alternative funding post-inquest"
+                  }
+                ]
+              }
+            }
+          ]
+        }) }}
+      </div>
+
+      {% if inquestDetails.showRecovery %}
+      <div data-testid="alternative-funding-details-summary-list">
+        {% set alternativeFundingRows = [
+          {
+            key: { text: "Recovery cost made" },
+            value: { text: inquestDetails.recoveryCostMade },
+            actions: {
+              items: [
+                {
+                  href: "/claim/inquest-outcome-recovery?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "recovery cost made"
+                }
+              ]
+            }
+          }
+        ] %}
+        {% if inquestDetails.showPreCertificateCosts %}
+          {% set alternativeFundingRows = (alternativeFundingRows.push({
+            key: { text: "Previous pre-certificate costs" },
+            value: { text: inquestDetails.preCertificateCosts },
+            actions: {
+              items: [
+                {
+                  href: "/claim/pre-cert-costs?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "previous pre-certificate costs"
                 }
               ]
             }
           }), alternativeFundingRows) %}
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Alternative funding details"
-              }
-            },
-            rows: alternativeFundingRows
-          }) }}
-        </div>
-
-        {% if inquestDetails.showFinancialRecoveryCosts %}
-        <div data-testid="financial-recovery-costs-summary-list">
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Financial recovery costs"
-              },
-              actions: {
-                items: [
-                  {
-                    href: "/claim/recovery-costs?from=check-your-answers",
-                    text: "Change",
-                    visuallyHiddenText: "financial recovery costs"
-                  }
-                ]
-              }
-            },
-            rows: [
+        {% endif %}
+        {% set alternativeFundingRows = (alternativeFundingRows.push({
+          key: { text: "The paying party" },
+          value: { text: inquestDetails.payingParty },
+          actions: {
+            items: [
               {
-                key: { text: "Costs" },
-                value: { text: inquestDetails.recoveryCosts }
-              },
-              {
-                key: { text: "Damages" },
-                value: { text: inquestDetails.recoveryDamages }
-              },
-              {
-                key: { text: "Interest" },
-                value: { text: inquestDetails.recoveryInterest }
-              },
-              {
-                key: { text: "Previous pre-certificate costs" },
-                value: { text: inquestDetails.recoveryPreCertificateCosts }
+                href: "/claim/paying-party?from=check-your-answers",
+                text: "Change",
+                visuallyHiddenText: "the paying party"
               }
             ]
-          }) }}
-        </div>
-        {% endif %}
-        {% endif %}
-
-        <form data-testid="confirm-and-submit-form" action="/claim/check-your-answers" method="post">
-          <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
-          {{ govukButton({
-            text: "Finish and submit claim",
-            type: "submit",
-            attributes: {
-              "data-prevent-double-click": "true"
+          }
+        }), alternativeFundingRows) %}
+        {{ govukSummaryList({
+          card: {
+            title: {
+              text: "Alternative funding details"
             }
-          }) }}
-        </form>
+          },
+          rows: alternativeFundingRows
+        }) }}
       </div>
+
+      {% if inquestDetails.showFinancialRecoveryCosts %}
+      <div data-testid="financial-recovery-costs-summary-list">
+        {{ govukSummaryList({
+          card: {
+            title: {
+              text: "Financial recovery costs"
+            },
+            actions: {
+              items: [
+                {
+                  href: "/claim/recovery-costs?from=check-your-answers",
+                  text: "Change",
+                  visuallyHiddenText: "financial recovery costs"
+                }
+              ]
+            }
+          },
+          rows: [
+            {
+              key: { text: "Costs" },
+              value: { text: inquestDetails.recoveryCosts }
+            },
+            {
+              key: { text: "Damages" },
+              value: { text: inquestDetails.recoveryDamages }
+            },
+            {
+              key: { text: "Interest" },
+              value: { text: inquestDetails.recoveryInterest }
+            },
+            {
+              key: { text: "Previous pre-certificate costs" },
+              value: { text: inquestDetails.recoveryPreCertificateCosts }
+            }
+          ]
+        }) }}
+      </div>
+      {% endif %}
+      {% endif %}
+
+      <form data-testid="confirm-and-submit-form" action="/claim/check-your-answers" method="post">
+        <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+        {{ govukButton({
+          text: "Finish and submit claim",
+          type: "submit",
+          attributes: {
+            "data-prevent-double-click": "true"
+          }
+        }) }}
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 {% endblock %}

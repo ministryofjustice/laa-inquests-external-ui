@@ -16,71 +16,69 @@
     text: "Back",
     href: backHref or "/apply/client-details/name-and-dob"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [
-              {
-                text: errorSummaries.ninoInputError.text,
-                href: "#nino-input"
-              },
-              {
-                text: errorSummaries.noRadioSelected.text,
-                href: "#has-nino"
-              }
-            ]
-          })
-        }}
-        {% endif %}
-        <form data-testid="nino-form" action="/apply/client-details/nino" method="post">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-          {{ govukRadios({
-            name: "has-nino",
-            id: "has-nino",
-            fieldset: {
-              legend: {
-                text: pageHeading,
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--l"
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummaries %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.ninoInputError.text,
+              href: "#nino-input"
+            },
+            {
+              text: errorSummaries.noRadioSelected.text,
+              href: "#has-nino"
+            }
+          ]
+        })
+      }}
+      {% endif %}
+      <form data-testid="nino-form" action="/apply/client-details/nino" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukRadios({
+          name: "has-nino",
+          id: "has-nino",
+          fieldset: {
+            legend: {
+              text: pageHeading,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          value: client.hasNino,
+          errorMessage: errorSummaries.noRadioSelected,
+          items: [
+            {
+              value: "true",
+              text: "Yes",
+              conditional: {
+                html:  govukInput({
+                  id: "nino-input",
+                  name: "nino-input",
+                  type: "text",
+                  spellcheck: false,
+                  classes: "govuk-!-width-one-half",
+                  label: {
+                    text: "Enter your client's National Insurance number"
+                  },
+                  errorMessage: errorSummaries.ninoInputError,
+                  value: client.clientNino
+                })
               }
             },
-            value: client.hasNino,
-            errorMessage: errorSummaries.noRadioSelected,
-            items: [
-              {
-                value: "true",
-                text: "Yes",
-                conditional: {
-                  html:  govukInput({
-                    id: "nino-input",
-                    name: "nino-input",
-                    type: "text",
-                    spellcheck: false,
-                    classes: "govuk-!-width-one-half",
-                    label: {
-                      text: "Enter your client's National Insurance number"
-                    },
-                    errorMessage: errorSummaries.ninoInputError,
-                    value: client.clientNino
-                  })
-                }
-              },
-              {
-                value: "false",
-                text: "No"
-              }
-            ]
+            {
+              value: "false",
+              text: "No"
+            }
+          ]
+        }) }}
+        {{ govukButton({
+            text: "Continue"
           }) }}
-          {{ govukButton({
-              text: "Continue"
-            }) }}
-        </form>
-      </div>
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 
