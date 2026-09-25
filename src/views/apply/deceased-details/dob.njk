@@ -13,57 +13,55 @@
         text: "Back",
         href: backHref or "/apply/deceased-details/dod"
     }) }}
-    <main class="govuk-main-wrapper">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-                {% if errorSummaries.dateOfBirthInputError %}
-                {{ govukErrorSummary({
-                    titleText: "There is a problem",
-                    errorList: [
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            {% if errorSummaries.dateOfBirthInputError %}
+            {{ govukErrorSummary({
+                titleText: "There is a problem",
+                errorList: [
+                    {
+                        text: errorSummaries.dateOfBirthInputError.text,
+                        href: "#deceased-date-of-birth"
+                    }
+                ]
+            }) }}
+            {% endif %}
+            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+            <form data-testid="deceased-date-of-birth-form" action="/apply/deceased-details/dob" method="post">
+            <input type="hidden" name="_csrf" value={{csrfToken}} />
+            {{ govukDateInput({
+                    id: "deceased-date-of-birth",
+                    namePrefix: "deceased-date-of-birth",
+                    fieldset: {
+                        legend: {
+                            text: "Date of birth",
+                            classes: "govuk-fieldset__legend--s"
+                        }
+                    },
+                    errorMessage: errorSummaries.dateOfBirthInputError,
+                    items: [
                         {
-                            text: errorSummaries.dateOfBirthInputError.text,
-                            href: "#deceased-date-of-birth"
+                            classes: "govuk-input--width-2",
+                            name: "day",
+                            value: deceasedDetails.dateOfBirthDay
+                        },
+                        {
+                            classes: "govuk-input--width-2",
+                            name: "month",
+                            value: deceasedDetails.dateOfBirthMonth
+                        },
+                        {
+                            classes: "govuk-input--width-4",
+                            name: "year",
+                            value: deceasedDetails.dateOfBirthYear
                         }
                     ]
                 }) }}
-                {% endif %}
-                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-                <form data-testid="deceased-date-of-birth-form" action="/apply/deceased-details/dob" method="post">
-                <input type="hidden" name="_csrf" value={{csrfToken}} />
-                {{ govukDateInput({
-                        id: "deceased-date-of-birth",
-                        namePrefix: "deceased-date-of-birth",
-                        fieldset: {
-                            legend: {
-                                text: "Date of birth",
-                                classes: "govuk-fieldset__legend--s"
-                            }
-                        },
-                        errorMessage: errorSummaries.dateOfBirthInputError,
-                        items: [
-                            {
-                                classes: "govuk-input--width-2",
-                                name: "day",
-                                value: deceasedDetails.dateOfBirthDay
-                            },
-                            {
-                                classes: "govuk-input--width-2",
-                                name: "month",
-                                value: deceasedDetails.dateOfBirthMonth
-                            },
-                            {
-                                classes: "govuk-input--width-4",
-                                name: "year",
-                                value: deceasedDetails.dateOfBirthYear
-                            }
-                        ]
-                    }) }}
-                    {{ govukButton({
-                        text: "Continue"
-                    }) }}
-                </form>
-            </div>
+                {{ govukButton({
+                    text: "Continue"
+                }) }}
+            </form>
         </div>
-    </main>
+    </div>
 </div>
 {% endblock %}

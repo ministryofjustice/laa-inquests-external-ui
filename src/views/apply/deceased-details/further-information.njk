@@ -13,62 +13,60 @@
         text: "Back",
         href: backHref or "/apply/deceased-details/coroner-reference"
     }) }}
-    <main class="govuk-main-wrapper">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                {% if errorSummaries.hasFurtherInformationInputError or errorSummaries.furtherInformationInputError %}
-                {{ govukErrorSummary({
-                    titleText: "There is a problem",
-                    errorList: [
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% if errorSummaries.hasFurtherInformationInputError or errorSummaries.furtherInformationInputError %}
+            {{ govukErrorSummary({
+                titleText: "There is a problem",
+                errorList: [
+                    {
+                        text: errorSummaries.hasFurtherInformationInputError.text,
+                        href: "#deceased-has-further-information"
+                    } if errorSummaries.hasFurtherInformationInputError,
+                    {
+                        text: errorSummaries.furtherInformationInputError.text,
+                        href: "#deceased-further-information"
+                    } if errorSummaries.furtherInformationInputError
+                ]
+            }) }}
+            {% endif %}
+            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+            <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
+                <input type="hidden" name="_csrf" value={{csrfToken}} />
+                {{ govukRadios({
+                    name: "deceased-has-further-information",
+                    id: "deceased-has-further-information",
+                    value: deceasedDetails.hasFurtherInformation,
+                    errorMessage: errorSummaries.hasFurtherInformationInputError,
+                    items: [
                         {
-                            text: errorSummaries.hasFurtherInformationInputError.text,
-                            href: "#deceased-has-further-information"
-                        } if errorSummaries.hasFurtherInformationInputError,
+                            value: "true",
+                            text: "Yes",
+                            conditional: {
+                                html:  govukTextarea({
+                                    id: "deceased-further-information",
+                                    name: "deceased-further-information",
+                                    type: "text",
+                                    spellcheck: false,
+                                    label: {
+                                        text: "Please provide any details available of linked or bridged inquests"
+                                    },
+                                    errorMessage: errorSummaries.furtherInformationInputError,
+                                    value: deceasedDetails.furtherInformation
+                                }
+                            )}
+                        },
                         {
-                            text: errorSummaries.furtherInformationInputError.text,
-                            href: "#deceased-further-information"
-                        } if errorSummaries.furtherInformationInputError
+                            value: "false",
+                            text: "No"
+                        }
                     ]
                 }) }}
-                {% endif %}
-                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-                <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
-                    <input type="hidden" name="_csrf" value={{csrfToken}} />
-                    {{ govukRadios({
-                        name: "deceased-has-further-information",
-                        id: "deceased-has-further-information",
-                        value: deceasedDetails.hasFurtherInformation,
-                        errorMessage: errorSummaries.hasFurtherInformationInputError,
-                        items: [
-                            {
-                                value: "true",
-                                text: "Yes",
-                                conditional: {
-                                    html:  govukTextarea({
-                                        id: "deceased-further-information",
-                                        name: "deceased-further-information",
-                                        type: "text",
-                                        spellcheck: false,
-                                        label: {
-                                            text: "Please provide any details available of linked or bridged inquests"
-                                        },
-                                        errorMessage: errorSummaries.furtherInformationInputError,
-                                        value: deceasedDetails.furtherInformation
-                                    }
-                                )}
-                            },
-                            {
-                                value: "false",
-                                text: "No"
-                            }
-                        ]
-                    }) }}
-                    {{ govukButton({
-                        text: "Continue"
-                    }) }}
-                </form>
-            </div>
+                {{ govukButton({
+                    text: "Continue"
+                }) }}
+            </form>
         </div>
-    </main>
+    </div>
 </div>
 {% endblock %}

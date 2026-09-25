@@ -14,49 +14,47 @@
     text: "Back",
     href: backHref or "/claim/counsel-number"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries.counselPayConfirmationInputError %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummaries.counselPayConfirmationInputError %}
+      {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+          {
+            text: errorSummaries.counselPayConfirmationInputError.text,
+            href: "#counsel-bills-paid"
+          }
+        ]
+      }) }}
+      {% endif %}
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+
+      {{ govukWarningText({
+        text: "Before submitting your bill you must check all counsel fees are paid. If they have not been paid, your bill could be rejected.",
+        iconFallbackText: "Warning"
+      }) }}
+
+      <form data-testid="counsel-pay-confirmation-form" action="/claim/counsel-pay-confirmation" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukCheckboxes({
+          name: "counsel-bills-paid",
+          idPrefix: "counsel-bills-paid",
+          errorMessage: errorSummaries.counselPayConfirmationInputError,
+          items: [
             {
-              text: errorSummaries.counselPayConfirmationInputError.text,
-              href: "#counsel-bills-paid"
+              value: "true",
+              text: "Yes, all counsel bills have been paid.",
+              checked: counselBillsPaid
             }
           ]
         }) }}
-        {% endif %}
-        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-
-        {{ govukWarningText({
-          text: "Before submitting your bill you must check all counsel fees are paid. If they have not been paid, your bill could be rejected.",
-          iconFallbackText: "Warning"
+        {{ govukButton({
+          text: "Continue",
+          type: "submit"
         }) }}
-
-        <form data-testid="counsel-pay-confirmation-form" action="/claim/counsel-pay-confirmation" method="post">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-          {{ govukCheckboxes({
-            name: "counsel-bills-paid",
-            idPrefix: "counsel-bills-paid",
-            errorMessage: errorSummaries.counselPayConfirmationInputError,
-            items: [
-              {
-                value: "true",
-                text: "Yes, all counsel bills have been paid.",
-                checked: counselBillsPaid
-              }
-            ]
-          }) }}
-          {{ govukButton({
-            text: "Continue",
-            type: "submit"
-          }) }}
-        </form>
-      </div>
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 {% endblock %}

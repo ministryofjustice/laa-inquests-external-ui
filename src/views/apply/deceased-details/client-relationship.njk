@@ -14,69 +14,67 @@
         text: "Back",
         href: backHref or "/apply/deceased-details/dob"
     }) }}
-    <main class="govuk-main-wrapper">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                {% if errorSummaries.hasClientRelationshipInputError or errorSummaries.clientRelationshipInputError %}
-                {{ govukErrorSummary({
-                    titleText: "There is a problem",
-                    errorList: [
-                        {
-                            text: errorSummaries.hasClientRelationshipInputError.text,
-                            href: "#deceased-has-client-relationship"
-                        } if errorSummaries.hasClientRelationshipInputError,
-                        {
-                            text: errorSummaries.clientRelationshipInputError.text,
-                            href: "#deceased-client-relationship"
-                        } if errorSummaries.clientRelationshipInputError
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% if errorSummaries.hasClientRelationshipInputError or errorSummaries.clientRelationshipInputError %}
+            {{ govukErrorSummary({
+                titleText: "There is a problem",
+                errorList: [
+                    {
+                        text: errorSummaries.hasClientRelationshipInputError.text,
+                        href: "#deceased-has-client-relationship"
+                    } if errorSummaries.hasClientRelationshipInputError,
+                    {
+                        text: errorSummaries.clientRelationshipInputError.text,
+                        href: "#deceased-client-relationship"
+                    } if errorSummaries.clientRelationshipInputError
+                ]
+            }) }}
+            {% endif %}
+            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+            <form data-testid="deceased-client-relationship-form" action="/apply/deceased-details/client-relationship" method="post">
+                <input type="hidden" name="_csrf" value={{csrfToken}} />
+                <p class="govuk-body">Definition of a family member according to the bill:</p>
+
+                {{ govukInsetText({
+                    text: "A family member is defined as someone who is a  relative (of full or half blood, or by marriage or civil partnership), a cohabitant as defined in Part 4 of the Family Law Act 1996, or where one person has parental responsibility for the other."
+                }) }}
+
+                    {{ govukRadios({
+                    name: "deceased-has-client-relationship",
+                                            id: "deceased-has-client-relationship",
+                    value: deceasedDetails.hasClientRelationship,
+                                            errorMessage: errorSummaries.hasClientRelationshipInputError,
+                    items: [
+                    {
+                        value: "true",
+                        text: "Yes",
+                        conditional: {
+                            html:  govukInput({
+                                id: "deceased-client-relationship",
+                                name: "deceased-client-relationship",
+                                type: "text",
+                                spellcheck: false,
+                                classes: "govuk-!-width-one-half",
+                                label: {
+                                    text: "Please describe the nature of the relationship between your client and the deceased."
+                                },
+                                errorMessage: errorSummaries.clientRelationshipInputError,
+                                value: deceasedDetails.clientRelationship
+                        })}
+                    },
+                    {
+                        value: "false",
+                        text: "No"
+                    }
                     ]
                 }) }}
-                {% endif %}
-                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-                <form data-testid="deceased-client-relationship-form" action="/apply/deceased-details/client-relationship" method="post">
-                    <input type="hidden" name="_csrf" value={{csrfToken}} />
-                    <p class="govuk-body">Definition of a family member according to the bill:</p>
 
-                    {{ govukInsetText({
-                        text: "A family member is defined as someone who is a  relative (of full or half blood, or by marriage or civil partnership), a cohabitant as defined in Part 4 of the Family Law Act 1996, or where one person has parental responsibility for the other."
-                    }) }}
-
-                      {{ govukRadios({
-                        name: "deceased-has-client-relationship",
-                                                id: "deceased-has-client-relationship",
-                        value: deceasedDetails.hasClientRelationship,
-                                                errorMessage: errorSummaries.hasClientRelationshipInputError,
-                        items: [
-                        {
-                            value: "true",
-                            text: "Yes",
-                            conditional: {
-                                html:  govukInput({
-                                    id: "deceased-client-relationship",
-                                    name: "deceased-client-relationship",
-                                    type: "text",
-                                    spellcheck: false,
-                                    classes: "govuk-!-width-one-half",
-                                    label: {
-                                        text: "Please describe the nature of the relationship between your client and the deceased."
-                                    },
-                                    errorMessage: errorSummaries.clientRelationshipInputError,
-                                    value: deceasedDetails.clientRelationship
-                            })}
-                        },
-                        {
-                            value: "false",
-                            text: "No"
-                        }
-                        ]
-                    }) }}
-
-                    {{ govukButton({
-                        text: "Continue"
-                    }) }}
-                </form>
-            </div>
+                {{ govukButton({
+                    text: "Continue"
+                }) }}
+            </form>
         </div>
-    </main>
+    </div>
 </div>
 {% endblock %}

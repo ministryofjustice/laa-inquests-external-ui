@@ -13,57 +13,55 @@
     text: "Back",
     href: backHref or "/claim/type"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries.claimSubtypeInputError %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummaries.claimSubtypeInputError %}
+      {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+          {
+            text: errorSummaries.claimSubtypeInputError.text,
+            href: "#claim-subtype"
+          }
+        ]
+      }) }}
+      {% endif %}
+      <form data-testid="claim-subtype-form" action="/claim/subtype" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukRadios({
+          name: "claim-subtype",
+          id: "claim-subtype",
+          value: claimSubtype,
+          errorMessage: errorSummaries.claimSubtypeInputError,
+          fieldset: {
+            legend: {
+              text: pageHeading,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          items: [
             {
-              text: errorSummaries.claimSubtypeInputError.text,
-              href: "#claim-subtype"
+              value: "PROFIT_COST",
+              text: "Profit cost"
+            },
+            {
+              value: "EXPERT_COST",
+              text: "Expert cost"
+            },
+            {
+              value: "NON_EXPERT_DISBURSEMENT",
+              text: "Non-expert disbursement"
             }
           ]
         }) }}
-        {% endif %}
-        <form data-testid="claim-subtype-form" action="/claim/subtype" method="post">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-          {{ govukRadios({
-            name: "claim-subtype",
-            id: "claim-subtype",
-            value: claimSubtype,
-            errorMessage: errorSummaries.claimSubtypeInputError,
-            fieldset: {
-              legend: {
-                text: pageHeading,
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--l"
-              }
-            },
-            items: [
-              {
-                value: "PROFIT_COST",
-                text: "Profit cost"
-              },
-              {
-                value: "EXPERT_COST",
-                text: "Expert cost"
-              },
-              {
-                value: "NON_EXPERT_DISBURSEMENT",
-                text: "Non-expert disbursement"
-              }
-            ]
-          }) }}
-          {{ govukButton({
-            text: "Continue",
-            type: "submit"
-          }) }}
-        </form>
-      </div>
+        {{ govukButton({
+          text: "Continue",
+          type: "submit"
+        }) }}
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 {% endblock %}
