@@ -261,6 +261,7 @@
         </div>
         {% endif %}
 
+        {% if isFinalBill %}
         <h2 class="govuk-heading-m">Other claim details</h2>
         <div data-testid="inquest-details-summary-list">
           {{ govukSummaryList({
@@ -392,6 +393,7 @@
             ]
           }) }}
         </div>
+        {% endif %}
         {% endif %}
         {% endif %}
 

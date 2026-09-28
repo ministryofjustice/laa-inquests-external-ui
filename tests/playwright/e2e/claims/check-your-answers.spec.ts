@@ -448,7 +448,59 @@ test.describe("Claim - confirm and submit", () => {
     await expect(claimDetails).not.toContainText("Type of POA");
   });
 
+  test("hides final-bill-only details and change links for a POA profit cost claim", async ({
+    page,
+  }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Final bill").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+
+    await page.goto("/claim/inquest-outcome");
+    await page.getByLabel("Accident or misadventure").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Yes", { exact: true }).check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Yes", { exact: true }).check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/recovery-costs");
+
+    await page.goto("/claim/type");
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Profit cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.waitForURL("**/claim/total-cost");
+    await page.goto("/claim/check-your-answers");
+
+    await expect(
+      page.getByRole("heading", { name: "Other claim details" }),
+    ).toHaveCount(0);
+    await expect(page.getByTestId("inquest-details-summary-list")).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByTestId("alternative-funding-details-summary-list"),
+    ).toHaveCount(0);
+    await expect(
+      page.getByTestId("financial-recovery-costs-summary-list"),
+    ).toHaveCount(0);
+    await expect(
+      page.locator(
+        'a[href^="/claim/inquest-outcome"], a[href^="/claim/funding-post-inquest"], a[href^="/claim/pre-cert-costs"], a[href^="/claim/paying-party"], a[href^="/claim/recovery-costs"]',
+      ),
+    ).toHaveCount(0);
+  });
+
   test.describe("Other claim details", () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto("/claim/type");
+      await page.getByLabel("Final bill").check();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await page.waitForURL("**/claim/total-cost");
+      await page.goto("/claim/check-your-answers");
+    });
+
     async function answerFunding(
       page: Page,
       answer: "Yes" | "No",
@@ -500,7 +552,9 @@ test.describe("Claim - confirm and submit", () => {
       ).toBeVisible();
     });
 
-    test("always renders the Inquest details card", async ({ page }) => {
+    test("renders the Inquest details card for a final bill", async ({
+      page,
+    }) => {
       const card = page.getByTestId("inquest-details-summary-list");
 
       await expect(card).toContainText("Inquest details");
