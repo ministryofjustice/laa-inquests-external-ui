@@ -79,7 +79,12 @@
     },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
-      "accessDenied": "You do not have permission to access this page."
+      "unauthorisedError": {
+        "heading": "You cannot access this page",
+        "body1": "Your account does not have permission to view this page. Go to the home page to see the pages and actions available to your role.",
+        "body2": "If you think you should have access, contact your account administrator.",
+        "button": "Return to home page"
+      }
     }
   },
   "forms": {

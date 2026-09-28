@@ -117,10 +117,7 @@ describe("handleAuthErrors", () => {
 
     assert.equal(res.status.firstCall.args[0], 403);
     assert.equal(res.render.callCount, 1);
-    assert.deepEqual(res.render.firstCall.args, [
-      "main/error",
-      { status: 403, message: ERROR_PAGE_MESSAGE.FORBIDDEN },
-    ]);
+    assert.deepEqual(res.render.firstCall.args, ["main/error-unauthorised"]);
     assert.equal(next.callCount, 0);
   });
 
