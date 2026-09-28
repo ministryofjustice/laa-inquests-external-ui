@@ -1,8 +1,4 @@
-import moment from "moment";
-import {
-  END_DATE_ERROR,
-  DATE_MONTH_INDEX_OFFSET,
-} from "#src/infrastructure/locales/constants.js";
+import { END_DATE_ERROR } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 
 export interface EndDateFormData {
@@ -35,18 +31,6 @@ export class EndDateValidator extends FormValidator {
     if (typeof errorMessage === "string") {
       errorSummaries.endDateInputError = { text: errorMessage };
       return errorSummaries;
-    }
-
-    const date = moment([
-      Number(year),
-      Number(month) - DATE_MONTH_INDEX_OFFSET,
-      Number(day),
-    ]);
-
-    if (date.isSameOrAfter(moment(), "day")) {
-      errorSummaries.endDateInputError = {
-        text: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE,
-      };
     }
 
     return errorSummaries;
