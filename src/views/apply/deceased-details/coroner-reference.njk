@@ -12,41 +12,39 @@
         text: "Back",
         href: backHref or "/apply/deceased-details/client-relationship"
     }) }}
-    <main class="govuk-main-wrapper">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                {% if errorSummaries %}
-                {{ govukErrorSummary({
-                    titleText: "There is a problem",
-                    errorList: [
-                        {
-                            text: errorSummaries.coronerReferenceInputError.text,
-                            href: "#deceased-coroner-reference"
-                        }
-                    ]
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% if errorSummaries %}
+            {{ govukErrorSummary({
+                titleText: "There is a problem",
+                errorList: [
+                    {
+                        text: errorSummaries.coronerReferenceInputError.text,
+                        href: "#deceased-coroner-reference"
+                    }
+                ]
+            }) }}
+            {% endif %}
+            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+            <form data-testid="deceased-coroner-reference-form" action="/apply/deceased-details/coroner-reference" method="post">
+                <input type="hidden" name="_csrf" value={{csrfToken}} />
+                {{ govukInput({
+                    id: "deceased-coroner-reference",
+                    name: "deceased-coroner-reference",
+                    type: "text",
+                    spellcheck: false,
+                    classes: "govuk-!-width-one-half",
+                    label: {
+                        text: "Please enter your reference number"
+                    },
+                    errorMessage: errorSummaries.coronerReferenceInputError,
+                    value: deceasedDetails.coronerReference
                 }) }}
-                {% endif %}
-                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-                <form data-testid="deceased-coroner-reference-form" action="/apply/deceased-details/coroner-reference" method="post">
-                    <input type="hidden" name="_csrf" value={{csrfToken}} />
-                    {{ govukInput({
-                        id: "deceased-coroner-reference",
-                        name: "deceased-coroner-reference",
-                        type: "text",
-                        spellcheck: false,
-                        classes: "govuk-!-width-one-half",
-                        label: {
-                            text: "Please enter your reference number"
-                        },
-                        errorMessage: errorSummaries.coronerReferenceInputError,
-                        value: deceasedDetails.coronerReference
-                    }) }}
-                    {{ govukButton({
-                        text: "Continue"
-                    }) }}
-                </form>
-            </div>
+                {{ govukButton({
+                    text: "Continue"
+                }) }}
+            </form>
         </div>
-    </main>
+    </div>
 <div>
 {% endblock %}

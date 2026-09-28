@@ -16,49 +16,47 @@
     text: "Back",
     href: backHref or "/apply/client-details/correspondence-recipient"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [
-              {
-                text: errorSummaries.noProceedingSelected.text,
-                href: "#proceeding-option"
-              }
-            ]
-          })
-        }}
-        {% endif %}
-         <form data-testid="add-proceeding-form" action="/apply/proceeding" method="POST">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-              {{ govukRadios({
-                name: "proceeding-option",
-                fieldset: {
-                  legend: {
-                    text: pageHeading,
-                    isPageHeading: true,
-                    classes: "govuk-fieldset__legend--l"
-                  }
-                },
-                hint: {
-                    text: t("pages.apply.proceedings.search.hint")
-                },
-                errorMessage: errorSummaries.noProceedingSelected,
-                value: proceedingOption,
-                items: proceedingOptions
-              })
-            }}
-            {{
-              govukButton({
-                text: "Continue"
-              })
-            }}
-        </form>
-      </div>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummaries %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.noProceedingSelected.text,
+              href: "#proceeding-option"
+            }
+          ]
+        })
+      }}
+      {% endif %}
+        <form data-testid="add-proceeding-form" action="/apply/proceeding" method="POST">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+            {{ govukRadios({
+              name: "proceeding-option",
+              fieldset: {
+                legend: {
+                  text: pageHeading,
+                  isPageHeading: true,
+                  classes: "govuk-fieldset__legend--l"
+                }
+              },
+              hint: {
+                  text: t("pages.apply.proceedings.search.hint")
+              },
+              errorMessage: errorSummaries.noProceedingSelected,
+              value: proceedingOption,
+              items: proceedingOptions
+            })
+          }}
+          {{
+            govukButton({
+              text: "Continue"
+            })
+          }}
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 

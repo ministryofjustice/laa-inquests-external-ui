@@ -15,95 +15,93 @@
     text: "Back",
     href: backHref or "/apply/client-details/correspondence-address-source"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [
-              {
-                text: errorSummaries.recipientPersonNameInputError.text,
-                href: "#correspondence-recipient-person-name"
-              },
-              {
-                text: errorSummaries.recipientOrganisationNameInputError.text,
-                href: "#correspondence-recipient-organisation-name"
-              },
-              {
-                text: errorSummaries.noRadioSelected.text,
-                href: "#correspondence-recipient"
-              }
-            ]
-          })
-        }}
-        {% endif %}
-        <form data-testid="correspondence-recipient-form" action="/apply/client-details/correspondence-recipient" method="post">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-          {{ govukRadios({
-            name: "correspondence-recipient",
-            fieldset: {
-              legend: {
-                text: pageHeading,
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--l"
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummaries %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.recipientPersonNameInputError.text,
+              href: "#correspondence-recipient-person-name"
+            },
+            {
+              text: errorSummaries.recipientOrganisationNameInputError.text,
+              href: "#correspondence-recipient-organisation-name"
+            },
+            {
+              text: errorSummaries.noRadioSelected.text,
+              href: "#correspondence-recipient"
+            }
+          ]
+        })
+      }}
+      {% endif %}
+      <form data-testid="correspondence-recipient-form" action="/apply/client-details/correspondence-recipient" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukRadios({
+          name: "correspondence-recipient",
+          fieldset: {
+            legend: {
+              text: pageHeading,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          value: client.correspondenceRecipient,
+          errorMessage: errorSummaries.noRadioSelected,
+          items: [
+            {
+              value: "PERSON",
+              text: "Yes, a person",
+              conditional: {
+                html: govukInput({
+                  id: "correspondence-recipient-person-name",
+                  name: "correspondence-recipient-person-name",
+                  type: "text",
+                  spellcheck: false,
+                  classes: "govuk-!-width-two-thirds",
+                  label: {
+                    text: "Person's name"
+                  },
+                  errorMessage: errorSummaries.recipientPersonNameInputError,
+                  value: client.correspondenceRecipientPersonName
+                })
               }
             },
-            value: client.correspondenceRecipient,
-            errorMessage: errorSummaries.noRadioSelected,
-            items: [
-              {
-                value: "PERSON",
-                text: "Yes, a person",
-                conditional: {
-                  html: govukInput({
-                    id: "correspondence-recipient-person-name",
-                    name: "correspondence-recipient-person-name",
-                    type: "text",
-                    spellcheck: false,
-                    classes: "govuk-!-width-two-thirds",
-                    label: {
-                      text: "Person's name"
-                    },
-                    errorMessage: errorSummaries.recipientPersonNameInputError,
-                    value: client.correspondenceRecipientPersonName
-                  })
-                }
-              },
-              {
-                value: "ORGANISATION",
-                text: "Yes, an organisation",
-                conditional: {
-                  html: govukInput({
-                    id: "correspondence-recipient-organisation-name",
-                    name: "correspondence-recipient-organisation-name",
-                    type: "text",
-                    spellcheck: false,
-                    classes: "govuk-!-width-two-thirds",
-                    label: {
-                      text: "Organisation name"
-                    },
-                    errorMessage: errorSummaries.recipientOrganisationNameInputError,
-                    value: client.correspondenceRecipientOrganisationName
-                  })
-                }
-              },
-              {
-                value: "NONE",
-                text: "No",
-                hint: {
-                  text: "Correspondence will be addressed to the client"
-                }
+            {
+              value: "ORGANISATION",
+              text: "Yes, an organisation",
+              conditional: {
+                html: govukInput({
+                  id: "correspondence-recipient-organisation-name",
+                  name: "correspondence-recipient-organisation-name",
+                  type: "text",
+                  spellcheck: false,
+                  classes: "govuk-!-width-two-thirds",
+                  label: {
+                    text: "Organisation name"
+                  },
+                  errorMessage: errorSummaries.recipientOrganisationNameInputError,
+                  value: client.correspondenceRecipientOrganisationName
+                })
               }
-            ]
+            },
+            {
+              value: "NONE",
+              text: "No",
+              hint: {
+                text: "Correspondence will be addressed to the client"
+              }
+            }
+          ]
+        }) }}
+        {{ govukButton({
+            text: "Continue"
           }) }}
-          {{ govukButton({
-              text: "Continue"
-            }) }}
-        </form>
-      </div>
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 {% endblock %}

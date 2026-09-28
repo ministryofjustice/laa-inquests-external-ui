@@ -13,391 +13,336 @@
     text: "Back",
     href: "/apply/upload-coroners-letter"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-        {{ govukInsetText({
-          text: "You cannot change the answers on this page once you  continue"
-        }) }}
-        <h2 class="govuk-heading-m">Case details</h2>
-          <div data-testid="client-details-summary-list">
-            {{ govukSummaryList({
-              card: {
-                title: {
-                  text: "Client details"
-                }
-              },
-              rows: [
-                {
-                  key: {
-                    text: "First name"
-                  },
-                  value: {
-                    html: client.clientFirstName
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "first name"
-                      }
-                    ]
-                  }
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+      {{ govukInsetText({
+        text: "You cannot change the answers on this page once you  continue"
+      }) }}
+      <h2 class="govuk-heading-m">Case details</h2>
+        <div data-testid="client-details-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Client details"
+              }
+            },
+            rows: [
+              {
+                key: {
+                  text: "First name"
                 },
-                {
-                  key: {
-                    text: "Last name"
-                  },
-                  value: {
-                    html: client.clientLastName
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "last name"
-                      }
-                    ]
-                  }
+                value: {
+                  html: client.clientFirstName
                 },
-                ({
-                  key: {
-                    text: "Last name at birth"
-                  },
-                  value: {
-                    html: client.clientLastNameAtBirth
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "last name at birth"
-                      }
-                    ]
-                  }
-                } if client.clientLastNameAtBirth),
-                {
-                  key: {
-                    text: "Date of birth"
-                  },
-                  value: {
-                    html: client.clientDob
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/name-and-dob?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "date of birth"
-                      }
-                    ]
-                  }
-                },
-                ({
-                  key: {
-                    text: "National Insurance number"
-                  },
-                  value: {
-                    html: client.clientNino
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/nino?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "National Insurance number"
-                      }
-                    ]
-                  }
-                } if client.clientNino),
-                ({
-                  key: {
-                    text: "Previous LAA reference"
-                  },
-                  value: {
-                    html: client.prevLaaReferenceInput
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/has-prev-application?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "previous LAA reference"
-                      }
-                    ]
-                  }
-                } if client.prevLaaReferenceInput),
-                {
-                  key: {
-                    text: "Home address"
-                  },
-                  value: {
-                    html: client.clientAddress
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/home-address?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "home address"
-                      }
-                    ]
-                  }
-                },
-                {
-                  key: {
-                    text: "Correspondence address"
-                  },
-                  value: {
-                    html: client.clientCorrespondenceAddress
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/correspondence-address-source?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "correspondence address"
-                      }
-                    ]
-                  }
-                },
-                {
-                  key: {
-                    text: "Care of recipient"
-                  },
-                  value: {
-                    html: client.clientCorrespondenceRecipient
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/client-details/correspondence-recipient?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "care of recipient"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }) }}
-          </div>
-          <h2 class="govuk-heading-m">Inquest</h2>
-          <div data-testid="proceedings-summary-list">
-            {{ govukSummaryList({
-              card: {
-                title: {
-                  text: "Proceedings"
-                }
-              },
-              rows: [
-                {
-                  key: proceeding.key,
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/proceeding?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "proceeding"
-                      }
-                    ]
-                  }
-                }
-              ] if proceeding else []
-            }) }}
-          </div>
-          <div data-testid="deceased-details-summary-list">
-            {{ govukSummaryList({
-              card: {
-                title: {
-                  text: "Deceased details"
-                }
-              },
-              rows: [
-                {
-                  key: {
-                    text: "First name"
-                  },
-                  value: {
-                    html: deceasedDetails.deceasedFirstName
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/deceased-details/name?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "deceased first name"
-                      }
-                    ]
-                  }
-                },
-                {
-                  key: {
-                    text: "Last name"
-                  },
-                  value: {
-                    html: deceasedDetails.deceasedLastName
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/deceased-details/name?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "deceased last name"
-                      }
-                    ]
-                  }
-                },
-                {
-                  key: {
-                    text: "Date of birth"
-                  },
-                  value: {
-                    html: deceasedDetails.dateOfBirth
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/deceased-details/dob?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "deceased date of birth"
-                      }
-                    ]
-                  }
-                },
-                {
-                  key: {
-                    text: "Date of death"
-                  },
-                  value: {
-                    html: deceasedDetails.dateOfDeath
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/deceased-details/dod?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "deceased date of death"
-                      }
-                    ]
-                  }
-                },
-                {
-                  key: {
-                    text: "Client relationship"
-                  },
-                  value: {
-                    html: deceasedDetails.deceasedClientRelationship
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/deceased-details/client-relationship?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "client relationship"
-                      }
-                    ]
-                  }
-                },
-                {
-                  key: {
-                    text: "Coroner’s reference"
-                  },
-                  value: {
-                    html: deceasedDetails.deceasedCoronerReference
-                  },
-                  actions: {
-                    items: [
-                      {
-                        href: "/apply/deceased-details/coroner-reference?from=check-your-answers",
-                        text: "Change",
-                        visuallyHiddenText: "coroner’s reference"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }) }}
-          </div>
-          {% if deceasedDetails.deceasedFurtherInformation %}
-            <div data-testid="linked-case-details-summary-list">
-              {{ govukSummaryList({
-                card: {
-                  title: {
-                    text: "Linked case details"
-                  }
-                },
-                rows: [
-                  {
-                    key: {
-                      text: "Details"
-                    },
-                    value: {
-                      html: deceasedDetails.deceasedFurtherInformation
-                    },
-                    actions: {
-                      items: [
-                        {
-                          href: "/apply/deceased-details/further-information?from=check-your-answers",
-                          text: "Change",
-                          visuallyHiddenText: "linked case details"
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }) }}
-            </div>
-          {% endif %}
-          <div data-testid="interested-parties-summary-list">
-            {% set interestedPartyRows = [] %}
-            {% for publicAuthority in publicAuthorities %}
-              {% set interestedPartyRows = (interestedPartyRows.push({
-                key: publicAuthority.key,
                 actions: {
                   items: [
                     {
-                      href: "/apply/public-authority?from=check-your-answers",
+                      href: "/apply/client-details/name-and-dob?from=check-your-answers",
                       text: "Change",
-                      visuallyHiddenText: publicAuthority.key.text
+                      visuallyHiddenText: "first name"
                     }
                   ]
                 }
-              }), interestedPartyRows) %}
-            {% endfor %}
-            {{ govukSummaryList({
-              card: {
-                title: {
-                  text: "Interested parties"
+              },
+              {
+                key: {
+                  text: "Last name"
+                },
+                value: {
+                  html: client.clientLastName
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/name-and-dob?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "last name"
+                    }
+                  ]
                 }
               },
-              rows: interestedPartyRows
-            }) }}
-          </div>
-          <div data-testid="coroners-letter-summary-list">
+              ({
+                key: {
+                  text: "Last name at birth"
+                },
+                value: {
+                  html: client.clientLastNameAtBirth
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/name-and-dob?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "last name at birth"
+                    }
+                  ]
+                }
+              } if client.clientLastNameAtBirth),
+              {
+                key: {
+                  text: "Date of birth"
+                },
+                value: {
+                  html: client.clientDob
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/name-and-dob?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "date of birth"
+                    }
+                  ]
+                }
+              },
+              ({
+                key: {
+                  text: "National Insurance number"
+                },
+                value: {
+                  html: client.clientNino
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/nino?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "National Insurance number"
+                    }
+                  ]
+                }
+              } if client.clientNino),
+              ({
+                key: {
+                  text: "Previous LAA reference"
+                },
+                value: {
+                  html: client.prevLaaReferenceInput
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/has-prev-application?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "previous LAA reference"
+                    }
+                  ]
+                }
+              } if client.prevLaaReferenceInput),
+              {
+                key: {
+                  text: "Home address"
+                },
+                value: {
+                  html: client.clientAddress
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/home-address?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "home address"
+                    }
+                  ]
+                }
+              },
+              {
+                key: {
+                  text: "Correspondence address"
+                },
+                value: {
+                  html: client.clientCorrespondenceAddress
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/correspondence-address-source?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "correspondence address"
+                    }
+                  ]
+                }
+              },
+              {
+                key: {
+                  text: "Care of recipient"
+                },
+                value: {
+                  html: client.clientCorrespondenceRecipient
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/client-details/correspondence-recipient?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "care of recipient"
+                    }
+                  ]
+                }
+              }
+            ]
+          }) }}
+        </div>
+        <h2 class="govuk-heading-m">Inquest</h2>
+        <div data-testid="proceedings-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Proceedings"
+              }
+            },
+            rows: [
+              {
+                key: proceeding.key,
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/proceeding?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "proceeding"
+                    }
+                  ]
+                }
+              }
+            ] if proceeding else []
+          }) }}
+        </div>
+        <div data-testid="deceased-details-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Deceased details"
+              }
+            },
+            rows: [
+              {
+                key: {
+                  text: "First name"
+                },
+                value: {
+                  html: deceasedDetails.deceasedFirstName
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/name?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "deceased first name"
+                    }
+                  ]
+                }
+              },
+              {
+                key: {
+                  text: "Last name"
+                },
+                value: {
+                  html: deceasedDetails.deceasedLastName
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/name?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "deceased last name"
+                    }
+                  ]
+                }
+              },
+              {
+                key: {
+                  text: "Date of birth"
+                },
+                value: {
+                  html: deceasedDetails.dateOfBirth
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/dob?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "deceased date of birth"
+                    }
+                  ]
+                }
+              },
+              {
+                key: {
+                  text: "Date of death"
+                },
+                value: {
+                  html: deceasedDetails.dateOfDeath
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/dod?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "deceased date of death"
+                    }
+                  ]
+                }
+              },
+              {
+                key: {
+                  text: "Client relationship"
+                },
+                value: {
+                  html: deceasedDetails.deceasedClientRelationship
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/client-relationship?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "client relationship"
+                    }
+                  ]
+                }
+              },
+              {
+                key: {
+                  text: "Coroner’s reference"
+                },
+                value: {
+                  html: deceasedDetails.deceasedCoronerReference
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/deceased-details/coroner-reference?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "coroner’s reference"
+                    }
+                  ]
+                }
+              }
+            ]
+          }) }}
+        </div>
+        {% if deceasedDetails.deceasedFurtherInformation %}
+          <div data-testid="linked-case-details-summary-list">
             {{ govukSummaryList({
               card: {
                 title: {
-                  text: "Coroner's letter"
+                  text: "Linked case details"
                 }
               },
               rows: [
                 {
                   key: {
-                    text: "File name"
+                    text: "Details"
                   },
                   value: {
-                    html: coronersLetterFileName
+                    html: deceasedDetails.deceasedFurtherInformation
                   },
                   actions: {
                     items: [
                       {
-                        href: "/apply/upload-coroners-letter?from=check-your-answers",
+                        href: "/apply/deceased-details/further-information?from=check-your-answers",
                         text: "Change",
-                        visuallyHiddenText: "coroner's letter"
+                        visuallyHiddenText: "linked case details"
                       }
                     ]
                   }
@@ -405,14 +350,67 @@
               ]
             }) }}
           </div>
-
-          {{ govukButton({
-            text: "Continue",
-            href: "/apply/confirmation/client-declaration"
+        {% endif %}
+        <div data-testid="interested-parties-summary-list">
+          {% set interestedPartyRows = [] %}
+          {% for publicAuthority in publicAuthorities %}
+            {% set interestedPartyRows = (interestedPartyRows.push({
+              key: publicAuthority.key,
+              actions: {
+                items: [
+                  {
+                    href: "/apply/public-authority?from=check-your-answers",
+                    text: "Change",
+                    visuallyHiddenText: publicAuthority.key.text
+                  }
+                ]
+              }
+            }), interestedPartyRows) %}
+          {% endfor %}
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Interested parties"
+              }
+            },
+            rows: interestedPartyRows
           }) }}
-      </div>
+        </div>
+        <div data-testid="coroners-letter-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Coroner's letter"
+              }
+            },
+            rows: [
+              {
+                key: {
+                  text: "File name"
+                },
+                value: {
+                  html: coronersLetterFileName
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/upload-coroners-letter?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "coroner's letter"
+                    }
+                  ]
+                }
+              }
+            ]
+          }) }}
+        </div>
+
+        {{ govukButton({
+          text: "Continue",
+          href: "/apply/confirmation/client-declaration"
+        }) }}
     </div>
-  </main>
+  </div>
 </div>
 
 {% endblock %}

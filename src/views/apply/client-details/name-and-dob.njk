@@ -15,144 +15,142 @@
     text: "Back",
     href: backHref or "/apply"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-one-half">
-        {% if errorSummaries %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [
-              {
-                text: errorSummaries.firstNameInputError.text,
-                href: "#first-name"
-              },
-              {
-                text: errorSummaries.lastNameInputError.text,
-                href: "#last-name"
-              },
-              {
-                text: errorSummaries.noRadioSelected.text,
-                href: "#name-change"
-              },
-              {
-                text: errorSummaries.noBirthNameSpecified.text,
-                href: "#last-name-at-birth"
-              },
-              {
-                text: errorSummaries.dobInputError.text,
-                href: "#dob"
-              }
-            ]
-          })
-        }}
-        {% endif %}
-        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-        <form data-testid="client-details-form" action="/apply/client-details/name-and-dob" method="post">
-          <input type="hidden" name="_csrf" value={{csrfToken}} />
-          {{
-            govukInput({
-              label: {
-                text: "First name",
-                classes: "govuk-label--s"
-              },
-              id: "first-name",
-              name: "first-name",
-              value: client.clientFirstName,
-              errorMessage: errorSummaries.firstNameInputError,
-              hint: {
-                text: "Character limit: 100"
-              }
-          }) }}
-          {{ govukInput({
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      {% if errorSummaries %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: errorSummaries.firstNameInputError.text,
+              href: "#first-name"
+            },
+            {
+              text: errorSummaries.lastNameInputError.text,
+              href: "#last-name"
+            },
+            {
+              text: errorSummaries.noRadioSelected.text,
+              href: "#name-change"
+            },
+            {
+              text: errorSummaries.noBirthNameSpecified.text,
+              href: "#last-name-at-birth"
+            },
+            {
+              text: errorSummaries.dobInputError.text,
+              href: "#dob"
+            }
+          ]
+        })
+      }}
+      {% endif %}
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+      <form data-testid="client-details-form" action="/apply/client-details/name-and-dob" method="post">
+        <input type="hidden" name="_csrf" value={{csrfToken}} />
+        {{
+          govukInput({
             label: {
-              text: "Last name",
+              text: "First name",
               classes: "govuk-label--s"
             },
-            id: "last-name",
-            name: "last-name",
-            value: client.clientLastName,
-            errorMessage: errorSummaries.lastNameInputError,
+            id: "first-name",
+            name: "first-name",
+            value: client.clientFirstName,
+            errorMessage: errorSummaries.firstNameInputError,
             hint: {
-                text: "Character limit: 100"
-              }
-          }) }}
+              text: "Character limit: 100"
+            }
+        }) }}
+        {{ govukInput({
+          label: {
+            text: "Last name",
+            classes: "govuk-label--s"
+          },
+          id: "last-name",
+          name: "last-name",
+          value: client.clientLastName,
+          errorMessage: errorSummaries.lastNameInputError,
+          hint: {
+              text: "Character limit: 100"
+            }
+        }) }}
 
-          {{ govukRadios({
-            name: "name-change",
-            id: "name-change",
-            value: client.hasNameChanged,
-            errorMessage: errorSummaries.noRadioSelected,
-            fieldset: {
-              legend: {
-                text: "Has your client ever changed their last name?",
-                classes: "govuk-fieldset__legend--s"
+        {{ govukRadios({
+          name: "name-change",
+          id: "name-change",
+          value: client.hasNameChanged,
+          errorMessage: errorSummaries.noRadioSelected,
+          fieldset: {
+            legend: {
+              text: "Has your client ever changed their last name?",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          items: [
+            {
+              value: "true",
+              text: "Yes",
+              id: "name-change",
+              conditional: {
+                html:  govukInput({
+                  id: "last-name-at-birth",
+                  name: "last-name-at-birth",
+                  value: client.clientLastNameAtBirth,
+                  errorMessage: errorSummaries.noBirthNameSpecified,
+                  type: "text",
+                  spellcheck: false,
+                  classes: "govuk-!-width-one-half",
+                  label: {
+                    text: "What was your client's last name at birth?"
+                  }
+                })
               }
             },
-            items: [
+            {
+              value: "false",
+              text: "No"
+            }
+          ]
+        }) }}
+
+        {{ govukDateInput({
+          id: "dob",
+          namePrefix: "dob",
+          fieldset: {
+            legend: {
+              text: "Date of birth",
+              classes: "govuk-fieldset__legend--s"
+            }
+          },
+          hint: {
+            text: "For example 31 3 1980"
+          },
+          errorMessage: errorSummaries.dobInputError,
+          items: [
               {
-                value: "true",
-                text: "Yes",
-                id: "name-change",
-                conditional: {
-                  html:  govukInput({
-                    id: "last-name-at-birth",
-                    name: "last-name-at-birth",
-                    value: client.clientLastNameAtBirth,
-                    errorMessage: errorSummaries.noBirthNameSpecified,
-                    type: "text",
-                    spellcheck: false,
-                    classes: "govuk-!-width-one-half",
-                    label: {
-                      text: "What was your client's last name at birth?"
-                    }
-                  })
-                }
+                classes: "govuk-input--width-2",
+                name: "day",
+                value: client.clientDobDay
               },
               {
-                value: "false",
-                text: "No"
+                classes: "govuk-input--width-2",
+                name: "month",
+                value: client.clientDobMonth
+              },
+              {
+                classes: "govuk-input--width-4",
+                name: "year",
+                value: client.clientDobYear
               }
-            ]
-          }) }}
+        ]}) }}
+        {{ govukButton({
+          text: "Continue"
+        }) }}
 
-          {{ govukDateInput({
-            id: "dob",
-            namePrefix: "dob",
-            fieldset: {
-              legend: {
-                text: "Date of birth",
-                classes: "govuk-fieldset__legend--s"
-              }
-            },
-            hint: {
-              text: "For example 31 3 1980"
-            },
-            errorMessage: errorSummaries.dobInputError,
-            items: [
-                {
-                  classes: "govuk-input--width-2",
-                  name: "day",
-                  value: client.clientDobDay
-                },
-                {
-                  classes: "govuk-input--width-2",
-                  name: "month",
-                  value: client.clientDobMonth
-                },
-                {
-                  classes: "govuk-input--width-4",
-                  name: "year",
-                  value: client.clientDobYear
-                }
-          ]}) }}
-          {{ govukButton({
-            text: "Continue"
-          }) }}
-
-        </form>
-      </div>
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 

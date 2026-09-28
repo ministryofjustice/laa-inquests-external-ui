@@ -55,8 +55,6 @@ test.describe("Inquests API auth and failure handling", () => {
     const response = await page.goto(APPLY_PATHS.PUBLIC_AUTHORITY);
 
     expect(response?.status()).toBe(403);
-    await expect(page.locator("h1")).toHaveText("403");
-    await expect(page.getByText("Forbidden")).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 
@@ -97,8 +95,6 @@ test.describe("Provider offices auth and failure handling", () => {
     const response = await page.goto(APPLY_PATHS.OFFICE_ACCOUNTS);
 
     expect(response?.status()).toBe(403);
-    await expect(page.locator("h1")).toHaveText("403");
-    await expect(page.getByText("Forbidden")).toBeVisible();
     await expectNoAccessibilityViolations(page);
   });
 

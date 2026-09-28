@@ -13,53 +13,51 @@
     text: "Back",
     href: backHref or "/claim/results"
   }) }}
-  <main class="govuk-main-wrapper">
-    <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        {% if errorSummaries.claimTypeInputError %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummaries.claimTypeInputError %}
+      {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+          {
+            text: errorSummaries.claimTypeInputError.text,
+            href: "#claim-type"
+          }
+        ]
+      }) }}
+      {% endif %}
+      <form data-testid="claim-type-form" action="/claim/type" method="post">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukRadios({
+          name: "claim-type",
+          id: "claim-type",
+          value: claimType,
+          errorMessage: errorSummaries.claimTypeInputError,
+          fieldset: {
+            legend: {
+              text: pageHeading,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
+            }
+          },
+          items: [
             {
-              text: errorSummaries.claimTypeInputError.text,
-              href: "#claim-type"
+              value: "PAYMENT_ON_ACCOUNT",
+              text: "Payment on account (POA)"
+            },
+            {
+              value: "FINAL_BILL",
+              text: "Final bill"
             }
           ]
         }) }}
-        {% endif %}
-        <form data-testid="claim-type-form" action="/claim/type" method="post">
-          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-          {{ govukRadios({
-            name: "claim-type",
-            id: "claim-type",
-            value: claimType,
-            errorMessage: errorSummaries.claimTypeInputError,
-            fieldset: {
-              legend: {
-                text: pageHeading,
-                isPageHeading: true,
-                classes: "govuk-fieldset__legend--l"
-              }
-            },
-            items: [
-              {
-                value: "PAYMENT_ON_ACCOUNT",
-                text: "Payment on account (POA)"
-              },
-              {
-                value: "FINAL_BILL",
-                text: "Final bill"
-              }
-            ]
-          }) }}
-          {{ govukButton({
-            text: "Continue",
-            type: "submit"
-          }) }}
-        </form>
-      </div>
+        {{ govukButton({
+          text: "Continue",
+          type: "submit"
+        }) }}
+      </form>
     </div>
-  </main>
+  </div>
 </div>
 
 {% endblock %}

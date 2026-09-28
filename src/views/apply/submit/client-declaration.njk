@@ -11,65 +11,63 @@
         text: "Back",
         href: "/apply/check-your-answers"
     }) }}
-    <main class="govuk-main-wrapper">
-        {% if errorSummaries.noDeclarationConfirmation %}
-        {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [
-                { text: errorSummaries.noDeclarationConfirmation.text }
-            ]
-        }) }}
-        {% endif %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-                <form data-testid="client-declaration-form" action="/apply/confirmation/client-declaration" method="post">
-                    <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-                    <p class="govuk-body">{{clientDetails.firstName}} {{clientDetails.lastName}} agrees that:</p>
-                    <ul class="govuk-list govuk-list--bullet">
-                        <li>
-                            they've instructed Test Provider to represent them
-                        </li>
-                        <li>
-                            they've read the <a class="govuk-link" href="https://www.gov.uk/guidance/legal-aid-agency-privacy-notice" target="_blank">LAA privacy policy</a>
-                        </li>
-                        <li>
-                            we can share their information with other government departments like DWP and HMRC
-                        </li>
-                        <li>
-                            the information they've given is complete and correct
-                        </li>
-                    </ul>
-                    {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+    {% if errorSummaries.noDeclarationConfirmation %}
+    {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+            { text: errorSummaries.noDeclarationConfirmation.text }
+        ]
+    }) }}
+    {% endif %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+            <form data-testid="client-declaration-form" action="/apply/confirmation/client-declaration" method="post">
+                <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+                <p class="govuk-body">{{clientDetails.firstName}} {{clientDetails.lastName}} agrees that:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>
+                        they've instructed Test Provider to represent them
+                    </li>
+                    <li>
+                        they've read the <a class="govuk-link" href="https://www.gov.uk/guidance/legal-aid-agency-privacy-notice" target="_blank">LAA privacy policy</a>
+                    </li>
+                    <li>
+                        we can share their information with other government departments like DWP and HMRC
+                    </li>
+                    <li>
+                        the information they've given is complete and correct
+                    </li>
+                </ul>
+                {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
-                    {{ govukWarningText({
-                        html: 
-                            "If they give wrong or incomplete information or do not report changes they may:
-                            <ul>
-                                <li>be prosecuted</li>
-                                <li>need to pay a financial penalty</li>
-                                <li>have their legal aid stopped and have to pay back the costs</li>
-                            </ul>",
-                        iconFallbackText: "Warning"
-                    }) }}
-                    {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+                {{ govukWarningText({
+                    html: 
+                        "If they give wrong or incomplete information or do not report changes they may:
+                        <ul>
+                            <li>be prosecuted</li>
+                            <li>need to pay a financial penalty</li>
+                            <li>have their legal aid stopped and have to pay back the costs</li>
+                        </ul>",
+                    iconFallbackText: "Warning"
+                }) }}
+                {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 
-                    {{ govukCheckboxes({
-                    name: "client-declaration-confirmation",
-                    errorMessage: errorSummaries.noDeclarationConfirmation,
-                    items: [
-                        {
-                        value: "true",
-                        text: "I confirm the above is correct and that I'll get a signed declaration from my client"
-                        }
-                    ]
-                    }) }}
-                    {{ govukButton({
-                        text: "Continue"
-                    }) }}
-                </form>
-            </div>
+                {{ govukCheckboxes({
+                name: "client-declaration-confirmation",
+                errorMessage: errorSummaries.noDeclarationConfirmation,
+                items: [
+                    {
+                    value: "true",
+                    text: "I confirm the above is correct and that I'll get a signed declaration from my client"
+                    }
+                ]
+                }) }}
+                {{ govukButton({
+                    text: "Continue"
+                }) }}
+            </form>
         </div>
-    </main>
+    </div>
 </div>
 {% endblock %}

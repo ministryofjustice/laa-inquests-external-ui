@@ -26,7 +26,7 @@
   {# cookie policy #}
 {% endblock %}
 
-{% block govukHeader%}
+{% block header %}
 {{ mojHeader({
   organisationLabel: {
     text: "Legal Aid Agency",
@@ -48,15 +48,13 @@
     }]
   }
 }) }}
-{% endblock %}
 
-{% block headerEnd %}
-  {{ govukPhaseBanner({
-    tag: {
-      text: config.SERVICE_PHASE
-    },
-    html: t('components.phaseBanner.feedbackText') + t('components.phaseBanner.feedbackLinkTextHTML')
-  }) }}
+{{ govukPhaseBanner({
+  tag: {
+    text: config.SERVICE_PHASE
+  },
+  html: t('components.phaseBanner.feedbackText') + t('components.phaseBanner.feedbackLinkTextHTML')
+}) }}
 {% endblock %}
 
 {% block content %}
