@@ -203,27 +203,6 @@
       </div>
       {% endif %}
 
-        {% if isFinalBill %}
-        <h2 class="govuk-heading-m">Other claim details</h2>
-        <div data-testid="inquest-details-summary-list">
-          {{ govukSummaryList({
-            card: {
-              title: {
-                text: "Inquest details"
-              }
-            },
-            rows: [
-              {
-                key: { text: "Inquest outcome" },
-                value: { text: inquestDetails.inquestOutcomes },
-                actions: {
-                  items: [
-                    {
-                      href: "/claim/inquest-outcome?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "inquest outcome"
-                    }
-                  ]
       {% if counsel.show %}
       <h2 class="govuk-heading-m">Counsel</h2>
       <div data-testid="counsel-summary-list">
@@ -281,6 +260,7 @@
       </div>
       {% endif %}
 
+      {% if isFinalBill %}
       <h2 class="govuk-heading-m">Other claim details</h2>
       <div data-testid="inquest-details-summary-list">
         {{ govukSummaryList({
@@ -412,6 +392,7 @@
           ]
         }) }}
       </div>
+      {% endif %}
       {% endif %}
       {% endif %}
 

@@ -471,7 +471,12 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
-    await page.goto("/claim/check-your-answers");
+    const response = await page.goto("/claim/check-your-answers");
+
+    expect(response?.status()).toBe(200);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Check your answers" }),
+    ).toBeVisible();
 
     await expect(
       page.getByRole("heading", { name: "Other claim details" }),
