@@ -8,12 +8,12 @@ import { CASE_SEARCH_ERROR } from "#src/infrastructure/locales/constants.js";
 import type { SearchCasesPort } from "#src/ports/source/inquests-api/SearchCases.port.js";
 import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js";
 import { ListClaimsPort } from "#src/ports/source/inquests-api/ListClaims.port.js";
-import { CheckClaimBlockUseCase } from "#src/use-cases/claim/CheckClaimBlock.useCase.js";
+import { SelectCaseUseCase } from "#src/use-cases/claim/SelectCase.useCase.js";
 
 function buildAdaptor(
   searchCasesPort?: SearchCasesPort,
   listClaimsPort?: ListClaimsPort,
-  checkClaimBlockUseCase?: CheckClaimBlockUseCase,
+  selectCaseUseCase?: SelectCaseUseCase,
 ) {
   const validator = new CaseSearchValidator();
   const searchCasesPortInstance =
@@ -21,15 +21,15 @@ function buildAdaptor(
   const listClaimsPortInstance =
     listClaimsPort ?? stubInterface<ListClaimsPort>();
   const caseSearchFormatter = new CaseSearchFormatter();
-  const checkClaimBlockUseCaseInstance =
-    checkClaimBlockUseCase ?? stubInterface<CheckClaimBlockUseCase>();
+  const selectCaseUseCaseInstance =
+    selectCaseUseCase ?? stubInterface<SelectCaseUseCase>();
   return new CaseSearchAdaptor(
     validator,
     searchCasesPortInstance,
     listClaimsPortInstance,
     caseSearchFormatter,
     undefined,
-    checkClaimBlockUseCaseInstance,
+    selectCaseUseCaseInstance,
   );
 }
 
@@ -316,12 +316,15 @@ describe("CaseSearch adaptor", () => {
     };
 
     it("saves the case reference to session and redirects to /claim/type", async () => {
-      const checkClaimBlockUseCase = stubInterface<CheckClaimBlockUseCase>();
-      checkClaimBlockUseCase.execute.resolves({ status: "ALLOWED" });
+      const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
+      selectCaseUseCase.execute.resolves({
+        status: "ALLOWED",
+        client: storedClient,
+      });
       const adaptor = buildAdaptor(
         stubInterface<SearchCasesPort>(),
         stubInterface<ListClaimsPort>(),
-        checkClaimBlockUseCase,
+        selectCaseUseCase,
       );
 
       const responseStub = stubInterface<Response>();
@@ -337,28 +340,43 @@ describe("CaseSearch adaptor", () => {
       assert.equal(redirectUrl, "/claim/type");
     });
 
-    it("saves the selected client details from the session results", () => {
-      const adaptor = buildAdaptor();
+    it("saves the selected client details from the session results", async () => {
+      const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
+      selectCaseUseCase.execute.resolves({
+        status: "ALLOWED",
+        client: storedClient,
+      });
+      const adaptor = buildAdaptor(
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        selectCaseUseCase,
+      );
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.params = { reference: "12345" };
       requestStub.session.claim = { searchResults: [storedClient] };
 
-      adaptor.selectCase(requestStub, responseStub);
+      await adaptor.selectCase(requestStub, responseStub);
 
       assert.deepEqual(requestStub.session.claim?.client, storedClient);
     });
 
-    it("does not save client details when the selected case is not found", () => {
-      const adaptor = buildAdaptor();
+    it("does not save client details when the selected case is not found", async () => {
+      const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
+      selectCaseUseCase.execute.resolves({ status: "NOT_FOUND" });
+      const adaptor = buildAdaptor(
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        selectCaseUseCase,
+      );
 
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
       requestStub.params = { reference: "does-not-exist" };
       requestStub.session.claim = { searchResults: [] };
 
-      adaptor.selectCase(requestStub, responseStub);
+      await adaptor.selectCase(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.client, undefined);
       assert.equal(requestStub.session.claim?.caseReference, undefined);

@@ -6,7 +6,7 @@ export class CannotClaimAdaptor {
       session: { claim },
     } = req;
 
-    if (claim?.claimBlocked === false) {
+    if (!claim?.claimBlocked) {
       res.redirect("/claim");
     } else {
       res.render("claim/cannot-claim", {
