@@ -6,14 +6,14 @@ export class CannotClaimAdaptor {
       session: { claim },
     } = req;
 
-    if (!claim?.claimBlocked) {
-      res.redirect("/claim");
-    } else {
+    if (claim?.claimBlocked === true) {
       res.render("claim/cannot-claim", {
         csrfToken: res.locals.csrfToken,
-        caseReference: claim?.caseReference ?? "",
+        caseReference: claim.caseReference ?? "",
         variant: "entry",
       });
+    } else {
+      res.redirect("/claim");
     }
   }
 }
