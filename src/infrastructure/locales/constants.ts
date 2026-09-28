@@ -66,6 +66,10 @@ export const CLAIM_TYPE_VALUE = {
   FINAL_BILL: "FINAL_BILL",
 };
 
+// A submitted or pay-in-full final/nil bill blocks any further claim.
+export const BLOCKING_CLAIM_TYPES = ["FINAL_BILL", "NIL_BILL"] as const;
+export const BLOCKING_CLAIM_STATUSES = ["SUBMITTED", "PAY_IN_FULL"] as const;
+
 export const CLAIM_TYPE_LABEL: Record<string, string> = {
   PAYMENT_ON_ACCOUNT: "Payment on account (POA)",
   NIL_BILL: "Nil bill",

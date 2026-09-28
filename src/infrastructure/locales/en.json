@@ -68,6 +68,13 @@
         "title": "Which case do you want to make a claim for?",
         "caseReferenceLabel": "Enter the case reference number"
       },
+      "cannotClaim": {
+        "title": "You cannot make a claim against this certificate",
+        "referenceLabel": "Application reference",
+        "pendingReviewBody": "A final bill claim has already been submitted and is pending review.",
+        "cannotSubmitBody": "You cannot submit another claim until the current claim has been assessed.",
+        "backToSearch": "Back to search"
+      },
       "totalCost": {
         "finalBill": {
           "heading": "What is your total claim cost?",

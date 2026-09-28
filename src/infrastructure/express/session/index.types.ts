@@ -44,6 +44,7 @@ export interface ClaimSession {
   caseReference?: string;
   client?: ClaimClientDetails;
   searchResults?: ClaimClientDetails[];
+  claimBlocked?: boolean;
   type?: string;
   subtype?: string;
   zeroVatTotal?: string;

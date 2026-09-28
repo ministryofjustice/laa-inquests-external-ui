@@ -22,8 +22,8 @@ export function createCaseSearchRouter(
 
   caseSearchRouter.get(
     "/results/select/:reference",
-    (req: Request, res: Response): void => {
-      caseSearchAdaptor.selectCase(req, res);
+    async (req: Request, res: Response): Promise<void> => {
+      await caseSearchAdaptor.selectCase(req, res);
     },
   );
 
