@@ -1,13 +1,19 @@
 import rateLimit, { type RateLimitRequestHandler } from "express-rate-limit";
 import type { Config } from "#src/infrastructure/config/config.types.js";
 
-export const setupRateLimiter = (config: Config): RateLimitRequestHandler => {
+export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
   /**
    * Rate limiter for general routes.
    * Limits each IP to a configurable number of requests per time window.
    * Disabled in test environment to avoid interference with E2E tests.
    */
-  const generalLimiter = rateLimit({
+  const globalLimiter = rateLimit({
+    windowMs: config.RATE_WINDOW_MS,
+    max: 10,
+    keyGenerator: () => "service",
+    message: "Service request limit reached, please try again later.",
+  });
+  const perIpLimiter = rateLimit({
     windowMs:
       typeof config.RATE_WINDOW_MS === "string"
         ? parseInt(config.RATE_WINDOW_MS, 10)
@@ -21,5 +27,5 @@ export const setupRateLimiter = (config: Config): RateLimitRequestHandler => {
   });
 
   // Apply the general rate limiter to all requests
-  return generalLimiter;
+  return [globalLimiter, perIpLimiter];
 };
