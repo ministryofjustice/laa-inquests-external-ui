@@ -4,28 +4,26 @@ import type { Config } from "#src/infrastructure/config/config.types.js";
 export const setupRateLimiter = (config: Config): RateLimitRequestHandler[] => {
   /**
    * Rate limiter for general routes.
-   * Limits each IP to a configurable number of requests per time window.
-   * Disabled in test environment to avoid interference with E2E tests.
+   * Limits globally to configurable number of requests per time window.
    */
   const globalLimiter = rateLimit({
     windowMs: config.RATE_WINDOW_MS,
-    max: 10,
+    max: config.RATE_LIMIT_GLOBAL_MAX,
     keyGenerator: () => "service",
+    skip: () => process.env.NODE_ENV === "test",
     message: "Service request limit reached, please try again later.",
   });
+  /**
+   * Rate limiter for general routes.
+   * Limits each IP to a configurable number of requests per time window.
+   */
   const perIpLimiter = rateLimit({
-    windowMs:
-      typeof config.RATE_WINDOW_MS === "string"
-        ? parseInt(config.RATE_WINDOW_MS, 10)
-        : config.RATE_WINDOW_MS,
-    max:
-      typeof config.RATE_LIMIT_MAX === "string"
-        ? parseInt(config.RATE_LIMIT_MAX, 10)
-        : config.RATE_LIMIT_MAX,
+    windowMs: config.RATE_WINDOW_MS,
+    max: config.RATE_LIMIT_IP_MAX,
     skip: () => process.env.NODE_ENV === "test",
     message: "Too many requests, please try again later.",
   });
 
-  // Apply the general rate limiter to all requests
-  return [globalLimiter, perIpLimiter];
+  // Apply the global and per Ip limiter to service requests
+  return [perIpLimiter, globalLimiter];
 };
