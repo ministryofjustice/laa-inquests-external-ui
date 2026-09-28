@@ -176,6 +176,7 @@ describe("ConfirmAndSubmit adaptor", () => {
         .args[1] as unknown as Record<string, Record<string, unknown>>;
 
       assert.equal(viewModel.isNilBill, true);
+      assert.equal(viewModel.isFinalBill, true);
       assert.equal(viewModel.counsel.show, false);
     });
 
