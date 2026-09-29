@@ -25,7 +25,7 @@ export class EndDateValidator extends FormValidator {
       missing: END_DATE_ERROR.MISSING_END_DATE,
       nonNumeric: END_DATE_ERROR.NON_NUMERIC_END_DATE,
       invalidDate: END_DATE_ERROR.INVALID_END_DATE,
-      futureDate: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE,
+      futureDate: END_DATE_ERROR.FUTURE_END_DATE,
     });
 
     if (typeof errorMessage === "string") {

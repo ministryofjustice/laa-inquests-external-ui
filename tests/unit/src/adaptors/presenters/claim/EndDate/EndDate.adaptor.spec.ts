@@ -241,7 +241,7 @@ describe("EndDate adaptor", () => {
         .args[1] as unknown as Record<string, unknown>;
       assert.deepEqual(
         (viewModel.errorSummaries as Record<string, unknown>).endDateInputError,
-        { text: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE },
+        { text: END_DATE_ERROR.FUTURE_END_DATE },
       );
       assert.equal(responseStub.redirect.callCount, 0);
     });

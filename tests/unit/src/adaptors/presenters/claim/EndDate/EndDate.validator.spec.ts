@@ -60,7 +60,7 @@ describe("EndDate validator", () => {
       });
     });
 
-    it("returns a future/today error when the date is in the future", () => {
+    it("returns error when the date is in the future", () => {
       const validator = new EndDateValidator();
 
       const errors = validator.validateEndDate({
@@ -70,7 +70,7 @@ describe("EndDate validator", () => {
       });
 
       assert.deepEqual(errors, {
-        endDateInputError: { text: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE },
+        endDateInputError: { text: END_DATE_ERROR.FUTURE_END_DATE },
       });
     });
 
