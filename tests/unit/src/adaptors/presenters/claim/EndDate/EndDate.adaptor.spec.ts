@@ -198,7 +198,7 @@ describe("EndDate adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 0);
     });
 
-    it("re-renders the form with an error when the date is today", () => {
+    it("redirects to /claim/inquest-outcome page when the date of the last working date is today", () => {
       const adaptor = new EndDateAdaptor(new EndDateValidator());
 
       const responseStub = stubInterface<Response>();
@@ -215,14 +215,9 @@ describe("EndDate adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(responseStub.render.callCount, 1);
-      const viewModel = responseStub.render.getCall(0)
-        .args[1] as unknown as Record<string, unknown>;
-      assert.deepEqual(
-        (viewModel.errorSummaries as Record<string, unknown>).endDateInputError,
-        { text: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE },
-      );
-      assert.equal(responseStub.redirect.callCount, 0);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim/inquest-outcome");
+      assert.equal(responseStub.render.callCount, 0);
     });
 
     it("re-renders the form with an error when the date is in the future", () => {
@@ -246,7 +241,7 @@ describe("EndDate adaptor", () => {
         .args[1] as unknown as Record<string, unknown>;
       assert.deepEqual(
         (viewModel.errorSummaries as Record<string, unknown>).endDateInputError,
-        { text: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE },
+        { text: END_DATE_ERROR.FUTURE_END_DATE },
       );
       assert.equal(responseStub.redirect.callCount, 0);
     });

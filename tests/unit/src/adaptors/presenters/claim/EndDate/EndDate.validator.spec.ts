@@ -60,22 +60,7 @@ describe("EndDate validator", () => {
       });
     });
 
-    it("returns a future/today error when the date is today", () => {
-      const validator = new EndDateValidator();
-      const today = new Date();
-
-      const errors = validator.validateEndDate({
-        "end-date-day": String(today.getDate()),
-        "end-date-month": String(today.getMonth() + 1),
-        "end-date-year": String(today.getFullYear()),
-      });
-
-      assert.deepEqual(errors, {
-        endDateInputError: { text: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE },
-      });
-    });
-
-    it("returns a future/today error when the date is in the future", () => {
+    it("returns error when the date is in the future", () => {
       const validator = new EndDateValidator();
 
       const errors = validator.validateEndDate({
@@ -85,7 +70,7 @@ describe("EndDate validator", () => {
       });
 
       assert.deepEqual(errors, {
-        endDateInputError: { text: END_DATE_ERROR.FUTURE_OR_TODAY_END_DATE },
+        endDateInputError: { text: END_DATE_ERROR.FUTURE_END_DATE },
       });
     });
 
@@ -110,6 +95,19 @@ describe("EndDate validator", () => {
         "end-date-day": String(yesterday.getDate()),
         "end-date-month": String(yesterday.getMonth() + 1),
         "end-date-year": String(yesterday.getFullYear()),
+      });
+
+      assert.deepEqual(errors, {});
+    });
+
+    it("returns no errors when the date is today", () => {
+      const validator = new EndDateValidator();
+      const today = new Date();
+
+      const errors = validator.validateEndDate({
+        "end-date-day": String(today.getDate()),
+        "end-date-month": String(today.getMonth() + 1),
+        "end-date-year": String(today.getFullYear()),
       });
 
       assert.deepEqual(errors, {});
