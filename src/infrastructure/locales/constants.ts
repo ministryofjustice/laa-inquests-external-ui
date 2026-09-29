@@ -334,7 +334,7 @@ export const END_DATE_ERROR = {
   MISSING_END_DATE: "Enter the last working date",
   NON_NUMERIC_END_DATE: "Enter the last working date in the format expected",
   INVALID_END_DATE: "Enter a valid last working date",
-  FUTURE_END_DATE: "Last working date must be in the past",
+  FUTURE_END_DATE: "Last working date must be today or in the past",
 };
 
 export const INQUEST_OUTCOME_ERROR = {
