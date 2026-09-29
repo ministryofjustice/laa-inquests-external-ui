@@ -84,9 +84,12 @@ const config: Config = {
   DEPARTMENT_URL: process.env.DEPARTMENT_URL,
   INQUESTS_API_CLIENT_ID: process.env.INQUESTS_API_CLIENT_ID,
   INQUESTS_API_URL: process.env.INQUESTS_API_URL ?? "",
-  RATELIMIT_HEADERS_ENABLED: process.env.RATELIMIT_HEADERS_ENABLED,
-  RATELIMIT_STORAGE_URI: process.env.RATELIMIT_STORAGE_URI,
-  RATE_LIMIT_MAX: Number(process.env.RATE_LIMIT_MAX ?? DEFAULT_RATE_LIMIT_MAX),
+  RATE_LIMIT_GLOBAL_MAX: Number(
+    process.env.RATE_LIMIT_GLOBAL_MAX ?? DEFAULT_RATE_LIMIT_MAX,
+  ),
+  RATE_LIMIT_IP_MAX: Number(
+    process.env.RATE_LIMIT_IP_MAX ?? DEFAULT_RATE_LIMIT_MAX,
+  ),
   // Default rate window: 15 minutes in milliseconds
   RATE_WINDOW_MS: Number(
     process.env.RATE_WINDOW_MS ??
