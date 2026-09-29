@@ -99,7 +99,7 @@ describe("EndDate validator", () => {
 
       assert.deepEqual(errors, {});
     });
-    
+
     it("returns no errors when the date is today", () => {
       const validator = new EndDateValidator();
       const today = new Date();
