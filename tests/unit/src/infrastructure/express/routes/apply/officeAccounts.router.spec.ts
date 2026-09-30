@@ -8,6 +8,7 @@ import type { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/Offic
 interface RouteLayer {
   route?: {
     path: string;
+    methods: Record<string, boolean>;
     stack: { handle: (req: Request, res: Response) => Promise<void> }[];
   };
 }
@@ -15,9 +16,12 @@ interface RouteLayer {
 function findRoute(
   router: express.Router,
   path: string,
+  method: "get" | "post" = "get",
 ): RouteLayer["route"] | undefined {
   const stack = (router as unknown as { stack: RouteLayer[] }).stack;
-  return stack.find((layer) => layer.route?.path === path)?.route;
+  return stack.find(
+    (layer) => layer.route?.path === path && layer.route.methods[method],
+  )?.route;
 }
 
 describe("createOfficeAccountsRouter", () => {
@@ -47,6 +51,28 @@ describe("createOfficeAccountsRouter", () => {
     assert.equal(
       officeAccountsAdaptor.renderOfficeAccountsSelectForm.firstCall.args[1],
       res,
+    );
+  });
+
+  it("delegates POST /office-accounts to the presenter adaptor", () => {
+    const officeAccountsAdaptor = stubInterface<OfficeAccountsAdaptor>();
+
+    const router = createOfficeAccountsRouter(
+      express.Router(),
+      officeAccountsAdaptor,
+    );
+    const route = findRoute(router, "/office-accounts", "post");
+
+    const req = stubInterface<Request>();
+    const res = stubInterface<Response>();
+
+    void route?.stack[0].handle(req, res);
+
+    assert.ok(
+      officeAccountsAdaptor.processOfficeAccountsSelectForm.calledOnceWithExactly(
+        req,
+        res,
+      ),
     );
   });
 });

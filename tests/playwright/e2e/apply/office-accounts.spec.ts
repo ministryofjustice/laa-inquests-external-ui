@@ -1,4 +1,9 @@
 import { test, expect } from "../../fixtures/index.js";
+import {
+  validateBackButton,
+  validateCSRFToken,
+  validateFormAttributes,
+} from "../../utils/govuk-validators.js";
 
 test.describe("Office accounts", () => {
   test.beforeEach(async ({ page, checkAccessibility }) => {
@@ -41,16 +46,16 @@ test.describe("Office accounts", () => {
     await expect(manchesterOffice).not.toContainText(", ,");
   });
 
-  test("has a back link to the home page", async ({ page }) => {
-    await expect(
-      page.getByRole("link", { name: "Back", exact: true }),
-    ).toHaveAttribute("href", "/");
+  test("has a back link to the apply declaration page", async ({ page }) => {
+    await validateBackButton(page, "/apply");
   });
 
-  test("has a save and continue button", async ({ page }) => {
-    await expect(
-      page.getByRole("button", { name: "Save and continue" }),
-    ).toBeVisible();
+  test("clicking save and continue redirects to the client name and date of birth page", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Save and continue" }).click();
+
+    await expect(page).toHaveURL(/\/apply\/client-details\/name-and-dob$/);
   });
 
   test("shows a message when the logged-in user has no office accounts", async ({

@@ -43,6 +43,10 @@ export class OfficeAccountsAdaptor {
     });
   }
 
+  processOfficeAccountsSelectForm(req: Request, res: Response): void {
+    res.redirect("/apply/client-details/name-and-dob");
+  }
+
   async #getOfficeOptions(
     req: Request,
     firmId: string,

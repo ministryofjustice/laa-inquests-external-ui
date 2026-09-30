@@ -155,7 +155,7 @@ export class ClientDetailsAdaptor {
     res.render("apply/client-details/name-and-dob", {
       csrfToken,
       client: nameDobView.client,
-      backHref: this.#resolveBackHref(req, "/apply"),
+      backHref: this.#resolveBackHref(req, "/apply/office-accounts"),
     });
   }
 
@@ -209,7 +209,7 @@ export class ClientDetailsAdaptor {
         csrfToken,
         errorSummaries,
         client: nameDobView.client,
-        backHref: this.#resolveBackHref(req, "/apply"),
+        backHref: this.#resolveBackHref(req, "/apply/office-accounts"),
       });
     } else {
       this.#redirectAfterSuccess(req, res, "/apply/client-details/nino");

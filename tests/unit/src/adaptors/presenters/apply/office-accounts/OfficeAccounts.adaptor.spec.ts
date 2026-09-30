@@ -190,4 +190,18 @@ describe("OfficeAccounts adaptor", () => {
       assert.deepEqual(renderModel.officeOptions, []);
     });
   });
+
+  describe("processOfficeAccountsSelectForm", () => {
+    it("redirects to client name and dob page when office account form is submitted", () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+
+      adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.firstCall.args[0],
+        "/apply/client-details/name-and-dob",
+      );
+    });
+  });
 });

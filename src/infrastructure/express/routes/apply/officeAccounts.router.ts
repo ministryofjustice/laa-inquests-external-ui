@@ -12,5 +12,12 @@ export function createOfficeAccountsRouter(
     },
   );
 
+  officeAccountsRouter.post(
+    "/office-accounts",
+    (req: Request, res: Response): void => {
+      officeAccountsAdaptor.processOfficeAccountsSelectForm(req, res);
+    },
+  );
+
   return officeAccountsRouter;
 }
