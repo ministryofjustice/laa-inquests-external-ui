@@ -208,6 +208,11 @@ describe("globalAccessGuard", () => {
         path: "/claim/client-details",
         allowedRoles: [APP_ROLES.CLAIMS_USER],
       },
+      {
+        description: "Only authenticated requests to home route",
+        path: "/",
+        allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
+      },
     ];
 
     for (const test of policyTests) {
