@@ -105,7 +105,19 @@ describe("OfficeAccounts adaptor", () => {
             hint: { text: "0A789A" },
           },
         ],
+        selectedOfficeAccount: undefined,
       });
+    });
+
+    it("passes the previously selected office from session to the view", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.session.selectedOfficeAccount = "0A456A";
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(renderModel.selectedOfficeAccount, "0A456A");
     });
 
     it("passes firmId from authenticated session and access token to provider offices port", async () => {
@@ -204,6 +216,28 @@ describe("OfficeAccounts adaptor", () => {
         responseStub.redirect.firstCall.args[0],
         "/apply/client-details/name-and-dob",
       );
+    });
+
+    it("stores the selected office in session when an office is selected", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.body = { "office-accounts": "0A456A" };
+
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.selectedOfficeAccount, "0A456A");
+    });
+
+    it("does not store an office in session when validation fails", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        userOfficeAccounts: ["0A123A"],
+      });
+      requestStub.body = { "office-accounts": "0A999Z" };
+
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.selectedOfficeAccount, undefined);
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
     });
 
     it("re-renders the form with office options and an error when no office is selected", async () => {

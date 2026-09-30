@@ -59,7 +59,6 @@ describe("createAuthRouter", () => {
       assert.equal(req.session.accessToken, "test-access-token");
       assert.equal(req.session.userId, "test-provider");
       assert.equal(req.session.firmId, "123");
-      assert.equal(req.session.officeId, "A001B");
       assert.deepEqual(req.session.userOfficeAccounts, ["A001B", "A002B"]);
       assert.equal(req.session.providerEmail, "test@example.com");
       assert.equal(res.redirect.callCount, 1);

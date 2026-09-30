@@ -4,9 +4,13 @@ import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js
 
 export class ValidateOfficeAccountSelectionUseCase {
   execute(
-    selectedOffice?: string,
+    selectedOffice: string | undefined,
+    authorisedOfficeCodes: string[],
   ): UseCaseResult<undefined, OfficeAccountsError> {
-    if (typeof selectedOffice !== "string" || selectedOffice === "") {
+    if (
+      typeof selectedOffice !== "string" ||
+      !authorisedOfficeCodes.includes(selectedOffice)
+    ) {
       return {
         status: "VALIDATION_FAILED",
         errorSummaries: {

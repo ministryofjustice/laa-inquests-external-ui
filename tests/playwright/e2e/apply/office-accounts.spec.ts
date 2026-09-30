@@ -59,6 +59,22 @@ test.describe("Office accounts", () => {
     await expect(page).toHaveURL(/\/apply\/client-details\/name-and-dob$/);
   });
 
+  test("keeps the selected office checked when returning to the page", async ({
+    page,
+  }) => {
+    const manchesterOffice = page.getByRole("radio", {
+      name: /2 Test Street, Manchester/,
+    });
+    await manchesterOffice.check();
+    await page.getByRole("button", { name: "Save and continue" }).click();
+    await expect(page).toHaveURL(/\/apply\/client-details\/name-and-dob$/);
+
+    await page.getByRole("link", { name: "Back", exact: true }).click();
+
+    await expect(page).toHaveURL(/\/apply\/office-accounts$/);
+    await expect(manchesterOffice).toBeChecked();
+  });
+
   test("shows a validation error when no office is selected", async ({
     page,
     checkAccessibility,

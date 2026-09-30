@@ -34,7 +34,6 @@ export class SessionHelper {
             "user",
             "userId",
             "firmId",
-            "officeId",
             "userOfficeAccounts",
             "providerEmail",
             "accessToken",

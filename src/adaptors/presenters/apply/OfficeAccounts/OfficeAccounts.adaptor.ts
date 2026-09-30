@@ -47,6 +47,7 @@ export class OfficeAccountsAdaptor {
     res.render("apply/office-accounts/select-office-account", {
       csrfToken,
       officeOptions,
+      selectedOfficeAccount: req.session.selectedOfficeAccount,
     });
   }
 
@@ -56,8 +57,13 @@ export class OfficeAccountsAdaptor {
   ): Promise<void> {
     const { "office-accounts": selectedOffice } =
       req.body as OfficeAccountsFormData;
-    const result =
-      this.validateOfficeAccountSelectionUseCase.execute(selectedOffice);
+    const {
+      session: { userOfficeAccounts },
+    } = req;
+    const result = this.validateOfficeAccountSelectionUseCase.execute(
+      selectedOffice,
+      Array.isArray(userOfficeAccounts) ? userOfficeAccounts : [],
+    );
 
     if (result.status === "VALIDATION_FAILED") {
       const {
@@ -74,6 +80,7 @@ export class OfficeAccountsAdaptor {
         errorSummaries: result.errorSummaries,
       });
     } else {
+      req.session.selectedOfficeAccount = selectedOffice;
       res.redirect("/apply/client-details/name-and-dob");
     }
   }

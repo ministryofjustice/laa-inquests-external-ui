@@ -22,7 +22,7 @@ declare module "express-session" {
     userId?: string;
     user?: { name?: string };
     firmId?: string;
-    officeId?: string;
+    selectedOfficeAccount?: string;
     userOfficeAccounts?: string[];
     roles?: ProviderRole[];
     accessToken?: string;
