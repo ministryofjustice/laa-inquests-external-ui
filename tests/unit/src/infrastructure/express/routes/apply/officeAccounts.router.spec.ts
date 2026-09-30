@@ -54,8 +54,9 @@ describe("createOfficeAccountsRouter", () => {
     );
   });
 
-  it("delegates POST /office-accounts to the presenter adaptor", () => {
+  it("delegates POST /office-accounts to the presenter adaptor", async () => {
     const officeAccountsAdaptor = stubInterface<OfficeAccountsAdaptor>();
+    officeAccountsAdaptor.processOfficeAccountsSelectForm.resolves();
 
     const router = createOfficeAccountsRouter(
       express.Router(),
@@ -66,7 +67,7 @@ describe("createOfficeAccountsRouter", () => {
     const req = stubInterface<Request>();
     const res = stubInterface<Response>();
 
-    void route?.stack[0].handle(req, res);
+    await route?.stack[0].handle(req, res);
 
     assert.ok(
       officeAccountsAdaptor.processOfficeAccountsSelectForm.calledOnceWithExactly(

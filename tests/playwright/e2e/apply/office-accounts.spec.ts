@@ -53,9 +53,30 @@ test.describe("Office accounts", () => {
   test("clicking save and continue redirects to the client name and date of birth page", async ({
     page,
   }) => {
+    await page.getByRole("radio").first().check();
     await page.getByRole("button", { name: "Save and continue" }).click();
 
     await expect(page).toHaveURL(/\/apply\/client-details\/name-and-dob$/);
+  });
+
+  test("shows a validation error when no office is selected", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.getByRole("button", { name: "Save and continue" }).click();
+
+    await expect(page).toHaveURL(/\/apply\/office-accounts$/);
+    const errorSummary = page.locator(".govuk-error-summary");
+    await expect(errorSummary).toBeVisible();
+    await expect(
+      errorSummary.getByRole("link", { name: "Select an office" }),
+    ).toHaveAttribute("href", "#office-accounts");
+    await expect(page.locator("#office-accounts-error")).toContainText(
+      "Select an office",
+    );
+    await expect(page.getByRole("radio")).toHaveCount(2);
+
+    await checkAccessibility();
   });
 
   test("shows a message when the logged-in user has no office accounts", async ({

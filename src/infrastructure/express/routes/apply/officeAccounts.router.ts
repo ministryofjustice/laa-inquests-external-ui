@@ -14,8 +14,8 @@ export function createOfficeAccountsRouter(
 
   officeAccountsRouter.post(
     "/office-accounts",
-    (req: Request, res: Response): void => {
-      officeAccountsAdaptor.processOfficeAccountsSelectForm(req, res);
+    async (req: Request, res: Response): Promise<void> => {
+      await officeAccountsAdaptor.processOfficeAccountsSelectForm(req, res);
     },
   );
 

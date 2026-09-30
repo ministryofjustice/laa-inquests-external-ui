@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { stubInterface } from "ts-sinon";
 import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
+import { OFFICE_ACCOUNTS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 const PROVIDER_OFFICES = [
   {
@@ -192,16 +193,47 @@ describe("OfficeAccounts adaptor", () => {
   });
 
   describe("processOfficeAccountsSelectForm", () => {
-    it("redirects to client name and dob page when office account form is submitted", () => {
+    it("redirects to client name and dob page when an office is selected", async () => {
       const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.body = { "office-accounts": "0A123A" };
 
-      adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
 
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.firstCall.args[0],
         "/apply/client-details/name-and-dob",
       );
+    });
+
+    it("re-renders the form with office options and an error when no office is selected", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        userOfficeAccounts: ["0A456A"],
+      });
+      requestStub.body = {};
+
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(
+        renderArgs[0],
+        "apply/office-accounts/select-office-account",
+      );
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: "abcdefg",
+        officeOptions: [
+          {
+            value: "0A456A",
+            html: "<strong>2 Test Street, Manchester, M1A 1AA</strong>",
+            hint: { text: "0A456A" },
+          },
+        ],
+        errorSummaries: {
+          noOfficeSelected: { text: OFFICE_ACCOUNTS_ERROR.NO_OFFICE_SELECTED },
+        },
+      });
     });
   });
 });

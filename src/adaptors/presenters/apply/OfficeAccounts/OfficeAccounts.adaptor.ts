@@ -1,11 +1,14 @@
 import type { Request, Response } from "express";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
 import { GetProviderOfficesUseCase } from "#src/use-cases/apply/providerOffices/GetProviderOffices.useCase.js";
+import { ValidateOfficeAccountSelectionUseCase } from "#src/use-cases/apply/providerOffices/ValidateOfficeAccountSelection.useCase.js";
 import type { GetProviderOffice } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/models/GetProviderOffices.types.js";
+import type { OfficeAccountsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
 interface OfficeAccountsUseCases {
   getProviderOffices: GetProviderOfficesUseCase;
+  validateOfficeAccountSelection: ValidateOfficeAccountSelectionUseCase;
 }
 
 interface OfficeAccountsOption {
@@ -16,6 +19,7 @@ interface OfficeAccountsOption {
 
 export class OfficeAccountsAdaptor {
   getProviderOfficesUseCase: GetProviderOfficesUseCase;
+  validateOfficeAccountSelectionUseCase: ValidateOfficeAccountSelectionUseCase;
 
   constructor(
     getProviderOfficesPort: GetProviderOfficesPort,
@@ -24,6 +28,9 @@ export class OfficeAccountsAdaptor {
     this.getProviderOfficesUseCase =
       useCases?.getProviderOffices ??
       new GetProviderOfficesUseCase(getProviderOfficesPort);
+    this.validateOfficeAccountSelectionUseCase =
+      useCases?.validateOfficeAccountSelection ??
+      new ValidateOfficeAccountSelectionUseCase();
   }
 
   async renderOfficeAccountsSelectForm(
@@ -43,8 +50,32 @@ export class OfficeAccountsAdaptor {
     });
   }
 
-  processOfficeAccountsSelectForm(req: Request, res: Response): void {
-    res.redirect("/apply/client-details/name-and-dob");
+  async processOfficeAccountsSelectForm(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    const { "office-accounts": selectedOffice } =
+      req.body as OfficeAccountsFormData;
+    const result =
+      this.validateOfficeAccountSelectionUseCase.execute(selectedOffice);
+
+    if (result.status === "VALIDATION_FAILED") {
+      const {
+        locals: { csrfToken },
+      } = res;
+      const officeOptions = await this.#getOfficeOptions(
+        req,
+        this.#resolveFirmId(req),
+      );
+
+      res.render("apply/office-accounts/select-office-account", {
+        csrfToken,
+        officeOptions,
+        errorSummaries: result.errorSummaries,
+      });
+    } else {
+      res.redirect("/apply/client-details/name-and-dob");
+    }
   }
 
   async #getOfficeOptions(
