@@ -2,10 +2,10 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
-{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
-{% set pageHeading = "Select the account number of the office handling this application" %}
+{% set pageHeading = "Select the account number of the office handling this application" if officeOptions.length else t("pages.apply.officeAccounts.noOffices.title") %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -29,9 +29,9 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <form data-testid="office-accounts-form" action="/apply/office-accounts" method="post">
-        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-        {% if officeOptions.length %}
+      {% if officeOptions.length %}
+        <form data-testid="office-accounts-form" action="/apply/office-accounts" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
           {{ govukRadios({
             idPrefix: "office-accounts",
             name: "office-accounts",
@@ -45,18 +45,27 @@
             items: officeOptions,
             errorMessage: errorSummaries.noOfficeSelected
           }) }}
-        {% else %}
-          <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-          {{ govukInsetText({
-            text: "No office accounts were found for this firm."
-          }) }}
-        {% endif %}
 
-        {{ govukButton({
-            text: "Save and continue",
-            type: "submit"
+          {{ govukButton({
+              text: "Save and continue",
+              type: "submit"
+          }) }}
+        </form>
+      {% else %}
+        {{ govukPanel({
+          classes: "govuk-panel--interruption",
+          titleText: pageHeading,
+          html: '<p class="govuk-body">' + t("pages.apply.officeAccounts.noOffices.body") + '</p>',
+          actions: {
+            items: [
+              {
+                href: "/",
+                text: t("pages.apply.officeAccounts.noOffices.returnLink")
+              }
+            ]
+          }
         }) }}
-      </form>
+      {% endif %}
     </div>
   </div>
 </div>
