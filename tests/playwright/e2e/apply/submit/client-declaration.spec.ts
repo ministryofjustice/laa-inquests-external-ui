@@ -112,7 +112,7 @@ test.describe("Provider can", () => {
 
     await page.goto("/apply/office-accounts");
     await page.getByRole("radio").first().check();
-    await page.getByRole("button", { name: "Save and continue" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/apply/client-details/name-and-dob");
 
     await getAndUpdateFormFields(

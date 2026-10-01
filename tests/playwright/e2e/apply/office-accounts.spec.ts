@@ -14,8 +14,18 @@ test.describe("Office accounts", () => {
   test("has the correct page heading", async ({ page }) => {
     await expect(
       page.getByRole("heading", {
-        name: "Select the account number of the office handling this application",
+        name: "Select an office",
       }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "Choose which office is handling this application. The office must hold a civil contract for the matter type of the inquest.",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "If you can't find the correct office in the list, please contact your administrator.",
+      ),
     ).toBeVisible();
   });
 
@@ -50,11 +60,11 @@ test.describe("Office accounts", () => {
     await validateBackButton(page, "/apply");
   });
 
-  test("clicking save and continue redirects to the client name and date of birth page", async ({
+  test("clicking continue redirects to the client name and date of birth page", async ({
     page,
   }) => {
     await page.getByRole("radio").first().check();
-    await page.getByRole("button", { name: "Save and continue" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page).toHaveURL(/\/apply\/client-details\/name-and-dob$/);
   });
@@ -66,7 +76,7 @@ test.describe("Office accounts", () => {
       name: /2 Test Street, Manchester/,
     });
     await manchesterOffice.check();
-    await page.getByRole("button", { name: "Save and continue" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL(/\/apply\/client-details\/name-and-dob$/);
 
     await page.getByRole("link", { name: "Back", exact: true }).click();
@@ -79,7 +89,7 @@ test.describe("Office accounts", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.getByRole("button", { name: "Save and continue" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page).toHaveURL(/\/apply\/office-accounts$/);
     const errorSummary = page.locator(".govuk-error-summary");
@@ -118,9 +128,7 @@ test.describe("Office accounts", () => {
     );
     await expect(page).toHaveTitle(/You cannot continue with your application/);
     await expect(page.getByRole("radio")).toHaveCount(0);
-    await expect(
-      page.getByRole("button", { name: "Save and continue" }),
-    ).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Continue" })).toHaveCount(0);
 
     await panel
       .getByRole("link", { name: "Return to legal aid service" })

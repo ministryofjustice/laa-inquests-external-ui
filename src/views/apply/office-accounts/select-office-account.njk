@@ -5,7 +5,7 @@
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
-{% set pageHeading = "Select the account number of the office handling this application" if officeOptions.length else t("pages.apply.officeAccounts.noOffices.title") %}
+{% set pageHeading = t("pages.apply.officeAccounts.selectOffice.title") if officeOptions.length else t("pages.apply.officeAccounts.noOffices.title") %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -42,13 +42,17 @@
                 classes: "govuk-fieldset__legend--l"
               }
             },
+            hint: {
+              text: t("pages.apply.officeAccounts.selectOffice.hint")
+            },
             items: officeOptions,
             value: selectedOfficeAccount,
             errorMessage: errorSummaries.noOfficeSelected
           }) }}
+          <p class="govuk-body">{{ t("pages.apply.officeAccounts.selectOffice.paragraph") }}</p>
 
           {{ govukButton({
-              text: "Save and continue",
+              text: "Continue",
               type: "submit"
           }) }}
         </form>
