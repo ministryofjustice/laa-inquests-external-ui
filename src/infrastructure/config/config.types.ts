@@ -55,6 +55,7 @@ export interface Config {
   SERVICE_NAME: string | undefined;
   SERVICE_PHASE: string | undefined;
   SERVICE_URL: string | undefined;
+  SILAS_HOMEPAGE: string | undefined;
   LOG_LEVEL: string | undefined;
   USE_REDIS: boolean;
   REDIS_HOST_NAME: string;

@@ -36,6 +36,7 @@ jobs:
           service_name: ${{ vars.SERVICE_NAME }}
           session_name: ${{ vars.SESSION_NAME}}
           session_secret: ${{ secrets.SESSION_SECRET }}
+          silas_homepage: ${{ vars.SILAS_HOMEPAGE }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
 
   notify-slack-staging:
@@ -86,6 +87,7 @@ jobs:
           service_name: ${{ vars.SERVICE_NAME }}
           session_name: ${{ vars.SESSION_NAME}}
           session_secret: ${{ secrets.SESSION_SECRET }}
+          silas_homepage: ${{ vars.SILAS_HOMEPAGE }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
 
   notify-slack-prod:

@@ -98,6 +98,7 @@ const config: Config = {
   SERVICE_NAME: process.env.SERVICE_NAME,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
+  SILAS_HOMEPAGE: process.env.SILAS_HOMEPAGE,
   LOG_LEVEL: process.env.LOG_LEVEL,
   USE_REDIS: useRedis,
   REDIS_HOST_NAME: process.env.REDIS_HOST_NAME ?? "",

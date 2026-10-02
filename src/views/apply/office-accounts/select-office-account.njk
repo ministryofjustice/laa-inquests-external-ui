@@ -57,7 +57,7 @@
           }) }}
         </form>
       {% else %}
-        {% set returnLink = "https://test.your-legal-aid-services.service.justice.gov.uk/home" if (not hasRole(appRoles.CLAIMS_USER)) else "/" %}
+        {% set returnLink = config.SILAS_HOMEPAGE if (not hasRole(appRoles.CLAIMS_USER)) else "/" %}
         {{ govukPanel({
           classes: "govuk-panel--interruption",
           titleText: pageHeading,

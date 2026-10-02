@@ -94,6 +94,7 @@ runs:
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
         SESSION_SECRET: ${{ inputs.session_secret || 'default-session-secret' }}
+        SILAS_HOMEPAGE: ${{ inputs.silas_homepage || '' }}
       run: |
         echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID" >> "$GITHUB_ENV"
         echo "AUTH_CLIENT_SECRET=$AUTH_CLIENT_SECRET" >> "$GITHUB_ENV"
@@ -105,6 +106,7 @@ runs:
         echo "SERVICE_NAME=$SERVICE_NAME" >> "$GITHUB_ENV"
         echo "SESSION_NAME=$SESSION_NAME" >> "$GITHUB_ENV"
         echo "SESSION_SECRET=$SESSION_SECRET" >> "$GITHUB_ENV"
+        echo "SILAS_HOMEPAGE=$SILAS_HOMEPAGE" >> "$GITHUB_ENV"
 
     - name: Deploy using Helm
       shell: bash
