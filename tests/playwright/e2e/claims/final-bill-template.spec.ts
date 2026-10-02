@@ -104,6 +104,41 @@ test.describe("Claim - final bill template", () => {
     );
   });
 
+  test("clears the file-required error after a successful JS upload", async ({
+    page,
+  }) => {
+    await page
+      .getByTestId("final-bill-template-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+
+    await expect(page.locator(".govuk-error-summary")).toContainText(
+      CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_REQUIRED,
+    );
+    await expect(page).toHaveTitle(/^Error:/);
+
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+
+    await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+    await expect(page.locator(".govuk-form-group--error")).toHaveCount(0);
+    await expect(page.locator("#documents")).not.toHaveClass(
+      /govuk-file-upload--error/,
+    );
+    await expect(page).not.toHaveTitle(/^Error:/);
+  });
+
   test("uploads the template using the multi-file uploader", async ({
     page,
   }) => {

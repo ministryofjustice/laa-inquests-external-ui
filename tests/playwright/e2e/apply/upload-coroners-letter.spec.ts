@@ -85,6 +85,35 @@ test.describe("Apply - upload coroner's letter", () => {
     );
   });
 
+  test("clears the no-file-chosen error after a successful JS upload", async ({
+    page,
+  }) => {
+    const errorSummary = page.getByRole("alert");
+
+    await page
+      .getByTestId("upload-coroners-letter-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+
+    await expect(errorSummary).toContainText(
+      CORONERS_LETTER_ERROR.NO_FILE_CHOSEN,
+    );
+    await expect(page).toHaveTitle(/^Error:/);
+
+    await uploadViaWidget(page, {
+      name: "test-coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("coroners letter content"),
+    });
+
+    await expect(errorSummary).not.toBeVisible();
+    await expect(page.locator(".govuk-form-group--error")).toHaveCount(0);
+    await expect(page.locator("#documents")).not.toHaveClass(
+      /govuk-file-upload--error/,
+    );
+    await expect(page).not.toHaveTitle(/^Error:/);
+  });
+
   test("uploads a coroner's letter using the multifile uploader", async ({
     page,
   }) => {
