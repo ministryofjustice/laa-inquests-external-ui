@@ -324,18 +324,6 @@ export class ClientDetailsAdaptor {
     } = req;
 
     const hasNoFixedAbode = hasNoFixedAbodeValue === "true";
-    req.session.clientHasNoFixedAbode = hasNoFixedAbode;
-
-    if (hasNoFixedAbode) {
-      req.session.clientHomeAddress = undefined;
-      this.#redirectAfterSuccess(
-        req,
-        res,
-        "/apply/client-details/correspondence-address-source",
-      );
-      return;
-    }
-
     const homeAddress = this.formatter.buildClientHomeAddress({
       "home-address-line-1": addressLine1,
       "home-address-line-2": addressLine2,
@@ -344,25 +332,28 @@ export class ClientDetailsAdaptor {
       "home-postcode": postcode,
     });
 
-    req.session.clientHomeAddress = homeAddress;
-
     const { errorSummaries: homeAddressErrors } =
       this.#processClientDetailsStep({
         step: "HOME_ADDRESS",
         formBody: req.body,
+        hasNoFixedAbode,
       });
-    const homeAddressView = this.#buildClientHomeAddressView({
-      clientHomeAddress: homeAddress,
-      clientHasNoFixedAbode: false,
-    });
-    const homeAddressClient = {
-      ...this.formatter.toHomeAddressViewModel(
-        homeAddressView.clientHomeAddress,
-      ),
-      hasNoFixedAbode: homeAddressView.clientHasNoFixedAbode,
-    };
 
     if (Object.keys(homeAddressErrors).length > EMPTY_ARR_LENGTH) {
+      req.session.clientHasNoFixedAbode = hasNoFixedAbode;
+      req.session.clientHomeAddress = homeAddress;
+
+      const homeAddressView = this.#buildClientHomeAddressView({
+        clientHomeAddress: homeAddress,
+        clientHasNoFixedAbode: hasNoFixedAbode,
+      });
+      const homeAddressClient = {
+        ...this.formatter.toHomeAddressViewModel(
+          homeAddressView.clientHomeAddress,
+        ),
+        hasNoFixedAbode: homeAddressView.clientHasNoFixedAbode,
+      };
+
       res.render("apply/client-details/home-address", {
         csrfToken,
         errorSummaries: homeAddressErrors,
@@ -372,7 +363,17 @@ export class ClientDetailsAdaptor {
           "/apply/client-details/has-prev-application",
         ),
       });
+    } else if (hasNoFixedAbode) {
+      req.session.clientHasNoFixedAbode = true;
+      req.session.clientHomeAddress = undefined;
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/client-details/correspondence-address-source",
+      );
     } else {
+      req.session.clientHasNoFixedAbode = false;
+      req.session.clientHomeAddress = homeAddress;
       this.#redirectAfterSuccess(
         req,
         res,
