@@ -701,6 +701,61 @@ describe("ClientDetailsValidator", () => {
         const errorSummaries = formValidator.validateHomeAddress(formBody);
         assert.deepEqual(errorSummaries, {});
       });
+
+      it("adds conflict error when no fixed abode is selected and address line 1 is entered", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(
+          formBody,
+          true,
+        );
+        assert.deepEqual(errorSummaries, {
+          noFixedAbodeInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+        });
+      });
+
+      it("adds conflict error when no fixed abode is selected and only an optional field is entered", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-county": "Surrey",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(
+          formBody,
+          true,
+        );
+        assert.deepEqual(errorSummaries, {
+          noFixedAbodeInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+        });
+      });
+
+      it("returns no errors when no fixed abode is selected and no address fields are entered", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(
+          formBody,
+          true,
+        );
+        assert.deepEqual(errorSummaries, {});
+      });
     });
 
     describe("validateCorrespondenceAddressSource", () => {

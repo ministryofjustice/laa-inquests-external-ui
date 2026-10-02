@@ -231,6 +231,7 @@ export class ClientDetailsValidator extends FormValidator {
 
   validateHomeAddress(
     formBody: Partial<ClientDetailsFormData>,
+    hasNoFixedAbode = false,
   ): Partial<ClientHomeAddressError> {
     const {
       "home-address-line-1": addressLine1,
@@ -240,14 +241,34 @@ export class ClientDetailsValidator extends FormValidator {
       "home-postcode": postcode,
     } = formBody;
 
+    const addressValues = {
+      addressLine1,
+      addressLine2,
+      townOrCity,
+      county,
+      postcode,
+    };
+
+    const hasAnyAddressValue = Object.values(addressValues).some(
+      (value) => typeof value === "string" && value !== "",
+    );
+
+    if (hasNoFixedAbode) {
+      if (!hasAnyAddressValue) {
+        return {};
+      }
+
+      const conflictError = {
+        text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      };
+      return {
+        noFixedAbodeInputError: conflictError,
+        addressLine1InputError: conflictError,
+      };
+    }
+
     return validateAddressFields(
-      {
-        addressLine1,
-        addressLine2,
-        townOrCity,
-        county,
-        postcode,
-      },
+      addressValues,
       HOME_ADDRESS_VALIDATION_MESSAGES,
     );
   }

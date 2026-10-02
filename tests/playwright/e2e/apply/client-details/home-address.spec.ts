@@ -738,4 +738,72 @@ test.describe("Client details - home address", () => {
       );
     });
   });
+
+  test.describe("conflicting no fixed abode and home address", () => {
+    test("shows an error when no fixed abode is checked and an address is entered", async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto("/apply/client-details/home-address");
+      const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+      await expect(errorSummary).not.toBeVisible();
+
+      await getAndUpdateFormFields(page, {
+        "Address line 1": "4 Privet Drive",
+      });
+      await page.getByLabel("Client has no fixed abode").check();
+
+      await addressForm.getByRole("button", { name: "Continue" }).click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(page.url()).toContain("/apply/client-details/home-address");
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText("There is a problem");
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      );
+
+      const checkboxErrorMessageElement = addressForm.locator(
+        "#has-no-fixed-abode-error",
+      );
+      await expect(checkboxErrorMessageElement).toBeVisible();
+      await expect(checkboxErrorMessageElement).toContainText(
+        CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      );
+
+      const addressLine1ErrorMessageElement = addressForm.locator(
+        "#home-address-line-1-error",
+      );
+      await expect(addressLine1ErrorMessageElement).toBeVisible();
+      await expect(addressLine1ErrorMessageElement).toContainText(
+        CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      );
+      await expect(page.getByLabel("Client has no fixed abode")).toBeChecked();
+
+      await checkAccessibility();
+    });
+
+    test("shows an error when no fixed abode is checked and an optional field is entered", async ({
+      page,
+    }) => {
+      await page.goto("/apply/client-details/home-address");
+      const addressForm = await page.getByTestId("home-address-form");
+      const errorSummary = await page.getByRole("alert");
+
+      await getAndUpdateFormFields(page, {
+        "County (optional)": "Surrey",
+      });
+      await page.getByLabel("Client has no fixed abode").check();
+
+      await addressForm.getByRole("button", { name: "Continue" }).click();
+      await page.waitForLoadState("domcontentloaded");
+
+      await expect(page.url()).toContain("/apply/client-details/home-address");
+      await expect(errorSummary).toBeVisible();
+      await expect(errorSummary).toContainText(
+        CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      );
+    });
+  });
 });

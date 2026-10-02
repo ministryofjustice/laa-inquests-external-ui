@@ -5,6 +5,7 @@ import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetai
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 import { Address } from "#src/domain/Client/Address.js";
 import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
+import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 describe("Client details adaptor", () => {
   it("render name and dob form", () => {
@@ -265,6 +266,46 @@ describe("Client details adaptor", () => {
       redirectArgs[0],
       "/apply/client-details/correspondence-address-source",
     );
+  });
+
+  it("process home address form renders conflict error when no fixed abode is selected and an address is entered", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "has-no-fixed-abode": "true",
+      "home-address-line-1": "4 Privet Drive",
+      "home-address-line-2": "",
+      "home-town-or-city": "",
+      "home-county": "",
+      "home-postcode": "",
+    };
+
+    clientDetailsAdaptor.processHomeAddressForm(requestStub, responseStub);
+
+    assert.equal(responseStub.redirect.callCount, 0);
+    assert.equal(responseStub.render.callCount, 1);
+    const renderArgs = responseStub.render.getCall(0).args;
+    assert.equal(renderArgs[0], "apply/client-details/home-address");
+    const renderModel = renderArgs[1] as unknown as {
+      errorSummaries: {
+        noFixedAbodeInputError?: { text: string };
+        addressLine1InputError?: { text: string };
+      };
+      client: { hasNoFixedAbode: boolean };
+    };
+    assert.equal(
+      renderModel.errorSummaries.noFixedAbodeInputError?.text,
+      CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+    );
+    assert.equal(
+      renderModel.errorSummaries.addressLine1InputError?.text,
+      CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+    );
+    assert.equal(renderModel.client.hasNoFixedAbode, true);
   });
 
   it("process correspondence source redirects to correspondence address form when specified address is selected", () => {
