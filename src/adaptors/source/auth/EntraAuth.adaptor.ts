@@ -48,6 +48,7 @@ export class EntraAuthAdaptor implements AuthPort {
         userId: result.account?.homeAccountId ?? result.uniqueId,
         userName: result.account?.name ?? undefined,
         firmId: this.#getClaim(claims, "FIRM_CODE"),
+        firmName: this.#getClaim(claims, "FIRM_NAME"),
         userOfficeAccounts: this.#extractUserOfficeAccounts(claims),
         providerEmail: result.account?.username ?? undefined,
         roles: this.#extractRoles(claims),

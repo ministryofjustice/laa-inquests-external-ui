@@ -84,6 +84,7 @@ export function createAuthRouter(
       req.session.accessToken = resolveAccessToken(req.query.accessToken);
       req.session.userId = "test-provider";
       req.session.firmId = "123";
+      req.session.firmName = "Test Firm";
       req.session.userOfficeAccounts = parseOfficeAccountsQueryParam(
         req.query.officeAccounts,
       );

@@ -19,6 +19,7 @@ export class AuthAdaptor {
   }
 
   async callback(req: Request, res: Response): Promise<void> {
+    const { session } = req;
     const { code } = req.query as { code: string };
 
     const user = await this.authPort.acquireTokenByCode(
@@ -26,16 +27,17 @@ export class AuthAdaptor {
       this.authScopes,
       this.redirectUri,
     );
-    Object.assign(req.session, {
+    Object.assign(session, {
       userId: user.userId,
       firmId: user.firmId,
+      firmName: user.firmName,
       userOfficeAccounts: user.userOfficeAccounts,
       providerEmail: user.providerEmail,
       accessToken: user.accessToken,
       roles: user.roles,
     });
-    req.session.user = { name: user.userName };
-    applySessionExpiry(req.session, user.accessTokenExpiresOn);
+    session.user = { name: user.userName };
+    applySessionExpiry(session, user.accessTokenExpiresOn);
     res.redirect("/");
   }
 

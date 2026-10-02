@@ -56,6 +56,21 @@ test.describe("Office accounts", () => {
     await expect(manchesterOffice).not.toContainText(", ,");
   });
 
+  test("prefixes office addresses with the firm name from the default login", async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole("radio", {
+        name: "Test Firm, 1 Test Street, Suite 2, London, Greater London, SW1A 1AA",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("radio", {
+        name: "Test Firm, 2 Test Street, Manchester, M1A 1AA",
+      }),
+    ).toBeVisible();
+  });
+
   test("has a back link to the apply declaration page", async ({ page }) => {
     await validateBackButton(page, "/apply");
   });

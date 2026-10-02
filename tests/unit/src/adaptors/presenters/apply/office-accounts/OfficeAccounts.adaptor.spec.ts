@@ -40,6 +40,7 @@ const PROVIDER_OFFICES = [
 
 interface RenderFixturesOptions {
   firmId?: string;
+  firmName?: string;
   accessToken?: string;
   userOfficeAccounts?: string[];
 }
@@ -58,6 +59,7 @@ describe("OfficeAccounts adaptor", () => {
     const requestStub = stubInterface<Request>();
     requestStub.query = {};
     requestStub.session.firmId = options?.firmId ?? "123";
+    requestStub.session.firmName = options?.firmName;
     requestStub.session.accessToken =
       options?.accessToken ?? "access-token-123";
     requestStub.session.userOfficeAccounts = options?.userOfficeAccounts ?? [
@@ -134,6 +136,75 @@ describe("OfficeAccounts adaptor", () => {
           "999",
           "access-token-123",
         ),
+      );
+    });
+
+    it("prefixes office addresses with the firm name from session", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmName: "Test Firm",
+      });
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.deepEqual(renderModel.officeOptions, [
+        {
+          value: "0A123A",
+          html: "<strong>Test Firm, 1 Test Street, Suite 2, London, Greater London, SW1A 1AA</strong>",
+          hint: { text: "0A123A" },
+        },
+        {
+          value: "0A456A",
+          html: "<strong>Test Firm, 2 Test Street, Manchester, M1A 1AA</strong>",
+          hint: { text: "0A456A" },
+        },
+        {
+          value: "0A789A",
+          html: "<strong>Test Firm, 3 Test Street, Leeds, LS1 1AA</strong>",
+          hint: { text: "0A789A" },
+        },
+      ]);
+    });
+
+    it("escapes HTML characters in the firm name", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmName: "Firm & <Co>",
+      });
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(
+        (renderModel.officeOptions as { html: string }[])[0].html,
+        "<strong>Firm &amp; &lt;Co&gt;, 1 Test Street, Suite 2, London, Greater London, SW1A 1AA</strong>",
+      );
+    });
+
+    it("escapes HTML characters in office addresses", async () => {
+      const { port, adaptor, requestStub, responseStub } =
+        createRenderFixtures();
+      port.getProviderOffices.resolves([
+        {
+          officeCode: "0A123A",
+          address: {
+            addressLine1: "<img src=x>",
+            addressLine2: "",
+            townOrCity: "London",
+            county: "",
+            postcode: "SW1A 1AA",
+          },
+        },
+      ]);
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(
+        (renderModel.officeOptions as { html: string }[])[0].html,
+        "<strong>&lt;img src=x&gt;, London, SW1A 1AA</strong>",
       );
     });
 

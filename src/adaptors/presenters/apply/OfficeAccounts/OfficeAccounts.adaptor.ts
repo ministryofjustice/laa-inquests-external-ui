@@ -5,6 +5,7 @@ import { ValidateOfficeAccountSelectionUseCase } from "#src/use-cases/apply/prov
 import type { GetProviderOffice } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/models/GetProviderOffices.types.js";
 import type { OfficeAccountsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { escapeHtml } from "#src/utils/html.js";
 
 interface OfficeAccountsUseCases {
   getProviderOffices: GetProviderOfficesUseCase;
@@ -102,7 +103,7 @@ export class OfficeAccountsAdaptor {
       req,
       providerOffices,
     );
-    return this.#formatOfficeOptions(authorisedOffices);
+    return this.#formatOfficeOptions(authorisedOffices, req.session.firmName);
   }
 
   #filterAuthorisedOffices(
@@ -139,10 +140,16 @@ export class OfficeAccountsAdaptor {
     return authorisedOffices;
   }
 
-  #formatOfficeOptions(offices: GetProviderOffice[]): OfficeAccountsOption[] {
+  #formatOfficeOptions(
+    offices: GetProviderOffice[],
+    firmName?: string,
+  ): OfficeAccountsOption[] {
+    const firmPrefix =
+      typeof firmName === "string" && firmName !== "" ? `${firmName}, ` : "";
+
     return offices.map((office) => ({
       value: office.officeCode,
-      html: `<strong>${this.#formatAddress(office)}</strong>`,
+      html: `<strong>${escapeHtml(`${firmPrefix}${this.#formatAddress(office)}`)}</strong>`,
       hint: { text: office.officeCode },
     }));
   }

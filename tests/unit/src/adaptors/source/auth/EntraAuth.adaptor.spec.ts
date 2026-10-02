@@ -65,6 +65,7 @@ describe("EntraAuthAdaptor", () => {
             username: "test@example.com",
             idTokenClaims: {
               FIRM_CODE: "123",
+              FIRM_NAME: "Test Firm",
               ACCOUNTS: "A001B",
               LAA_APP_ROLES: ["Inquests - Provider Application User"],
             },
@@ -82,6 +83,7 @@ describe("EntraAuthAdaptor", () => {
           userId: "user-oid-123",
           userName: "Test User",
           firmId: "123",
+          firmName: "Test Firm",
           userOfficeAccounts: ["A001B"],
           providerEmail: "test@example.com",
           roles: ["Inquests - Provider Application User"],
@@ -120,6 +122,7 @@ describe("EntraAuthAdaptor", () => {
           userId: "user-oid-123",
           userName: undefined,
           firmId: "123",
+          firmName: undefined,
           userOfficeAccounts: ["A001B"],
           providerEmail: "test@example.com",
           roles: ["Inquests - Provider Application User"],
