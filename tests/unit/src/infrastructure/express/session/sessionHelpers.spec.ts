@@ -84,12 +84,16 @@ describe("Session Helpers", () => {
       expect(req.session.cookie).to.equal("cookieData");
     });
 
-    it("clears the selected office so a new application starts without one", () => {
-      const req = createMockRequest({ selectedOfficeAccount: "A001B" });
+    it("clears the selected office details so a new application starts without one", () => {
+      const req = createMockRequest({
+        selectedOfficeAccount: "A001B",
+        selectedOfficeAddress: "1 Test Street, London",
+      });
 
       sessionHelper.clearApplyFormData(req);
 
       expect(req.session.selectedOfficeAccount).to.be.undefined;
+      expect(req.session.selectedOfficeAddress).to.be.undefined;
     });
 
     it("preserves firmId, firmName, userOfficeAccounts, providerEmail, accessToken and roles after clearing apply form data", () => {

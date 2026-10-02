@@ -58,21 +58,23 @@ export class OfficeAccountsAdaptor {
   ): Promise<void> {
     const { "office-accounts": selectedOffice } =
       req.body as OfficeAccountsFormData;
-    const {
-      session: { userOfficeAccounts },
-    } = req;
+    const { session } = req;
+    const authorisedOffices = await this.#getAuthorisedOffices(
+      req,
+      this.#resolveFirmId(req),
+    );
     const result = this.validateOfficeAccountSelectionUseCase.execute(
       selectedOffice,
-      Array.isArray(userOfficeAccounts) ? userOfficeAccounts : [],
+      authorisedOffices.map((office) => office.officeCode),
     );
 
     if (result.status === "VALIDATION_FAILED") {
       const {
         locals: { csrfToken },
       } = res;
-      const officeOptions = await this.#getOfficeOptions(
-        req,
-        this.#resolveFirmId(req),
+      const officeOptions = this.#formatOfficeOptions(
+        authorisedOffices,
+        req.session.firmName,
       );
 
       res.render("apply/office-accounts/select-office-account", {
@@ -81,7 +83,13 @@ export class OfficeAccountsAdaptor {
         errorSummaries: result.errorSummaries,
       });
     } else {
-      req.session.selectedOfficeAccount = selectedOffice;
+      const selectedOfficeDetails = authorisedOffices.find(
+        (office) => office.officeCode === selectedOffice,
+      );
+      session.selectedOfficeAccount = selectedOffice;
+      session.selectedOfficeAddress = this.#formatAddress(
+        selectedOfficeDetails!,
+      );
       res.redirect("/apply/client-details/name-and-dob");
     }
   }
@@ -90,6 +98,14 @@ export class OfficeAccountsAdaptor {
     req: Request,
     firmId: string,
   ): Promise<OfficeAccountsOption[]> {
+    const authorisedOffices = await this.#getAuthorisedOffices(req, firmId);
+    return this.#formatOfficeOptions(authorisedOffices, req.session.firmName);
+  }
+
+  async #getAuthorisedOffices(
+    req: Request,
+    firmId: string,
+  ): Promise<GetProviderOffice[]> {
     if (firmId === "") {
       return [];
     }
@@ -99,11 +115,7 @@ export class OfficeAccountsAdaptor {
       req.session.accessToken,
     );
 
-    const authorisedOffices = this.#filterAuthorisedOffices(
-      req,
-      providerOffices,
-    );
-    return this.#formatOfficeOptions(authorisedOffices, req.session.firmName);
+    return this.#filterAuthorisedOffices(req, providerOffices);
   }
 
   #filterAuthorisedOffices(

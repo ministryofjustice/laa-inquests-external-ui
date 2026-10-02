@@ -296,6 +296,10 @@ describe("OfficeAccounts adaptor", () => {
       await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.selectedOfficeAccount, "0A456A");
+      assert.equal(
+        requestStub.session.selectedOfficeAddress,
+        "2 Test Street, Manchester, M1A 1AA",
+      );
     });
 
     it("does not store an office in session when validation fails", async () => {
@@ -307,6 +311,7 @@ describe("OfficeAccounts adaptor", () => {
       await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.selectedOfficeAccount, undefined);
+      assert.equal(requestStub.session.selectedOfficeAddress, undefined);
       assert.equal(responseStub.redirect.callCount, 0);
       assert.equal(responseStub.render.callCount, 1);
     });

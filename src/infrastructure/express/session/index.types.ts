@@ -24,6 +24,7 @@ declare module "express-session" {
     firmId?: string;
     firmName?: string;
     selectedOfficeAccount?: string;
+    selectedOfficeAddress?: string;
     userOfficeAccounts?: string[];
     roles?: ProviderRole[];
     accessToken?: string;
