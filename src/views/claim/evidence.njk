@@ -17,9 +17,7 @@
   }) }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-
-        {% if errorSummaries and errorSummaries.evidenceError %}
+    {% if errorSummaries and errorSummaries.evidenceError %}
           {{ govukErrorSummary({
             titleText: "There is a problem",
             errorList: [{
@@ -28,6 +26,9 @@
             }]
           }) }}
         {% endif %}
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+
+        
 
         <p class="govuk-body">You can upload:</p>
         <ul class="govuk-list govuk-list--bullet">
