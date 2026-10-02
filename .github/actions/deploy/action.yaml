@@ -38,6 +38,8 @@ inputs:
     description: "Service name"
   session_name:
     description: "Session name"
+  silas_homepage:
+    description: "SILAS homepage URL"
   inquests_api_url:
     description: "Inquests API URL"
 runs:

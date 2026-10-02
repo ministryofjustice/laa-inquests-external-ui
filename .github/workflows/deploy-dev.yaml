@@ -149,6 +149,7 @@ jobs:
           github-head-ref: ${{ github.head_ref }}
           image-tag: ${{ github.sha }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
+          silas_homepage: ${{ vars.SILAS_HOMEPAGE }}
 
   notify-slack:
     permissions:
