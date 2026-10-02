@@ -120,7 +120,48 @@ test.describe("Office accounts", () => {
     await checkAccessibility();
   });
 
-  test("shows an interruption panel when the logged-in user has no office accounts", async ({
+  test.describe("when the logged-in user has no office accounts", () => {
+    test("it shows an interruption panel", async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto("/auth/test-login?officeAccounts=");
+      await page.waitForURL("/");
+
+      await page.goto("/apply/office-accounts");
+      await checkAccessibility();
+
+      const panel = page.locator(".govuk-panel--interruption");
+      await expect(panel).toBeVisible();
+      await expect(
+        panel.getByRole("heading", {
+          level: 1,
+          name: "You cannot continue with your application",
+        }),
+      ).toBeVisible();
+      await expect(panel).toContainText(
+        "When you apply for legal aid, we check your office has the correct contract to do the work. Your account is not linked to any offices, so you cannot continue. Please contact your administrator.",
+      );
+      await expect(page).toHaveTitle(
+        /You cannot continue with your application/,
+      );
+      await expect(page.getByRole("radio")).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Continue" })).toHaveCount(
+        0,
+      );
+
+      await panel
+        .getByRole("link", { name: "Return to legal aid service" })
+        .click();
+      await expect(page).toHaveURL(/\/$/);
+
+      // Restore the default session so later tests aren't affected by this override.
+      await page.goto("/auth/test-login");
+      await page.waitForURL("/");
+    });
+  });
+
+  test("the return link redirects to the homepage when the user has multiple roles", async ({
     page,
     checkAccessibility,
   }) => {
@@ -132,23 +173,34 @@ test.describe("Office accounts", () => {
 
     const panel = page.locator(".govuk-panel--interruption");
     await expect(panel).toBeVisible();
-    await expect(
-      panel.getByRole("heading", {
-        level: 1,
-        name: "You cannot continue with your application",
-      }),
-    ).toBeVisible();
-    await expect(panel).toContainText(
-      "When you apply for legal aid, we check your office has the correct contract to do the work. Your account is not linked to any offices, so you cannot continue. Please contact your administrator.",
-    );
-    await expect(page).toHaveTitle(/You cannot continue with your application/);
-    await expect(page.getByRole("radio")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Continue" })).toHaveCount(0);
-
     await panel
       .getByRole("link", { name: "Return to legal aid service" })
       .click();
     await expect(page).toHaveURL(/\/$/);
+
+    // Restore the default session so later tests aren't affected by this override.
+    await page.goto("/auth/test-login");
+    await page.waitForURL("/");
+  });
+
+  test("the return link redirects to silas when the user has only application user role", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/auth/test-login?role=application&officeAccounts=");
+    await page.waitForURL("/");
+
+    await page.goto("/apply/office-accounts");
+    await checkAccessibility();
+
+    const panel = page.locator(".govuk-panel--interruption");
+    await expect(panel).toBeVisible();
+    const returnLink = panel
+      .getByRole("link", { name: "Return to legal aid service" })
+      .getAttribute("href");
+    await expect(returnLink).resolves.toContain(
+      "your-legal-aid-services.service.justice.gov.uk/home",
+    );
 
     // Restore the default session so later tests aren't affected by this override.
     await page.goto("/auth/test-login");

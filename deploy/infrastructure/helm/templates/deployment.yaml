@@ -105,6 +105,8 @@ spec:
               value: "{{ .Values.env.SESSION_SECRET }}"
             - name: SESSION_NAME
               value: "{{ .Values.env.SESSION_NAME }}"
+            - name: SILAS_HOMEPAGE
+              value: "{{ .Values.env.SILAS_HOMEPAGE }}"
             - name: RATE_LIMIT_GLOBAL_MAX
               value: "{{ .Values.env.RATE_LIMIT_GLOBAL_MAX }}"
             - name: RATE_LIMIT_IP_MAX

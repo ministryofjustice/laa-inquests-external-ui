@@ -102,6 +102,7 @@ env:
   INQUESTS_API_URL: "https://laa-inquests-api-dev.apps.live.cloud-platform.service.justice.gov.uk"
   SERVICE_URL: "https://www.gov.uk/legal-aid"
   SESSION_NAME: "sessionId"
+  SILAS_HOMEPAGE: ""
   RATE_LIMIT_GLOBAL_MAX: 6000
   RATE_LIMIT_IP_MAX: 900
   RATE_WINDOW_MS: 900000
