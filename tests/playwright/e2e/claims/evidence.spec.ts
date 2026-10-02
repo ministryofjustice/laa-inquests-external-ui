@@ -98,6 +98,41 @@ test.describe("Claim - evidence", () => {
     );
   });
 
+  test("clears the minimum-upload error after a successful JS upload", async ({
+    page,
+  }) => {
+    await page
+      .getByTestId("evidence-form")
+      .getByRole("button", { name: "Continue" })
+      .click();
+
+    await expect(page.locator(".govuk-error-summary")).toContainText(
+      CLAIM_EVIDENCE_ERROR.MINIMUM_ONE_FILE_REQUIRED,
+    );
+    await expect(page).toHaveTitle(/^Error:/);
+
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+
+    await expect(page.locator(".govuk-error-summary")).toHaveCount(0);
+    await expect(page.locator(".govuk-form-group--error")).toHaveCount(0);
+    await expect(page.locator("#documents")).not.toHaveClass(
+      /govuk-file-upload--error/,
+    );
+    await expect(page).not.toHaveTitle(/^Error:/);
+  });
+
   test("uploads evidence using multi-file uploader", async ({ page }) => {
     const [response] = await Promise.all([
       page.waitForResponse(

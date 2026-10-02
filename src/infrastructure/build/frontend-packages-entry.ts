@@ -43,6 +43,27 @@ function renderClientSideUploadError(
   upload.$status.textContent = message;
 }
 
+/* Clears the server-rendered "minimum/file required" validation error (summary banner, file
+input error state, and title prefix) left over from a prior full-page submit */
+function clearStaleValidationError(root: Element): void {
+  document.querySelector(".govuk-error-summary")?.remove();
+
+  const $formGroup = root.querySelector(".govuk-form-group--error");
+  $formGroup?.classList.remove("govuk-form-group--error");
+  $formGroup?.querySelectorAll(".govuk-error-message").forEach(($message) => {
+    $message.remove();
+  });
+
+  root.querySelectorAll(".govuk-file-upload--error").forEach(($input) => {
+    $input.classList.remove("govuk-file-upload--error");
+  });
+
+  const ERROR_TITLE_PREFIX = "Error: ";
+  if (document.title.startsWith(ERROR_TITLE_PREFIX)) {
+    document.title = document.title.slice(ERROR_TITLE_PREFIX.length);
+  }
+}
+
 // Rejects oversized files in the browser so they never leave the page: otherwise the request
 // is sent and blocked at the ingress (ModSecurity 403) before the server can return the error.
 //
@@ -73,6 +94,7 @@ class SizeValidatedMultiFileUpload extends MultiFileUpload {
         hooks;
       hooks.exitHook = (upload, file, xhr, textStatus): void => {
         originalExitHook?.(upload, file, xhr, textStatus);
+        clearStaleValidationError(this.$root);
         this.#onUploadComplete();
       };
       hooks.errorHook = (upload, file, xhr, textStatus): void => {

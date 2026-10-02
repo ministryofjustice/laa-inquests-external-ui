@@ -39,6 +39,7 @@ declare module "@ministryofjustice/frontend/moj/components/multi-file-upload/mul
   }
 
   export interface MultiFileUploadInstance {
+    $root: Element;
     $feedbackContainer: HTMLElement;
     $status: HTMLElement;
     config: MultiFileUploadConfig;
