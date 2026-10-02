@@ -1,45 +1,76 @@
-s{% extends "base.njk" %}
+{% extends "base.njk" %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
-{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
-{% set pageHeading = "Select the account number of the office handling this application" %}
+{% set pageHeading = t("pages.apply.officeAccounts.selectOffice.title") if officeOptions.length else t("pages.apply.officeAccounts.noOffices.title") %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
 <div class="govuk-width-container">
   {{ govukBackLink({
     text: "Back",
-    href: "/"
+    href: "/apply"
   }) }}
+
+  {% if errorSummaries.noOfficeSelected %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: [
+        {
+          text: errorSummaries.noOfficeSelected.text,
+          href: "#office-accounts"
+        }
+      ]
+    }) }}
+  {% endif %}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if officeOptions.length %}
-        {{ govukRadios({
-          idPrefix: "office-accounts",
-          name: "office-accounts",
-          fieldset: {
-            legend: {
-              text: pageHeading,
-              isPageHeading: true,
-              classes: "govuk-fieldset__legend--l"
-            }
-          },
-          items: officeOptions
-        }) }}
+        <form data-testid="office-accounts-form" action="/apply/office-accounts" method="post">
+          <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+          {{ govukRadios({
+            idPrefix: "office-accounts",
+            name: "office-accounts",
+            fieldset: {
+              legend: {
+                text: pageHeading,
+                isPageHeading: true,
+                classes: "govuk-fieldset__legend--l"
+              }
+            },
+            hint: {
+              text: t("pages.apply.officeAccounts.selectOffice.hint")
+            },
+            items: officeOptions,
+            value: selectedOfficeAccount,
+            errorMessage: errorSummaries.noOfficeSelected
+          }) }}
+          <p class="govuk-body">{{ t("pages.apply.officeAccounts.selectOffice.paragraph") }}</p>
+
+          {{ govukButton({
+              text: "Continue",
+              type: "submit"
+          }) }}
+        </form>
       {% else %}
-        <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-        {{ govukInsetText({
-          text: "No office accounts were found for this firm."
+        {{ govukPanel({
+          classes: "govuk-panel--interruption",
+          titleText: pageHeading,
+          html: '<p class="govuk-body">' + t("pages.apply.officeAccounts.noOffices.body") + '</p>',
+          actions: {
+            items: [
+              {
+                href: "/",
+                text: t("pages.apply.officeAccounts.noOffices.returnLink")
+              }
+            ]
+          }
         }) }}
       {% endif %}
-
-      {{ govukButton({
-          text: "Save and continue",
-          href: "/"
-      }) }}
     </div>
   </div>
 </div>

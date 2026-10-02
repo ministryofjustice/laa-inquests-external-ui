@@ -57,7 +57,7 @@ describe("EntraAuthAdaptor", () => {
 
   describe("acquireTokenByCode", () => {
     describe("identity and provider details", () => {
-      it("returns AuthTokenResult with userId, userName, firmId, officeId and providerEmail from token claims", async () => {
+      it("returns AuthTokenResult with userId, userName, firmId, userOfficeAccounts and providerEmail from token claims", async () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
             homeAccountId: "user-oid-123",
@@ -65,6 +65,7 @@ describe("EntraAuthAdaptor", () => {
             username: "test@example.com",
             idTokenClaims: {
               FIRM_CODE: "123",
+              FIRM_NAME: "Test Firm",
               ACCOUNTS: "A001B",
               LAA_APP_ROLES: ["Inquests - Provider Application User"],
             },
@@ -82,7 +83,7 @@ describe("EntraAuthAdaptor", () => {
           userId: "user-oid-123",
           userName: "Test User",
           firmId: "123",
-          officeId: "A001B",
+          firmName: "Test Firm",
           userOfficeAccounts: ["A001B"],
           providerEmail: "test@example.com",
           roles: ["Inquests - Provider Application User"],
@@ -121,7 +122,7 @@ describe("EntraAuthAdaptor", () => {
           userId: "user-oid-123",
           userName: undefined,
           firmId: "123",
-          officeId: "A001B",
+          firmName: undefined,
           userOfficeAccounts: ["A001B"],
           providerEmail: "test@example.com",
           roles: ["Inquests - Provider Application User"],
@@ -151,26 +152,6 @@ describe("EntraAuthAdaptor", () => {
     });
 
     describe("office accounts", () => {
-      it("returns undefined officeId when ACCOUNTS claim is missing", async () => {
-        msalClient.acquireTokenByCode.resolves({
-          account: {
-            homeAccountId: "user-oid-123",
-            idTokenClaims: {
-              FIRM_CODE: "123",
-              LAA_APP_ROLES: ["Inquests - Provider Application User"],
-            },
-          },
-        } as any);
-
-        const result = await adaptor.acquireTokenByCode(
-          "auth-code",
-          SCOPES,
-          REDIRECT_URI,
-        );
-
-        assert.equal(result.officeId, undefined);
-      });
-
       it("splits a comma-separated ACCOUNTS claim into userOfficeAccounts, trimming whitespace", async () => {
         msalClient.acquireTokenByCode.resolves({
           account: {
@@ -241,27 +222,6 @@ describe("EntraAuthAdaptor", () => {
           "2P224Z",
           "2F761M",
         ]);
-      });
-
-      it("uses the first element of an array-valued ACCOUNTS claim as officeId", async () => {
-        msalClient.acquireTokenByCode.resolves({
-          account: {
-            homeAccountId: "user-oid-123",
-            idTokenClaims: {
-              FIRM_CODE: "123",
-              ACCOUNTS: ["2P223Y", "2N861E"],
-              LAA_APP_ROLES: ["Inquests - Provider Application User"],
-            },
-          },
-        } as any);
-
-        const result = await adaptor.acquireTokenByCode(
-          "auth-code",
-          SCOPES,
-          REDIRECT_URI,
-        );
-
-        assert.equal(result.officeId, "2P223Y");
       });
     });
 

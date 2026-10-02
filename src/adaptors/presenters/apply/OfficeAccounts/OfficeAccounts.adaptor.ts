@@ -1,11 +1,15 @@
 import type { Request, Response } from "express";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
 import { GetProviderOfficesUseCase } from "#src/use-cases/apply/providerOffices/GetProviderOffices.useCase.js";
+import { ValidateOfficeAccountSelectionUseCase } from "#src/use-cases/apply/providerOffices/ValidateOfficeAccountSelection.useCase.js";
 import type { GetProviderOffice } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/models/GetProviderOffices.types.js";
+import type { OfficeAccountsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { escapeHtml } from "#src/utils/html.js";
 
 interface OfficeAccountsUseCases {
   getProviderOffices: GetProviderOfficesUseCase;
+  validateOfficeAccountSelection: ValidateOfficeAccountSelectionUseCase;
 }
 
 interface OfficeAccountsOption {
@@ -16,6 +20,7 @@ interface OfficeAccountsOption {
 
 export class OfficeAccountsAdaptor {
   getProviderOfficesUseCase: GetProviderOfficesUseCase;
+  validateOfficeAccountSelectionUseCase: ValidateOfficeAccountSelectionUseCase;
 
   constructor(
     getProviderOfficesPort: GetProviderOfficesPort,
@@ -24,6 +29,9 @@ export class OfficeAccountsAdaptor {
     this.getProviderOfficesUseCase =
       useCases?.getProviderOffices ??
       new GetProviderOfficesUseCase(getProviderOfficesPort);
+    this.validateOfficeAccountSelectionUseCase =
+      useCases?.validateOfficeAccountSelection ??
+      new ValidateOfficeAccountSelectionUseCase();
   }
 
   async renderOfficeAccountsSelectForm(
@@ -40,13 +48,64 @@ export class OfficeAccountsAdaptor {
     res.render("apply/office-accounts/select-office-account", {
       csrfToken,
       officeOptions,
+      selectedOfficeAccount: req.session.selectedOfficeAccount,
     });
+  }
+
+  async processOfficeAccountsSelectForm(
+    req: Request,
+    res: Response,
+  ): Promise<void> {
+    const { "office-accounts": selectedOffice } =
+      req.body as OfficeAccountsFormData;
+    const { session } = req;
+    const authorisedOffices = await this.#getAuthorisedOffices(
+      req,
+      this.#resolveFirmId(req),
+    );
+    const result = this.validateOfficeAccountSelectionUseCase.execute(
+      selectedOffice,
+      authorisedOffices.map((office) => office.officeCode),
+    );
+
+    if (result.status === "VALIDATION_FAILED") {
+      const {
+        locals: { csrfToken },
+      } = res;
+      const officeOptions = this.#formatOfficeOptions(
+        authorisedOffices,
+        req.session.firmName,
+      );
+
+      res.render("apply/office-accounts/select-office-account", {
+        csrfToken,
+        officeOptions,
+        errorSummaries: result.errorSummaries,
+      });
+    } else {
+      const selectedOfficeDetails = authorisedOffices.find(
+        (office) => office.officeCode === selectedOffice,
+      );
+      session.selectedOfficeAccount = selectedOffice;
+      session.selectedOfficeAddress = this.#formatAddress(
+        selectedOfficeDetails!,
+      );
+      res.redirect("/apply/client-details/name-and-dob");
+    }
   }
 
   async #getOfficeOptions(
     req: Request,
     firmId: string,
   ): Promise<OfficeAccountsOption[]> {
+    const authorisedOffices = await this.#getAuthorisedOffices(req, firmId);
+    return this.#formatOfficeOptions(authorisedOffices, req.session.firmName);
+  }
+
+  async #getAuthorisedOffices(
+    req: Request,
+    firmId: string,
+  ): Promise<GetProviderOffice[]> {
     if (firmId === "") {
       return [];
     }
@@ -56,11 +115,7 @@ export class OfficeAccountsAdaptor {
       req.session.accessToken,
     );
 
-    const authorisedOffices = this.#filterAuthorisedOffices(
-      req,
-      providerOffices,
-    );
-    return this.#formatOfficeOptions(authorisedOffices);
+    return this.#filterAuthorisedOffices(req, providerOffices);
   }
 
   #filterAuthorisedOffices(
@@ -97,10 +152,16 @@ export class OfficeAccountsAdaptor {
     return authorisedOffices;
   }
 
-  #formatOfficeOptions(offices: GetProviderOffice[]): OfficeAccountsOption[] {
+  #formatOfficeOptions(
+    offices: GetProviderOffice[],
+    firmName?: string,
+  ): OfficeAccountsOption[] {
+    const firmPrefix =
+      typeof firmName === "string" && firmName !== "" ? `${firmName}, ` : "";
+
     return offices.map((office) => ({
       value: office.officeCode,
-      html: `<strong>${this.#formatAddress(office)}</strong>`,
+      html: `<strong>${escapeHtml(`${firmPrefix}${this.#formatAddress(office)}`)}</strong>`,
       hint: { text: office.officeCode },
     }));
   }

@@ -37,13 +37,11 @@ test("renders declaration subheader, copy text and back button", async ({
   await checkAccessibility();
 });
 
-test("renders button to start application journey ", async ({ page }) => {
+test("renders button to show provider offices page ", async ({ page }) => {
   page.goto("/apply");
   const startButton = page.getByRole("button", { name: "Agree and continue" });
   await expect(startButton).toBeVisible();
-  await expect(startButton).toHaveAttribute(
-    "href",
-    "/apply/client-details/name-and-dob",
-  );
+  await expect(startButton).toHaveAttribute("href", "/apply/office-accounts");
   await startButton.click();
+  await expect(page).toHaveURL(/\/apply\/office-accounts$/);
 });

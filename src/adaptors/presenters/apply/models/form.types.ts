@@ -79,6 +79,14 @@ export interface ClientDeclarationError {
   noDeclarationConfirmation?: FormErrorMessage;
 }
 
+export interface OfficeAccountsFormData extends FormBody {
+  "office-accounts"?: string;
+}
+
+export interface OfficeAccountsError {
+  noOfficeSelected?: FormErrorMessage;
+}
+
 export interface DeceasedDetailsFormData extends FormBody {
   "deceased-first-name": string;
   "deceased-last-name": string;

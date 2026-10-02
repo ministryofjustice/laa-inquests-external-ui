@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { stubInterface } from "ts-sinon";
 import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
+import { OFFICE_ACCOUNTS_ERROR } from "#src/infrastructure/locales/constants.js";
 
 const PROVIDER_OFFICES = [
   {
@@ -39,6 +40,7 @@ const PROVIDER_OFFICES = [
 
 interface RenderFixturesOptions {
   firmId?: string;
+  firmName?: string;
   accessToken?: string;
   userOfficeAccounts?: string[];
 }
@@ -57,6 +59,7 @@ describe("OfficeAccounts adaptor", () => {
     const requestStub = stubInterface<Request>();
     requestStub.query = {};
     requestStub.session.firmId = options?.firmId ?? "123";
+    requestStub.session.firmName = options?.firmName;
     requestStub.session.accessToken =
       options?.accessToken ?? "access-token-123";
     requestStub.session.userOfficeAccounts = options?.userOfficeAccounts ?? [
@@ -104,7 +107,19 @@ describe("OfficeAccounts adaptor", () => {
             hint: { text: "0A789A" },
           },
         ],
+        selectedOfficeAccount: undefined,
       });
+    });
+
+    it("passes the previously selected office from session to the view", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.session.selectedOfficeAccount = "0A456A";
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(renderModel.selectedOfficeAccount, "0A456A");
     });
 
     it("passes firmId from authenticated session and access token to provider offices port", async () => {
@@ -121,6 +136,75 @@ describe("OfficeAccounts adaptor", () => {
           "999",
           "access-token-123",
         ),
+      );
+    });
+
+    it("prefixes office addresses with the firm name from session", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmName: "Test Firm",
+      });
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.deepEqual(renderModel.officeOptions, [
+        {
+          value: "0A123A",
+          html: "<strong>Test Firm, 1 Test Street, Suite 2, London, Greater London, SW1A 1AA</strong>",
+          hint: { text: "0A123A" },
+        },
+        {
+          value: "0A456A",
+          html: "<strong>Test Firm, 2 Test Street, Manchester, M1A 1AA</strong>",
+          hint: { text: "0A456A" },
+        },
+        {
+          value: "0A789A",
+          html: "<strong>Test Firm, 3 Test Street, Leeds, LS1 1AA</strong>",
+          hint: { text: "0A789A" },
+        },
+      ]);
+    });
+
+    it("escapes HTML characters in the firm name", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmName: "Firm & <Co>",
+      });
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(
+        (renderModel.officeOptions as { html: string }[])[0].html,
+        "<strong>Firm &amp; &lt;Co&gt;, 1 Test Street, Suite 2, London, Greater London, SW1A 1AA</strong>",
+      );
+    });
+
+    it("escapes HTML characters in office addresses", async () => {
+      const { port, adaptor, requestStub, responseStub } =
+        createRenderFixtures();
+      port.getProviderOffices.resolves([
+        {
+          officeCode: "0A123A",
+          address: {
+            addressLine1: "<img src=x>",
+            addressLine2: "",
+            townOrCity: "London",
+            county: "",
+            postcode: "SW1A 1AA",
+          },
+        },
+      ]);
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      assert.equal(
+        (renderModel.officeOptions as { html: string }[])[0].html,
+        "<strong>&lt;img src=x&gt;, London, SW1A 1AA</strong>",
       );
     });
 
@@ -188,6 +272,78 @@ describe("OfficeAccounts adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.deepEqual(renderModel.officeOptions, []);
+    });
+  });
+
+  describe("processOfficeAccountsSelectForm", () => {
+    it("redirects to client name and dob page when an office is selected", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.body = { "office-accounts": "0A123A" };
+
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.firstCall.args[0],
+        "/apply/client-details/name-and-dob",
+      );
+    });
+
+    it("stores the selected office in session when an office is selected", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.body = { "office-accounts": "0A456A" };
+
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.selectedOfficeAccount, "0A456A");
+      assert.equal(
+        requestStub.session.selectedOfficeAddress,
+        "2 Test Street, Manchester, M1A 1AA",
+      );
+    });
+
+    it("does not store an office in session when validation fails", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        userOfficeAccounts: ["0A123A"],
+      });
+      requestStub.body = { "office-accounts": "0A999Z" };
+
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.selectedOfficeAccount, undefined);
+      assert.equal(requestStub.session.selectedOfficeAddress, undefined);
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
+    });
+
+    it("re-renders the form with office options and an error when no office is selected", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        userOfficeAccounts: ["0A456A"],
+      });
+      requestStub.body = {};
+
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(
+        renderArgs[0],
+        "apply/office-accounts/select-office-account",
+      );
+      assert.deepEqual(renderArgs[1], {
+        csrfToken: "abcdefg",
+        officeOptions: [
+          {
+            value: "0A456A",
+            html: "<strong>2 Test Street, Manchester, M1A 1AA</strong>",
+            hint: { text: "0A456A" },
+          },
+        ],
+        errorSummaries: {
+          noOfficeSelected: { text: OFFICE_ACCOUNTS_ERROR.NO_OFFICE_SELECTED },
+        },
+      });
     });
   });
 });

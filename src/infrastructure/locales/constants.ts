@@ -604,6 +604,10 @@ export const CLIENT_DECLARATION_ERROR = {
     "You need to confirm the declaration to submit this application",
 };
 
+export const OFFICE_ACCOUNTS_ERROR = {
+  NO_OFFICE_SELECTED: "Select an office",
+};
+
 // Buffer before the Entra access-token expiry at which the session is treated as expired.
 export const SESSION_EXPIRY_BUFFER_MS = 60_000;
 

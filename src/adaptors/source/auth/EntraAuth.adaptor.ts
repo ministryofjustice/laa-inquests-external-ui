@@ -48,7 +48,7 @@ export class EntraAuthAdaptor implements AuthPort {
         userId: result.account?.homeAccountId ?? result.uniqueId,
         userName: result.account?.name ?? undefined,
         firmId: this.#getClaim(claims, "FIRM_CODE"),
-        officeId: this.#extractOfficeId(claims),
+        firmName: this.#getClaim(claims, "FIRM_NAME"),
         userOfficeAccounts: this.#extractUserOfficeAccounts(claims),
         providerEmail: result.account?.username ?? undefined,
         roles: this.#extractRoles(claims),
@@ -91,13 +91,6 @@ export class EntraAuthAdaptor implements AuthPort {
       return { accessToken: result.accessToken };
     }
     return {};
-  }
-
-  #extractOfficeId(
-    claims: Record<string, unknown> | undefined,
-  ): string | undefined {
-    const [firstOfficeCode] = this.#extractUserOfficeAccounts(claims);
-    return firstOfficeCode;
   }
 
   #extractUserOfficeAccounts(

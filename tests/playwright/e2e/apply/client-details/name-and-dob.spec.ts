@@ -18,7 +18,7 @@ test.describe("Client details - name and dob", () => {
     await expect(clientDetailsHeading).toBeVisible();
 
     await expect(backButton).toBeVisible();
-    await expect(backButton).toHaveAttribute("href", "/apply");
+    await expect(backButton).toHaveAttribute("href", "/apply/office-accounts");
 
     await checkAccessibility();
   });

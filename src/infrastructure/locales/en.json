@@ -61,6 +61,18 @@
       },
       "RemovePublicAuthority": {
         "title": "Are you sure you want to remove this interested party?"
+      },
+      "officeAccounts": {
+        "selectOffice": {
+          "title": "Select an office",
+          "hint": "Choose which office is handling this application. The office must hold a civil contract for the matter type of the inquest.",
+          "paragraph": "If you can't find the correct office in the list, please contact your administrator."
+        },
+        "noOffices": {
+          "title": "You cannot continue with your application",
+          "body": "When you apply for legal aid, we check your office has the correct contract to do the work. Your account is not linked to any offices, so you cannot continue. Please contact your administrator.",
+          "returnLink": "Return to legal aid service"
+        }
       }
     },
     "claim": {
