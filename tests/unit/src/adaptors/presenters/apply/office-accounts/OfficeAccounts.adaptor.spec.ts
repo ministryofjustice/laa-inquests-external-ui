@@ -91,6 +91,7 @@ describe("OfficeAccounts adaptor", () => {
       );
       assert.deepEqual(renderArgs[1], {
         csrfToken: "abcdefg",
+        backHref: "/apply",
         officeOptions: [
           {
             value: "0A123A",
@@ -318,6 +319,23 @@ describe("OfficeAccounts adaptor", () => {
         responseStub.redirect.firstCall.args[0],
         "/apply/check-your-answers",
       );
+    });
+
+    it("renders with check-your-answers back link when returnToApplyCheckYourAnswers flag is set", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(
+        renderArgs[0],
+        "apply/office-accounts/select-office-account",
+      );
+      const renderModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(renderModel.backHref, "/apply/check-your-answers");
     });
 
     it("stores the selected office in session when an office is selected", async () => {

@@ -49,6 +49,7 @@ export class OfficeAccountsAdaptor {
 
     res.render("apply/office-accounts/select-office-account", {
       csrfToken,
+      backHref: this.#resolveBackHref(req),
       officeOptions,
       selectedOfficeAccount: req.session.selectedOfficeAccount,
     });
@@ -115,6 +116,13 @@ export class OfficeAccountsAdaptor {
   ): Promise<OfficeAccountsOption[]> {
     const authorisedOffices = await this.#getAuthorisedOffices(req, firmId);
     return this.#formatOfficeOptions(authorisedOffices, req.session.firmName);
+  }
+
+  #resolveBackHref(req: Request): string {
+    if (req.session.returnToApplyCheckYourAnswers) {
+      return "/apply/check-your-answers";
+    }
+    return "/apply";
   }
 
   async #getAuthorisedOffices(
