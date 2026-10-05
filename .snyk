@@ -40,3 +40,13 @@ ignore:
           reason:
             "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
             new docker image is released with upgraded npm version"
+  "SNYK-JS-POSTCSSSELECTORPARSER-20510276":
+      - "*":
+          reason:
+            "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
+            new docker image is released with upgraded npm version; 
+            needs postcss-selector-parser@7.1.6 or higher"
+  "SNYK-JS-ZOD-20510278":
+      - "*":
+          reason:
+            "Introduced Oct 1st, unresolved as of Oct 5th"
