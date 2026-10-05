@@ -2,7 +2,7 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
-{% set pageHeading = t("pages.claim.caseSearch.title") %}
+{% set pageHeading = t("pages.claim.caseSearch.results.title") %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -14,7 +14,8 @@
   }) }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+      <h1 class="govuk-heading-l govuk-!-margin-bottom-2">{{ pageHeading }}</h1>
+      <p class="govuk-body">{{ t("pages.claim.caseSearch.results.hint") }}</p>
       {% if cases | length %}
       <table class="govuk-table">
         <thead class="govuk-table__head">

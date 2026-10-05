@@ -26,7 +26,7 @@ test.describe("Claim - case search results", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: "Which certificate do you want to make a claim against?",
+        name: "Check the certificate details",
       }),
     ).toBeVisible();
   });
