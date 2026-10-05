@@ -121,6 +121,14 @@ test.describe("Apply - check your answers", () => {
       },
     );
     await expect(officeAccountNumberRowTitle).toBeVisible();
+
+    const officeAddressRowTitle = providerDetailsSummaryList.getByText(
+      "Office address",
+      {
+        exact: true,
+      },
+    );
+    await expect(officeAddressRowTitle).toBeVisible();
   });
 
   test("renders client details summary list", async ({ page }) => {

@@ -10,6 +10,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
 
     const result = useCase.execute({
       officeId: "0U651L",
+      officeAddress: "123 Test Street, Test Town, TE1 1ST",
       clientFirstName: "Jane",
       clientLastName: "Bloggs",
       clientLastNameAtBirth: "Smith",
@@ -50,6 +51,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
     assert.deepEqual(result, {
       providerDetails: {
         officeAccount: "0U651L",
+        officeAddress: "123 Test Street, Test Town, TE1 1ST",
       },
       client: {
         clientFirstName: "Jane",

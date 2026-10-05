@@ -10,6 +10,7 @@ import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api
 export interface BuildCheckYourAnswersOutput {
   providerDetails: {
     officeAccount?: string;
+    officeAddress?: string;
   };
   client: {
     clientFirstName?: string;
@@ -49,6 +50,7 @@ export class BuildCheckYourAnswersUseCase {
     return {
       providerDetails: {
         officeAccount: state.officeId,
+        officeAddress: state.officeAddress,
       },
       client: {
         clientFirstName: state.clientFirstName,

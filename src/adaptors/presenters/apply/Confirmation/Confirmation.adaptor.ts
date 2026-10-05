@@ -178,6 +178,7 @@ export class ConfirmationAdaptor {
   #toCheckYourAnswersViewModel(data: BuildCheckYourAnswersOutput): {
     providerDetails: {
       officeAccount: string;
+      officeAddress: string;
     };
     client: {
       clientFirstName: string;
@@ -206,6 +207,7 @@ export class ConfirmationAdaptor {
     return {
       providerDetails: {
         officeAccount: data.providerDetails.officeAccount ?? "",
+        officeAddress: data.providerDetails.officeAddress ?? "",
       },
       client: this.#buildClientViewModel(data),
       deceasedDetails: this.#buildDeceasedDetailsViewModel(data),

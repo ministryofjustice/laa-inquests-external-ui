@@ -45,6 +45,8 @@ describe("Confirmation adaptor", () => {
 
   it("render check your answers page", () => {
     requestStub.session.selectedOfficeAccount = "0U651L";
+    requestStub.session.selectedOfficeAddress =
+      "123 Test Street, Test Town, TE1 1ST";
     requestStub.session.clientFirstName = "test name";
     requestStub.session.clientLastName = "last name";
     requestStub.session.clientLastNameAtBirth = "birth name";
@@ -106,6 +108,7 @@ describe("Confirmation adaptor", () => {
       csrfToken: "abcdefg",
       providerDetails: {
         officeAccount: "0U651L",
+        officeAddress: "123 Test Street, Test Town, TE1 1ST",
       },
       client: {
         clientFirstName: "test name",

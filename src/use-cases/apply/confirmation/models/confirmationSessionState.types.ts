@@ -8,6 +8,7 @@ import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api
 
 export interface ConfirmationSessionState {
   officeId?: string;
+  officeAddress?: string;
   clientFirstName?: string;
   clientLastName?: string;
   clientLastNameAtBirth?: string | null;
