@@ -119,7 +119,7 @@ export class OfficeAccountsAdaptor {
   }
 
   #resolveBackHref(req: Request): string {
-    if (req.session.returnToApplyCheckYourAnswers) {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
       return "/apply/check-your-answers";
     }
     return "/apply";
