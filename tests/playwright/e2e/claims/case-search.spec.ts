@@ -2,7 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - case search", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim");
+    await page.goto("/claim/search");
   });
 
   test("renders back link to home", async ({ page, checkAccessibility }) => {
@@ -89,7 +89,7 @@ test.describe("Claim - case search", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
-    await page.goto("/claim");
+    await page.goto("/claim/search");
     await page.goto("/claim/total-cost");
 
     const backLink = page.getByRole("link", { name: "Back", exact: true });

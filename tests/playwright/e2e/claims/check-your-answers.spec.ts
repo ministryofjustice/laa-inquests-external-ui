@@ -292,7 +292,8 @@ test.describe("Claim - confirm and submit", () => {
   test("displays the selected client details that were saved in the session", async ({
     page,
   }) => {
-    await page.goto("/claim");
+    // TODO: start from /claim declaration page when it's ready
+    await page.goto("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
@@ -367,7 +368,8 @@ test.describe("Claim - confirm and submit", () => {
   test("displays a 'There is a problem' error summary when the API returns a 422", async ({
     page,
   }) => {
-    await page.goto("/claim");
+    // TODO: start from /claim declaration page when it's ready
+    await page.goto("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")

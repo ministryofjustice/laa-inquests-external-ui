@@ -3,7 +3,7 @@ import { test, expect } from "../../fixtures/index.js";
 test.describe("Claim - case search results", () => {
   test.beforeEach(async ({ page }) => {
     console.log("Starting case-search result");
-    await page.goto("/claim");
+    await page.goto("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
@@ -19,7 +19,7 @@ test.describe("Claim - case search results", () => {
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
     await expect(backLink).toBeVisible();
-    await expect(backLink).toHaveAttribute("href", "/claim");
+    await expect(backLink).toHaveAttribute("href", "/claim/search");
   });
 
   test("renders page heading", async ({ page }) => {

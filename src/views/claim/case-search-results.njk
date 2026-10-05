@@ -10,7 +10,7 @@
 <div class="govuk-width-container">
   {{ govukBackLink({
     text: "Back",
-    href: "/claim"
+    href: "/claim/search"
   }) }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
@@ -44,7 +44,7 @@
       <p class="govuk-body" data-testid="no-results-message">There are no results that match the search criteria</p>
       {{ govukButton({
         text: "Refine your search",
-        href: "/claim"
+        href: "/claim/search"
       }) }}
       {% endif %}
     </div>

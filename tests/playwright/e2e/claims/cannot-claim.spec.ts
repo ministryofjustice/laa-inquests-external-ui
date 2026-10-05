@@ -2,7 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
 
 async function searchAndSelect(page: Page, caseReference: string) {
-  await page.goto("/claim");
+  await page.goto("/claim/search");
   await page
     .getByTestId("case-search-form")
     .getByLabel("Enter the case reference number")
