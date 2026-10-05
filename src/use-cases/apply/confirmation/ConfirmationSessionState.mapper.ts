@@ -11,7 +11,7 @@ export class ConfirmationSessionStateMapper {
     return {
       ...this.#mapClientState(session),
       ...this.#mapDeceasedState(session),
-      officeId: getStringValue(session.selectedOfficeAccount), //TODO: Rename this to be officeAccount related to keep naming consistent throughout the codebase
+      officeId: getStringValue(session.selectedOfficeId),
       officeAddress: getStringValue(session.selectedOfficeAddress),
       accessToken: getStringValue(session.accessToken),
       coronersLetterId: getStringValue(session.coronersLetterId),

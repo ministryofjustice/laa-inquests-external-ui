@@ -109,19 +109,19 @@ describe("OfficeAccounts adaptor", () => {
             hint: { text: "0A789A" },
           },
         ],
-        selectedOfficeAccount: undefined,
+        selectedOfficeId: undefined,
       });
     });
 
     it("passes the previously selected office from session to the view", async () => {
       const { adaptor, requestStub, responseStub } = createRenderFixtures();
-      requestStub.session.selectedOfficeAccount = "0A456A";
+      requestStub.session.selectedOfficeId = "0A456A";
 
       await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
 
       const renderModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
-      assert.equal(renderModel.selectedOfficeAccount, "0A456A");
+      assert.equal(renderModel.selectedOfficeId, "0A456A");
     });
 
     it("passes firmId from authenticated session and access token to provider offices port", async () => {
@@ -344,7 +344,7 @@ describe("OfficeAccounts adaptor", () => {
 
       await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.selectedOfficeAccount, "0A456A");
+      assert.equal(requestStub.session.selectedOfficeId, "0A456A");
       assert.equal(
         requestStub.session.selectedOfficeAddress,
         "2 Test Street, Manchester, M1A 1AA",
@@ -359,7 +359,7 @@ describe("OfficeAccounts adaptor", () => {
 
       await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.selectedOfficeAccount, undefined);
+      assert.equal(requestStub.session.selectedOfficeId, undefined);
       assert.equal(requestStub.session.selectedOfficeAddress, undefined);
       assert.equal(responseStub.redirect.callCount, 0);
       assert.equal(responseStub.render.callCount, 1);

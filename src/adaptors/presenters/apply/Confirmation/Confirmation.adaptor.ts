@@ -177,7 +177,7 @@ export class ConfirmationAdaptor {
 
   #toCheckYourAnswersViewModel(data: BuildCheckYourAnswersOutput): {
     providerDetails: {
-      officeAccount: string;
+      officeId: string;
       officeAddress: string;
     };
     client: {
@@ -206,7 +206,7 @@ export class ConfirmationAdaptor {
   } {
     return {
       providerDetails: {
-        officeAccount: data.providerDetails.officeAccount ?? "",
+        officeId: data.providerDetails.officeId ?? "",
         officeAddress: data.providerDetails.officeAddress ?? "",
       },
       client: this.#buildClientViewModel(data),

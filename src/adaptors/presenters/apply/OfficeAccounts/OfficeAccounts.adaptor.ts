@@ -51,7 +51,7 @@ export class OfficeAccountsAdaptor {
       csrfToken,
       backHref: this.#resolveBackHref(req),
       officeOptions,
-      selectedOfficeAccount: req.session.selectedOfficeAccount,
+      selectedOfficeId: req.session.selectedOfficeId,
     });
   }
 
@@ -89,7 +89,7 @@ export class OfficeAccountsAdaptor {
       const selectedOfficeDetails = authorisedOffices.find(
         (office) => office.officeCode === selectedOffice,
       );
-      session.selectedOfficeAccount = selectedOffice;
+      session.selectedOfficeId = selectedOffice;
       session.selectedOfficeAddress = this.#formatAddress(
         selectedOfficeDetails!,
       );

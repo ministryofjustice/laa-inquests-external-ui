@@ -9,7 +9,7 @@ import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api
 
 export interface BuildCheckYourAnswersOutput {
   providerDetails: {
-    officeAccount?: string;
+    officeId?: string;
     officeAddress?: string;
   };
   client: {
@@ -49,7 +49,7 @@ export class BuildCheckYourAnswersUseCase {
   execute(state: ConfirmationSessionState): BuildCheckYourAnswersOutput {
     return {
       providerDetails: {
-        officeAccount: state.officeId,
+        officeId: state.officeId,
         officeAddress: state.officeAddress,
       },
       client: {

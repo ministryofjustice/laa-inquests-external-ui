@@ -50,7 +50,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
 
     assert.deepEqual(result, {
       providerDetails: {
-        officeAccount: "0U651L",
+        officeId: "0U651L",
         officeAddress: "123 Test Street, Test Town, TE1 1ST",
       },
       client: {
