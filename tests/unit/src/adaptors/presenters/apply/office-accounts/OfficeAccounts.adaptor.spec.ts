@@ -4,7 +4,6 @@ import { stubInterface } from "ts-sinon";
 import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
 import { OFFICE_ACCOUNTS_ERROR } from "#src/infrastructure/locales/constants.js";
-import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 
 const PROVIDER_OFFICES = [
   {
