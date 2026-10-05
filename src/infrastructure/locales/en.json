@@ -77,8 +77,9 @@
     },
     "claim": {
       "caseSearch": {
-        "title": "Which case do you want to make a claim for?",
-        "caseReferenceLabel": "Enter the case reference number"
+        "title": "Which certificate do you want to make a claim against?",
+        "caseReferenceLabel": "Enter the legal aid reference",
+        "caseReferenceHint": "For example: INQ-R9Y-L4R"
       },
       "cannotClaim": {
         "title": "You cannot make a claim against this certificate",

@@ -24,13 +24,16 @@
                 text: "Enter the case reference number",
                 classes: "govuk-label--s"
               },
+              hint: {
+                text: t("pages.claim.caseSearch.caseReferenceHint") 
+              },
               id: "case-reference",
               name: "case-reference",
               value: caseReference,
               errorMessage: errorSummaries.caseReferenceInputError
             }) }}
           </div>
-          <div class="govuk-grid-column-one-third govuk-!-padding-top-6">
+          <div class="govuk-grid-column-one-third govuk-!-padding-top-5 govuk-!-margin-top-7">
             {{ govukButton({
               text: "Continue",
               type: "submit"
