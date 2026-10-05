@@ -19,6 +19,35 @@
       {{ govukInsetText({
         text: "You cannot change the answers on this page once you  continue"
       }) }}
+      <h2 class="govuk-heading-m">Provider details</h2>
+        <div data-testid="provider-details-summary-list">
+          {{ govukSummaryList({
+            card: {
+              title: {
+                text: "Office details"
+              }
+            },
+            rows: [
+              {
+                key: {
+                  text: "Office account number"
+                },
+                value: {
+                  html: providerDetails.officeAccount
+                },
+                actions: {
+                  items: [
+                    {
+                      href: "/apply/office-accounts?from=check-your-answers",
+                      text: "Change",
+                      visuallyHiddenText: "Office account number"
+                    }
+                  ]
+                }
+              }
+            ]
+          }) }}
+        </div>
       <h2 class="govuk-heading-m">Case details</h2>
         <div data-testid="client-details-summary-list">
           {{ govukSummaryList({

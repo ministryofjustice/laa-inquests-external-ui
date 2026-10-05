@@ -9,6 +9,7 @@ describe("BuildCheckYourAnswersUseCase", () => {
     const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
     const result = useCase.execute({
+      officeId: "0U651L",
       clientFirstName: "Jane",
       clientLastName: "Bloggs",
       clientLastNameAtBirth: "Smith",
@@ -47,6 +48,9 @@ describe("BuildCheckYourAnswersUseCase", () => {
     });
 
     assert.deepEqual(result, {
+      providerDetails: {
+        officeAccount: "0U651L",
+      },
       client: {
         clientFirstName: "Jane",
         clientLastName: "Bloggs",

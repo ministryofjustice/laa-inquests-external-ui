@@ -44,6 +44,7 @@ describe("Confirmation adaptor", () => {
   });
 
   it("render check your answers page", () => {
+    requestStub.session.selectedOfficeAccount = "0U651L";
     requestStub.session.clientFirstName = "test name";
     requestStub.session.clientLastName = "last name";
     requestStub.session.clientLastNameAtBirth = "birth name";
@@ -103,6 +104,9 @@ describe("Confirmation adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     assert.deepEqual(renderArgs[1], {
       csrfToken: "abcdefg",
+      providerDetails: {
+        officeAccount: "0U651L",
+      },
       client: {
         clientFirstName: "test name",
         clientLastName: "last name",

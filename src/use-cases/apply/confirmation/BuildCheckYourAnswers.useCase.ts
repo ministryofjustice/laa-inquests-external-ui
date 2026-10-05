@@ -8,6 +8,9 @@ import type {
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 
 export interface BuildCheckYourAnswersOutput {
+  providerDetails: {
+    officeAccount?: string;
+  };
   client: {
     clientFirstName?: string;
     clientLastName?: string;
@@ -44,6 +47,9 @@ export interface BuildCheckYourAnswersOutput {
 export class BuildCheckYourAnswersUseCase {
   execute(state: ConfirmationSessionState): BuildCheckYourAnswersOutput {
     return {
+      providerDetails: {
+        officeAccount: state.officeId,
+      },
       client: {
         clientFirstName: state.clientFirstName,
         clientLastName: state.clientLastName,

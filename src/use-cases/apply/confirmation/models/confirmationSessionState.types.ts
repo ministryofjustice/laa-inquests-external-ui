@@ -7,6 +7,7 @@ import type {
 import type { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 
 export interface ConfirmationSessionState {
+  officeId?: string;
   clientFirstName?: string;
   clientLastName?: string;
   clientLastNameAtBirth?: string | null;
@@ -33,7 +34,6 @@ export interface ConfirmationSessionState {
   prevLaaReferenceInput?: string | null;
   selectedProceeding?: Proceeding;
   selectedPublicAuthorities?: PublicAuthority[];
-  officeId?: string;
   accessToken?: string;
   coronersLetterId?: string;
   coronersLetterFileName?: string;
