@@ -4,6 +4,7 @@ import { stubInterface } from "ts-sinon";
 import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
 import type { GetProviderOfficesPort } from "#src/ports/source/inquests-api/GetProviderOffices.port.js";
 import { OFFICE_ACCOUNTS_ERROR } from "#src/infrastructure/locales/constants.js";
+import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
 
 const PROVIDER_OFFICES = [
   {
@@ -273,6 +274,23 @@ describe("OfficeAccounts adaptor", () => {
       const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.deepEqual(renderModel.officeOptions, []);
     });
+
+    it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmId: "123",
+        userOfficeAccounts: [],
+      });
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.query = { from: "check-your-answers" };
+      requestStub.session = {
+        claim: { type: "PAYMENT_ON_ACCOUNT" },
+      } as Request["session"];
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+    });
   });
 
   describe("processOfficeAccountsSelectForm", () => {
@@ -286,6 +304,19 @@ describe("OfficeAccounts adaptor", () => {
       assert.equal(
         responseStub.redirect.firstCall.args[0],
         "/apply/client-details/name-and-dob",
+      );
+    });
+
+    it("redirects to check-your-answers page when returnToApplyCheckYourAnswers flag is set", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.body = { "office-accounts": "0A123A" };
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.firstCall.args[0],
+        "/apply/check-your-answers",
       );
     });
 

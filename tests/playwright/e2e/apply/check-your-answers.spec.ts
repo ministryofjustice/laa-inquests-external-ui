@@ -105,14 +105,25 @@ test.describe("Apply - check your answers", () => {
     );
     await expect(providerDetailsSummaryList).toBeVisible();
 
-    //TODO: Table level change link
-
     const officeDetailsTableHeading =
       await providerDetailsSummaryList.getByRole("heading", {
         level: 2,
         name: "Office details",
       });
     await expect(officeDetailsTableHeading).toBeVisible();
+
+    const officeDetailsChangeLink = providerDetailsSummaryList.getByRole(
+      "link",
+      {
+        name: "Change",
+      },
+    );
+    await expect(officeDetailsChangeLink).toBeVisible();
+
+    await expect(officeDetailsChangeLink).toHaveAttribute(
+      "href",
+      "/apply/office-accounts?from=check-your-answers",
+    );
 
     const officeAccountNumberRowTitle = providerDetailsSummaryList.getByText(
       "Office account number",

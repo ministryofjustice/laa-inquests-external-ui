@@ -25,6 +25,14 @@
             card: {
               title: {
                 text: "Office details"
+              },
+              actions: {
+                items: [
+                  {
+                    href: "/apply/office-accounts?from=check-your-answers",
+                    text: "Change"
+                  }
+                ]
               }
             },
             rows: [
@@ -34,15 +42,6 @@
                 },
                 value: {
                   html: providerDetails.officeAccount
-                },
-                actions: {
-                  items: [
-                    {
-                      href: "/apply/office-accounts?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "Office account number"
-                    }
-                  ]
                 }
               },
               {
@@ -51,15 +50,6 @@
                 },
                 value: {
                   html: providerDetails.officeAddress
-                },
-                actions: {
-                  items: [
-                    {
-                      href: "/apply/office-accounts?from=check-your-answers",
-                      text: "Change",
-                      visuallyHiddenText: "Office address"
-                    }
-                  ]
                 }
               }
             ]

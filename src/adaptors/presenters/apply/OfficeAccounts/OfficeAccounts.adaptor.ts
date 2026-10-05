@@ -38,6 +38,8 @@ export class OfficeAccountsAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -90,7 +92,20 @@ export class OfficeAccountsAdaptor {
       session.selectedOfficeAddress = this.#formatAddress(
         selectedOfficeDetails!,
       );
-      res.redirect("/apply/client-details/name-and-dob");
+      if (req.session.returnToApplyCheckYourAnswers === true) {
+        res.redirect("/apply/check-your-answers");
+      } else {
+        res.redirect("/apply/client-details/name-and-dob");
+      }
+    }
+  }
+
+  #captureCheckYourAnswersEntry(req: {
+    query?: Request["query"];
+    session: Request["session"];
+  }): void {
+    if (req.query?.from === "check-your-answers") {
+      req.session.returnToApplyCheckYourAnswers = true;
     }
   }
 
