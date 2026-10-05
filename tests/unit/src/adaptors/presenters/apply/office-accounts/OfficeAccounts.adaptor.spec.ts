@@ -90,6 +90,7 @@ describe("OfficeAccounts adaptor", () => {
       );
       assert.deepEqual(renderArgs[1], {
         csrfToken: "abcdefg",
+        backHref: "/apply",
         officeOptions: [
           {
             value: "0A123A",
@@ -107,19 +108,19 @@ describe("OfficeAccounts adaptor", () => {
             hint: { text: "0A789A" },
           },
         ],
-        selectedOfficeAccount: undefined,
+        selectedOfficeId: undefined,
       });
     });
 
     it("passes the previously selected office from session to the view", async () => {
       const { adaptor, requestStub, responseStub } = createRenderFixtures();
-      requestStub.session.selectedOfficeAccount = "0A456A";
+      requestStub.session.selectedOfficeId = "0A456A";
 
       await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
 
       const renderModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
-      assert.equal(renderModel.selectedOfficeAccount, "0A456A");
+      assert.equal(renderModel.selectedOfficeId, "0A456A");
     });
 
     it("passes firmId from authenticated session and access token to provider offices port", async () => {
@@ -273,6 +274,23 @@ describe("OfficeAccounts adaptor", () => {
       const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
       assert.deepEqual(renderModel.officeOptions, []);
     });
+
+    it("sets returnToCheckYourAnswers flag when from=check-your-answers query param is present", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmId: "123",
+        userOfficeAccounts: [],
+      });
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.query = { from: "check-your-answers" };
+      requestStub.session = {
+        claim: { type: "PAYMENT_ON_ACCOUNT" },
+      } as Request["session"];
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.returnToApplyCheckYourAnswers, true);
+    });
   });
 
   describe("processOfficeAccountsSelectForm", () => {
@@ -289,13 +307,43 @@ describe("OfficeAccounts adaptor", () => {
       );
     });
 
+    it("redirects to check-your-answers page when returnToApplyCheckYourAnswers flag is set", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.body = { "office-accounts": "0A123A" };
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+      await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.equal(
+        responseStub.redirect.firstCall.args[0],
+        "/apply/check-your-answers",
+      );
+    });
+
+    it("renders with check-your-answers back link when returnToApplyCheckYourAnswers flag is set", async () => {
+      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      requestStub.session.returnToApplyCheckYourAnswers = true;
+
+      await adaptor.renderOfficeAccountsSelectForm(requestStub, responseStub);
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(
+        renderArgs[0],
+        "apply/office-accounts/select-office-account",
+      );
+      const renderModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(renderModel.backHref, "/apply/check-your-answers");
+    });
+
     it("stores the selected office in session when an office is selected", async () => {
       const { adaptor, requestStub, responseStub } = createRenderFixtures();
       requestStub.body = { "office-accounts": "0A456A" };
 
       await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.selectedOfficeAccount, "0A456A");
+      assert.equal(requestStub.session.selectedOfficeId, "0A456A");
       assert.equal(
         requestStub.session.selectedOfficeAddress,
         "2 Test Street, Manchester, M1A 1AA",
@@ -310,7 +358,7 @@ describe("OfficeAccounts adaptor", () => {
 
       await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.selectedOfficeAccount, undefined);
+      assert.equal(requestStub.session.selectedOfficeId, undefined);
       assert.equal(requestStub.session.selectedOfficeAddress, undefined);
       assert.equal(responseStub.redirect.callCount, 0);
       assert.equal(responseStub.render.callCount, 1);

@@ -44,6 +44,9 @@ describe("Confirmation adaptor", () => {
   });
 
   it("render check your answers page", () => {
+    requestStub.session.selectedOfficeId = "0U651L";
+    requestStub.session.selectedOfficeAddress =
+      "123 Test Street, Test Town, TE1 1ST";
     requestStub.session.clientFirstName = "test name";
     requestStub.session.clientLastName = "last name";
     requestStub.session.clientLastNameAtBirth = "birth name";
@@ -103,6 +106,10 @@ describe("Confirmation adaptor", () => {
     const renderArgs = responseStub.render.getCall(0).args;
     assert.deepEqual(renderArgs[1], {
       csrfToken: "abcdefg",
+      providerDetails: {
+        officeId: "0U651L",
+        officeAddress: "123 Test Street, Test Town, TE1 1ST",
+      },
       client: {
         clientFirstName: "test name",
         clientLastName: "last name",
@@ -384,7 +391,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = "AB123456C";
-      requestStub.session.selectedOfficeAccount = "001";
+      requestStub.session.selectedOfficeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
@@ -480,7 +487,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.selectedOfficeAccount = "001";
+      requestStub.session.selectedOfficeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
@@ -548,7 +555,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.selectedOfficeAccount = "001";
+      requestStub.session.selectedOfficeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceAddressSource =
         "USE_SPECIFIED_ADDRESS";
@@ -617,7 +624,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.selectedOfficeAccount = "001";
+      requestStub.session.selectedOfficeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = {
         recipientType: "PERSON",
@@ -674,7 +681,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobDay = "05";
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
-      requestStub.session.selectedOfficeAccount = "001";
+      requestStub.session.selectedOfficeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.clientCorrespondenceRecipient = null;
       requestStub.session.deceasedClientRelationship = "Spouse";
@@ -733,7 +740,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = null as unknown as string;
-      requestStub.session.selectedOfficeAccount = "001";
+      requestStub.session.selectedOfficeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 
@@ -798,7 +805,7 @@ describe("Confirmation adaptor", () => {
       requestStub.session.clientDobMonth = "10";
       requestStub.session.clientDobYear = "1989";
       requestStub.session.clientNino = "AB123456C";
-      requestStub.session.selectedOfficeAccount = "001";
+      requestStub.session.selectedOfficeId = "001";
       requestStub.session.providerEmail = "test@example.com";
       requestStub.session.deceasedClientRelationship = "Spouse";
 

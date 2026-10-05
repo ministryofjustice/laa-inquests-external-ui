@@ -12,7 +12,7 @@
 <div class="govuk-width-container">
   {{ govukBackLink({
     text: "Back",
-    href: "/apply"
+    href: backHref or "/apply"
   }) }}
 
   {% if errorSummaries.noOfficeSelected %}
@@ -46,7 +46,7 @@
               text: t("pages.apply.officeAccounts.selectOffice.hint")
             },
             items: officeOptions,
-            value: selectedOfficeAccount,
+            value: selectedOfficeId,
             errorMessage: errorSummaries.noOfficeSelected
           }) }}
           <p class="govuk-body">{{ t("pages.apply.officeAccounts.selectOffice.paragraph") }}</p>

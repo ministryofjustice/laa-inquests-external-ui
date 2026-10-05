@@ -90,6 +90,58 @@ test.describe("Apply - check your answers", () => {
     );
   });
 
+  test("renders provider details summary list", async ({ page }) => {
+    await page.goto("/apply/check-your-answers");
+
+    const providerDetailsHeading = await page.getByRole("heading", {
+      level: 2,
+      name: "Provider details",
+    });
+
+    await expect(providerDetailsHeading).toBeVisible();
+
+    const providerDetailsSummaryList = page.getByTestId(
+      "provider-details-summary-list",
+    );
+    await expect(providerDetailsSummaryList).toBeVisible();
+
+    const officeDetailsTableHeading =
+      await providerDetailsSummaryList.getByRole("heading", {
+        level: 2,
+        name: "Office details",
+      });
+    await expect(officeDetailsTableHeading).toBeVisible();
+
+    const officeDetailsChangeLink = providerDetailsSummaryList.getByRole(
+      "link",
+      {
+        name: "Change",
+      },
+    );
+    await expect(officeDetailsChangeLink).toBeVisible();
+
+    await expect(officeDetailsChangeLink).toHaveAttribute(
+      "href",
+      "/apply/office-accounts?from=check-your-answers",
+    );
+
+    const officeAccountNumberRowTitle = providerDetailsSummaryList.getByText(
+      "Office account number",
+      {
+        exact: true,
+      },
+    );
+    await expect(officeAccountNumberRowTitle).toBeVisible();
+
+    const officeAddressRowTitle = providerDetailsSummaryList.getByText(
+      "Office address",
+      {
+        exact: true,
+      },
+    );
+    await expect(officeAddressRowTitle).toBeVisible();
+  });
+
   test("renders client details summary list", async ({ page }) => {
     await page.goto("/apply/check-your-answers");
 

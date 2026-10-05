@@ -38,6 +38,8 @@ export class OfficeAccountsAdaptor {
     req: Request,
     res: Response,
   ): Promise<void> {
+    this.#captureCheckYourAnswersEntry(req);
+
     const {
       locals: { csrfToken },
     } = res;
@@ -47,8 +49,9 @@ export class OfficeAccountsAdaptor {
 
     res.render("apply/office-accounts/select-office-account", {
       csrfToken,
+      backHref: this.#resolveBackHref(req),
       officeOptions,
-      selectedOfficeAccount: req.session.selectedOfficeAccount,
+      selectedOfficeId: req.session.selectedOfficeId,
     });
   }
 
@@ -86,11 +89,24 @@ export class OfficeAccountsAdaptor {
       const selectedOfficeDetails = authorisedOffices.find(
         (office) => office.officeCode === selectedOffice,
       );
-      session.selectedOfficeAccount = selectedOffice;
+      session.selectedOfficeId = selectedOffice;
       session.selectedOfficeAddress = this.#formatAddress(
         selectedOfficeDetails!,
       );
-      res.redirect("/apply/client-details/name-and-dob");
+      if (req.session.returnToApplyCheckYourAnswers === true) {
+        res.redirect("/apply/check-your-answers");
+      } else {
+        res.redirect("/apply/client-details/name-and-dob");
+      }
+    }
+  }
+
+  #captureCheckYourAnswersEntry(req: {
+    query?: Request["query"];
+    session: Request["session"];
+  }): void {
+    if (req.query?.from === "check-your-answers") {
+      req.session.returnToApplyCheckYourAnswers = true;
     }
   }
 
@@ -100,6 +116,13 @@ export class OfficeAccountsAdaptor {
   ): Promise<OfficeAccountsOption[]> {
     const authorisedOffices = await this.#getAuthorisedOffices(req, firmId);
     return this.#formatOfficeOptions(authorisedOffices, req.session.firmName);
+  }
+
+  #resolveBackHref(req: Request): string {
+    if (req.session.returnToApplyCheckYourAnswers === true) {
+      return "/apply/check-your-answers";
+    }
+    return "/apply";
   }
 
   async #getAuthorisedOffices(
