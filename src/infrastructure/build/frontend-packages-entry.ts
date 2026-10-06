@@ -186,6 +186,15 @@ function resolveUploadConfig(): {
   }
 }
 
+// Uploads happen via XHR without any page navigation, so the browser has no reason to
+// adjust scroll on its own. The uploaded-files list sits above the dropzone and starts
+// hidden until the first file is added, so revealing/growing it can push the dropzone
+// out of view just as a new upload is submitted - scroll the whole component into view
+// as soon as the request is submitted, rather than waiting for it to complete or fail.
+function scrollUploadIntoView(upload: MultiFileUploadInstance): void {
+  upload.$root.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
 function initialiseMultiFileUpload(): void {
   const multiFileUploadElement = document.querySelector(
     '[data-module="moj-multi-file-upload"]',
@@ -213,6 +222,8 @@ function initialiseMultiFileUpload(): void {
         deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
         hooks: {
           entryHook: (upload: MultiFileUploadInstance, file: File): void => {
+            scrollUploadIntoView(upload);
+
             /* eslint-disable-next-line require-unicode-regexp -- not expected to have unicode in filenames */
             const filepathRegex = new RegExp(INVALID_FILE_NAME_REGEX);
             if (!filepathRegex.test(file.name)) {

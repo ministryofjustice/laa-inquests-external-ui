@@ -167,6 +167,36 @@ test.describe("Claim - final bill template", () => {
     ).toBeVisible();
   });
 
+  test("scrolls the upload component into view after a JS upload", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 800, height: 400 });
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
+
+    const multiFileUpload = page.locator(
+      "[data-module='moj-multi-file-upload']",
+    );
+    await expect(multiFileUpload).not.toBeInViewport();
+
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+
+    await expect(multiFileUpload).toBeInViewport();
+  });
+
   test("keeps the upload input visible but rejects a second file after reloading", async ({
     page,
   }) => {
