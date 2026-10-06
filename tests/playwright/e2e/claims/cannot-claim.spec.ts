@@ -53,15 +53,15 @@ test.describe("Claim - cannot make a claim (entry block)", () => {
     ).toBeVisible();
   });
 
-  test("provides a Back to search link to /claim", async ({ page }) => {
+  test("provides a Back to search link to /claim/search", async ({ page }) => {
     await searchAndSelect(page, "force-blocked");
 
     const backToSearch = page.getByRole("button", { name: "Back to search" });
     await expect(backToSearch).toBeVisible();
-    await expect(backToSearch).toHaveAttribute("href", "/claim");
+    await expect(backToSearch).toHaveAttribute("href", "/claim/search");
 
     await backToSearch.click();
-    await expect(page).toHaveURL("/claim");
+    await expect(page).toHaveURL("/claim/search");
   });
 
   test("has no accessibility violations", async ({

@@ -896,6 +896,20 @@ describe("ConfirmAndSubmit adaptor", () => {
       };
       assert.equal(viewModel.claimTypeHeading, "Final bill");
     });
+
+    it("clears the claim declaration from the session when rendering confirm success", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "PAYMENT_ON_ACCOUNT" };
+      requestStub.session.claimDeclaration = true;
+
+      adaptor.renderConfirmSuccess(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claimDeclaration, undefined);
+    });
   });
 
   describe("renderConfirmReject", () => {
@@ -949,6 +963,20 @@ describe("ConfirmAndSubmit adaptor", () => {
         "UNKNOWN_REASON_CODE",
       ]);
       assert.equal(viewModel.claimTypeHeading, "Final bill");
+    });
+
+    it("clears the claim declaration from the session when rendering confirm reject", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = { type: "PAYMENT_ON_ACCOUNT" };
+      requestStub.session.claimDeclaration = true;
+
+      adaptor.renderConfirmReject(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claimDeclaration, undefined);
     });
   });
 });

@@ -480,6 +480,7 @@ export class ConfirmAndSubmitAdaptor {
       session: { claimReferenceNumber, claim },
     } = req;
 
+    req.session.claimDeclaration = undefined;
     res.render("claim/confirm-success", {
       csrfToken,
       claimReferenceNumber,
@@ -502,6 +503,7 @@ export class ConfirmAndSubmitAdaptor {
         : reason,
     );
 
+    req.session.claimDeclaration = undefined;
     res.render("claim/confirm-reject", {
       csrfToken,
       rejectionReasonDescriptions,
