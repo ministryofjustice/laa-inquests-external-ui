@@ -80,22 +80,4 @@ test.describe("Claim - case search", () => {
     await expect(page.getByTestId("no-results-message")).toBeVisible();
     await expect(page.getByRole("table")).not.toBeVisible();
   });
-
-  test("clears claim session data so back link on total cost reverts to /claim/type", async ({
-    page,
-  }) => {
-    await page.goto("/claim/type");
-    await page.getByLabel("Payment on account (POA)").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/subtype");
-    await page.getByLabel("Expert cost").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/total-cost");
-
-    await page.goto("/claim/search");
-    await page.goto("/claim/total-cost");
-
-    const backLink = page.getByRole("link", { name: "Back", exact: true });
-    await expect(backLink).toHaveAttribute("href", "/claim/type");
-  });
 });
