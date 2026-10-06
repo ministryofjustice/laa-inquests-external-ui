@@ -217,7 +217,7 @@ export class CoronersLetterAdaptor {
     }
 
     this.#removeCoronersLetterFromSession(req);
-    res.redirect("/apply/upload-coroners-letter");
+    res.redirect("/apply/upload-coroners-letter#file-upload");
   }
 
   #renderNoJsError(
@@ -330,7 +330,7 @@ export class CoronersLetterAdaptor {
     );
 
     if (isNoJsUpload) {
-      res.redirect("/apply/upload-coroners-letter");
+      res.redirect("/apply/upload-coroners-letter#file-upload");
       this.#logUploadSuccess(req, isNoJsUpload, data.coronersLetterId);
       return;
     }

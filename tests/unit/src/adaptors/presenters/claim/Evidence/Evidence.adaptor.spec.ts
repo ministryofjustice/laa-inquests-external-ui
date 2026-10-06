@@ -310,7 +310,7 @@ describe("Evidence adaptor", () => {
       ]);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/evidence");
+      assert.equal(redirectUrl, "/claim/evidence#file-upload");
       assert.equal(responseStub.json.callCount, 0);
     });
 
@@ -475,7 +475,10 @@ describe("Evidence adaptor", () => {
         { id: "file-id-456", fileName: "keep.pdf" },
       ]);
       assert.equal(responseStub.redirect.callCount, 1);
-      assert.equal(responseStub.redirect.getCall(0).args[0], "/claim/evidence");
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/evidence#file-upload",
+      );
     });
 
     it("does not lose files when uploads for the same session overlap", async () => {
