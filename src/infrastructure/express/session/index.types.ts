@@ -43,6 +43,7 @@ interface FormError {
 }
 
 export interface ClaimSession {
+  claimDeclaration?: boolean;
   caseReference?: string;
   client?: ClaimClientDetails;
   searchResults?: ClaimClientDetails[];

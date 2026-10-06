@@ -39,7 +39,10 @@ export class ClaimDeclarationAdaptor {
       });
       return;
     }
-    req.session.claimDeclaration = true;
+    req.session.claim = {
+      ...req.session.claim,
+      claimDeclaration: true,
+    };
     logger.logInfo({
       functionName: "claim_declaration",
       message: "Claim declaration submitted",
