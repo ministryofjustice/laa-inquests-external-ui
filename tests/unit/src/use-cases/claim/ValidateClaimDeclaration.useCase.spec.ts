@@ -18,16 +18,6 @@ describe("ValidateClaimDeclarationUseCase", () => {
     });
   });
 
-  it("returns success when declaration is confirmed in checkbox array", () => {
-    const useCase = new ValidateClaimDeclarationUseCase();
-
-    const result = useCase.execute(["false", "true"]);
-
-    assert.deepEqual(result, {
-      status: "SUCCESS",
-    });
-  });
-
   it("returns success when declaration is true", () => {
     const useCase = new ValidateClaimDeclarationUseCase();
 

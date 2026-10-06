@@ -32,9 +32,7 @@ test.describe("Claim - declaration", () => {
     await expect(form).toBeVisible();
   });
 
-  test("renders continue button to the right of the input", async ({
-    page,
-  }) => {
+  test("renders start button", async ({ page }) => {
     const form = page.getByTestId("claim-declaration-form");
     const startButton = form.getByRole("button", { name: "Start" });
 

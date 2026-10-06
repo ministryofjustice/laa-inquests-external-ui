@@ -4,12 +4,9 @@ import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js
 
 export class ValidateClaimDeclarationUseCase {
   execute(
-    declarationConfirmation?: string | string[],
+    declarationConfirmation?: string,
   ): UseCaseResult<undefined, ClaimDeclarationError> {
-    const hasConfirmedDeclaration =
-      declarationConfirmation === "true" ||
-      (Array.isArray(declarationConfirmation) &&
-        declarationConfirmation.includes("true"));
+    const hasConfirmedDeclaration = declarationConfirmation === "true";
 
     if (!hasConfirmedDeclaration) {
       return {

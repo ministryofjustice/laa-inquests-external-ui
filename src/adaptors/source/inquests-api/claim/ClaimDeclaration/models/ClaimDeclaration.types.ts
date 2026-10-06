@@ -6,5 +6,5 @@ export interface ClaimDeclarationError {
 
 export interface ClaimDeclarationFormData {
   _csrf: string;
-  "claim-declaration-confirmation"?: string | string[];
+  "claim-declaration-confirmation"?: string;
 }

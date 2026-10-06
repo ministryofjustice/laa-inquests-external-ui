@@ -292,8 +292,12 @@ test.describe("Claim - confirm and submit", () => {
   test("displays the selected client details that were saved in the session", async ({
     page,
   }) => {
-    // TODO: start from /claim declaration page when it's ready
-    await page.goto("/claim/search");
+    await page.goto("/claim");
+    await page
+      .getByLabel("I confirm that I have read and agree to the declaration")
+      .check();
+    await page.getByRole("button", { name: "Start" }).click();
+    await expect(page).toHaveURL("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
@@ -368,8 +372,12 @@ test.describe("Claim - confirm and submit", () => {
   test("displays a 'There is a problem' error summary when the API returns a 422", async ({
     page,
   }) => {
-    // TODO: start from /claim declaration page when it's ready
-    await page.goto("/claim/search");
+    await page.goto("/claim");
+    await page
+      .getByLabel("I confirm that I have read and agree to the declaration")
+      .check();
+    await page.getByRole("button", { name: "Start" }).click();
+    await expect(page).toHaveURL("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
