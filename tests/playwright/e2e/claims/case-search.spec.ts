@@ -5,11 +5,14 @@ test.describe("Claim - case search", () => {
     await page.goto("/claim/search");
   });
 
-  test("renders back link to home", async ({ page, checkAccessibility }) => {
+  test("renders back link to claim declaration", async ({
+    page,
+    checkAccessibility,
+  }) => {
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
     await expect(backLink).toBeVisible();
-    await expect(backLink).toHaveAttribute("href", "/");
+    await expect(backLink).toHaveAttribute("href", "/claim");
 
     await checkAccessibility();
   });

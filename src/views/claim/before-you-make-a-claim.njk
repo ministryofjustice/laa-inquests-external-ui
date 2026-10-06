@@ -2,7 +2,7 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% set pageHeading = "Confirm the following" %}
+{% set pageHeading = "Before you make a claim" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -15,7 +15,10 @@
     {{ govukErrorSummary({
         titleText: "There is a problem",
         errorList: [
-            { text: errorSummaries.noDeclarationConfirmation.text }
+            { 
+                text: errorSummaries.noDeclarationConfirmation.text,
+                href: "#claim-declaration-confirmation"
+            }
         ]
     }) }}
     {% endif %}
@@ -24,30 +27,28 @@
             <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
             <form data-testid="claim-declaration-form" action="/claim" method="post">
                 <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-                <p class="govuk-body">{{clientDetails.firstName}} {{clientDetails.lastName}} agrees that:</p>
+                <p class="govuk-body">You can't save your claim as you go, so please ensure you have all the information you need before you start.</p>
+                <p class="govuk-body">To complete your inquest legal aid claim, you'll need the following:</p>
                 <ul class="govuk-list govuk-list--bullet">
                     <li>
-                        they've instructed Test Provider to represent them
+                        the legal aid reference for the certificate you're claiming against
                     </li>
                     <li>
-                        they've read the <a class="govuk-link" href="https://www.gov.uk/guidance/legal-aid-agency-privacy-notice" target="_blank">LAA privacy policy</a>
+                        details of the work you're claiming for
                     </li>
                     <li>
-                        we can share their information with other government departments like DWP and HMRC
-                    </li>
-                    <li>
-                        the information they've given is complete and correct
+                        supporting evidence for the costs you're claiming, such as receipts
                     </li>
                 </ul>
                 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
                 {{ govukWarningText({
                     html: 
-                        "If they give wrong or incomplete information or do not report changes they may:
+                        "By submitting this claim, you are confirming that:
                         <ul>
-                            <li>be prosecuted</li>
-                            <li>need to pay a financial penalty</li>
-                            <li>have their legal aid stopped and have to pay back the costs</li>
+                            <li>all work has been accurately accounted for as per the terms of your contract</li>
+                            <li>all work can be evidenced, if required</li>
+                            <li>you are authorised to submit a claim for costs</li>
                         </ul>",
                     iconFallbackText: "Warning"
                 }) }}
@@ -59,12 +60,13 @@
                 items: [
                     {
                     value: "true",
-                    text: "I confirm the above is correct and that I'll get a signed declaration from my client"
+                    text: "I confirm that I have read and agree to the declaration"
                     }
                 ]
                 }) }}
                 {{ govukButton({
-                    text: "Continue"
+                    text: "Start",
+                    isStartButton: true
                 }) }}
             </form>
         </div>
