@@ -23,6 +23,10 @@
           titleText: "There is a problem",
           errorList: [
             {
+              text: errorSummaries.noFixedAbodeInputError.text,
+              href: "#has-no-fixed-abode"
+            },
+            {
               text: errorSummaries.addressLine1InputError.text,
               href: "#home-address-line-1"
             },
@@ -42,13 +46,25 @@
               text: errorSummaries.postcodeInputError.text,
               href: "#home-postcode"
             }
-          ]
+          ] | selectattr("text")
         })
       }}
       {% endif %}
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
       <form data-testid="home-address-form" action="/apply/client-details/home-address" method="post">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukCheckboxes({
+          idPrefix: "has-no-fixed-abode",
+          name: "has-no-fixed-abode",
+          items: [
+            {
+              value: "true",
+              text: "Client has no fixed abode",
+              checked: client.hasNoFixedAbode
+            }
+          ],
+          errorMessage: errorSummaries.noFixedAbodeInputError
+        }) }}
         {{ govukInput({
           label: {
             text: "Address line 1",
@@ -99,17 +115,6 @@
           classes: "govuk-input--width-10",
           value: client.homePostcode,
           errorMessage: errorSummaries.postcodeInputError
-        }) }}
-        {{ govukCheckboxes({
-          idPrefix: "has-no-fixed-abode",
-          name: "has-no-fixed-abode",
-          items: [
-            {
-              value: "true",
-              text: "Client has no fixed abode",
-              checked: client.hasNoFixedAbode
-            }
-          ]
         }) }}
         {{ govukButton({
           text: "Continue"

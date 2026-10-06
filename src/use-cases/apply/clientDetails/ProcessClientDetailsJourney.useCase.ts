@@ -76,7 +76,10 @@ export class ProcessClientDetailsJourneyUseCase {
     }
 
     if (step === "HOME_ADDRESS") {
-      const errorSummaries = this.formValidator.validateHomeAddress(formBody);
+      const errorSummaries = this.formValidator.validateHomeAddress(
+        formBody,
+        hasNoFixedAbode,
+      );
       return {
         errorSummaries,
       };

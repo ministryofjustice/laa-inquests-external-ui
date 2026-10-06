@@ -16,7 +16,10 @@ import {
   NINO_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
-import { validateAddressFields } from "#src/adaptors/presenters/apply/ClientDetails/addressValidation.js";
+import {
+  validateAddressFields,
+  validateNoFixedAbodeConflict,
+} from "#src/adaptors/presenters/apply/ClientDetails/addressValidation.js";
 
 const HOME_ADDRESS_VALIDATION_MESSAGES = {
   line1Missing: CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
@@ -231,6 +234,7 @@ export class ClientDetailsValidator extends FormValidator {
 
   validateHomeAddress(
     formBody: Partial<ClientDetailsFormData>,
+    hasNoFixedAbode = false,
   ): Partial<ClientHomeAddressError> {
     const {
       "home-address-line-1": addressLine1,
@@ -240,14 +244,23 @@ export class ClientDetailsValidator extends FormValidator {
       "home-postcode": postcode,
     } = formBody;
 
+    const addressValues = {
+      addressLine1,
+      addressLine2,
+      townOrCity,
+      county,
+      postcode,
+    };
+
+    if (hasNoFixedAbode) {
+      return validateNoFixedAbodeConflict(
+        addressValues,
+        CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      );
+    }
+
     return validateAddressFields(
-      {
-        addressLine1,
-        addressLine2,
-        townOrCity,
-        county,
-        postcode,
-      },
+      addressValues,
       HOME_ADDRESS_VALIDATION_MESSAGES,
     );
   }

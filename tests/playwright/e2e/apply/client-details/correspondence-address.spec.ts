@@ -139,7 +139,7 @@ test.describe("Client details - correspondence address", () => {
       await expect(errorSummary).toBeVisible();
       await expect(errorSummary).toContainText("There is a problem");
       await expect(errorSummary).toContainText(
-        CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
+        CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_ADDRESS_LINE_1,
       );
 
       const errorMessageElement = form.locator(
@@ -317,7 +317,7 @@ test.describe("Client details - correspondence address", () => {
       await expect(errorSummary).toBeVisible();
       await expect(errorSummary).toContainText("There is a problem");
       await expect(errorSummary).toContainText(
-        CLIENT_DETAILS_ERROR.MISSING_HOME_TOWN_OR_CITY,
+        CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_TOWN_OR_CITY,
       );
 
       const errorMessageElement = form.locator(
@@ -454,7 +454,7 @@ test.describe("Client details - correspondence address", () => {
       await expect(errorSummary).toBeVisible();
       await expect(errorSummary).toContainText("There is a problem");
       await expect(errorSummary).toContainText(
-        CLIENT_DETAILS_ERROR.MISSING_HOME_POSTCODE,
+        CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_POSTCODE,
       );
 
       const errorMessageElement = form.locator(

@@ -1,6 +1,7 @@
 import type { ClientHomeAddressError } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   ALPHANUMERIC_CHARACTER_REGEX,
+  EMPTY_ARR_LENGTH,
   HOME_ADDRESS_ALLOWED_CHARACTERS_REGEX,
   HOME_ADDRESS_MAX_LENGTH,
   HOME_ADDRESS_MIN_LENGTH,
@@ -257,6 +258,41 @@ export function validateAddressFields(
 
   if (postcodeError !== undefined) {
     errorSummaries.postcodeInputError = postcodeError;
+  }
+
+  return errorSummaries;
+}
+
+export function validateNoFixedAbodeConflict(
+  values: AddressValues,
+  conflictMessage: string,
+): Partial<ClientHomeAddressError> {
+  const fieldErrorKeys: Record<
+    keyof AddressValues,
+    keyof ClientHomeAddressError
+  > = {
+    addressLine1: "addressLine1InputError",
+    addressLine2: "addressLine2InputError",
+    townOrCity: "townOrCityInputError",
+    county: "countyInputError",
+    postcode: "postcodeInputError",
+  };
+
+  const enteredFields = (
+    Object.keys(values) as Array<keyof AddressValues>
+  ).filter((field) => hasValue(values[field]));
+
+  if (enteredFields.length === EMPTY_ARR_LENGTH) {
+    return {};
+  }
+
+  const conflictError = { text: conflictMessage };
+  const errorSummaries: Partial<ClientHomeAddressError> = {
+    noFixedAbodeInputError: conflictError,
+  };
+
+  for (const field of enteredFields) {
+    errorSummaries[fieldErrorKeys[field]] = conflictError;
   }
 
   return errorSummaries;

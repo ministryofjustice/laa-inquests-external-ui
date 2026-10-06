@@ -213,7 +213,10 @@ export const CLIENT_DETAILS_ERROR = {
     "Application cannot exceed 35 characters",
   MISSING_PREV_APPLICATION_REF:
     "Please enter the reference for the previous application.",
-  MISSING_HOME_ADDRESS_LINE_1: "Please enter address line 1",
+  CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS:
+    "Either select if your client has no fixed abode or enter the client's home address",
+  MISSING_HOME_ADDRESS_LINE_1:
+    "Enter address line 1, typically the building and street",
   HOME_ADDRESS_LINE_1_MIN_MAX_LENGTH:
     "Address line 1 must be between 2 and 100 characters",
   HOME_ADDRESS_LINE_1_REQUIRES_ALPHANUMERIC_CHARACTER:
@@ -226,7 +229,7 @@ export const CLIENT_DETAILS_ERROR = {
     "Address line 2 must include at least 1 letter or number",
   HOME_ADDRESS_LINE_2_INVALID_CHARACTERS:
     "Address line 2 must only include letters, numbers, spaces, hyphens, apostrophes, commas, full stops, forward slashes and ampersands",
-  MISSING_HOME_TOWN_OR_CITY: "Please enter town or city",
+  MISSING_HOME_TOWN_OR_CITY: "Enter town or city",
   HOME_TOWN_OR_CITY_MIN_MAX_LENGTH:
     "Town or city must be between 2 and 100 characters",
   HOME_TOWN_OR_CITY_INVALID_CHARACTERS:
@@ -234,7 +237,7 @@ export const CLIENT_DETAILS_ERROR = {
   HOME_COUNTY_MIN_MAX_LENGTH: "County must be between 3 and 50 characters",
   HOME_COUNTY_INVALID_CHARACTERS:
     "County must only include letters, spaces, hyphens and apostrophes",
-  MISSING_HOME_POSTCODE: "Please enter postcode",
+  MISSING_HOME_POSTCODE: "Enter postcode",
   HOME_POSTCODE_MIN_MAX_LENGTH: "Postcode must be between 5 and 8 characters",
   HOME_POSTCODE_INVALID_CHARACTERS:
     "Postcode must only include letters, numbers and spaces",

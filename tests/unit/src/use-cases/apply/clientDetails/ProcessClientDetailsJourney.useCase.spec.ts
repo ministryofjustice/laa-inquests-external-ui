@@ -54,6 +54,29 @@ describe("ProcessClientDetailsJourneyUseCase", () => {
     });
   });
 
+  it("passes hasNoFixedAbode to home address validation", () => {
+    formValidator.validateHomeAddress.returns({
+      noFixedAbodeInputError: { text: "Conflict error" },
+      addressLine1InputError: { text: "Conflict error" },
+    });
+
+    const formBody = {
+      "home-address-line-1": "4 Privet Drive",
+    };
+
+    const result = useCase.execute({
+      step: "HOME_ADDRESS",
+      formBody,
+      hasNoFixedAbode: true,
+    });
+
+    assert.equal(formValidator.validateHomeAddress.getCall(0).args[1], true);
+    assert.deepEqual(result.errorSummaries, {
+      noFixedAbodeInputError: { text: "Conflict error" },
+      addressLine1InputError: { text: "Conflict error" },
+    });
+  });
+
   it("uses correspondence recipient validation for CORRESPONDENCE_RECIPIENT step", () => {
     formValidator.validateCorrespondenceRecipient.returns({
       noRadioSelected: { text: "Select an option" },
