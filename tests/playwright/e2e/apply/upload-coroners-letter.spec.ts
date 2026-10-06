@@ -131,11 +131,12 @@ test.describe("Apply - upload coroner's letter", () => {
     ).toBeVisible();
   });
 
-  test("scrolls the upload component into view after a JS upload", async ({
+  test("scrolls the uploaded files heading fully into view at 200% zoom", async ({
     page,
   }) => {
-    await page.setViewportSize({ width: 800, height: 150 });
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.evaluate(() => {
+      document.documentElement.style.zoom = "2";
       window.scrollTo(0, 0);
     });
 
@@ -150,7 +151,11 @@ test.describe("Apply - upload coroner's letter", () => {
       buffer: Buffer.from("coroners letter content"),
     });
 
-    await expect(multiFileUpload).toBeInViewport();
+    const uploadedFileHeading = page.getByRole("heading", {
+      level: 2,
+      name: "Uploaded file",
+    });
+    await expect(uploadedFileHeading).toBeInViewport({ ratio: 1 });
   });
 
   test("redirects to check your answers when continue is clicked with an uploaded file", async ({
