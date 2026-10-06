@@ -261,10 +261,27 @@ export class ClientDetailsValidator extends FormValidator {
       const conflictError = {
         text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
       };
-      return {
+      const errorSummaries: Partial<ClientHomeAddressError> = {
         noFixedAbodeInputError: conflictError,
-        addressLine1InputError: conflictError,
       };
+
+      if (typeof addressLine1 === "string" && addressLine1 !== "") {
+        errorSummaries.addressLine1InputError = conflictError;
+      }
+      if (typeof addressLine2 === "string" && addressLine2 !== "") {
+        errorSummaries.addressLine2InputError = conflictError;
+      }
+      if (typeof townOrCity === "string" && townOrCity !== "") {
+        errorSummaries.townOrCityInputError = conflictError;
+      }
+      if (typeof county === "string" && county !== "") {
+        errorSummaries.countyInputError = conflictError;
+      }
+      if (typeof postcode === "string" && postcode !== "") {
+        errorSummaries.postcodeInputError = conflictError;
+      }
+
+      return errorSummaries;
     }
 
     return validateAddressFields(

@@ -738,7 +738,69 @@ describe("ClientDetailsValidator", () => {
           noFixedAbodeInputError: {
             text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
           },
+          countyInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+        });
+      });
+
+      it("adds conflict error only to the fields that are entered when no fixed abode is selected", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-town-or-city": "London",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(
+          formBody,
+          true,
+        );
+        assert.deepEqual(errorSummaries, {
+          noFixedAbodeInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          postcodeInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+        });
+      });
+
+      it("adds conflict error to every address field when all are entered and no fixed abode is selected", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "home-address-line-1": "4 Privet Drive",
+          "home-address-line-2": "Little Whinging",
+          "home-town-or-city": "London",
+          "home-county": "Surrey",
+          "home-postcode": "SW1A 1AA",
+        };
+
+        const errorSummaries = formValidator.validateHomeAddress(
+          formBody,
+          true,
+        );
+        assert.deepEqual(errorSummaries, {
+          noFixedAbodeInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
           addressLine1InputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          addressLine2InputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          townOrCityInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          countyInputError: {
+            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+          },
+          postcodeInputError: {
             text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
           },
         });
