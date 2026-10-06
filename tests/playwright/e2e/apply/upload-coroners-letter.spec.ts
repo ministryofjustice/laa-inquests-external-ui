@@ -131,6 +131,33 @@ test.describe("Apply - upload coroner's letter", () => {
     ).toBeVisible();
   });
 
+  test("scrolls the uploaded files heading fully into view at 200% zoom", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.evaluate(() => {
+      document.documentElement.style.zoom = "2";
+      window.scrollTo(0, 0);
+    });
+
+    const multiFileUpload = page.locator(
+      "[data-module='moj-multi-file-upload']",
+    );
+    await expect(multiFileUpload).not.toBeInViewport();
+
+    await uploadViaWidget(page, {
+      name: "test-coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("coroners letter content"),
+    });
+
+    const uploadedFileHeading = page.getByRole("heading", {
+      level: 2,
+      name: "Uploaded file",
+    });
+    await expect(uploadedFileHeading).toBeInViewport({ ratio: 1 });
+  });
+
   test("redirects to check your answers when continue is clicked with an uploaded file", async ({
     page,
   }) => {

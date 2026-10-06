@@ -186,6 +186,18 @@ function resolveUploadConfig(): {
   }
 }
 
+function scrollUploadIntoView(upload: MultiFileUploadInstance): void {
+  window.requestAnimationFrame(() => {
+    const heading = upload.$root.querySelector(
+      ".moj-multi-file__uploaded-files h2",
+    );
+    (heading ?? upload.$root).scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  });
+}
+
 function initialiseMultiFileUpload(): void {
   const multiFileUploadElement = document.querySelector(
     '[data-module="moj-multi-file-upload"]',
@@ -213,6 +225,8 @@ function initialiseMultiFileUpload(): void {
         deleteUrl: `${uploadRouteBase}/delete${csrfQuery}`,
         hooks: {
           entryHook: (upload: MultiFileUploadInstance, file: File): void => {
+            scrollUploadIntoView(upload);
+
             /* eslint-disable-next-line require-unicode-regexp -- not expected to have unicode in filenames */
             const filepathRegex = new RegExp(INVALID_FILE_NAME_REGEX);
             if (!filepathRegex.test(file.name)) {
