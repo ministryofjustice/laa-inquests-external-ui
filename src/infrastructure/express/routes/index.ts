@@ -2,6 +2,8 @@ import express from "express";
 import type { Request, Response, RequestHandler } from "express";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
+import { ClaimDeclarationAdaptor } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/ClaimDeclaration.adaptor.js";
+import { createClaimDeclarationRouter } from "./claim/claimDeclaration.router.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
 import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
@@ -93,6 +95,7 @@ import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCa
 import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
+import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -100,6 +103,7 @@ const DEV_AUTH_BYPASS_MODULE_PATH =
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
+const claimDeclarationRouter = express.Router();
 const caseSearchRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
@@ -240,6 +244,9 @@ const coronersLetterAdaptor = new CoronersLetterAdaptor(
   uploadCoronersLetterUseCase,
   deleteCoronersLetterUseCase,
 );
+const claimDeclarationAdaptor = new ClaimDeclarationAdaptor(
+  new ValidateClaimDeclarationUseCase(),
+);
 const caseSearchValidator = new CaseSearchValidator();
 const searchCasesSource = new SearchCasesAdaptor(
   axios.create(),
@@ -356,6 +363,7 @@ const counselPayConfirmationAdaptor = new CounselPayConfirmationAdaptor(
 
 indexRouter.use(
   "/claim",
+  createClaimDeclarationRouter(claimDeclarationRouter, claimDeclarationAdaptor),
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createCannotClaimRouter(cannotClaimRouter, cannotClaimAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),

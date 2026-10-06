@@ -22,7 +22,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-            <form data-testid="client-declaration-form" action="/apply/confirmation/client-declaration" method="post">
+            <form data-testid="claim-declaration-form" action="/claim" method="post">
                 <input type="hidden" name="_csrf" value="{{csrfToken}}" />
                 <p class="govuk-body">{{clientDetails.firstName}} {{clientDetails.lastName}} agrees that:</p>
                 <ul class="govuk-list govuk-list--bullet">
@@ -54,7 +54,7 @@
                 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 
                 {{ govukCheckboxes({
-                name: "client-declaration-confirmation",
+                name: "claim-declaration-confirmation",
                 errorMessage: errorSummaries.noDeclarationConfirmation,
                 items: [
                     {

@@ -1,42 +1,28 @@
-import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
-
-
 import type { Request, Response } from "express";
-import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
-import type { ClaimDeclarationFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
+
 import { logger } from "#src/infrastructure/logging/logger.js";
+import type { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
+import type { ClaimDeclarationFormData } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/models/ClaimDeclaration.types.js";
 
 export class ClaimDeclarationAdaptor {
-  sessionHelper: SessionHelper;
   validateClaimDeclarationUseCase: ValidateClaimDeclarationUseCase;
 
-  constructor(
-    sessionHelper: SessionHelper,
-    useCase: ValidateClaimDeclarationUseCase,
-  ) {
-    this.sessionHelper = sessionHelper;
+  constructor(useCase: ValidateClaimDeclarationUseCase) {
     this.validateClaimDeclarationUseCase = useCase;
   }
 
-  renderClientDeclarationForm(req: Request, res: Response): void {
+  renderForm(req: Request, res: Response): void {
     const {
       locals: { csrfToken },
     } = res;
 
-    res.render("apply/submit/client-declaration", {
+    res.render("claim/before-you-make-a-claim", {
       csrfToken,
-      clientDetails: {
-        firstName: req.session.clientFirstName ?? "",
-        lastName: req.session.clientLastName ?? "",
-      },
     });
   }
 
-  async processClaimDeclarationForm(
-    req: Request,
-    res: Response,
-  ): Promise<void> {
-    const { "client-declaration-confirmation": declarationConfirmation } =
+  processForm(req: Request, res: Response): void {
+    const { "claim-declaration-confirmation": declarationConfirmation } =
       req.body as ClaimDeclarationFormData;
     const result = this.validateClaimDeclarationUseCase.execute(
       declarationConfirmation,
@@ -47,13 +33,13 @@ export class ClaimDeclarationAdaptor {
         locals: { csrfToken },
       } = res;
 
-      res.render("claim", {
+      res.render("claim/before-you-make-a-claim", {
         csrfToken,
         errorSummaries: result.errorSummaries,
       });
       return;
     }
-
+    req.session.claimDeclaration = true;
     logger.logInfo({
       functionName: "claim_declaration",
       message: "Claim declaration submitted",
