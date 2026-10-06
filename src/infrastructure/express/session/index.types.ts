@@ -35,6 +35,7 @@ declare module "express-session" {
     claimRejectionReasons?: ClaimRejectionReasonCode[] | string[];
     claim?: ClaimSession;
     returnToApplyCheckYourAnswers?: boolean;
+    claimDeclaration?: boolean;
   }
 }
 

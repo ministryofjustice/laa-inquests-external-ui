@@ -4,6 +4,9 @@ export const MAX_CHARACTER_LENGTH = 100;
 export const SERVICE_UNAVAILABLE_MESSAGE =
   "Service unavailable. Please try again later.";
 
+export const CLAIM_DECLARATION_ERROR =
+  "Confirm you have read and agree to the declaration";
+
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
   NO_RESULTS: "There are no results that match the search criteria",

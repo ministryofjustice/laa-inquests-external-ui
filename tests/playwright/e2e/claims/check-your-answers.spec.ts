@@ -294,6 +294,11 @@ test.describe("Claim - confirm and submit", () => {
   }) => {
     await page.goto("/claim");
     await page
+      .getByLabel("I confirm that I have read and agree to the declaration")
+      .check();
+    await page.getByRole("button", { name: "Start" }).click();
+    await expect(page).toHaveURL("/claim/search");
+    await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
       .fill("INQ-YYY-001");
@@ -368,6 +373,11 @@ test.describe("Claim - confirm and submit", () => {
     page,
   }) => {
     await page.goto("/claim");
+    await page
+      .getByLabel("I confirm that I have read and agree to the declaration")
+      .check();
+    await page.getByRole("button", { name: "Start" }).click();
+    await expect(page).toHaveURL("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
