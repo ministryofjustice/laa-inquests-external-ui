@@ -1,18 +1,19 @@
 import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
-import type { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
+import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
 import { ClaimDeclarationAdaptor } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/ClaimDeclaration.adaptor.js";
 import { CLAIM_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
 
 function buildAdaptor() {
-  return new ClaimDeclarationAdaptor(stubInterface<ValidateClaimDeclarationUseCase>());
+  const validateClaimDeclarationUseCase = new ValidateClaimDeclarationUseCase();
+  return new ClaimDeclarationAdaptor(validateClaimDeclarationUseCase);
 }
 
 describe("ClaimDeclaration adaptor", () => {
   describe("renderForm", () => {
     it("renders the claim declaration form", () => {
-      const adaptor = buildAdaptor()
+      const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
 
