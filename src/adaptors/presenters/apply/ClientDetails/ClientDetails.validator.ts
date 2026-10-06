@@ -16,7 +16,10 @@ import {
   NINO_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
-import { validateAddressFields } from "#src/adaptors/presenters/apply/ClientDetails/addressValidation.js";
+import {
+  validateAddressFields,
+  validateNoFixedAbodeConflict,
+} from "#src/adaptors/presenters/apply/ClientDetails/addressValidation.js";
 
 const HOME_ADDRESS_VALIDATION_MESSAGES = {
   line1Missing: CLIENT_DETAILS_ERROR.MISSING_HOME_ADDRESS_LINE_1,
@@ -249,39 +252,11 @@ export class ClientDetailsValidator extends FormValidator {
       postcode,
     };
 
-    const hasAnyAddressValue = Object.values(addressValues).some(
-      (value) => typeof value === "string" && value !== "",
-    );
-
     if (hasNoFixedAbode) {
-      if (!hasAnyAddressValue) {
-        return {};
-      }
-
-      const conflictError = {
-        text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-      };
-      const errorSummaries: Partial<ClientHomeAddressError> = {
-        noFixedAbodeInputError: conflictError,
-      };
-
-      if (typeof addressLine1 === "string" && addressLine1 !== "") {
-        errorSummaries.addressLine1InputError = conflictError;
-      }
-      if (typeof addressLine2 === "string" && addressLine2 !== "") {
-        errorSummaries.addressLine2InputError = conflictError;
-      }
-      if (typeof townOrCity === "string" && townOrCity !== "") {
-        errorSummaries.townOrCityInputError = conflictError;
-      }
-      if (typeof county === "string" && county !== "") {
-        errorSummaries.countyInputError = conflictError;
-      }
-      if (typeof postcode === "string" && postcode !== "") {
-        errorSummaries.postcodeInputError = conflictError;
-      }
-
-      return errorSummaries;
+      return validateNoFixedAbodeConflict(
+        addressValues,
+        CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      );
     }
 
     return validateAddressFields(
