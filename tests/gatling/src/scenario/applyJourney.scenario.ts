@@ -1,4 +1,4 @@
-import { scenario } from "@gatling.io/core";
+import { scenario, csv } from "@gatling.io/core";
 import {
   seedSession,
   selectOfficeAccount,
@@ -49,7 +49,10 @@ import {
   getConfirmationSuccess,
 } from "../page/confirmationPage.js";
 
+const applicantsFeeder = csv("data/applications.csv").circular();
+
 export const applyJourneyScenario = scenario("Apply journey — happy path")
+  .feed(applicantsFeeder)
   .exec(seedSession)
   .pause(1, 2)
   .exec(selectOfficeAccount)

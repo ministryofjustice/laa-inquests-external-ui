@@ -1,7 +1,6 @@
 import { exec, css } from "@gatling.io/core";
 import type { ChainBuilder } from "@gatling.io/core";
 import { http, status } from "@gatling.io/http";
-import { clientDetailsData } from "../data/clientDetailsData.js";
 
 const csrfCheck = css("input[name=_csrf]", "value").saveAs("csrfToken");
 
@@ -16,12 +15,12 @@ export const submitNameAndDob: ChainBuilder = exec(
   http("POST name and dob")
     .post("/apply/client-details/name-and-dob")
     .formParam("_csrf", "#{csrfToken}")
-    .formParam("first-name", clientDetailsData.firstName)
-    .formParam("last-name", clientDetailsData.lastName)
+    .formParam("first-name", "#{clientFirstName}")
+    .formParam("last-name", "#{clientLastName}")
     .formParam("name-change", "false")
-    .formParam("dob-day", clientDetailsData.dobDay)
-    .formParam("dob-month", clientDetailsData.dobMonth)
-    .formParam("dob-year", clientDetailsData.dobYear)
+    .formParam("dob-day", "#{clientDobDay}")
+    .formParam("dob-month", "#{clientDobMonth}")
+    .formParam("dob-year", "#{clientDobYear}")
     .disableFollowRedirect()
     .check(status().is(302)),
 );
@@ -69,9 +68,9 @@ export const submitHomeAddress: ChainBuilder = exec(
   http("POST home address")
     .post("/apply/client-details/home-address")
     .formParam("_csrf", "#{csrfToken}")
-    .formParam("home-address-line-1", clientDetailsData.homeAddressLine1)
-    .formParam("home-town-or-city", clientDetailsData.homeTownOrCity)
-    .formParam("home-postcode", clientDetailsData.homePostcode)
+    .formParam("home-address-line-1", "#{homeAddressLine1}")
+    .formParam("home-town-or-city", "#{homeTownOrCity}")
+    .formParam("home-postcode", "#{homePostcode}")
     .disableFollowRedirect()
     .check(status().is(302)),
 );
@@ -105,15 +104,9 @@ export const submitCorrespondenceAddress: ChainBuilder = exec(
   http("POST correspondence address")
     .post("/apply/client-details/correspondence-address")
     .formParam("_csrf", "#{csrfToken}")
-    .formParam(
-      "correspondence-address-line-1",
-      clientDetailsData.correspondenceAddressLine1,
-    )
-    .formParam(
-      "correspondence-town-or-city",
-      clientDetailsData.correspondenceTownOrCity,
-    )
-    .formParam("correspondence-postcode", clientDetailsData.correspondencePostcode)
+    .formParam("correspondence-address-line-1", "#{correspondenceAddressLine1}")
+    .formParam("correspondence-town-or-city", "#{correspondenceTownOrCity}")
+    .formParam("correspondence-postcode", "#{correspondencePostcode}")
     .disableFollowRedirect()
     .check(status().is(302)),
 );
@@ -132,7 +125,7 @@ export const submitCorrespondenceRecipient: ChainBuilder = exec(
     .formParam("correspondence-recipient", "PERSON")
     .formParam(
       "correspondence-recipient-person-name",
-      clientDetailsData.correspondenceRecipientPersonName,
+      "#{correspondenceRecipientPersonName}",
     )
     .disableFollowRedirect()
     .check(status().is(302)),

@@ -1,7 +1,6 @@
 import { exec, css } from "@gatling.io/core";
 import type { ChainBuilder } from "@gatling.io/core";
 import { http, status } from "@gatling.io/http";
-import { proceedingData } from "../data/proceedingData.js";
 
 const csrfCheck = css("input[name=_csrf]", "value").saveAs("csrfToken");
 
@@ -16,7 +15,7 @@ export const submitProceeding: ChainBuilder = exec(
   http("POST proceeding")
     .post("/apply/proceeding")
     .formParam("_csrf", "#{csrfToken}")
-    .formParam("proceeding-option", proceedingData.proceedingOption)
+    .formParam("proceeding-option", "#{proceedingOption}")
     .disableFollowRedirect()
     .check(status().is(302)),
 );
