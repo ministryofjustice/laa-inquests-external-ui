@@ -2,7 +2,7 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% set pageHeading = "Before you make a claim" %}
+{% set pageHeading = "Before you start your application" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -17,7 +17,7 @@
         errorList: [
             { 
                 text: errorSummaries.noDeclarationConfirmation.text,
-                href: "#claim-declaration-confirmation"
+                href: "#application-declaration-confirmation"
             }
         ]
     }) }}
@@ -27,17 +27,21 @@
             <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
             <form data-testid="application-declaration-form" action="/apply" method="post">
                 <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-                <p class="govuk-body">You can't save your claim as you go, so please ensure you have all the information you need before you start.</p>
-                <p class="govuk-body">To complete your inquest legal aid claim, you'll need the following:</p>
+                <p class="govuk-body">You can't save your application as you go, so please ensure you have all the information you need before you start.</p>
+                <p class="govuk-body">To complete your inquest legal aid application, you'll need the following:</p>
                 <ul class="govuk-list govuk-list--bullet">
                     <li>
-                        the legal aid reference for the certificate you're claiming against
+                        details of your client, including their national insurance number
                     </li>
                     <li>
-                        details of the work you're claiming for
+                        details of the deceased, including their date of birth and death
                     </li>
                     <li>
-                        supporting evidence for the costs you're claiming, such as receipts
+                        information from the coroner, including:
+                        <ul>
+                            <li>a digital  coroner's reference number</li>
+                            <li>any relevant dates and documents</li>
+                        </ul>
                     </li>
                 </ul>
                 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
@@ -55,7 +59,7 @@
                 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 
                 {{ govukCheckboxes({
-                name: "claim-declaration-confirmation",
+                name: "application-declaration-confirmation",
                 errorMessage: errorSummaries.noDeclarationConfirmation,
                 items: [
                     {
