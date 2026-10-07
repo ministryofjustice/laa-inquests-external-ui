@@ -70,7 +70,7 @@ describe("Session Helpers", () => {
     });
   });
 
-  describe("clearApplyFormData()", () => {
+  describe("clearFormData()", () => {
     it("clears all session data other than cookie", () => {
       const req = createMockRequest({
         clientFirstName: "value1",
@@ -78,7 +78,7 @@ describe("Session Helpers", () => {
         cookie: "cookieData",
       });
 
-      sessionHelper.clearApplyFormData(req);
+      sessionHelper.clearFormData(req);
       expect(req.session.clientFirstName).to.be.undefined;
       expect(req.session.clientLastName).to.be.undefined;
       expect(req.session.cookie).to.equal("cookieData");
@@ -90,7 +90,7 @@ describe("Session Helpers", () => {
         selectedOfficeAddress: "1 Test Street, London",
       });
 
-      sessionHelper.clearApplyFormData(req);
+      sessionHelper.clearFormData(req);
 
       expect(req.session.selectedOfficeId).to.be.undefined;
       expect(req.session.selectedOfficeAddress).to.be.undefined;
@@ -108,7 +108,7 @@ describe("Session Helpers", () => {
         cookie: "cookieData",
       });
 
-      sessionHelper.clearApplyFormData(req);
+      sessionHelper.clearFormData(req);
       expect(req.session.clientFirstName).to.be.undefined;
       expect(req.session.firmId).to.equal("123");
       expect(req.session.firmName).to.equal("Test Firm");
@@ -118,6 +118,17 @@ describe("Session Helpers", () => {
       expect(req.session.roles).to.deep.equal([
         "Inquests - Provider Application User",
       ]);
+    });
+
+    it("preserves the csrf token so forms rendered after clearing can still be submitted", () => {
+      const req = createMockRequest({
+        clientFirstName: "value1",
+        csrfToken: "csrf-token-123",
+      });
+
+      sessionHelper.clearFormData(req);
+      expect(req.session.clientFirstName).to.be.undefined;
+      expect(req.session.csrfToken).to.equal("csrf-token-123");
     });
   });
 

@@ -43,4 +43,74 @@ test.describe("Home page", () => {
 
     await expect(accountLink).toHaveText(PROVIDER_DISPLAY_NAME);
   });
+
+  test("should show error summary if you do not select a journey type", async ({
+    page,
+  }) => {
+    const errorSummary = page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
+
+    const submitButton = page.getByRole("button", { name: "Continue" });
+    await submitButton.click();
+
+    await expect(errorSummary).toHaveText(/Select what you need to do/);
+  });
+
+  test("should go to /apply if Apply selected", async ({ page }) => {
+    const applyRadio = page.getByRole("radio", {
+      name: "Apply for inquest legal aid",
+    });
+    await applyRadio.check();
+
+    const submitButton = page.getByRole("button", { name: "Continue" });
+    await submitButton.click();
+
+    await expect(page).toHaveURL("/apply");
+  });
+
+  test("should go to /claim if Claim selected", async ({ page }) => {
+    const claimRadio = page.getByRole("radio", {
+      name: "Make a claim against a certificate",
+    });
+    await claimRadio.check();
+
+    const submitButton = page.getByRole("button", { name: "Continue" });
+    await submitButton.click();
+
+    await expect(page).toHaveURL("/claim");
+  });
+
+  test.describe("RBAC functionality", () => {
+    test.afterEach(async ({ page }) => {
+      await page.goto("/auth/test-login");
+    });
+    test("shows only the Apply option for users with only the Applications Provider role", async ({
+      page,
+    }) => {
+      await page.goto("/auth/test-login?role=application");
+      const applyRadio = page.getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      });
+      const claimRadio = page.getByRole("radio", {
+        name: "Make a claim against a certificate",
+      });
+
+      await expect(applyRadio).toBeVisible();
+      await expect(claimRadio).not.toBeVisible();
+    });
+    test("shows only the Claim option for users with only the Claims Provider role", async ({
+      page,
+    }) => {
+      await page.goto("/auth/test-login?role=claims");
+      const applyRadio = page.getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      });
+      const claimRadio = page.getByRole("radio", {
+        name: "Make a claim against a certificate",
+      });
+
+      await expect(applyRadio).not.toBeVisible();
+      await expect(claimRadio).toBeVisible();
+    });
+  });
 });
