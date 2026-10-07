@@ -33,6 +33,15 @@ import {
   getFurtherInformation,
   submitFurtherInformation,
 } from "../page/deceasedDetailsPage.js";
+import {
+  getPublicAuthority,
+  submitPublicAuthority,
+} from "../page/publicAuthorityPage.js";
+import {
+  getCoronersLetter,
+  uploadCoronersLetter,
+  continueCoronersLetter,
+} from "../page/coronersLetterPage.js";
 
 export const applyJourneyScenario = scenario("Apply journey — happy path")
   .exec(seedSession)
@@ -91,4 +100,16 @@ export const applyJourneyScenario = scenario("Apply journey — happy path")
   .pause(1, 2)
   .exec(getFurtherInformation)
   .pause(1, 2)
-  .exec(submitFurtherInformation);
+  .exec(submitFurtherInformation)
+  .pause(1, 2)
+  .exec(getPublicAuthority)
+  .pause(1, 2)
+  .exec(submitPublicAuthority)
+  .pause(1, 2)
+  .exec(getCoronersLetter)
+  .pause(1, 2)
+  .exec(uploadCoronersLetter)
+  .pause(1, 2)
+  .exec(getCoronersLetter)
+  .pause(1, 2)
+  .exec(continueCoronersLetter);
