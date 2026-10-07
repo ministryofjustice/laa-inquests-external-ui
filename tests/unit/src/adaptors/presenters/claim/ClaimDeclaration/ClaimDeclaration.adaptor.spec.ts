@@ -1,12 +1,13 @@
 import { strict as assert } from "assert";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
-import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
+import { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import { ClaimDeclarationAdaptor } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/ClaimDeclaration.adaptor.js";
 import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
 
 function buildAdaptor() {
-  const validateClaimDeclarationUseCase = new ValidateClaimDeclarationUseCase();
+  const validateClaimDeclarationUseCase =
+    new ValidateBeforeYouStartDeclarationUseCase();
   return new ClaimDeclarationAdaptor(validateClaimDeclarationUseCase);
 }
 

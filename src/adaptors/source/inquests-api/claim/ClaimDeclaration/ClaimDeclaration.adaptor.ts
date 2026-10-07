@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
 
 import { logger } from "#src/infrastructure/logging/logger.js";
-import type { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
+import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import type { ClaimDeclarationFormData } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/models/ClaimDeclaration.types.js";
 
 export class ClaimDeclarationAdaptor {
-  validateClaimDeclarationUseCase: ValidateClaimDeclarationUseCase;
+  validateClaimDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
 
-  constructor(useCase: ValidateClaimDeclarationUseCase) {
+  constructor(useCase: ValidateBeforeYouStartDeclarationUseCase) {
     this.validateClaimDeclarationUseCase = useCase;
   }
 

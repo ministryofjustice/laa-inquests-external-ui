@@ -1,11 +1,11 @@
 import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
-import type { ApplicationDeclarationError } from "#src/adaptors/presenters/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
+import type { BeforeYouStartDeclarationError } from "#src/use-cases/common/validateDeclaration/models/validateBeforeYouStartDeclaration.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
-export class ValidateApplicationDeclarationUseCase {
+export class ValidateBeforeYouStartDeclarationUseCase {
   execute(
     declarationConfirmation?: string,
-  ): UseCaseResult<undefined, ApplicationDeclarationError> {
+  ): UseCaseResult<undefined, BeforeYouStartDeclarationError> {
     const hasConfirmedDeclaration = declarationConfirmation === "true";
 
     if (!hasConfirmedDeclaration) {

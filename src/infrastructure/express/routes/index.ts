@@ -95,10 +95,9 @@ import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCa
 import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
-import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
+import { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import { createApplicationDeclarationRouter } from "#src/infrastructure/express/routes/apply/applicationDeclaration.router.js";
 import { ApplicationDeclarationAdaptor } from "#src/adaptors/presenters/apply/ApplicationDeclaration/ApplicationDeclaration.adaptor.js";
-import { ValidateApplicationDeclarationUseCase } from "#src/use-cases/apply/applicationDeclaration/ValidateApplicationDeclaration.useCase.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -183,7 +182,7 @@ indexRouter.post("/", (req: Request, res: Response): void => {
 });
 
 const applicationDeclarationAdaptor = new ApplicationDeclarationAdaptor(
-  new ValidateApplicationDeclarationUseCase(),
+  new ValidateBeforeYouStartDeclarationUseCase(),
 );
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
@@ -252,7 +251,7 @@ const coronersLetterAdaptor = new CoronersLetterAdaptor(
   deleteCoronersLetterUseCase,
 );
 const claimDeclarationAdaptor = new ClaimDeclarationAdaptor(
-  new ValidateClaimDeclarationUseCase(),
+  new ValidateBeforeYouStartDeclarationUseCase(),
 );
 const caseSearchValidator = new CaseSearchValidator();
 const searchCasesSource = new SearchCasesAdaptor(
