@@ -42,6 +42,12 @@ import {
   uploadCoronersLetter,
   continueCoronersLetter,
 } from "../page/coronersLetterPage.js";
+import {
+  getCheckYourAnswers,
+  getClientDeclaration,
+  submitClientDeclaration,
+  getConfirmationSuccess,
+} from "../page/confirmationPage.js";
 
 export const applyJourneyScenario = scenario("Apply journey — happy path")
   .exec(seedSession)
@@ -112,4 +118,12 @@ export const applyJourneyScenario = scenario("Apply journey — happy path")
   .pause(1, 2)
   .exec(getCoronersLetter)
   .pause(1, 2)
-  .exec(continueCoronersLetter);
+  .exec(continueCoronersLetter)
+  .pause(1, 2)
+  .exec(getCheckYourAnswers)
+  .pause(1, 2)
+  .exec(getClientDeclaration)
+  .pause(1, 2)
+  .exec(submitClientDeclaration)
+  .pause(1, 2)
+  .exec(getConfirmationSuccess);
