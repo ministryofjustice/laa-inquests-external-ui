@@ -1,5 +1,8 @@
-import "dotenv/config";
+import { getEnvironmentVariable } from "@gatling.io/core";
 
 export function resolveBaseUrl(): string {
-  return process.env.GATLING_BASE_URL ?? "http://localhost:3000";
+  return getEnvironmentVariable(
+    "GATLING_BASE_URL",
+    "http://localhost:3000",
+  );
 }

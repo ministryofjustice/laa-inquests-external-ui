@@ -168,6 +168,20 @@ describe("createAuthRouter", () => {
 
       assert.deepEqual(req.session.userOfficeAccounts, []);
     });
+
+    it("overrides firmId from a firmId query param", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.session = {} as never;
+      req.query = { firmId: "1473" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.equal(req.session.firmId, "1473");
+    });
   });
 
   describe("when NODE_ENV is not test", () => {
