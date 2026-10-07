@@ -79,4 +79,38 @@ test.describe("Home page", () => {
 
     await expect(page).toHaveURL("/claim");
   });
+
+  test.describe("RBAC functionality", () => {
+    test.afterEach(async ({ page }) => {
+      await page.goto("/auth/test-login");
+    });
+    test("shows only the Apply option for users with only the Applications Provider role", async ({
+      page,
+    }) => {
+      await page.goto("/auth/test-login?role=application");
+      const applyRadio = page.getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      });
+      const claimRadio = page.getByRole("radio", {
+        name: "Make a claim against a certificate",
+      });
+
+      await expect(applyRadio).toBeVisible();
+      await expect(claimRadio).not.toBeVisible();
+    });
+    test("shows only the Claim option for users with only the Claims Provider role", async ({
+      page,
+    }) => {
+      await page.goto("/auth/test-login?role=claims");
+      const applyRadio = page.getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      });
+      const claimRadio = page.getByRole("radio", {
+        name: "Make a claim against a certificate",
+      });
+
+      await expect(applyRadio).not.toBeVisible();
+      await expect(claimRadio).toBeVisible();
+    });
+  });
 });
