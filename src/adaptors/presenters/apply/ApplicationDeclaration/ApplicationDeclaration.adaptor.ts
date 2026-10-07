@@ -2,9 +2,9 @@ import type { Request, Response } from "express";
 
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
-import type { ClaimDeclarationFormData } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/models/ClaimDeclaration.types.js";
+import type { ApplicationDeclarationFormData } from "#src/adaptors/presenters/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
 
-export class ClaimDeclarationAdaptor {
+export class ApplicationDeclarationAdaptor {
   validateBeforeYouStartDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
 
   constructor(useCase: ValidateBeforeYouStartDeclarationUseCase) {
@@ -16,18 +16,17 @@ export class ClaimDeclarationAdaptor {
       locals: { csrfToken },
     } = res;
 
-    const alreadyDeclared = req.session.claimDeclaration === true;
-    req.session.claim = undefined;
+    const alreadyDeclared = req.session.applicationDeclaration === true;
 
-    res.render("claim/claim-declaration", {
+    res.render("apply/application-declaration", {
       csrfToken,
       alreadyDeclared,
     });
   }
 
   processForm(req: Request, res: Response): void {
-    const { "claim-declaration-confirmation": declarationConfirmation } =
-      req.body as ClaimDeclarationFormData;
+    const { "application-declaration-confirmation": declarationConfirmation } =
+      req.body as ApplicationDeclarationFormData;
     const result = this.validateBeforeYouStartDeclarationUseCase.execute(
       declarationConfirmation,
     );
@@ -37,21 +36,21 @@ export class ClaimDeclarationAdaptor {
         locals: { csrfToken },
       } = res;
 
-      res.render("claim/claim-declaration", {
+      res.render("apply/application-declaration", {
         csrfToken,
         errorSummaries: result.errorSummaries,
       });
       return;
     }
-    req.session.claimDeclaration = true;
+    req.session.applicationDeclaration = true;
     logger.logInfo({
-      functionName: "claim_declaration",
-      message: "Claim declaration submitted",
+      functionName: "application_declaration",
+      message: "Application declaration submitted",
       request: req,
       extraContext: {
-        event: "claim_declaration_submitted",
+        event: "application_declaration_submitted",
       },
     });
-    res.redirect("/claim/search");
+    res.redirect("/apply/office-accounts");
   }
 }

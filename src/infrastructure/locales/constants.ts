@@ -4,7 +4,7 @@ export const MAX_CHARACTER_LENGTH = 100;
 export const SERVICE_UNAVAILABLE_MESSAGE =
   "Service unavailable. Please try again later.";
 
-export const CLAIM_DECLARATION_ERROR =
+export const BEFORE_YOU_START_DECLARATION_ERROR =
   "Confirm you have read and agree to the declaration";
 
 export const CASE_SEARCH_ERROR = {

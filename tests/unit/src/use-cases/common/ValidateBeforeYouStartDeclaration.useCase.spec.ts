@@ -1,10 +1,10 @@
 import { strict as assert } from "assert";
-import { CLAIM_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
-import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
+import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
+import { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 
-describe("ValidateClaimDeclarationUseCase", () => {
+describe("ValidateBeforeYouStartDeclarationUseCase", () => {
   it("returns validation failure when declaration is not confirmed", () => {
-    const useCase = new ValidateClaimDeclarationUseCase();
+    const useCase = new ValidateBeforeYouStartDeclarationUseCase();
 
     const result = useCase.execute(undefined);
 
@@ -12,14 +12,14 @@ describe("ValidateClaimDeclarationUseCase", () => {
       status: "VALIDATION_FAILED",
       errorSummaries: {
         noDeclarationConfirmation: {
-          text: CLAIM_DECLARATION_ERROR,
+          text: BEFORE_YOU_START_DECLARATION_ERROR,
         },
       },
     });
   });
 
   it("returns success when declaration is true", () => {
-    const useCase = new ValidateClaimDeclarationUseCase();
+    const useCase = new ValidateBeforeYouStartDeclarationUseCase();
 
     const result = useCase.execute("true");
 

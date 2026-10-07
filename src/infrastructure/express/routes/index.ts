@@ -95,7 +95,9 @@ import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCa
 import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
-import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
+import { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
+import { createApplicationDeclarationRouter } from "#src/infrastructure/express/routes/apply/applicationDeclaration.router.js";
+import { ApplicationDeclarationAdaptor } from "#src/adaptors/presenters/apply/ApplicationDeclaration/ApplicationDeclaration.adaptor.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -111,6 +113,7 @@ const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
 const coronersLetterRouter = express.Router();
 const officeAccountsRouter = express.Router();
+const applicationDeclarationRouter = express.Router();
 const claimTypeRouter = express.Router();
 const cannotClaimRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
@@ -178,9 +181,9 @@ indexRouter.post("/", (req: Request, res: Response): void => {
   homeAdaptor.processForm(req, res);
 });
 
-indexRouter.get("/apply", (req: Request, res: Response): void => {
-  res.render("apply/declaration");
-});
+const applicationDeclarationAdaptor = new ApplicationDeclarationAdaptor(
+  new ValidateBeforeYouStartDeclarationUseCase(),
+);
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
 const clientDetailsFormatter = new ClientDetailsFormatter();
@@ -248,7 +251,7 @@ const coronersLetterAdaptor = new CoronersLetterAdaptor(
   deleteCoronersLetterUseCase,
 );
 const claimDeclarationAdaptor = new ClaimDeclarationAdaptor(
-  new ValidateClaimDeclarationUseCase(),
+  new ValidateBeforeYouStartDeclarationUseCase(),
 );
 const caseSearchValidator = new CaseSearchValidator();
 const searchCasesSource = new SearchCasesAdaptor(
@@ -404,16 +407,6 @@ indexRouter.use(
   createPayingPartyRouter(payingPartyRouter, payingPartyAdaptor),
 );
 
-indexRouter.use(
-  "/apply",
-  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
-  createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
-  createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
-  createConfirmationRouter(confirmationRouter, confirmationAdaptor),
-  createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
-  createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
-);
-
 const getProviderOfficesSource = new GetProviderOfficesAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
@@ -424,7 +417,17 @@ const officeAccountsAdaptor = new OfficeAccountsAdaptor(
 
 indexRouter.use(
   "/apply",
+  createApplicationDeclarationRouter(
+    applicationDeclarationRouter,
+    applicationDeclarationAdaptor,
+  ),
   createOfficeAccountsRouter(officeAccountsRouter, officeAccountsAdaptor),
+  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
+  createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
+  createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
+  createConfirmationRouter(confirmationRouter, confirmationAdaptor),
+  createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
+  createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
 
 export default indexRouter;
