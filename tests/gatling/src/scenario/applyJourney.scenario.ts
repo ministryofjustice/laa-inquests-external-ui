@@ -18,6 +18,21 @@ import {
   getCorrespondenceRecipient,
   submitCorrespondenceRecipient,
 } from "../page/clientDetailsPage.js";
+import { getProceeding, submitProceeding } from "../page/proceedingPage.js";
+import {
+  getDeceasedName,
+  submitDeceasedName,
+  getDateOfDeath,
+  submitDateOfDeath,
+  getDateOfBirth,
+  submitDateOfBirth,
+  getClientRelationship,
+  submitClientRelationship,
+  getCoronerReference,
+  submitCoronerReference,
+  getFurtherInformation,
+  submitFurtherInformation,
+} from "../page/deceasedDetailsPage.js";
 
 export const applyJourneyScenario = scenario("Apply journey — happy path")
   .exec(seedSession)
@@ -48,4 +63,32 @@ export const applyJourneyScenario = scenario("Apply journey — happy path")
   .pause(1, 2)
   .exec(getCorrespondenceRecipient)
   .pause(1, 2)
-  .exec(submitCorrespondenceRecipient);
+  .exec(submitCorrespondenceRecipient)
+  .pause(1, 2)
+  .exec(getProceeding)
+  .pause(1, 2)
+  .exec(submitProceeding)
+  .pause(1, 2)
+  .exec(getDeceasedName)
+  .pause(1, 2)
+  .exec(submitDeceasedName)
+  .pause(1, 2)
+  .exec(getDateOfDeath)
+  .pause(1, 2)
+  .exec(submitDateOfDeath)
+  .pause(1, 2)
+  .exec(getDateOfBirth)
+  .pause(1, 2)
+  .exec(submitDateOfBirth)
+  .pause(1, 2)
+  .exec(getClientRelationship)
+  .pause(1, 2)
+  .exec(submitClientRelationship)
+  .pause(1, 2)
+  .exec(getCoronerReference)
+  .pause(1, 2)
+  .exec(submitCoronerReference)
+  .pause(1, 2)
+  .exec(getFurtherInformation)
+  .pause(1, 2)
+  .exec(submitFurtherInformation);
