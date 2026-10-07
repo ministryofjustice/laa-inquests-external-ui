@@ -1,0 +1,17 @@
+{
+  "name": "laa-inquests-external-ui-gatling",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docker:up": "docker compose -f ../../docker-compose.test.yaml -f docker-compose.override.yaml up --build -d",
+    "docker:down": "docker compose -f ../../docker-compose.test.yaml -f docker-compose.override.yaml down"
+  },
+  "devDependencies": {
+    "@gatling.io/cli": "3.16.1",
+    "@gatling.io/core": "3.16.1",
+    "@gatling.io/http": "3.16.1",
+    "dotenv": "^18.0.3",
+    "typescript": "^6.0.3"
+  }
+}

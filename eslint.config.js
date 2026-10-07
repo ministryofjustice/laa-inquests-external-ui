@@ -4,6 +4,9 @@ import love from "eslint-config-love";
 
 export default [
   {
+    ignores: ["tests/gatling/**"],
+  },
+  {
     ...love,
     files: ["**/*.js", "**/*.ts"],
   },
