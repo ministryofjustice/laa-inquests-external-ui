@@ -50,3 +50,7 @@ ignore:
       - "*":
           reason:
             "Introduced Oct 1st, unresolved as of Oct 5th"
+  "SNYK-ALPINE324-ZLIB-20541555":
+      - "*":
+          reason:
+            "Temo ignore as bundled with dependecies. Resolved when new docker image is released with new zlib version"
