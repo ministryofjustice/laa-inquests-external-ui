@@ -11,6 +11,7 @@
     "@gatling.io/cli": "3.16.1",
     "@gatling.io/core": "3.16.1",
     "@gatling.io/http": "3.16.1",
+    "@types/node": "^26.6.4",
     "dotenv": "^18.0.3",
     "typescript": "^6.0.3"
   }
