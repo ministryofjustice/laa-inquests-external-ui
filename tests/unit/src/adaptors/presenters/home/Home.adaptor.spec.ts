@@ -16,14 +16,14 @@ describe("Home adaptor", () => {
       adaptor.renderHome(requestStub, responseStub);
 
       assert.equal(
-        sessionHelper.clearApplyFormData.callCount,
+        sessionHelper.clearFormData.callCount,
         1,
-        "clearApplyFormData should be called once",
+        "clearFormData should be called once",
       );
       assert.equal(
-        sessionHelper.clearApplyFormData.getCall(0).args[0],
+        sessionHelper.clearFormData.getCall(0).args[0],
         requestStub,
-        "clearApplyFormData should be called with req",
+        "clearFormData should be called with req",
       );
       assert.equal(responseStub.render.callCount, 1);
       assert.equal(responseStub.render.getCall(0).args[0], "main/index");

@@ -9,7 +9,7 @@ export class HomeAdaptor {
   }
 
   renderHome(req: Request, res: Response): void {
-    this.#sessionHelper.clearApplyFormData(req);
+    this.#sessionHelper.clearFormData(req);
     res.render("main/index");
   }
 }

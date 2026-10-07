@@ -303,7 +303,7 @@ describe("Confirmation adaptor", () => {
   it("clears session data after rendering confirm success page", () => {
     requestStub.session.applicationReferenceNumber = "L-ABC-123";
     confirmationAdaptor.renderConfirmSuccess(requestStub, responseStub);
-    assert.equal(sessionHelper.clearApplyFormData.callCount, 1);
+    assert.equal(sessionHelper.clearFormData.callCount, 1);
   });
 
   describe("renderClientDeclarationForm", () => {
@@ -796,7 +796,7 @@ describe("Confirmation adaptor", () => {
       );
     });
 
-    it("calls clearApplyFormData on successful submission and sets applicationReferenceNumber in session after", async () => {
+    it("calls clearFormData on successful submission and sets applicationReferenceNumber in session after", async () => {
       requestStub.body["client-declaration-confirmation"] = "true";
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
@@ -842,7 +842,7 @@ describe("Confirmation adaptor", () => {
         responseStub,
       );
 
-      assert.equal(sessionHelper.clearApplyFormData.callCount, 1);
+      assert.equal(sessionHelper.clearFormData.callCount, 1);
       assert.equal(requestStub.session.applicationReferenceNumber, "123");
     });
   });

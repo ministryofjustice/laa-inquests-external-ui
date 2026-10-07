@@ -149,7 +149,7 @@ export class ConfirmationAdaptor {
         laa_reference: laaReference,
       },
     });
-    this.sessionHelper.clearApplyFormData(req);
+    this.sessionHelper.clearFormData(req);
     session.applicationReferenceNumber = laaReference;
     res.redirect("/apply/confirmation/success");
   }
@@ -168,7 +168,7 @@ export class ConfirmationAdaptor {
       csrfToken,
       applicationReferenceNumber,
     });
-    this.sessionHelper.clearApplyFormData(req);
+    this.sessionHelper.clearFormData(req);
   }
 
   #getConfirmationSessionState(req: Request): ConfirmationSessionState {
