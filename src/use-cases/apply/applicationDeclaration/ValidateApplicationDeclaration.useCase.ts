@@ -1,4 +1,4 @@
-import { APPLICATION_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
+import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
 import type { ApplicationDeclarationError } from "#src/adaptors/presenters/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
 import type { UseCaseResult } from "#src/use-cases/common/useCaseResult.types.js";
 
@@ -13,7 +13,7 @@ export class ValidateApplicationDeclarationUseCase {
         status: "VALIDATION_FAILED",
         errorSummaries: {
           noDeclarationConfirmation: {
-            text: APPLICATION_DECLARATION_ERROR,
+            text: BEFORE_YOU_START_DECLARATION_ERROR,
           },
         },
       };

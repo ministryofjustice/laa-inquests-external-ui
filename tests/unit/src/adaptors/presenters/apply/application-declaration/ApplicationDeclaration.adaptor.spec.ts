@@ -3,7 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ValidateApplicationDeclarationUseCase } from "#src/use-cases/apply/applicationDeclaration/ValidateApplicationDeclaration.useCase.js";
 import { ApplicationDeclarationAdaptor } from "#src/adaptors/presenters/apply/ApplicationDeclaration/ApplicationDeclaration.adaptor.js";
-import { APPLICATION_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
+import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
 
 function buildAdaptor() {
   const validateApplicationDeclarationUseCase =
@@ -55,7 +55,7 @@ describe("ApplicationDeclaration adaptor", () => {
         (renderArgs[1] as unknown as Record<string, unknown>).errorSummaries,
         {
           noDeclarationConfirmation: {
-            text: APPLICATION_DECLARATION_ERROR,
+            text: BEFORE_YOU_START_DECLARATION_ERROR,
           },
         },
       );

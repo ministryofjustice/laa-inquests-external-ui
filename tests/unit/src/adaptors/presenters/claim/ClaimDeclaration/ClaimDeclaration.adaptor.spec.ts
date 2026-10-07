@@ -3,7 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
 import { ClaimDeclarationAdaptor } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/ClaimDeclaration.adaptor.js";
-import { CLAIM_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
+import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
 
 function buildAdaptor() {
   const validateClaimDeclarationUseCase = new ValidateClaimDeclarationUseCase();
@@ -68,7 +68,7 @@ describe("ClaimDeclaration adaptor", () => {
         (renderArgs[1] as unknown as Record<string, unknown>).errorSummaries,
         {
           noDeclarationConfirmation: {
-            text: CLAIM_DECLARATION_ERROR,
+            text: BEFORE_YOU_START_DECLARATION_ERROR,
           },
         },
       );

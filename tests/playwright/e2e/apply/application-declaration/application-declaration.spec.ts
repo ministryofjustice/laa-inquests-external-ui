@@ -32,6 +32,49 @@ test.describe("Application - declaration", () => {
     await expect(form).toBeVisible();
   });
 
+  test("renders declaration subheader, copy text and back button", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    page.goto("/apply");
+    const declarationHeading = await page.getByRole("heading", {
+      level: 1,
+      name: "Before you start your application",
+    });
+
+    const declarationCopy = page.getByText(
+      "By submitting this application, you confirm that:",
+    );
+    const representationDeclaration = await page
+      .getByRole("list")
+      .getByText(
+        "you are authorised to make this application on behalf of your client",
+      );
+    const clientDeclaration = await page
+      .getByRole("list")
+      .getByText(
+        "you'll go through all parts of this application with your client",
+      );
+    const correctDeclaration = await page
+      .getByRole("list")
+      .getByText(
+        "all the information you provided is true and complete to the best of your knowledge",
+      );
+
+    const backButton = page.getByRole("link", { name: "Back", exact: true });
+
+    await expect(declarationHeading).toBeVisible();
+    await expect(declarationCopy).toBeVisible();
+    await expect(representationDeclaration).toBeVisible();
+    await expect(clientDeclaration).toBeVisible();
+    await expect(correctDeclaration).toBeVisible();
+
+    await expect(backButton).toBeVisible();
+    await expect(backButton).toHaveAttribute("href", "/");
+
+    await checkAccessibility();
+  });
+
   test("renders start button", async ({ page }) => {
     const form = page.getByTestId("application-declaration-form");
     const startButton = form.getByRole("button", { name: "Start" });

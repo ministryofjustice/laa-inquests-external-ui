@@ -1,5 +1,5 @@
 import { strict as assert } from "assert";
-import { CLAIM_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
+import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
 import { ValidateClaimDeclarationUseCase } from "#src/use-cases/claim/ValidateClaimDeclaration.useCase.js";
 
 describe("ValidateClaimDeclarationUseCase", () => {
@@ -12,7 +12,7 @@ describe("ValidateClaimDeclarationUseCase", () => {
       status: "VALIDATION_FAILED",
       errorSummaries: {
         noDeclarationConfirmation: {
-          text: CLAIM_DECLARATION_ERROR,
+          text: BEFORE_YOU_START_DECLARATION_ERROR,
         },
       },
     });
