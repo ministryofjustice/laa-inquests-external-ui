@@ -39,6 +39,7 @@ export class SessionHelper {
             "providerEmail",
             "accessToken",
             "roles",
+            "csrfToken",
           ].includes(k),
       )
       .forEach((key) => {

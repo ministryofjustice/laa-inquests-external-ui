@@ -119,6 +119,17 @@ describe("Session Helpers", () => {
         "Inquests - Provider Application User",
       ]);
     });
+
+    it("preserves the csrf token so forms rendered after clearing can still be submitted", () => {
+      const req = createMockRequest({
+        clientFirstName: "value1",
+        csrfToken: "csrf-token-123",
+      });
+
+      sessionHelper.clearFormData(req);
+      expect(req.session.clientFirstName).to.be.undefined;
+      expect(req.session.csrfToken).to.equal("csrf-token-123");
+    });
   });
 
   describe("storeOriginalFormData()", () => {
