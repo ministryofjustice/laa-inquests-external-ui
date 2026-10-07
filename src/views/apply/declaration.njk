@@ -1,37 +1,76 @@
 {% extends "base.njk" %}
-{% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
-{% set pageHeading = "Declaration" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% set pageHeading = "Before you make a claim" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
 <div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: "/"
-  }) }}
-  <div class="govuk-grid-row">      
-    <div class="govuk-grid-column-one-half">
-      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-      <p class="govuk-body">
-        By continuing, you agree that:
-      </p>
-      <ul class="govuk-list govuk-list--bullet">
-        <li>
-          <p class="govuk-body">Your client has instructed you to represent them</p>
-        </li>
-        <li>
-          <p class="govuk-body">You'll go through all parts of the application with your client</p>
-        </li>
-        <li>
-          <p class="govuk-body">You'll provide complete and correct information</p>
-        </li>
-      </ul>
-      {{ govukButton({
-              text: "Agree and continue",
-              href: "/apply/office-accounts"
-          }) }}
+    {{ govukBackLink({
+        text: "Back",
+        href: "/"
+    }) }}
+    {% if errorSummaries.noDeclarationConfirmation %}
+    {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+            { 
+                text: errorSummaries.noDeclarationConfirmation.text,
+                href: "#claim-declaration-confirmation"
+            }
+        ]
+    }) }}
+    {% endif %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+            <form data-testid="application-declaration-form" action="/apply" method="post">
+                <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+                <p class="govuk-body">You can't save your claim as you go, so please ensure you have all the information you need before you start.</p>
+                <p class="govuk-body">To complete your inquest legal aid claim, you'll need the following:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>
+                        the legal aid reference for the certificate you're claiming against
+                    </li>
+                    <li>
+                        details of the work you're claiming for
+                    </li>
+                    <li>
+                        supporting evidence for the costs you're claiming, such as receipts
+                    </li>
+                </ul>
+                {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+                {{ govukWarningText({
+                    html: 
+                        "By submitting this claim, you are confirming that:
+                        <ul>
+                            <li>all work has been accurately accounted for as per the terms of your contract</li>
+                            <li>all work can be evidenced, if required</li>
+                            <li>you are authorised to submit a claim for costs</li>
+                        </ul>",
+                    iconFallbackText: "Warning"
+                }) }}
+                {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+
+                {{ govukCheckboxes({
+                name: "claim-declaration-confirmation",
+                errorMessage: errorSummaries.noDeclarationConfirmation,
+                items: [
+                    {
+                        value: "true",
+                        text: "I confirm that I have read and agree to the declaration",
+                        checked: alreadyDeclared
+                    }
+                ]
+                }) }}
+                {{ govukButton({
+                    text: "Start",
+                    isStartButton: true
+                }) }}
+            </form>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

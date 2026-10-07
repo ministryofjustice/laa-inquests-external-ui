@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { ValidateApplicationDeclarationUseCase } from "#src/use-cases/apply/applicationDeclaration/ValidateApplicationDeclaration.useCase.js";
-import type { ApplicationDeclarationFormData } from "#src/adaptors/source/inquests-api/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
+import type { ApplicationDeclarationFormData } from "#src/adaptors/presenters/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
 
 export class ApplicationDeclarationAdaptor {
   validateApplicationDeclarationUseCase: ValidateApplicationDeclarationUseCase;
