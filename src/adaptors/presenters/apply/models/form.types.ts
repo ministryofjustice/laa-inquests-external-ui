@@ -1,6 +1,11 @@
 export interface FormBody {
   _csrf: string;
 }
+
+export interface WhatDoYouWantToDoFormData extends FormBody {
+  "what-do-you-want-to-do-option": string;
+}
+
 export interface ClientDetailsFormData extends FormBody {
   "first-name": string;
   "last-name": string;

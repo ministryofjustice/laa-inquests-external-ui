@@ -174,6 +174,9 @@ const homeAdaptor = new HomeAdaptor(new SessionHelper());
 indexRouter.get("/", (req: Request, res: Response): void => {
   homeAdaptor.renderHome(req, res);
 });
+indexRouter.post("/", (req: Request, res: Response): void => {
+  homeAdaptor.processForm(req, res);
+});
 
 indexRouter.get("/apply", (req: Request, res: Response): void => {
   res.render("apply/declaration");
