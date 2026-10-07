@@ -58,7 +58,7 @@ test.describe("Application - declaration", () => {
     const correctDeclaration = await page
       .getByRole("list")
       .getByText(
-        "all the information you provided is true and complete to the best of your knowledge",
+        "all the information you provide is true and complete to the best of your knowledge",
       );
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
