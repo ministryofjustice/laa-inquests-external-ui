@@ -5,10 +5,10 @@ import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/co
 import type { ApplicationDeclarationFormData } from "#src/adaptors/presenters/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
 
 export class ApplicationDeclarationAdaptor {
-  validateApplicationDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
+  validateBeforeYouStartDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
 
   constructor(useCase: ValidateBeforeYouStartDeclarationUseCase) {
-    this.validateApplicationDeclarationUseCase = useCase;
+    this.validateBeforeYouStartDeclarationUseCase = useCase;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -17,7 +17,6 @@ export class ApplicationDeclarationAdaptor {
     } = res;
 
     const alreadyDeclared = req.session.applicationDeclaration === true;
-    req.session.application = undefined;
 
     res.render("apply/application-declaration", {
       csrfToken,
@@ -28,7 +27,7 @@ export class ApplicationDeclarationAdaptor {
   processForm(req: Request, res: Response): void {
     const { "application-declaration-confirmation": declarationConfirmation } =
       req.body as ApplicationDeclarationFormData;
-    const result = this.validateApplicationDeclarationUseCase.execute(
+    const result = this.validateBeforeYouStartDeclarationUseCase.execute(
       declarationConfirmation,
     );
 

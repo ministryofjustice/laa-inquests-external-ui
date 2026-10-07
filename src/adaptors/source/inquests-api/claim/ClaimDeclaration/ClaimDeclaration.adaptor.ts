@@ -5,10 +5,10 @@ import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/co
 import type { ClaimDeclarationFormData } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/models/ClaimDeclaration.types.js";
 
 export class ClaimDeclarationAdaptor {
-  validateClaimDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
+  validateBeforeYouStartDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
 
   constructor(useCase: ValidateBeforeYouStartDeclarationUseCase) {
-    this.validateClaimDeclarationUseCase = useCase;
+    this.validateBeforeYouStartDeclarationUseCase = useCase;
   }
 
   renderForm(req: Request, res: Response): void {
@@ -28,7 +28,7 @@ export class ClaimDeclarationAdaptor {
   processForm(req: Request, res: Response): void {
     const { "claim-declaration-confirmation": declarationConfirmation } =
       req.body as ClaimDeclarationFormData;
-    const result = this.validateClaimDeclarationUseCase.execute(
+    const result = this.validateBeforeYouStartDeclarationUseCase.execute(
       declarationConfirmation,
     );
 

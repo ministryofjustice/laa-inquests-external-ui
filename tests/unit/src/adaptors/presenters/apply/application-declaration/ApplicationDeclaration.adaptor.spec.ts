@@ -32,8 +32,6 @@ describe("ApplicationDeclaration adaptor", () => {
         "test-token",
       );
     });
-
-    //TODO: Test clearing the application data?
   });
 
   describe("processForm", () => {
