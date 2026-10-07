@@ -26,7 +26,7 @@ describe("ApplicationDeclaration adaptor", () => {
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/declaration");
+      assert.equal(renderArgs[0], "apply/application-declaration");
       assert.equal(
         (renderArgs[1] as unknown as Record<string, unknown>).csrfToken,
         "test-token",
@@ -50,7 +50,7 @@ describe("ApplicationDeclaration adaptor", () => {
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/declaration");
+      assert.equal(renderArgs[0], "apply/application-declaration");
       assert.deepEqual(
         (renderArgs[1] as unknown as Record<string, unknown>).errorSummaries,
         {

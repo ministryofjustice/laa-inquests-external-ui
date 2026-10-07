@@ -19,7 +19,7 @@ export class ClaimDeclarationAdaptor {
     const alreadyDeclared = req.session.claimDeclaration === true;
     req.session.claim = undefined;
 
-    res.render("claim/before-you-make-a-claim", {
+    res.render("claim/claim-declaration", {
       csrfToken,
       alreadyDeclared,
     });
@@ -37,7 +37,7 @@ export class ClaimDeclarationAdaptor {
         locals: { csrfToken },
       } = res;
 
-      res.render("claim/before-you-make-a-claim", {
+      res.render("claim/claim-declaration", {
         csrfToken,
         errorSummaries: result.errorSummaries,
       });

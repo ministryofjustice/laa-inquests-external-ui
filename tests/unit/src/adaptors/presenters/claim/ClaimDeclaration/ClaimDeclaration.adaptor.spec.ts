@@ -24,7 +24,7 @@ describe("ClaimDeclaration adaptor", () => {
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "claim/before-you-make-a-claim");
+      assert.equal(renderArgs[0], "claim/claim-declaration");
       assert.equal(
         (renderArgs[1] as unknown as Record<string, unknown>).csrfToken,
         "test-token",
@@ -64,7 +64,7 @@ describe("ClaimDeclaration adaptor", () => {
 
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "claim/before-you-make-a-claim");
+      assert.equal(renderArgs[0], "claim/claim-declaration");
       assert.deepEqual(
         (renderArgs[1] as unknown as Record<string, unknown>).errorSummaries,
         {

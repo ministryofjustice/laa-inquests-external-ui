@@ -19,7 +19,7 @@ export class ApplicationDeclarationAdaptor {
     const alreadyDeclared = req.session.applicationDeclaration === true;
     req.session.application = undefined;
 
-    res.render("apply/declaration", {
+    res.render("apply/application-declaration", {
       csrfToken,
       alreadyDeclared,
     });
@@ -37,7 +37,7 @@ export class ApplicationDeclarationAdaptor {
         locals: { csrfToken },
       } = res;
 
-      res.render("apply/declaration", {
+      res.render("apply/application-declaration", {
         csrfToken,
         errorSummaries: result.errorSummaries,
       });
