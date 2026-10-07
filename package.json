@@ -119,7 +119,8 @@
     "uuid": "^14.0.2"
   },
   "resolutions": {
-    "proxy-addr": "^2.0.8"
+    "proxy-addr": "^2.0.8",
+    "zlib": "^1.3.2-r1"
   },
   "packageManager": "yarn@4.10.3"
 }
