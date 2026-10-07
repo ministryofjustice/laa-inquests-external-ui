@@ -182,7 +182,6 @@ indexRouter.post("/", (req: Request, res: Response): void => {
   homeAdaptor.processForm(req, res);
 });
 
-
 const applicationDeclarationAdaptor = new ApplicationDeclarationAdaptor(
   new ValidateApplicationDeclarationUseCase(),
 );
@@ -419,7 +418,10 @@ const officeAccountsAdaptor = new OfficeAccountsAdaptor(
 
 indexRouter.use(
   "/apply",
-  createApplicationDeclarationRouter(applicationDeclarationRouter, applicationDeclarationAdaptor),
+  createApplicationDeclarationRouter(
+    applicationDeclarationRouter,
+    applicationDeclarationAdaptor,
+  ),
   createOfficeAccountsRouter(officeAccountsRouter, officeAccountsAdaptor),
   createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
   createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),

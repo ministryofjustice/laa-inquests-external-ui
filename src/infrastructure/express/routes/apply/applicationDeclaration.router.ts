@@ -5,14 +5,11 @@ export function createApplicationDeclarationRouter(
   applicationDeclarationRouter: Router,
   applicationDeclarationAdaptor: ApplicationDeclarationAdaptor,
 ): Router {
-  applicationDeclarationRouter.get(
-    "/apply",
-    (req: Request, res: Response): void => {
-      applicationDeclarationAdaptor.renderForm(req, res);
-    },
-  );
+  applicationDeclarationRouter.get("/", (req: Request, res: Response): void => {
+    applicationDeclarationAdaptor.renderForm(req, res);
+  });
   applicationDeclarationRouter.post(
-    "/apply",
+    "/",
     (req: Request, res: Response): void => {
       applicationDeclarationAdaptor.processForm(req, res);
     },
