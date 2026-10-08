@@ -560,6 +560,16 @@ describe("DeceasedDetails.validator", () => {
       });
     });
 
+    it("does not return an error when yes is selected and information is empty", () => {
+      const errorSummaries = formValidator.validateFurtherInformation({
+        _csrf: "abcdefg",
+        "deceased-has-further-information": "true",
+        "deceased-further-information": "",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
+
     it("returns an error when yes is selected and information is less than 2 characters", () => {
       const errorSummaries = formValidator.validateFurtherInformation({
         _csrf: "abcdefg",

@@ -225,7 +225,7 @@ test.describe("Provider can", () => {
 
     await getAndUpdateFormFields(page, {
       Yes: "",
-      "Please provide any details available of linked or bridged inquests":
+      "Enter details of any linked or bridged inquests you are aware of (optional)":
         "further details here",
     });
     await continueNextPage("deceased-further-information-form");

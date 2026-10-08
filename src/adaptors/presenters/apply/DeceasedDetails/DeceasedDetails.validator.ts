@@ -4,6 +4,7 @@ import {
   DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH,
   DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
   DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
+  EMPTY_ARR_LENGTH,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type { DateParts } from "#src/utils/FormValidator.js";
@@ -227,6 +228,8 @@ export class DeceasedDetailsValidator extends FormValidator {
 
     if (
       hasFurtherInformation === "true" &&
+      typeof furtherInformation === "string" &&
+      furtherInformation.length > EMPTY_ARR_LENGTH &&
       this.validateMinMaxLength(
         furtherInformation,
         DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
