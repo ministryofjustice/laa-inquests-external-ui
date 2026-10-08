@@ -191,6 +191,55 @@ Authenticated access is enforced centrally and default-deny at the page level.
 
 - These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project.
 
+## Load testing (Gatling)
+
+Location: `tests/gatling/` (spike, IDDS-752). This is a standalone package, isolated from the app's own `yarn install`/`build`/`lint`/`test` pipeline — it has its own `package.json`, `tsconfig.json` and dependencies.
+
+### Prerequisites
+
+- Docker Desktop
+- Java (JDK) installed locally — Gatling's engine runs on the JVM even though simulations are written in TypeScript
+- A real Entra access token for a test provider account (see below)
+
+### 1. Install dependencies
+
+```shell
+cd tests/gatling
+yarn install
+```
+
+### 2. Configure your access token
+
+```shell
+cp .env.example .env
+```
+
+Paste a real access token for a test provider account into `GATLING_ACCESS_TOKEN` in `tests/gatling/.env`. Office account and firm ID are derived automatically from the token's own claims (`ACCOUNTS`/`FIRM_CODE`) — only set `GATLING_OFFICE_ACCOUNTS`/`GATLING_FIRM_ID` in that file if you need to override them.
+
+Access tokens expire (typically 60-90 minutes) — if a run starts failing partway through with every request redirecting to `/auth/login`, get a fresh token and update `.env`.
+
+### 3. Start the app in Docker with `NODE_ENV=test`
+
+```shell
+yarn docker:up
+```
+
+This brings up the app + Redis using the repo's `docker-compose.test.yaml`, with `tests/gatling/docker-compose.override.yaml` overriding `NODE_ENV=test` so `/auth/test-login` is mounted (needed to seed a session from the access token above, without going through Entra's interactive login). Bring it down afterwards with `yarn docker:down`.
+
+### 4. Run a simulation
+
+```shell
+yarn load-test:smoke  # 1 user, full apply journey — functional sanity check
+yarn load-test:peak   # 80 concurrent providers (TC3 / AC1)
+yarn load-test:burst  # Compressed weekly burst, 212 applications (TC4 / AC2)
+```
+
+The first run of any `yarn load-test:*` command downloads Gatling's engine bundle into `~/.gatling` (needs internet access).
+
+### 5. View the report
+
+Each run prints a path such as `tests/gatling/target/gatling/<run-id>/index.html` — open it in a browser for full response-time charts and percentiles.
+
 ## Licence
 
 [Licence](./LICENSE)
