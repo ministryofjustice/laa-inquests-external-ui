@@ -6,7 +6,8 @@
   "scripts": {
     "docker:up": "docker compose -f ../../docker-compose.test.yaml -f docker-compose.override.yaml up --build -d",
     "docker:down": "docker compose -f ../../docker-compose.test.yaml -f docker-compose.override.yaml down",
-    "load-test:smoke": "dotenv -e .env -- gatling run --sources-folder src/simulation --simulation smokeTest --non-interactive"
+    "load-test:smoke": "dotenv -e .env -- gatling run --sources-folder src/simulation --simulation smokeTest --non-interactive",
+    "load-test:peak": "dotenv -e .env -- gatling run --sources-folder src/simulation --simulation peakConcurrency --non-interactive"
   },
   "devDependencies": {
     "@gatling.io/cli": "3.16.1",
