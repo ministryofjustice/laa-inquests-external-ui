@@ -140,9 +140,12 @@ test.describe("Provider can", () => {
       "/apply/client-details/has-prev-application",
     );
 
-    await getAndUpdateFormFields(page, {
-      No: "",
-    });
+    const previousApplicationForm = page.getByTestId(
+      "has-prev-application-form",
+    );
+    await previousApplicationForm
+      .getByRole("radio", { name: "No", exact: true })
+      .check();
     await continueNextPage("has-prev-application-form");
 
     await expect(page.url()).toContain("/apply/client-details/home-address");

@@ -205,7 +205,7 @@ export const CLIENT_DETAILS_ERROR = {
   HAS_NINO_NOT_SELECTED:
     "Select yes if your client has a National Insurance number",
   HAS_PREV_APPLICATION_NOT_SELECTED:
-    "Select yes if your client has applied for Inquest legal aid before",
+    "Select whether your client has applied for legal aid for an inquest before",
   CORRESPONDENCE_ADDRESS_SOURCE_NOT_SELECTED:
     "Select where we should send your client's correspondence",
   CORRESPONDENCE_RECIPIENT_NOT_SELECTED:
