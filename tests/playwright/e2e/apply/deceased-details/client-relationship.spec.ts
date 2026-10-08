@@ -90,7 +90,10 @@ test.describe("Provider can", () => {
     ).toBeVisible();
   });
 
-  test("shows an eligibility error when no is selected", async ({ page }) => {
+  test("redirects to the ineligible page when no is selected", async ({
+    page,
+    checkAccessibility,
+  }) => {
     const noRadioLabel = form.getByLabel(
       "No, my client has a different relationship",
     );
@@ -98,12 +101,31 @@ test.describe("Provider can", () => {
 
     await continueToNextPage(form, page);
 
-    await expect(page.url()).toContain(
-      "/apply/deceased-details/client-relationship",
-    );
+    await expect(page).toHaveURL("/apply/deceased-details/not-eligible");
     await expect(
-      form.getByText(DECEASED_DETAILS_ERROR.RELATIONSHIP_NOT_ELIGIBLE),
+      page.getByRole("heading", {
+        level: 1,
+        name: "Your client does not qualify for inquest legal aid",
+      }),
     ).toBeVisible();
+    await expect(
+      page.getByText(
+        "To qualify for legal aid, your client must be a family member of the deceased.",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText("A family member is defined as:"),
+    ).toBeVisible();
+    await expect(page.locator(".govuk-list--bullet li")).toHaveText([
+      "a relative by either full or half blood, marriage, or civil partnership",
+      "someone with parental responsibility",
+      "a cohabitant as defined in the Family Law Act 1996",
+    ]);
+    await expect(
+      page.getByRole("button", { name: "Make a new application" }),
+    ).toHaveAttribute("href", "/apply");
+
+    await checkAccessibility();
   });
 
   test("shows an error when yes is selected but relationship is empty", async ({

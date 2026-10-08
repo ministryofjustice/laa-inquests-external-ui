@@ -481,17 +481,13 @@ describe("DeceasedDetails.validator", () => {
       });
     });
 
-    it("returns an error when no is selected", () => {
+    it("returns no error when no is selected", () => {
       const errorSummaries = formValidator.validateClientRelationship({
         _csrf: "abcdefg",
         "deceased-has-client-relationship": "false",
       });
 
-      assert.deepEqual(errorSummaries, {
-        hasClientRelationshipInputError: {
-          text: DECEASED_DETAILS_ERROR.RELATIONSHIP_NOT_ELIGIBLE,
-        },
-      });
+      assert.deepEqual(errorSummaries, {});
     });
 
     it("returns an error when yes is selected but no relationship is provided", () => {

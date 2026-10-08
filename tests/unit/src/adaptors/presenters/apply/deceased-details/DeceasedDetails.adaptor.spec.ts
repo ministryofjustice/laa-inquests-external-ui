@@ -431,7 +431,7 @@ describe("Deceased details adaptor", () => {
       const redirect = responseStub.redirect.getCall(0).args;
       assert.equal(redirect[0], "/apply/deceased-details/coroner-reference");
     });
-    it("re-renders with eligibility error when no is selected", () => {
+    it("redirects to the ineligible page when no is selected", () => {
       requestStub.body = {
         _csrf: "abcdefg",
         "deceased-has-client-relationship": "false",
@@ -442,9 +442,9 @@ describe("Deceased details adaptor", () => {
         responseStub,
       );
 
-      assert.equal(responseStub.render.callCount, 1);
-      const renderArgs = responseStub.render.getCall(0).args;
-      assert.equal(renderArgs[0], "apply/deceased-details/client-relationship");
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirectArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectArgs[0], "/apply/deceased-details/not-eligible");
     });
     it("re-renders with selection error when no option is selected", () => {
       requestStub.body = {
@@ -483,6 +483,18 @@ describe("Deceased details adaptor", () => {
         requestStub.session.deceasedClientRelationship,
         expectedClientRelationship,
       );
+    });
+  });
+
+  describe("renderClientRelationshipIneligiblePage", () => {
+    it("renders the ineligible page", () => {
+      deceasedDetailsAdaptor.renderClientRelationshipIneligiblePage(
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const renderArgs = responseStub.render.getCall(0).args;
+      assert.equal(renderArgs[0], "apply/deceased-details/not-eligible");
     });
   });
 

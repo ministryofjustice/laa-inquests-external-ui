@@ -1,0 +1,26 @@
+{% extends "base.njk" %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set pageHeading = "Your client does not qualify for inquest legal aid" %}
+{% set pageTitle = pageHeading %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+      <p class="govuk-body">To qualify for legal aid, your client must be a family member of the deceased.</p>
+      <p class="govuk-body">A family member is defined as:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>a relative by either full or half blood, marriage, or civil partnership</li>
+        <li>someone with parental responsibility</li>
+        <li>a cohabitant as defined in the Family Law Act 1996</li>
+      </ul>
+      {{ govukButton({
+        text: "Make a new application",
+        href: "/apply"
+      }) }}
+    </div>
+  </div>
+</div>
+{% endblock %}

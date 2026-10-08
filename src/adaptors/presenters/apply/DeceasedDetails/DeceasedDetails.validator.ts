@@ -166,9 +166,6 @@ export class DeceasedDetailsValidator extends FormValidator {
     }
 
     if (hasClientRelationship === "false") {
-      errorSummaries.hasClientRelationshipInputError = {
-        text: DECEASED_DETAILS_ERROR.RELATIONSHIP_NOT_ELIGIBLE,
-      };
       return errorSummaries;
     }
 

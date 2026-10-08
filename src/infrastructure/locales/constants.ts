@@ -322,8 +322,6 @@ export const DECEASED_DETAILS_ERROR = {
   INVALID_DATE: "Please enter a valid date",
   RELATIONSHIP_SELECTION_REQUIRED:
     "Select yes if your client meets the definition of a family member",
-  RELATIONSHIP_NOT_ELIGIBLE:
-    "Your client needs to meet the definition of family member to qualify for legal aid",
   RELATIONSHIP_REQUIRED_MIN_MAX:
     "Relationship to deceased must be a maximum of 70 characters and a minimum of 1.",
   RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH:

@@ -300,6 +300,12 @@ export class DeceasedDetailsAdaptor {
         errorSummaries,
         deceasedDetails: clientRelationshipView.deceasedDetails,
       });
+    } else if (deceasedHasClientRelationship === "false") {
+      this.#redirectAfterSuccess(
+        req,
+        res,
+        "/apply/deceased-details/not-eligible",
+      );
     } else {
       this.#redirectAfterSuccess(
         req,
@@ -307,6 +313,10 @@ export class DeceasedDetailsAdaptor {
         "/apply/deceased-details/coroner-reference",
       );
     }
+  }
+
+  renderClientRelationshipIneligiblePage(res: Response): void {
+    res.render("apply/deceased-details/not-eligible");
   }
 
   renderCoronerReferenceForm(req: Request, res: Response): void {
