@@ -3,7 +3,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% set pageHeading = "What is the coroner's reference?" %}
+{% set pageHeading = "Do you have a reference number from the coroner? (optional)" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -35,7 +35,7 @@
                     spellcheck: false,
                     classes: "govuk-!-width-one-half",
                     label: {
-                        text: "Please enter your reference number"
+                        text: "If your correspondence with the coroner has included a reference for this inquest, enter it here."
                     },
                     errorMessage: errorSummaries.coronerReferenceInputError,
                     value: deceasedDetails.coronerReference

@@ -21,7 +21,11 @@ test.describe("Provider can", () => {
     page,
     checkAccessibility,
   }) => {
-    await validateHeader(page, "What is the coroner's reference?", 1);
+    await validateHeader(
+      page,
+      "Do you have a reference number from the coroner? (optional)",
+      1,
+    );
     await validateBackButton(
       page,
       "/apply/deceased-details/client-relationship",
@@ -34,7 +38,7 @@ test.describe("Provider can", () => {
     await validateContinueButton(form);
 
     const inputField = await form.getByLabel(
-      "Please enter your reference number",
+      "If your correspondence with the coroner has included a reference for this inquest, enter it here.",
     );
     await expect(inputField).toBeVisible();
 
@@ -53,7 +57,9 @@ test.describe("Provider can", () => {
   test("shows an error when coroner reference exceeds 50 characters", async ({
     page,
   }) => {
-    const inputField = form.getByLabel("Please enter your reference number");
+    const inputField = form.getByLabel(
+      "If your correspondence with the coroner has included a reference for this inquest, enter it here.",
+    );
     await inputField.fill("a".repeat(51));
 
     await continueToNextPage(form, page);
@@ -71,7 +77,7 @@ test.describe("Provider can", () => {
     page,
   }) => {
     const referenceInput = form.getByLabel(
-      "Please enter your reference number",
+      "If your correspondence with the coroner has included a reference for this inquest, enter it here.",
     );
     await referenceInput.fill("Test");
 

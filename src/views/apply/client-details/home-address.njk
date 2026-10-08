@@ -51,6 +51,7 @@
       }}
       {% endif %}
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+      <p class="govuk-body">Enter your client's home address, or select 'my client has no fixed abode'.</p>
       <form data-testid="home-address-form" action="/apply/client-details/home-address" method="post">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{ govukCheckboxes({
@@ -59,7 +60,7 @@
           items: [
             {
               value: "true",
-              text: "Client has no fixed abode",
+              text: "My client has no fixed abode",
               checked: client.hasNoFixedAbode
             }
           ],

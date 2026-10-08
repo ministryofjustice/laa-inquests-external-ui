@@ -13,12 +13,16 @@ test.describe("Add interested party (public authority)", () => {
     );
 
     const heading = page.getByRole("heading", {
-      name: "Who are the listed interested parties on this application?",
+      name: "Which public authorities are named as interested parties?",
     });
+    const hint = page.getByText(
+      "Select the parent department of any public authorities the coroner has identified as interested parties.",
+    );
     const continueButton = page.getByRole("button");
     const checkboxes = page.getByRole("checkbox");
 
     await expect(heading).toBeVisible();
+    await expect(hint).toBeVisible();
     await expect(continueButton).toBeVisible();
 
     const checkboxCount = await checkboxes.count();

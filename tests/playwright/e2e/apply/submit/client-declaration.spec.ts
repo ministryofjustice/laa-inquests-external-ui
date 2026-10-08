@@ -203,9 +203,8 @@ test.describe("Provider can", () => {
     );
 
     await getAndUpdateFormFields(page, {
-      Yes: "",
-      "Please describe the nature of the relationship between your client and the deceased":
-        "guardian",
+      "Yes, my client is a family member": "",
+      "My client is the deceased's:": "guardian",
     });
     await continueNextPage("deceased-client-relationship-form");
     await expect(page.url()).toContain(
@@ -213,7 +212,8 @@ test.describe("Provider can", () => {
     );
 
     await getAndUpdateFormFields(page, {
-      "Please enter your reference number": "123356789",
+      "If your correspondence with the coroner has included a reference for this inquest, enter it here.":
+        "123356789",
     });
     await continueNextPage("deceased-coroner-reference-form");
     await expect(page.url()).toContain(

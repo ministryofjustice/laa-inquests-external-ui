@@ -5,7 +5,7 @@
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "moj/components/multi-file-upload/macro.njk" import mojMultiFileUpload %}
 
-{% set pageHeading = "Upload coroner's letter" %}
+{% set pageHeading = "Upload correspondence from the coroner" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -30,11 +30,7 @@
   <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
       
-  <p class="govuk-body">You can upload:</p>
-      <ul class="govuk-list govuk-list--bullet">
-        <li>PDF, JPG, PNG or BMP</li>
-        <li>10MB max</li>
-      </ul>
+  <p class="govuk-body">Your file should include details of the inquest, including specific reference to one or more public authorities being named as interested parties. We will use this evidence when assessing your claim.</p>
 
       <form action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
@@ -46,7 +42,7 @@
         <li>png</li>
         <li>bmp</li>
       </ul>
-      <p class="govuk-body">Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-. Using other characters in your filenames could cause the uploads to fail.</p>
+      <p class="govuk-body">Filenames should only include the letters a-z, numbers 0-9, and the characters .!()_-. Using other characters in your filenames could cause the uploads to fail.</p>
     {% endset %}
         <input type="hidden" name="uploadMode" value="html" />
         {% set uploadHtml %}
