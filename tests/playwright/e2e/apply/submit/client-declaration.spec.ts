@@ -215,7 +215,7 @@ test.describe("Provider can", () => {
     );
 
     await getAndUpdateFormFields(page, {
-      "If your correspondence with the coroner has included a reference for this inquest, enter it here.":
+      "Do you have a reference number from the coroner? (optional)":
         "123356789",
     });
     await continueNextPage("deceased-coroner-reference-form");

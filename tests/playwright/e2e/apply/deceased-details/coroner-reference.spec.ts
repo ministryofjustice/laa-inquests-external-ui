@@ -38,7 +38,7 @@ test.describe("Provider can", () => {
     await validateContinueButton(form);
 
     const inputField = await form.getByLabel(
-      "If your correspondence with the coroner has included a reference for this inquest, enter it here.",
+      "Do you have a reference number from the coroner? (optional)",
     );
     await expect(inputField).toBeVisible();
 
@@ -58,7 +58,7 @@ test.describe("Provider can", () => {
     page,
   }) => {
     const inputField = form.getByLabel(
-      "If your correspondence with the coroner has included a reference for this inquest, enter it here.",
+      "Do you have a reference number from the coroner? (optional)",
     );
     await inputField.fill("a".repeat(51));
 
@@ -77,7 +77,7 @@ test.describe("Provider can", () => {
     page,
   }) => {
     const referenceInput = form.getByLabel(
-      "If your correspondence with the coroner has included a reference for this inquest, enter it here.",
+      "Do you have a reference number from the coroner? (optional)",
     );
     await referenceInput.fill("Test");
 
