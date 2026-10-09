@@ -62,13 +62,6 @@ export function createDeceasedDetailsRouter(
   );
 
   deceasedDetailsRouter.get(
-    "/deceased-details/not-eligible",
-    (_req: Request, res: Response): void => {
-      deceasedDetailsAdaptor.renderClientRelationshipIneligiblePage(res);
-    },
-  );
-
-  deceasedDetailsRouter.get(
     "/deceased-details/coroner-reference",
     (req: Request, res: Response): void => {
       deceasedDetailsAdaptor.renderCoronerReferenceForm(req, res);

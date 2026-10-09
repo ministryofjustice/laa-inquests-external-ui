@@ -90,7 +90,7 @@ test.describe("Provider can", () => {
     ).toBeVisible();
   });
 
-  test("redirects to the ineligible page when no is selected", async ({
+  test("renders the ineligible page when no is selected", async ({
     page,
     checkAccessibility,
   }) => {
@@ -101,7 +101,7 @@ test.describe("Provider can", () => {
 
     await continueToNextPage(form, page);
 
-    await expect(page).toHaveURL("/apply/deceased-details/not-eligible");
+    await expect(page).toHaveURL("/apply/deceased-details/client-relationship");
     await expect(
       page.getByRole("heading", {
         level: 1,
