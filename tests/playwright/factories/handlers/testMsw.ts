@@ -18,7 +18,7 @@ const ERROR_EXIT_CODE = 1;
 
 // Enable request interception with simple warning for unhandled requests
 mswServer.listen({
-  onUnhandledFrame: ({ frame, defaults }) => {
+  onUnhandledFrame: ({ defaults }) => {
     defaults.warn();
   },
 });
