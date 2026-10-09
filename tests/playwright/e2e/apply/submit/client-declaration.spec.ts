@@ -140,9 +140,12 @@ test.describe("Provider can", () => {
       "/apply/client-details/has-prev-application",
     );
 
-    await getAndUpdateFormFields(page, {
-      No: "",
-    });
+    const previousApplicationForm = page.getByTestId(
+      "has-prev-application-form",
+    );
+    await previousApplicationForm
+      .getByRole("radio", { name: "No", exact: true })
+      .check();
     await continueNextPage("has-prev-application-form");
 
     await expect(page.url()).toContain("/apply/client-details/home-address");
@@ -203,9 +206,8 @@ test.describe("Provider can", () => {
     );
 
     await getAndUpdateFormFields(page, {
-      Yes: "",
-      "Please describe the nature of the relationship between your client and the deceased":
-        "guardian",
+      "Yes, my client is a family member": "",
+      "My client is the deceased's:": "guardian",
     });
     await continueNextPage("deceased-client-relationship-form");
     await expect(page.url()).toContain(
@@ -213,7 +215,8 @@ test.describe("Provider can", () => {
     );
 
     await getAndUpdateFormFields(page, {
-      "Please enter your reference number": "123356789",
+      "Do you have a reference number from the coroner? (optional)":
+        "123356789",
     });
     await continueNextPage("deceased-coroner-reference-form");
     await expect(page.url()).toContain(
@@ -222,7 +225,7 @@ test.describe("Provider can", () => {
 
     await getAndUpdateFormFields(page, {
       Yes: "",
-      "Please provide any details available of linked or bridged inquests":
+      "Enter details of any linked or bridged inquests you are aware of (optional)":
         "further details here",
     });
     await continueNextPage("deceased-further-information-form");

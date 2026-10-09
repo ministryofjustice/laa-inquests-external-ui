@@ -8,7 +8,6 @@ import {
   validateContinueButton,
   validateFormAttributes,
   continueToNextPage,
-  validateYesNoRadioWithConditionalInput,
 } from "../../../utils/govuk-validators.js";
 
 test.describe("Provider can", () => {
@@ -24,7 +23,7 @@ test.describe("Provider can", () => {
   }) => {
     await validateHeader(
       page,
-      "Does your client meet the definition of a family member?",
+      "Is your client a family member of the deceased?",
       1,
     );
     await validateBackButton(page, "/apply/deceased-details/dob");
@@ -35,18 +34,37 @@ test.describe("Provider can", () => {
     await validateCSRFToken(form);
     await validateContinueButton(form);
 
-    const definitionOfFamilyMemberHeader =
-      "Definition of a family member according to the bill:";
-    await validateFormTextIsVisible(form, definitionOfFamilyMemberHeader);
+    await expect(
+      page.getByText(
+        "To qualify for legal aid, your client must be a family member of the deceased.",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText("A family member is defined as:"),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "a relative by either full or half blood, marriage, or civil partnership",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText("someone with parental responsibility"),
+    ).toBeVisible();
+    await expect(
+      page.getByText("a cohabitant as defined in the Family Law Act 1996"),
+    ).toBeVisible();
 
-    const definitionOfFamilyMemberParagraph =
-      "A family member is defined as someone who is a  relative (of full or half blood, or by marriage or civil partnership), a cohabitant as defined in Part 4 of the Family Law Act 1996, or where one person has parental responsibility for the other.";
-    await validateFormTextIsVisible(form, definitionOfFamilyMemberParagraph);
-
-    await validateYesNoRadioWithConditionalInput(
-      form,
-      "Please describe the nature of the relationship between your client and the deceased.",
+    const yesRadioLabel = form.getByLabel("Yes, my client is a family member");
+    const noRadioLabel = form.getByLabel(
+      "No, my client has a different relationship",
     );
+    const relationshipInput = form.getByLabel("My client is the deceased's:");
+    await expect(yesRadioLabel).toBeVisible();
+    await expect(noRadioLabel).toBeVisible();
+    await expect(relationshipInput).toBeHidden();
+    await yesRadioLabel.click();
+    await expect(relationshipInput).toBeVisible();
+    await expect(form.getByText("For example: mother, brother")).toBeVisible();
 
     await checkAccessibility();
   });
@@ -72,24 +90,71 @@ test.describe("Provider can", () => {
     ).toBeVisible();
   });
 
-  test("shows an eligibility error when no is selected", async ({ page }) => {
-    const noRadioLabel = form.getByLabel("No");
+  test("renders the ineligible page when no is selected", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const noRadioLabel = form.getByLabel(
+      "No, my client has a different relationship",
+    );
     await noRadioLabel.click();
 
     await continueToNextPage(form, page);
 
-    await expect(page.url()).toContain(
+    await expect(page).toHaveURL("/apply/deceased-details/client-relationship");
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Your client does not qualify for inquest legal aid",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "To qualify for legal aid, your client must be a family member of the deceased.",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText("A family member is defined as:"),
+    ).toBeVisible();
+    await expect(page.locator(".govuk-list--bullet li")).toHaveText([
+      "a relative by either full or half blood, marriage, or civil partnership",
+      "someone with parental responsibility",
+      "a cohabitant as defined in the Family Law Act 1996",
+    ]);
+    await expect(
+      page.getByRole("button", { name: "Make a new application" }),
+    ).toHaveAttribute("href", "/apply");
+
+    await checkAccessibility();
+  });
+
+  test("back link returns from the ineligible page to the relationship form", async ({
+    page,
+  }) => {
+    await form.getByLabel("No, my client has a different relationship").click();
+    await continueToNextPage(form, page);
+
+    const backLink = page.getByRole("link", { name: "Back", exact: true });
+    await expect(backLink).toHaveAttribute(
+      "href",
       "/apply/deceased-details/client-relationship",
     );
+    await backLink.click();
+
+    await expect(page).toHaveURL("/apply/deceased-details/client-relationship");
+    await expect(form).toBeVisible();
     await expect(
-      form.getByText(DECEASED_DETAILS_ERROR.RELATIONSHIP_NOT_ELIGIBLE),
+      page.getByRole("heading", {
+        level: 1,
+        name: "Is your client a family member of the deceased?",
+      }),
     ).toBeVisible();
   });
 
   test("shows an error when yes is selected but relationship is empty", async ({
     page,
   }) => {
-    const yesRadioLabel = form.getByLabel("Yes");
+    const yesRadioLabel = form.getByLabel("Yes, my client is a family member");
     await yesRadioLabel.click();
 
     await continueToNextPage(form, page);
@@ -108,9 +173,7 @@ test.describe("Provider can", () => {
     const yesRadioLabel = form.getByLabel("Yes");
     await yesRadioLabel.click();
 
-    const relationshipInput = form.getByLabel(
-      "Please describe the nature of the relationship between your client and the deceased.",
-    );
+    const relationshipInput = form.getByLabel("My client is the deceased's:");
     await relationshipInput.fill("a".repeat(71));
 
     await continueToNextPage(form, page);
@@ -131,26 +194,17 @@ test.describe("Provider can", () => {
     await fillClientRelationshipInput(form);
     await continueToNextPage(form, page);
     await page.goto("/apply/deceased-details/client-relationship");
-    const yesRadioLabel = form.getByLabel("Yes");
+    const yesRadioLabel = form.getByLabel("Yes, my client is a family member");
     await expect(yesRadioLabel).toBeChecked();
-    const yesInputLabel = form.getByLabel(
-      "Please describe the nature of the relationship between your client and the deceased.",
-    );
+    const yesInputLabel = form.getByLabel("My client is the deceased's:");
     await expect(yesInputLabel).toHaveValue("Father");
   });
 
-  async function validateFormTextIsVisible(form: Locator, text: string) {
-    const textElement = form.getByText(text);
-    await expect(textElement).toBeVisible();
-  }
-
   async function fillClientRelationshipInput(form: Locator) {
-    const yesRadioLabel = form.getByLabel("Yes");
+    const yesRadioLabel = form.getByLabel("Yes, my client is a family member");
     await yesRadioLabel.click();
 
-    const yesInputLabel = form.getByLabel(
-      "Please describe the nature of the relationship between your client and the deceased.",
-    );
+    const yesInputLabel = form.getByLabel("My client is the deceased's:");
     await yesInputLabel.fill("Father");
   }
 });

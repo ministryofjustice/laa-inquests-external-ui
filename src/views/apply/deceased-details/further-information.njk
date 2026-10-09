@@ -4,7 +4,7 @@
 {% from "govuk/components/textarea/macro.njk" import govukTextarea %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% set pageHeading = "Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?" %}
+{% set pageHeading = "Are there any other inquests relating to this incident?" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -49,7 +49,7 @@
                                     type: "text",
                                     spellcheck: false,
                                     label: {
-                                        text: "Please provide any details available of linked or bridged inquests"
+                                        text: "Enter details of any linked or bridged inquests you are aware of (optional)"
                                     },
                                     errorMessage: errorSummaries.furtherInformationInputError,
                                     value: deceasedDetails.furtherInformation
@@ -59,6 +59,10 @@
                         {
                             value: "false",
                             text: "No"
+                        },
+                        {
+                            value: "false",
+                            text: "Don't know"
                         }
                     ]
                 }) }}

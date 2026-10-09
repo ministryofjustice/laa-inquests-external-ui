@@ -44,7 +44,7 @@
         "title": "What does your client want legal aid for?",
         "search": {
           "label": "Search for legal proceedings",
-          "hint": "Select what the legal aid application is for",
+          "hint": "Select the matter type that is closest to the subject matter of the inquest. You must hold a relevant civil contract for the subject matter of your inquest.",
           "options": []
         },
         "radio": {
@@ -53,10 +53,10 @@
         }
       },
       "publicAuthority": {
-        "title": "Who are the listed interested parties on this application?",
+        "title": "Which public authorities are named as interested parties?",
         "search": {
           "label": "Search for interested parties",
-          "hint": "Select all that apply"
+          "hint": "Select the parent department of any public authorities the coroner has identified as interested parties."
         }
       },
       "RemovePublicAuthority": {

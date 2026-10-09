@@ -1,11 +1,10 @@
 {% extends "base.njk" %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
-{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% set pageHeading = "Does your client meet the definition of a family member?" %}
+{% set pageHeading = "Is your client a family member of the deceased?" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -32,15 +31,16 @@
             }) }}
             {% endif %}
             <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
+            <p class="govuk-hint">To qualify for legal aid, your client must be a family member of the deceased.</p>
+            <p class="govuk-hint">A family member is defined as: </p>
+            <ul class="govuk-hint govuk-list govuk-list--bullet">
+                <li>a relative by either full or half blood, marriage, or civil partnership</li>
+                <li>someone with parental responsibility</li>
+                <li>a cohabitant as defined in the Family Law Act 1996</li>
+            </ul>
             <form data-testid="deceased-client-relationship-form" action="/apply/deceased-details/client-relationship" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />
-                <p class="govuk-body">Definition of a family member according to the bill:</p>
-
-                {{ govukInsetText({
-                    text: "A family member is defined as someone who is a  relative (of full or half blood, or by marriage or civil partnership), a cohabitant as defined in Part 4 of the Family Law Act 1996, or where one person has parental responsibility for the other."
-                }) }}
-
-                    {{ govukRadios({
+                {{ govukRadios({
                     name: "deceased-has-client-relationship",
                                             id: "deceased-has-client-relationship",
                     value: deceasedDetails.hasClientRelationship,
@@ -48,7 +48,7 @@
                     items: [
                     {
                         value: "true",
-                        text: "Yes",
+                        text: "Yes, my client is a family member",
                         conditional: {
                             html:  govukInput({
                                 id: "deceased-client-relationship",
@@ -57,7 +57,10 @@
                                 spellcheck: false,
                                 classes: "govuk-!-width-one-half",
                                 label: {
-                                    text: "Please describe the nature of the relationship between your client and the deceased."
+                                    text: "My client is the deceased's:"
+                                },
+                                hint: {
+                                    text: "For example: mother, brother"
                                 },
                                 errorMessage: errorSummaries.clientRelationshipInputError,
                                 value: deceasedDetails.clientRelationship
@@ -65,7 +68,7 @@
                     },
                     {
                         value: "false",
-                        text: "No"
+                        text: "No, my client has a different relationship"
                     }
                     ]
                 }) }}

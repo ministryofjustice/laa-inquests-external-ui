@@ -49,10 +49,17 @@ test.describe("Client details - home address", () => {
     const townOrCity = addressForm.getByLabel("Town or city");
     const county = addressForm.getByLabel("County (optional)");
     const postcode = addressForm.getByLabel("Postcode");
-    const hasNoFixedAbode = addressForm.getByLabel("Client has no fixed abode");
+    const hasNoFixedAbode = addressForm.getByLabel(
+      "My client has no fixed abode",
+    );
     const continueButton = addressForm.getByRole("button");
 
     await expect(heading).toBeVisible();
+    await expect(
+      page.getByText(
+        "Enter your client's home address, or select 'my client has no fixed abode'.",
+      ),
+    ).toBeVisible();
     await expect(backButton).toBeVisible();
     await expect(backButton).toHaveAttribute(
       "href",
@@ -73,7 +80,7 @@ test.describe("Client details - home address", () => {
   test("continues when no fixed abode is selected", async ({ page }) => {
     await page.goto("/apply/client-details/home-address");
 
-    await page.getByLabel("Client has no fixed abode").check();
+    await page.getByLabel("My client has no fixed abode").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForLoadState("domcontentloaded");
 
