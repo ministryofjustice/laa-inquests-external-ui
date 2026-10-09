@@ -128,6 +128,29 @@ test.describe("Provider can", () => {
     await checkAccessibility();
   });
 
+  test("back link returns from the ineligible page to the relationship form", async ({
+    page,
+  }) => {
+    await form.getByLabel("No, my client has a different relationship").click();
+    await continueToNextPage(form, page);
+
+    const backLink = page.getByRole("link", { name: "Back", exact: true });
+    await expect(backLink).toHaveAttribute(
+      "href",
+      "/apply/deceased-details/client-relationship",
+    );
+    await backLink.click();
+
+    await expect(page).toHaveURL("/apply/deceased-details/client-relationship");
+    await expect(form).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Is your client a family member of the deceased?",
+      }),
+    ).toBeVisible();
+  });
+
   test("shows an error when yes is selected but relationship is empty", async ({
     page,
   }) => {
