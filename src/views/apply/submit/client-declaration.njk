@@ -24,32 +24,54 @@
             <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
             <form data-testid="client-declaration-form" action="/apply/confirmation/client-declaration" method="post">
                 <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-                <p class="govuk-body">{{clientDetails.firstName}} {{clientDetails.lastName}} agrees that:</p>
+                <p class="govuk-body">You must obtain a signed declaration from your client which confirms that:</p>
                 <ul class="govuk-list govuk-list--bullet">
                     <li>
-                        they've instructed Test Provider to represent them
+                        they, {{clientDetails.firstName}} {{clientDetails.lastName}}, have instructed you, {{providerName}}, to represent them
                     </li>
                     <li>
-                        they've read the <a class="govuk-link" href="https://www.gov.uk/guidance/legal-aid-agency-privacy-notice" target="_blank">LAA privacy policy</a>
+                        they have read and agree to the <a class="govuk-link" href="https://www.gov.uk/guidance/legal-aid-agency-privacy-notice" target="_blank">Legal Aid Agency privacy policy</a>
                     </li>
                     <li>
-                        we can share their information with other government departments like DWP and HMRC
-                    </li>
-                    <li>
-                        the information they've given is complete and correct
+                        the information they have given is complete and correct
                     </li>
                 </ul>
                 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
                 {{ govukWarningText({
                     html: 
-                        "If they give wrong or incomplete information or do not report changes they may:
+                        "You must also explain to your client that if information they have given is wrong or incomplete, or they don't tell us about any changes, they may:
                         <ul>
                             <li>be prosecuted</li>
-                            <li>need to pay a financial penalty</li>
-                            <li>have their legal aid stopped and have to pay back the costs</li>
+                            <li>have to pay a financial penalty</li>
+                            <li>have their legal aid stopped and have to pay back any costs</li>
                         </ul>",
-                    iconFallbackText: "Warning"
+                    iconFallbackText: "Warning",
+                    classes: "govuk-!-margin-bottom-0"
+                }) }}
+                <p class="govuk-body">A copy of this declaration will be included in your confirmation email. You can print this for your client to sign.</p>
+                <p class="govuk-body">On behalf of {{providerName}}, you must confirm that:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>
+                        the information you have provided in this application is complete and correct
+                    </li>
+                    <li>
+                        you are authorised by {{providerName}} to submit legal aid applications against this contract
+                    </li>
+                    <li>
+                        you will obtain a signed copy of this declaration from your client, keep a copy on file, and provide it to the legal aid agency on request
+                    </li>
+                </ul>
+                {{ govukWarningText({
+                    html:
+                        "Making a false declaration may lead to further action, including:
+                        <ul>
+                            <li>prosecution</li>
+                            <li>nullification of certificates</li>
+                            <li>contract sanctions against your firm</li>
+                        </ul>",
+                    iconFallbackText: "Warning",
+                    classes: "govuk-!-margin-bottom-0"
                 }) }}
                 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 
@@ -59,12 +81,13 @@
                 items: [
                     {
                     value: "true",
-                    text: "I confirm the above is correct and that I'll get a signed declaration from my client"
+                    text: "I confirm that I have read and agree to the declaration"
                     }
                 ]
                 }) }}
                 {{ govukButton({
-                    text: "Continue"
+                    text: "Submit",
+                    classes: "govuk-!-margin-top-2"
                 }) }}
             </form>
         </div>
