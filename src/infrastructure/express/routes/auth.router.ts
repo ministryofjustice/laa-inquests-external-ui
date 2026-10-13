@@ -41,6 +41,14 @@ function resolveAccessToken(value: unknown): string {
   return "test-access-token";
 }
 
+// Allows load/perf tests to target a real firm's data by overriding the seeded firmId.
+function resolveFirmId(value: unknown): string {
+  if (typeof value === "string" && value !== "") {
+    return value;
+  }
+  return "123";
+}
+
 export function createAuthRouter(
   authRouter: Router,
   authAdaptor: AuthAdaptor,
@@ -83,7 +91,7 @@ export function createAuthRouter(
       };
       req.session.accessToken = resolveAccessToken(req.query.accessToken);
       req.session.userId = "test-provider";
-      req.session.firmId = "123";
+      req.session.firmId = resolveFirmId(req.query.firmId);
       req.session.firmName = "Test Firm";
       req.session.userOfficeAccounts = parseOfficeAccountsQueryParam(
         req.query.officeAccounts,
