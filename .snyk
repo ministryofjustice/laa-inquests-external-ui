@@ -54,3 +54,7 @@ ignore:
       - "*":
           reason:
             "Temo ignore as bundled with dependecies. Resolved when new docker image is released with new zlib version"
+  "SNYK-JS-QS-20943482:
+      - "*":
+          reason:
+            "Temp ignore due to being a subdependacy, and us not having arrayFormat: 'comma' set anywhere which causes this vulnerability"
