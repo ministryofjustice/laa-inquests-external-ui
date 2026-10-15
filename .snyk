@@ -2,52 +2,72 @@ version: v1.5.0
 ignore:
   "SNYK-JS-BRACEEXPANSION-18313044":
     - "*":
+        expires: 2026-11-07T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
         reason:
           "Temp ignore as bundled with npm. Resolved when npm releases version
           with brace-expansion@5.0.7."
   "SNYK-JS-BRACEEXPANSION-18512280":
     - "*":
+        expires: 2026-11-07T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           npm releases version with brace-expansion@5.0.7."
   "SNYK-JS-UNDICI-19635210":
     - "*":
+        expires: 2026-11-07T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           new docker image is released with npm version using undici@6.28.1."
   "SNYK-JS-UNDICI-19635226":
     - "*":
+        expires: 2026-11-07T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           new docker image is released with npm version using undici@6.28.1."
   "SNYK-JS-HTTPCACHESEMANTICS-19964064":
     - "*":
+        expires: 2026-11-07T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           npm releases version with fixed http-cache-semantics."
   "SNYK-JS-HTTPCACHESEMANTICS-19964068":
     - "*":
+        expires: 2026-11-07T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when
           npm releases version with fixed http-cache-semantics."
   "SNYK-JS-BRACEEXPANSION-20244948":
     - "*":
+        expires: 2026-11-07T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
         reason:
           "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
           new docker image is released with upgraded npm version"
   "SNYK-JS-BRACEEXPANSION-20244952":
       - "*":
+          expires: 2026-11-07T00:00:00.000Z
+          created: 2026-10-08T00:00:00.000Z
           reason:
             "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
             new docker image is released with upgraded npm version"
   "SNYK-JS-POSTCSSSELECTORPARSER-20510276":
       - "*":
+          expires: 2026-11-07T00:00:00.000Z
+          created: 2026-10-08T00:00:00.000Z
           reason:
             "Temp ignore as bundled with npm with no direct upgrade. Resolved when 
             new docker image is released with upgraded npm version; 
             needs postcss-selector-parser@7.1.6 or higher"
   "SNYK-JS-ZOD-20510278":
       - "*":
+          expires: 2026-11-07T00:00:00.000Z
+          created: 2026-10-08T00:00:00.000Z
           reason:
             "Introduced Oct 1st, unresolved as of Oct 5th"
   "SNYK-ALPINE324-ZLIB-20541555":
