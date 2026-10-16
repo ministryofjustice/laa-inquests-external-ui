@@ -30,12 +30,18 @@
                 ]
             }) }}
             {% endif %}
-            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
             <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />
                 {{ govukRadios({
                     name: "deceased-has-further-information",
                     id: "deceased-has-further-information",
+                    fieldset: {
+                        legend: {
+                            text: pageHeading,
+                            isPageHeading: true,
+                            classes: "govuk-fieldset__legend--l"
+                        }
+                    },
                     value: deceasedDetails.hasFurtherInformation,
                     errorMessage: errorSummaries.hasFurtherInformationInputError,
                     items: [

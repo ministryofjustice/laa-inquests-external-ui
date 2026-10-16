@@ -26,7 +26,6 @@
         ]
       }) }}
       {% endif %}
-      <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
 
       <form data-testid="inquest-outcome-form" action="/claim/inquest-outcome" method="post">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
@@ -35,9 +34,13 @@
           idPrefix: "inquest-outcome",
           fieldset: {
             legend: {
-              text: "Select all that apply",
-              classes: "govuk-fieldset__legend--s"
+              text: pageHeading,
+              isPageHeading: true,
+              classes: "govuk-fieldset__legend--l"
             }
+          },
+          hint: {
+            text: "Select all that apply"
           },
           errorMessage: errorSummaries.inquestOutcomeInputError,
           items: outcomeOptions
