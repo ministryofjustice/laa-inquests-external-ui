@@ -49,12 +49,12 @@ ingress:
   enabled: true
   className: modsec-non-prod
   hosts:
-    - host: laa-inquests-external-ui-dev.apps.live.cloud-platform.service.justice.gov.uk
+    - host: ""
       paths:
         - path: /
           pathType: Prefix
   annotations:
-    external-dns.alpha.kubernetes.io/set-identifier: "laa-inquests-external-ui-laa-inquests-external-ui-dev-green"
+    external-dns.alpha.kubernetes.io/set-identifier: ""
     external-dns.alpha.kubernetes.io/aws-weight: "100"
     nginx.ingress.kubernetes.io/enable-modsecurity: "true"
     nginx.ingress.kubernetes.io/enable-owasp-core-rules: "true"
@@ -91,15 +91,16 @@ env:
   AWS_SECRETS_AUTH_CLIENT_SECRET: ""
   AWS_SECRETS_AUTH_DIRECTORY_URL: ""
   AWS_SECRETS_REDIS_SECRET: ""
-  AUTH_REDIRECT_URL: ""
-  SERVICE_NAME: "Express TypeScript Template"
+  AUTH_POST_LOGOUT_URI: ""
+  AUTH_REDIRECT_URI: ""
+  SERVICE_NAME: "Inquests"
   SERVICE_PHASE: "Beta"
   DEPARTMENT_NAME: "Legal Aid Agency"
   DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
   CONTACT_EMAIL: "eligibility@justice.gov.uk"
   CONTACT_PHONE: ""
   # TODO: Is this value actually being used, I think the real one might be the github variable
-  INQUESTS_API_URL: "https://laa-inquests-api-dev.apps.live.cloud-platform.service.justice.gov.uk"
+  INQUESTS_API_URL: ""
   SERVICE_URL: "https://www.gov.uk/legal-aid"
   SESSION_NAME: "sessionId"
   SILAS_HOMEPAGE: ""
