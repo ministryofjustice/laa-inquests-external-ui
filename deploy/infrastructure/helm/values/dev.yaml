@@ -108,6 +108,7 @@ env:
   RATE_WINDOW_MS: 900000
   NODE_ENV: "dev"
   LOG_LEVEL: "info"
+  GA_MEASUREMENT_ID: "G-D2JRNWLJY5"
 
 autoscaling:
   enabled: false
