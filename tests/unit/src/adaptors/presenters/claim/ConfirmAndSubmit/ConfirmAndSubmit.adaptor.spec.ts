@@ -804,6 +804,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       const responseStub = stubInterface<Response>();
       responseStub.locals = { csrfToken: "test-token" };
       const requestStub = stubInterface<Request>();
+      requestStub.session.claim = { caseReference: "1" };
 
       await adaptor.processForm(requestStub, responseStub);
 
@@ -841,6 +842,27 @@ describe("ConfirmAndSubmit adaptor", () => {
       );
 
       assert.equal(responseStub.redirect.callCount, 0);
+      assert.equal(responseStub.render.callCount, 0);
+    });
+
+    it("redirects to the claim start page without submitting when no case reference is in the session", async () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort, {
+        submitClaim: submitClaimUseCase,
+      });
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "PROFIT_COST",
+      };
+
+      await adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(submitClaimUseCase.execute.callCount, 0);
+      assert.equal(responseStub.redirect.callCount, 1);
+      const [redirectUrl] = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectUrl, "/claim");
       assert.equal(responseStub.render.callCount, 0);
     });
   });

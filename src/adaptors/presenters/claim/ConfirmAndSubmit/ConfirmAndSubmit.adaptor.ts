@@ -52,14 +52,29 @@ export class ConfirmAndSubmitAdaptor {
   }
 
   async processForm(req: Request, res: Response): Promise<void> {
-    const result = await this.submitClaimUseCase.execute(
-      this.#buildSubmitClaimInput(req),
-    );
+    const caseReference = req.session.claim?.caseReference;
 
-    if (result.status === "VALIDATION_FAILED") {
-      this.#renderValidationErrors(req, res, result.errorSummaries);
+    if (caseReference === undefined || caseReference === "") {
+      appLogger.logWarn({
+        functionName: "confirm_and_submit_presenter",
+        message: "Claim submission blocked because case reference was missing",
+        request: req,
+        extraContext: {
+          event: "claim_submit_blocked",
+          reason: "INVALID_INPUT_STATE",
+        },
+      });
+      res.redirect("/claim");
     } else {
-      this.#handleSuccessfulSubmission(req, res, result.data);
+      const result = await this.submitClaimUseCase.execute(
+        this.#buildSubmitClaimInput(req, caseReference),
+      );
+
+      if (result.status === "VALIDATION_FAILED") {
+        this.#renderValidationErrors(req, res, result.errorSummaries);
+      } else {
+        this.#handleSuccessfulSubmission(req, res, result.data);
+      }
     }
   }
 
@@ -102,11 +117,13 @@ export class ConfirmAndSubmitAdaptor {
     }
   }
 
-  #buildSubmitClaimInput(req: Request): SubmitClaimInput {
+  #buildSubmitClaimInput(
+    req: Request,
+    caseReference: string,
+  ): SubmitClaimInput {
     const { session } = req;
     const { claim = {}, providerEmail = "", accessToken } = session;
     const {
-      caseReference = "",
       type = "",
       subtype,
       zeroVatTotal,
