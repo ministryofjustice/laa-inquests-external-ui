@@ -116,7 +116,7 @@ spec:
             - name: NODE_ENV
               value: "{{ .Values.env.NODE_ENV }}"
             - name: GA_MEASUREMENT_ID
-              value: "{{ .Values.env.GA_MEASUREMENT_ID | quote }}"
+              value: {{ .Values.env.GA_MEASUREMENT_ID | quote }}
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
