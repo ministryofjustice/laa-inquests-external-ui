@@ -2,6 +2,12 @@
 
 ENVIRONMENT=$1
 
+if [[ "$ENVIRONMENT" == "suppliertest" ]]; then
+  VALUES_FILE="./deploy/infrastructure/helm/values/dev.yaml"
+else
+  VALUES_FILE="./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml"
+fi
+
 deploy_branch() {
 # Convert the branch name into a string that can be turned into a valid URL
   BRANCH_RELEASE_NAME=$(echo "$branch_name" | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
@@ -48,6 +54,7 @@ deploy_branch() {
 
 deploy_main() {
   RELEASE_HOST="laa-inquests-external-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  IDENTIFIER="laa-inquests-external-ui-$K8S_NAMESPACE-green"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
   AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
   helm upgrade laa-inquests-external-ui ./deploy/infrastructure/helm/. \
@@ -56,6 +63,8 @@ deploy_main() {
                           --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
                           --set image.repository="$REGISTRY/$REPOSITORY" \
                           --set image.tag="$IMAGE_TAG" \
+                          --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
+                          --set ingress.hosts[0].host="$RELEASE_HOST" \
                           --set env.AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
                           --set env.AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" \
                           --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
@@ -87,11 +96,8 @@ if [ -z "$branch_name" ]; then
   branch_name="$GITHUB_REF_NAME" # Branch name if this is a push event
 fi
 
-if [[ ("$ENVIRONMENT" == 'dev' || "$ENVIRONMENT" == 'suppliertest') && "$branch_name" == "main" ]] || \
-   [[ (("$ENVIRONMENT" == 'staging' || "$ENVIRONMENT" == 'prod') && "$branch_name" =~ $releaseTag) ]]
+if  [[ ("$ENVIRONMENT" == 'dev') && "$branch_name" != "main" ]] 
 then
-  deploy_main
-else
   if deploy_branch; then
     echo "Deploy succeeded"
   else
@@ -104,4 +110,6 @@ else
       exit 1
     fi
   fi
+else
+  deploy_main
 fi

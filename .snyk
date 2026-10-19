@@ -58,3 +58,43 @@ ignore:
       - "*":
           reason:
             "Temp ignore due to being a subdependacy, and us not having arrayFormat: 'comma' set anywhere which causes this vulnerability"
+  "SNYK-JS-UNDICI-21181005":
+    - "*":
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image.
+          Checked npm releases still bundle vulnerable versions. Remove when
+          the image includes npm with undici@6.29.1 or a patched version on
+          another major line."
+        expires: "2026-11-18T00:00:00.000Z"
+  "SNYK-JS-UNDICI-21181013":
+    - "*":
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image.
+          Checked npm releases still bundle vulnerable versions. Remove when
+          the image includes npm with undici@6.29.1 or a patched version on
+          another major line."
+        expires: "2026-11-18T00:00:00.000Z"
+  "SNYK-JS-UNDICI-21181015":
+    - "*":
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image.
+          Checked npm releases still bundle vulnerable versions. Remove when
+          the image includes npm with undici@6.29.1 or a patched version on
+          another major line."
+        expires: "2026-11-18T00:00:00.000Z"
+  "SNYK-JS-UNDICI-21181019":
+    - "*":
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image.
+          Checked npm releases still bundle vulnerable versions. Remove when
+          the image includes npm with undici@6.29.1 or a patched version on
+          another major line."
+        expires: "2026-11-18T00:00:00.000Z"
+  "SNYK-JS-UNDICI-21185768":
+    - "*":
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image.
+          Checked npm releases still bundle vulnerable versions. Remove when
+          the image includes npm with undici@6.29.1 or a patched version on
+          another major line."
+        expires: "2026-11-18T00:00:00.000Z"
