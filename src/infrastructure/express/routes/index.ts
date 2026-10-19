@@ -78,6 +78,8 @@ import { GetProviderOfficesAdaptor } from "#src/adaptors/source/inquests-api/app
 import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
 import { createOfficeAccountsRouter } from "#src/infrastructure/express/routes/apply/officeAccounts.router.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
+import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
+import { AccessibilityStatementAdaptor } from "#src/adaptors/presenters/footer/AccessibilityStatement.adaptor.js";
 import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
@@ -168,6 +170,16 @@ if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
   };
   indexRouter.use(seedDevAuthSession);
 }
+
+const accessibilityStatementAdaptor = new AccessibilityStatementAdaptor();
+
+indexRouter.use(
+  "/accessibility-statement",
+  createAccessibilityStatementRouter(
+    express.Router(),
+    accessibilityStatementAdaptor,
+  ),
+);
 
 indexRouter.use(requireAuth);
 
