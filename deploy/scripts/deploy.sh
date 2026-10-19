@@ -12,9 +12,9 @@ deploy_branch() {
 # Convert the branch name into a string that can be turned into a valid URL
   BRANCH_RELEASE_NAME=$(echo "$branch_name" | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
 # Set the deployment host, this will add the prefix of the branch name e.g el-257-deploy-with-circleci or just main
-  RELEASE_HOST="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  RELEASE_HOST="$BRANCH_RELEASE_NAME-laa-inquests-external-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
 # Set the ingress name, needs release name, namespace and -green suffix
-  IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-internal-ui-$K8S_NAMESPACE-green"
+  IDENTIFIER="$BRANCH_RELEASE_NAME-laa-inquests-external-ui-$K8S_NAMESPACE-green"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
   AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
   echo "Github ref: $branch_name; release name: $BRANCH_RELEASE_NAME; identifier: $IDENTIFIER; release host: $RELEASE_HOST"
@@ -24,7 +24,6 @@ deploy_branch() {
                 --install --wait --timeout 10m \
                 --namespace="${K8S_NAMESPACE}" \
                 --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
-                --set-string ingress.allowlist="${ALLOW_LIST//,/\\,}" \
                 --set image.repository="$REGISTRY/$REPOSITORY" \
                 --set image.tag="$IMAGE_TAG" \
                 --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
@@ -38,7 +37,7 @@ deploy_branch() {
                 --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
-                --set env.AWS_SECRETS_REDIS_SECRET="inquests-internal-ui-$ENVIRONMENT-redis-ec-cluster" \
+                --set env.AWS_SECRETS_REDIS_SECRET="inquests-external-ui-$ENVIRONMENT-redis-ec-cluster" \
                 --set env.SERVICE_NAME="$SERVICE_NAME" \
                 --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
                 --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
@@ -48,19 +47,19 @@ deploy_branch() {
                 --set env.SERVICE_URL="$SERVICE_URL" \
                 --set env.SESSION_SECRET="$SESSION_SECRET" \
                 --set env.SESSION_NAME="$SESSION_NAME" \
+                --set env.SILAS_HOMEPAGE="$SILAS_HOMEPAGE" \
                 --set env.NODE_ENV="$NODE_ENV"
 }
 
 deploy_main() {
-  RELEASE_HOST="laa-inquests-internal-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
-  IDENTIFIER="laa-inquests-internal-ui-$K8S_NAMESPACE-green"
+  RELEASE_HOST="laa-inquests-external-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  IDENTIFIER="laa-inquests-external-ui-$K8S_NAMESPACE-green"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
   AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
-  helm upgrade laa-inquests-internal-ui ./deploy/infrastructure/helm/. \
+  helm upgrade laa-inquests-external-ui ./deploy/infrastructure/helm/. \
                           --install --wait --timeout 10m \
                           --namespace="${K8S_NAMESPACE}" \
                           --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
-                          --set-string ingress.allowlist="${ALLOW_LIST//,/\\,}" \
                           --set image.repository="$REGISTRY/$REPOSITORY" \
                           --set image.tag="$IMAGE_TAG" \
                           --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
@@ -74,8 +73,9 @@ deploy_main() {
                           --set env.AWS_SECRETS_AUTH_CLIENT_ID="auth-client-id-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
-                          --set env.AWS_SECRETS_REDIS_SECRET="inquests-internal-ui-$ENVIRONMENT-redis-ec-cluster" \
+                          --set env.AWS_SECRETS_REDIS_SECRET="inquests-external-ui-$ENVIRONMENT-redis-ec-cluster" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
+                          --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
                           --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                           --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
@@ -84,6 +84,7 @@ deploy_main() {
                           --set env.SERVICE_URL="$SERVICE_URL" \
                           --set env.SESSION_SECRET="$SESSION_SECRET" \
                           --set env.SESSION_NAME="$SESSION_NAME" \
+                          --set env.SILAS_HOMEPAGE="$SILAS_HOMEPAGE" \
                           --set env.NODE_ENV="$NODE_ENV"
 }
 
