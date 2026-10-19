@@ -614,6 +614,10 @@ export const OFFICE_ACCOUNTS_ERROR = {
 
 // Buffer before the Entra access-token expiry at which the session is treated as expired.
 export const SESSION_EXPIRY_BUFFER_MS = 60_000;
+// 20 minutes.
+export const SESSION_IDLE_TIMEOUT_MS = 1_200_000;
+// 12 hours from login.
+export const SESSION_ABSOLUTE_TIMEOUT_MS = 43_200_000;
 
 export const HTTP_CREATED = 201;
 

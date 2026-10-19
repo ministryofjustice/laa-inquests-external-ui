@@ -130,6 +130,20 @@ describe("Session Helpers", () => {
       expect(req.session.clientFirstName).to.be.undefined;
       expect(req.session.csrfToken).to.equal("csrf-token-123");
     });
+
+    it("preserves the session lifetime so the lifetime guard does not expire the session", () => {
+      const lifetime = {
+        absoluteExpiresAt: 3,
+        credentialExpiresAt: 2,
+        lastActivityAt: 1,
+        idleTimeoutMs: 1,
+      };
+      const req = createMockRequest({ clientFirstName: "value1", lifetime });
+
+      sessionHelper.clearFormData(req);
+      expect(req.session.clientFirstName).to.be.undefined;
+      expect(req.session.lifetime).to.deep.equal(lifetime);
+    });
   });
 
   describe("storeOriginalFormData()", () => {

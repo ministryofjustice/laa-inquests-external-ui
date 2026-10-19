@@ -4,6 +4,14 @@ import type { ClaimRejectionReasonCode } from "#src/infrastructure/locales/const
 import type { ProviderRole } from "#src/infrastructure/config/accessControl.js";
 
 declare module "express-session" {
+  // Epoch milliseconds, except idleTimeoutMs which is a duration.
+  interface SessionLifetime {
+    absoluteExpiresAt: number;
+    credentialExpiresAt: number;
+    lastActivityAt: number;
+    idleTimeoutMs: number;
+  }
+
   interface SessionData extends Record<
     string,
     Record<string, unknown> | string | boolean | undefined | null
@@ -36,6 +44,7 @@ declare module "express-session" {
     claim?: ClaimSession;
     returnToApplyCheckYourAnswers?: boolean;
     claimDeclaration?: boolean;
+    lifetime?: SessionLifetime;
   }
 }
 
