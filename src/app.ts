@@ -74,6 +74,31 @@ app.use(express.static(config.paths.static));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Tracking consent middleware
+app.use((req: Request, res: Response, next: NextFunction): void => {
+  let hasTrackingConsent = false;
+  const cookiePolicy: string | undefined = req.cookies.cookies_policy;
+
+  if (cookiePolicy) {
+    try {
+      // Decode URI components in case the client URL-encoded the JSON string
+      const parsedPolicy = JSON.parse(decodeURIComponent(cookiePolicy))
+
+      // GOV.UK patterns often use 'usage' or 'analytics'
+      hasTrackingConsent = Boolean(parsedPolicy.analytics || parsedPolicy.usage);
+    } catch (err) {
+      // TODO: log failure
+      hasTrackingConsent = false;
+    }
+  }
+  res.locals.hasTrackingConsent = hasTrackingConsent;
+
+  // TODO: Also check if the user made a choice (to conditionally show/hide the banner)
+  // res.locals.showCookieBanner = !req.cookies.cookies_preferences_set;
+
+  next();
+});
+
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const startedAt = Date.now();
   res.on("finish", () => {
