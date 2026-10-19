@@ -12,7 +12,7 @@
         'ad_personalization': 'denied'
         });
     </script>
-    <script nonce="{{ cspNonce }}">window['ga-disable-{{ config.GA_MEASUREMENT_ID }}'] = !hasTrackingConsent;</script>
+    <script nonce="{{ cspNonce }}">window['ga-disable-{{ config.GA_MEASUREMENT_ID }}'] = {{ not hasTrackingConsent }};</script>
 
     <!-- Google tag (gtag.js) -->
     <script nonce="{{ cspNonce }}" async src="https://www.googletagmanager.com/gtag/js?id={{ config.GA_MEASUREMENT_ID }}"></script>
