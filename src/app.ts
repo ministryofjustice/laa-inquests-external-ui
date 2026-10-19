@@ -77,20 +77,21 @@ app.use(express.urlencoded({ extended: false }));
 // Tracking consent middleware
 app.use((req: Request, res: Response, next: NextFunction): void => {
   let hasTrackingConsent = false;
-  const cookiePolicy: string | undefined = req.cookies.cookies_policy;
+  const cookiePolicy: string | undefined = req.cookies.cookies_policy as
+    string | undefined;
 
-  if (cookiePolicy) {
-    try {
-      // Decode URI components in case the client URL-encoded the JSON string
-      const parsedPolicy = JSON.parse(decodeURIComponent(cookiePolicy))
-
-      // GOV.UK patterns often use 'usage' or 'analytics'
-      hasTrackingConsent = Boolean(parsedPolicy.analytics || parsedPolicy.usage);
-    } catch (err) {
-      // TODO: log failure
-      hasTrackingConsent = false;
+  if (cookiePolicy !== undefined) {
+    const parsedPolicy: unknown = JSON.parse(decodeURIComponent(cookiePolicy));
+    if (
+      typeof parsedPolicy === "object" &&
+      parsedPolicy !== null &&
+      "hasTrackingConsent" in parsedPolicy &&
+      typeof parsedPolicy.hasTrackingConsent === "boolean"
+    ) {
+      ({ hasTrackingConsent } = parsedPolicy);
     }
   }
+
   res.locals.hasTrackingConsent = hasTrackingConsent;
 
   // TODO: Also check if the user made a choice (to conditionally show/hide the banner)
