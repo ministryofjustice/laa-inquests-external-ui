@@ -34,6 +34,7 @@ import crypto from "node:crypto";
 import multer from "multer";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { requestContextMiddleware } from "#src/infrastructure/logging/requestContextMiddleware.js";
+import processCookies from "./infrastructure/express/middleware/cookies/cookies.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -74,31 +75,7 @@ app.use(express.static(config.paths.static));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Tracking consent middleware
-app.use((req: Request, res: Response, next: NextFunction): void => {
-  let hasTrackingConsent = false;
-  const cookiePolicy: string | undefined = req.cookies.cookies_policy as
-    string | undefined;
-
-  if (cookiePolicy !== undefined) {
-    const parsedPolicy: unknown = JSON.parse(decodeURIComponent(cookiePolicy));
-    if (
-      typeof parsedPolicy === "object" &&
-      parsedPolicy !== null &&
-      "hasTrackingConsent" in parsedPolicy &&
-      typeof parsedPolicy.hasTrackingConsent === "boolean"
-    ) {
-      ({ hasTrackingConsent } = parsedPolicy);
-    }
-  }
-
-  res.locals.hasTrackingConsent = hasTrackingConsent;
-
-  // TODO: Also check if the user made a choice (to conditionally show/hide the banner)
-  // res.locals.showCookieBanner = !req.cookies.cookies_preferences_set;
-
-  next();
-});
+app.use(processCookies);
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const startedAt = Date.now();
