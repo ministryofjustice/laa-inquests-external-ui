@@ -80,6 +80,8 @@ import { createOfficeAccountsRouter } from "#src/infrastructure/express/routes/a
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
 import { AccessibilityStatementAdaptor } from "#src/adaptors/presenters/footer/AccessibilityStatement.adaptor.js";
+import { createHelpRouter } from "#src/infrastructure/express/routes/help.router.js";
+import { HelpAdaptor } from "#src/adaptors/presenters/footer/Help.adaptor.js";
 import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
@@ -179,6 +181,14 @@ indexRouter.use(
     express.Router(),
     accessibilityStatementAdaptor,
   ),
+);
+
+const helpAdaptor = new HelpAdaptor();
+
+indexRouter.use(
+  "/help",
+  requireAuth,
+  createHelpRouter(express.Router(), helpAdaptor),
 );
 
 indexRouter.use(requireAuth);
