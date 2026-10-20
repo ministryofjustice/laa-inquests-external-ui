@@ -140,8 +140,8 @@ app.use(
     },
   }),
 );
-app.use(sessionLifetimeGuard);
 app.use(setupRateLimiter(config));
+app.use(sessionLifetimeGuard);
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;
   res.locals.userName = req.session.user?.name;
