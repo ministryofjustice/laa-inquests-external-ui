@@ -149,6 +149,15 @@ describe("accessControl config", () => {
       assert.deepEqual(policy?.allowedRoles, [APP_ROLES.APPLICATION_USER]);
     });
 
+    it("matches /help to both provider roles", () => {
+      const policy = findRoutePolicy("/help");
+
+      assert.deepEqual(policy?.allowedRoles, [
+        APP_ROLES.APPLICATION_USER,
+        APP_ROLES.CLAIMS_USER,
+      ]);
+    });
+
     it("matches /claim to the claims-user policy", () => {
       const policy = findRoutePolicy("/claim/evidence");
 
