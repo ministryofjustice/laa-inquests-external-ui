@@ -40,6 +40,7 @@ export class SessionHelper {
             "accessToken",
             "roles",
             "csrfToken",
+            "lifetime",
           ].includes(k),
       )
       .forEach((key) => {
