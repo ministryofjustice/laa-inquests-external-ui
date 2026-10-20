@@ -5,7 +5,7 @@ import sinon from "sinon";
 import processCookies from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
-describe.only("processCookies", () => {
+describe("processCookies", () => {
   let req: StubbedInstance<Request>;
   let res: StubbedInstance<Response>;
   let next: sinon.SinonStub;
