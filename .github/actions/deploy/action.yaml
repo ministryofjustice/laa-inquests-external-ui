@@ -32,6 +32,9 @@ inputs:
   ecr-registry_url:
     description: "ECR registry url"
     required: true
+  sentry_dsn:
+    description: "Sentry DSN"
+    required: true
   session_secret:
     description: "Session secret"
   service_name:
@@ -93,6 +96,7 @@ runs:
         AUTH_POST_LOGOUT_URI: ${{ inputs.auth_post_logout_uri || '' }}
         AUTH_REDIRECT_URI: ${{ inputs.auth_redirect_uri || '' }}
         INQUESTS_API_URL: ${{ inputs.inquests_api_url || '' }}
+        SENTRY_DSN: ${{ inputs.sentry_dsn }}
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
         SESSION_SECRET: ${{ inputs.session_secret || 'default-session-secret' }}
@@ -105,6 +109,7 @@ runs:
         echo "AUTH_REDIRECT_URI=$AUTH_REDIRECT_URI" >> "$GITHUB_ENV"
         echo "NODE_ENV=production" >> "$GITHUB_ENV"
         echo "INQUESTS_API_URL=$INQUESTS_API_URL" >> "$GITHUB_ENV"
+        echo "SENTRY_DSN=$SENTRY_DSN" >> "$GITHUB_ENV"
         echo "SERVICE_NAME=$SERVICE_NAME" >> "$GITHUB_ENV"
         echo "SESSION_NAME=$SESSION_NAME" >> "$GITHUB_ENV"
         echo "SESSION_SECRET=$SESSION_SECRET" >> "$GITHUB_ENV"

@@ -82,6 +82,7 @@ const config: Config = {
   CONTACT_PHONE: process.env.CONTACT_PHONE,
   DEPARTMENT_NAME: process.env.DEPARTMENT_NAME,
   DEPARTMENT_URL: process.env.DEPARTMENT_URL,
+  ENVIRONMENT: process.env.ENVIRONMENT ?? "unknown",
   INQUESTS_API_CLIENT_ID: process.env.INQUESTS_API_CLIENT_ID,
   INQUESTS_API_URL: process.env.INQUESTS_API_URL ?? "",
   RATE_LIMIT_GLOBAL_MAX: Number(
@@ -95,6 +96,7 @@ const config: Config = {
     process.env.RATE_WINDOW_MS ??
       DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE,
   ),
+  SENTRY_DSN: process.env.SENTRY_DSN ?? "",
   SERVICE_NAME: process.env.SERVICE_NAME,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
