@@ -1,6 +1,6 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import sinon from "sinon";
 import processCookies from "#src/infrastructure/express/middleware/cookies/cookies.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -14,6 +14,10 @@ describe("processCookies", () => {
     req = stubInterface<Request>();
     res = stubInterface<Response>();
     next = sinon.stub();
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   it("assigns hasTrackingConsent to false when cookies_policy undefined", () => {
