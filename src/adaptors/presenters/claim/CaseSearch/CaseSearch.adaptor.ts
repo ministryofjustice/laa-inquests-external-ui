@@ -5,13 +5,17 @@ import type {
   CaseSearchFormData,
   CaseSearchValidator,
 } from "./CaseSearch.validator.js";
-import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
+import {
+  CASE_SEARCH_ERROR,
+  EMPTY_ARR_LENGTH,
+} from "#src/infrastructure/locales/constants.js";
 import type { SearchCasesPort } from "#src/ports/source/inquests-api/SearchCases.port.js";
 import type { ListClaimsPort } from "#src/ports/source/inquests-api/ListClaims.port.js";
 import { CaseSearchFormatter } from "./CaseSearch.formatter.js";
 import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js";
 import { SelectCaseUseCase } from "#src/use-cases/claim/SelectCase.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { saveSession } from "#src/infrastructure/express/session/sessionConcurrency.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
@@ -100,10 +104,16 @@ export class CaseSearchAdaptor {
       ...session.claim,
       searchResults: this.formatter.formatClientDetails(cases),
     };
+    // express-session can flush the response before its own save completes
+    await saveSession(req);
 
     res.render("claim/case-search-results", {
       csrfToken,
       cases: this.formatter.formatCases(cases),
+      errorSummaries:
+        req.query.selectionError === "true"
+          ? { selectionError: { text: CASE_SEARCH_ERROR.SELECTION_FAILED } }
+          : undefined,
     });
   }
 
@@ -132,7 +142,7 @@ export class CaseSearchAdaptor {
           reason: "INVALID_INPUT_STATE",
         },
       });
-      res.redirect("/claim/results");
+      res.redirect("/claim/results?selectionError=true");
     } else if (result.status === "BLOCKED") {
       session.claim = {
         ...claim,
@@ -149,6 +159,7 @@ export class CaseSearchAdaptor {
           laa_reference: selectedReference,
         },
       });
+      await saveSession(req);
       res.redirect("/claim/cannot-claim");
     } else {
       session.claim = {
@@ -156,6 +167,7 @@ export class CaseSearchAdaptor {
         caseReference: selectedReference,
         client: result.client,
       };
+      await saveSession(req);
       res.redirect("/claim/type");
     }
   }

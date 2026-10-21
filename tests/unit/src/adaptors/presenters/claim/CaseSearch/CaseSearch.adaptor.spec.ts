@@ -1,5 +1,5 @@
 import { strict as assert } from "assert";
-import { stubInterface } from "ts-sinon";
+import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { CaseSearchAdaptor } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.adaptor.js";
 import { CaseSearchValidator } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.validator.js";
@@ -9,6 +9,14 @@ import type { SearchCasesPort } from "#src/ports/source/inquests-api/SearchCases
 import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js";
 import { ListClaimsPort } from "#src/ports/source/inquests-api/ListClaims.port.js";
 import { SelectCaseUseCase } from "#src/use-cases/claim/SelectCase.useCase.js";
+
+function stubRequest(): StubbedInstance<Request> {
+  const requestStub = stubInterface<Request>();
+  requestStub.session.save = ((callback: (err?: Error) => void): void => {
+    callback();
+  }) as Request["session"]["save"];
+  return requestStub;
+}
 
 function buildAdaptor(
   searchCasesPort?: SearchCasesPort,
@@ -128,7 +136,7 @@ describe("CaseSearch adaptor", () => {
       );
 
       const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
+      const requestStub = stubRequest();
       requestStub.session.claim = { caseReference: "1" };
       requestStub.session.accessToken = "access-token-123";
 
@@ -170,7 +178,7 @@ describe("CaseSearch adaptor", () => {
       );
 
       const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
+      const requestStub = stubRequest();
       requestStub.session.claim = { caseReference: "1" };
       requestStub.session.accessToken = "access-token-123";
 
@@ -185,6 +193,82 @@ describe("CaseSearch adaptor", () => {
           dateOfBirth: "01/01/2000",
         },
       ]);
+    });
+
+    it("renders a selection error summary when the selectionError query flag is set", async () => {
+      const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
+      searchCasesUseCase.execute.resolves([]);
+      const adaptor = new CaseSearchAdaptor(
+        new CaseSearchValidator(),
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        new CaseSearchFormatter(),
+        searchCasesUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubRequest();
+      requestStub.query = { selectionError: "true" };
+      requestStub.session.claim = { caseReference: "1" };
+
+      await adaptor.renderResults(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.deepEqual(viewModel.errorSummaries, {
+        selectionError: { text: CASE_SEARCH_ERROR.SELECTION_FAILED },
+      });
+    });
+
+    it("does not render a selection error summary when the selectionError query flag is absent", async () => {
+      const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
+      searchCasesUseCase.execute.resolves([]);
+      const adaptor = new CaseSearchAdaptor(
+        new CaseSearchValidator(),
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        new CaseSearchFormatter(),
+        searchCasesUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubRequest();
+      requestStub.query = {};
+      requestStub.session.claim = { caseReference: "1" };
+
+      await adaptor.renderResults(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, unknown>;
+      assert.equal(viewModel.errorSummaries, undefined);
+    });
+
+    it("saves the session before rendering the results", async () => {
+      const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
+      searchCasesUseCase.execute.resolves([]);
+      const adaptor = new CaseSearchAdaptor(
+        new CaseSearchValidator(),
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        new CaseSearchFormatter(),
+        searchCasesUseCase,
+      );
+
+      const calls: string[] = [];
+      const responseStub = stubInterface<Response>();
+      responseStub.render.callsFake(() => {
+        calls.push("render");
+      });
+      const requestStub = stubInterface<Request>();
+      requestStub.session.claim = { caseReference: "1" };
+      requestStub.session.save = ((callback: (err?: Error) => void): void => {
+        calls.push("save");
+        callback();
+      }) as Request["session"]["save"];
+
+      await adaptor.renderResults(requestStub, responseStub);
+
+      assert.deepEqual(calls, ["save", "render"]);
     });
 
     it("propagates a use-case rejection unchanged", async () => {
@@ -245,7 +329,7 @@ describe("CaseSearch adaptor", () => {
       );
 
       const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
+      const requestStub = stubRequest();
       requestStub.session.claim = { caseReference: "2" };
       requestStub.session.accessToken = "access-token-123";
 
@@ -274,7 +358,7 @@ describe("CaseSearch adaptor", () => {
       );
 
       const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
+      const requestStub = stubRequest();
       requestStub.session.claim = { caseReference: "UNKNOWN-123" };
       requestStub.session.accessToken = "access-token-123";
 
@@ -310,7 +394,7 @@ describe("CaseSearch adaptor", () => {
       );
 
       const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
+      const requestStub = stubRequest();
       requestStub.params = { reference: "12345" };
       requestStub.session.claim = { searchResults: [storedClient] };
 
@@ -335,13 +419,43 @@ describe("CaseSearch adaptor", () => {
       );
 
       const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
+      const requestStub = stubRequest();
       requestStub.params = { reference: "12345" };
       requestStub.session.claim = { searchResults: [storedClient] };
 
       await adaptor.selectCase(requestStub, responseStub);
 
       assert.deepEqual(requestStub.session.claim?.client, storedClient);
+    });
+
+    it("saves the session before redirecting to /claim/type", async () => {
+      const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
+      selectCaseUseCase.execute.resolves({
+        status: "ALLOWED",
+        client: storedClient,
+      });
+      const adaptor = buildAdaptor(
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        selectCaseUseCase,
+      );
+
+      const calls: string[] = [];
+      const responseStub = stubInterface<Response>();
+      responseStub.redirect.callsFake(() => {
+        calls.push("redirect");
+      });
+      const requestStub = stubInterface<Request>();
+      requestStub.params = { reference: "12345" };
+      requestStub.session.claim = { searchResults: [storedClient] };
+      requestStub.session.save = ((callback: (err?: Error) => void): void => {
+        calls.push("save");
+        callback();
+      }) as Request["session"]["save"];
+
+      await adaptor.selectCase(requestStub, responseStub);
+
+      assert.deepEqual(calls, ["save", "redirect"]);
     });
 
     it("does not save client details when the selected case is not found", async () => {
@@ -362,9 +476,27 @@ describe("CaseSearch adaptor", () => {
 
       assert.equal(requestStub.session.claim?.client, undefined);
       assert.equal(requestStub.session.claim?.caseReference, undefined);
+    });
+
+    it("redirects to the results page with a selection error when the selected case is not found", async () => {
+      const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
+      selectCaseUseCase.execute.resolves({ status: "NOT_FOUND" });
+      const adaptor = buildAdaptor(
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        selectCaseUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.params = { reference: "does-not-exist" };
+      requestStub.session.claim = { searchResults: [] };
+
+      await adaptor.selectCase(requestStub, responseStub);
+
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
-      assert.equal(redirectUrl, "/claim/results");
+      assert.equal(redirectUrl, "/claim/results?selectionError=true");
     });
   });
 });

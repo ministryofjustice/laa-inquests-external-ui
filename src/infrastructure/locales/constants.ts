@@ -10,6 +10,8 @@ export const BEFORE_YOU_START_DECLARATION_ERROR =
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
   NO_RESULTS: "There are no results that match the search criteria",
+  SELECTION_FAILED:
+    "There was a problem selecting the case. Select the case again.",
 };
 
 export const PAYING_PARTY_ERROR = {
