@@ -1,6 +1,7 @@
 {% extends "govuk/template.njk" %}
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {%- from "moj/components/header/macro.njk" import mojHeader -%}
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
 {% block pageTitle %}
   {% if errorSummaries %}
@@ -29,12 +30,9 @@
 
 {% block header %}
 {{ mojHeader({
+  classes: "moj-header--no-border",
   organisationLabel: {
     text: "Legal Aid Agency",
-    href: "/"
-  },
-  serviceLabel: {
-    text: "Inquests",
     href: "/"
   },
   navigation: {
@@ -48,6 +46,11 @@
       href: "/auth/logout"
     }]
   }
+}) }}
+
+{{ govukServiceNavigation({
+  serviceName: t('navigation.header.serviceLabel'),
+  serviceUrl: "/"
 }) }}
 
 {{ govukPhaseBanner({

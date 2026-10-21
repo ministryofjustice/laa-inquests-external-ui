@@ -77,10 +77,6 @@ export async function validateMojHeader(page: Page): Promise<void> {
   const laaLink = header.getByRole("link", { name: "Legal Aid Agency" });
   await expect(laaLink).toBeVisible();
 
-  // Validate Inquests service label
-  const inquestsLink = header.getByRole("link", { name: "Inquests" });
-  await expect(inquestsLink).toBeVisible();
-
   // Validate account navigation
   const navigation = header.getByRole("navigation", {
     name: "Account navigation",

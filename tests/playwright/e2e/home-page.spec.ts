@@ -16,6 +16,25 @@ test.describe("Home page", () => {
     await expect(validateMojHeader(page)).resolves.not.toThrow();
   });
 
+  test("should display the service name in service navigation", async ({
+    page,
+  }) => {
+    const serviceNavigation = page.locator(".govuk-service-navigation");
+    const serviceLink = serviceNavigation.getByRole("link", {
+      name: "Legal aid at inquests",
+    });
+
+    await expect(serviceLink).toBeVisible();
+    await expect(serviceLink).toHaveAttribute("href", "/");
+
+    await expect(
+      page.getByRole("banner").getByRole("link", {
+        name: "Legal aid at inquests",
+        exact: true,
+      }),
+    ).toHaveCount(0);
+  });
+
   test("should have the correct link for sign out button", async ({ page }) => {
     const signOutLink = page.getByRole("link", { name: "Sign out" });
     await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
@@ -78,6 +97,33 @@ test.describe("Home page", () => {
     await submitButton.click();
 
     await expect(page).toHaveURL("/claim");
+  });
+
+  test("should return home when the service name is clicked", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      })
+      .check();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/apply");
+
+    await page
+      .locator(".govuk-service-navigation")
+      .getByRole("link", {
+        name: "Legal aid at inquests",
+      })
+      .click();
+
+    await expect(page).toHaveURL("/");
+    await expect(
+      page.getByRole("heading", {
+        name: "What do you want to do?",
+      }),
+    ).toBeVisible();
   });
 
   test.describe("RBAC functionality", () => {
