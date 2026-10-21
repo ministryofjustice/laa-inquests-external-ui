@@ -30,7 +30,6 @@ test.describe("Home page", () => {
     await expect(
       page.getByRole("banner").getByRole("link", {
         name: "Legal aid at inquests",
-        exact: true,
       }),
     ).toHaveCount(0);
   });
