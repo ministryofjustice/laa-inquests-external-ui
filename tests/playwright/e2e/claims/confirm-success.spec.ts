@@ -1,8 +1,9 @@
 import { test, expect } from "../../fixtures/index.js";
+import { searchAndSelectCase } from "../../utils/claim-journey.js";
 
 test.describe("Claim - confirm success", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/type");
+    await searchAndSelectCase(page, "INQ-YYY-001");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");

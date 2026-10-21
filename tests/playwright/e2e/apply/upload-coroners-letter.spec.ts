@@ -29,7 +29,7 @@ const uploadViaWidget = async (
   ]);
 };
 
-test.describe("Apply - upload coroner's letter", () => {
+test.describe("Apply - upload correspondence from the coroner", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/upload-coroners-letter");
   });
@@ -38,8 +38,20 @@ test.describe("Apply - upload coroner's letter", () => {
     page,
     checkAccessibility,
   }) => {
-    await validateHeader(page, "Upload coroner's letter", 1);
+    await validateHeader(page, "Upload correspondence from the coroner", 1);
     await validateBackButton(page, "/apply/public-authority");
+
+    await expect(
+      page.getByText(
+        "Your file should include details of the inquest, including specific reference to one or more public authorities being named as interested parties. We will use this evidence when assessing your claim.",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/maximum file size for each file is 10MB/),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/We can accept these file types/),
+    ).toBeVisible();
 
     const continueForm = page.getByTestId("upload-coroners-letter-form");
     await validateCSRFToken(continueForm);

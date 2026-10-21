@@ -10,6 +10,8 @@ export const BEFORE_YOU_START_DECLARATION_ERROR =
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
   NO_RESULTS: "There are no results that match the search criteria",
+  SELECTION_FAILED:
+    "There was a problem selecting the case. Select the case again.",
 };
 
 export const PAYING_PARTY_ERROR = {
@@ -205,7 +207,7 @@ export const CLIENT_DETAILS_ERROR = {
   HAS_NINO_NOT_SELECTED:
     "Select yes if your client has a National Insurance number",
   HAS_PREV_APPLICATION_NOT_SELECTED:
-    "Select yes if your client has applied for Inquest legal aid before",
+    "Select whether your client has applied for legal aid for an inquest before",
   CORRESPONDENCE_ADDRESS_SOURCE_NOT_SELECTED:
     "Select where we should send your client's correspondence",
   CORRESPONDENCE_RECIPIENT_NOT_SELECTED:
@@ -322,8 +324,6 @@ export const DECEASED_DETAILS_ERROR = {
   INVALID_DATE: "Please enter a valid date",
   RELATIONSHIP_SELECTION_REQUIRED:
     "Select yes if your client meets the definition of a family member",
-  RELATIONSHIP_NOT_ELIGIBLE:
-    "Your client needs to meet the definition of family member to qualify for legal aid",
   RELATIONSHIP_REQUIRED_MIN_MAX:
     "Relationship to deceased must be a maximum of 70 characters and a minimum of 1.",
   RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH:
@@ -616,6 +616,10 @@ export const OFFICE_ACCOUNTS_ERROR = {
 
 // Buffer before the Entra access-token expiry at which the session is treated as expired.
 export const SESSION_EXPIRY_BUFFER_MS = 60_000;
+// 20 minutes.
+export const SESSION_IDLE_TIMEOUT_MS = 1_200_000;
+// 12 hours from login.
+export const SESSION_ABSOLUTE_TIMEOUT_MS = 43_200_000;
 
 export const HTTP_CREATED = 201;
 

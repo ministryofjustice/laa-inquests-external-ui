@@ -77,4 +77,46 @@ test.describe("Claim - case search results", () => {
       /\/claim\/results\/select\/.+/,
     );
   });
+
+  test("does not render an error summary when results load normally", async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole("heading", { name: "There is a problem" }),
+    ).toHaveCount(0);
+  });
+
+  test("renders an error summary when the selected case is not in the search results", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/claim/results/select/INQ-NOT-IN-RESULTS");
+
+    await expect(page).toHaveURL(/\/claim\/results\?selectionError=true$/);
+    await expect(
+      page.getByRole("heading", { name: "There is a problem" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "There was a problem selecting the case. Select the case again.",
+      ),
+    ).toBeVisible();
+    await expect(page.getByRole("table").getByRole("row")).toHaveCount(2);
+
+    await checkAccessibility();
+  });
+
+  test("allows the case to be selected again after a failed selection", async ({
+    page,
+  }) => {
+    await page.goto("/claim/results/select/INQ-NOT-IN-RESULTS");
+    await page
+      .getByRole("table")
+      .getByRole("row")
+      .nth(1)
+      .getByRole("link")
+      .click();
+
+    await expect(page).toHaveURL("/claim/type");
+  });
 });

@@ -34,6 +34,8 @@ import crypto from "node:crypto";
 import multer from "multer";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { requestContextMiddleware } from "#src/infrastructure/logging/requestContextMiddleware.js";
+import processCookies from "./infrastructure/express/middleware/cookies/cookies.js";
+import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -73,6 +75,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use(processCookies);
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const startedAt = Date.now();
@@ -137,6 +141,7 @@ app.use(
   }),
 );
 app.use(setupRateLimiter(config));
+app.use(sessionLifetimeGuard);
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;
   res.locals.userName = req.session.user?.name;

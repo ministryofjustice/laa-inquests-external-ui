@@ -14,7 +14,7 @@ describe("seedDevAuthSession", () => {
     req = stubInterface<Request>();
     res = stubInterface<Response>();
     next = sinon.stub();
-    req.session = {} as any;
+    req.session = { cookie: {} } as any;
     res.locals = {};
   });
 
@@ -39,6 +39,16 @@ describe("seedDevAuthSession", () => {
     assert.equal(next.callCount, 1);
   });
 
+  it("starts a session lifetime so the lifetime guard accepts the dev session", () => {
+    seedDevAuthSession(req, res, next as NextFunction);
+
+    assert.notEqual(req.session.lifetime, undefined);
+    assert.ok(
+      (req.session.lifetime?.credentialExpiresAt ?? 0) >=
+        (req.session.lifetime?.absoluteExpiresAt ?? Infinity),
+    );
+  });
+
   it("does not overwrite an existing authenticated session", () => {
     req.session.userId = "existing-user-id";
     req.session.user = { name: "Existing User" };
@@ -47,6 +57,7 @@ describe("seedDevAuthSession", () => {
 
     assert.equal(req.session.userId, "existing-user-id");
     assert.deepEqual(req.session.user, { name: "Existing User" });
+    assert.equal(req.session.lifetime, undefined);
     assert.equal(next.callCount, 1);
   });
 });

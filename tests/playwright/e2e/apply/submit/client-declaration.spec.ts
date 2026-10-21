@@ -3,7 +3,6 @@ import { getAndUpdateFormFields } from "#tests/playwright/fixtures/pages/Apply.j
 import {
   continueToNextPage,
   validateBackButton,
-  validateContinueButton,
   validateCSRFToken,
   validateFormAttributes,
   validateHeader,
@@ -45,48 +44,61 @@ test.describe("Provider can", () => {
     await validateBackButton(page, previousPage);
     await validateFormAttributes(form, currentPage);
     await validateCSRFToken(form);
-    await validateContinueButton(form);
 
-    const listHeader = await form.getByRole("paragraph");
-    await expect(listHeader).toBeVisible();
-    await expect(listHeader).toHaveText(`${firstName} ${surname} agrees that:`);
+    await expect(
+      form.getByText(
+        "You must obtain a signed declaration from your client which confirms that:",
+      ),
+    ).toBeVisible();
 
-    const listItems = await form.getByRole("listitem").all();
-    await expect(listItems[0]).toHaveText(
-      "they've instructed Test Provider to represent them",
-    );
-    const listItemOneHtml = await listItems[1].innerHTML();
-    await expect(listItemOneHtml).toContain(
-      `they've read the <a class="govuk-link" href="https://www.gov.uk/guidance/legal-aid-agency-privacy-notice" target="_blank">LAA privacy policy</a>`,
-    );
-    await expect(listItems[2]).toHaveText(
-      "we can share their information with other government departments like DWP and HMRC",
-    );
-    await expect(listItems[3]).toHaveText(
-      "the information they've given is complete and correct",
-    );
+    const lists = await form.getByRole("list").all();
+    await expect(lists[0].getByRole("listitem")).toHaveText([
+      `they, ${firstName} ${surname}, have instructed you, Test Firm, to represent them`,
+      "they have read and agree to the Legal Aid Agency privacy policy",
+      "the information they have given is complete and correct",
+    ]);
 
-    const warning = form.getByText(
-      "If they give wrong or incomplete information or do not report changes they may:",
+    const warnings = await form.locator(".govuk-warning-text").all();
+    await expect(warnings).toHaveLength(2);
+    await expect(warnings[0]).toContainText(
+      "You must also explain to your client that if information they have given is wrong or incomplete, or they don't tell us about any changes, they may:",
     );
-    await expect(warning).toBeVisible();
-    const warningListItems = await warning.getByRole("listitem").all();
-    await expect(warningListItems[0]).toHaveText("be prosecuted");
-    await expect(warningListItems[1]).toHaveText(
-      "need to pay a financial penalty",
+    await expect(lists[1].getByRole("listitem")).toHaveText([
+      "be prosecuted",
+      "have to pay a financial penalty",
+      "have their legal aid stopped and have to pay back any costs",
+    ]);
+    await expect(
+      form.getByText(
+        "A copy of this declaration will be included in your confirmation email. You can print this for your client to sign.",
+      ),
+    ).toBeVisible();
+    await expect(
+      form.getByText("On behalf of Test Firm, you must confirm that:"),
+    ).toBeVisible();
+    await expect(lists[2].getByRole("listitem")).toHaveText([
+      "the information you have provided in this application is complete and correct",
+      "you are authorised by Test Firm to submit legal aid applications against this contract",
+      "you will obtain a signed copy of this declaration from your client, keep a copy on file, and provide it to the legal aid agency on request",
+    ]);
+    await expect(warnings[1]).toContainText(
+      "Making a false declaration may lead to further action, including:",
     );
-    await expect(warningListItems[2]).toHaveText(
-      "have their legal aid stopped and have to pay back the costs",
-    );
+    await expect(lists[3].getByRole("listitem")).toHaveText([
+      "prosecution",
+      "nullification of certificates",
+      "contract sanctions against your firm",
+    ]);
 
     const checkBox = await form.getByRole("checkbox", {
-      name: "I confirm the above is correct and that I'll get a signed declaration from my client",
+      name: "I confirm that I have read and agree to the declaration",
     });
     await expect(checkBox).toBeVisible();
+    await expect(form.getByRole("button", { name: "Submit" })).toBeVisible();
     await checkAccessibility();
   });
 
-  test("clicking continue redirects to confirmation success", async ({
+  test("submitting the declaration redirects to confirmation success", async ({
     page,
   }) => {
     const continueNextPage = async (formTestId: string): Promise<void> => {
@@ -140,9 +152,12 @@ test.describe("Provider can", () => {
       "/apply/client-details/has-prev-application",
     );
 
-    await getAndUpdateFormFields(page, {
-      No: "",
-    });
+    const previousApplicationForm = page.getByTestId(
+      "has-prev-application-form",
+    );
+    await previousApplicationForm
+      .getByRole("radio", { name: "No", exact: true })
+      .check();
     await continueNextPage("has-prev-application-form");
 
     await expect(page.url()).toContain("/apply/client-details/home-address");
@@ -203,9 +218,8 @@ test.describe("Provider can", () => {
     );
 
     await getAndUpdateFormFields(page, {
-      Yes: "",
-      "Please describe the nature of the relationship between your client and the deceased":
-        "guardian",
+      "Yes, my client is a family member": "",
+      "My client is the deceased's:": "guardian",
     });
     await continueNextPage("deceased-client-relationship-form");
     await expect(page.url()).toContain(
@@ -213,7 +227,8 @@ test.describe("Provider can", () => {
     );
 
     await getAndUpdateFormFields(page, {
-      "Please enter your reference number": "123356789",
+      "Do you have a reference number from the coroner? (optional)":
+        "123356789",
     });
     await continueNextPage("deceased-coroner-reference-form");
     await expect(page.url()).toContain(
@@ -222,7 +237,7 @@ test.describe("Provider can", () => {
 
     await getAndUpdateFormFields(page, {
       Yes: "",
-      "Please provide any details available of linked or bridged inquests":
+      "Enter details of any linked or bridged inquests you are aware of (optional)":
         "further details here",
     });
     await continueNextPage("deceased-further-information-form");
@@ -242,13 +257,13 @@ test.describe("Provider can", () => {
     await expect(page.url()).toContain(currentPage);
 
     const form = await page.getByTestId("client-declaration-form");
-    await expect(form.getByText(`test surname agrees that:`)).toBeVisible();
     await form
       .getByRole("checkbox", {
-        name: "I confirm the above is correct and that I'll get a signed declaration from my client",
+        name: "I confirm that I have read and agree to the declaration",
       })
       .check();
-    await continueToNextPage(form, page);
+    await form.getByRole("button", { name: "Submit" }).click();
+    await page.waitForLoadState("domcontentloaded");
     await expect(page.url()).toContain(nextPage);
   });
 
@@ -258,7 +273,8 @@ test.describe("Provider can", () => {
   }) => {
     await page.goto(currentPage);
     const form = await page.getByTestId("client-declaration-form");
-    await continueToNextPage(form, page);
+    await form.getByRole("button", { name: "Submit" }).click();
+    await page.waitForLoadState("domcontentloaded");
     await expect(page.url()).toContain(currentPage);
     const errorSummary = page.locator(".govuk-error-summary");
     await expect(errorSummary).toBeVisible();

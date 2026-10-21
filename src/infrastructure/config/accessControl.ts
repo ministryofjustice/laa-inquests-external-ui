@@ -34,12 +34,21 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   { prefix: "/apply", allowedRoles: [APP_ROLES.APPLICATION_USER] },
   { prefix: "/claim", allowedRoles: [APP_ROLES.CLAIMS_USER] },
   {
+    prefix: "/help",
+    allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
+  },
+  {
     prefix: "/",
     allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
   },
 ];
 
-const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status", "/error"];
+const PUBLIC_EXACT_PATHS: readonly string[] = [
+  "/health",
+  "/status",
+  "/error",
+  "/accessibility-statement",
+];
 
 const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
 

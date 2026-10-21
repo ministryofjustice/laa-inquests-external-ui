@@ -5,6 +5,12 @@ import type { Request, Response, NextFunction } from "express";
 import { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import type { AuthPort } from "#src/ports/auth/Auth.port.js";
 import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
+import config from "#src/infrastructure/config/config.js";
+import {
+  SESSION_ABSOLUTE_TIMEOUT_MS,
+  SESSION_EXPIRY_BUFFER_MS,
+  SESSION_IDLE_TIMEOUT_MS,
+} from "#src/infrastructure/locales/constants.js";
 
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 const POST_LOGOUT_URI = "http://localhost:3000";
@@ -62,12 +68,35 @@ describe("AuthAdaptor", () => {
   });
 
   describe("callback", () => {
+    const NOW = 1_800_000_000_000;
     const ONE_HOUR_MS = 3_600_000;
-    const BUFFER_MS = 60_000;
-    const TOLERANCE_MS = 2_000;
+    const TEN_MINUTES_MS = 600_000;
+    let clock: sinon.SinonFakeTimers;
+    let originalSession: Request["session"];
+    let regenerate: sinon.SinonStub;
+
+    // Mirrors express-session, which swaps in a fresh session object on regenerate.
+    const stubRegenerate = (error: Error | null = null): void => {
+      regenerate = sinon
+        .stub()
+        .callsFake((callback: (err: unknown) => void) => {
+          if (error === null) {
+            req.session = { cookie: {} } as any;
+          }
+          callback(error);
+        });
+      req.session.regenerate = regenerate as any;
+    };
 
     beforeEach(() => {
+      clock = sinon.useFakeTimers({ now: NOW, toFake: ["Date"] });
       req.session.cookie = {} as any;
+      originalSession = req.session;
+      stubRegenerate();
+    });
+
+    afterEach(() => {
+      clock.restore();
     });
 
     it("stores required data in session and redirects to /", async () => {
@@ -109,23 +138,93 @@ describe("AuthAdaptor", () => {
       assert.equal(res.redirect.firstCall.args[0], "/");
     });
 
-    it("sets the session cookie maxAge to the token expiry minus the buffer", async () => {
+    it("regenerates the session before storing the user on the new session", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        userOfficeAccounts: [],
+        accessToken: "access-token-123",
+        accessTokenExpiresOn: new Date(NOW + ONE_HOUR_MS),
+        roles: [APP_ROLES.APPLICATION_USER],
+      });
+
+      await adaptor.callback(req, res);
+
+      assert.equal(regenerate.callCount, 1);
+      assert.notEqual(req.session, originalSession);
+      assert.equal(originalSession["userId"], undefined);
+      assert.equal(req.session["userId"], "user-oid-abc");
+    });
+
+    it("stores no user and propagates the error when regenerate fails", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      stubRegenerate(new Error("store failure"));
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        userOfficeAccounts: [],
+        accessToken: "access-token-123",
+        accessTokenExpiresOn: new Date(NOW + ONE_HOUR_MS),
+        roles: [APP_ROLES.APPLICATION_USER],
+      });
+
+      await assert.rejects(() => adaptor.callback(req, res), /store failure/);
+
+      assert.equal(req.session["userId"], undefined);
+      assert.equal(req.session["accessToken"], undefined);
+      assert.equal(res.redirect.callCount, 0);
+    });
+
+    it("starts the session lifetime from the token expiry", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        userOfficeAccounts: [],
+        accessToken: "access-token-123",
+        accessTokenExpiresOn: new Date(NOW + ONE_HOUR_MS),
+        roles: [APP_ROLES.APPLICATION_USER],
+      });
+
+      await adaptor.callback(req, res);
+
+      assert.deepEqual(req.session.lifetime, {
+        absoluteExpiresAt: NOW + SESSION_ABSOLUTE_TIMEOUT_MS,
+        credentialExpiresAt: NOW + ONE_HOUR_MS - SESSION_EXPIRY_BUFFER_MS,
+        lastActivityAt: NOW,
+        idleTimeoutMs: SESSION_IDLE_TIMEOUT_MS,
+      });
+    });
+
+    it("caps the session cookie maxAge at the idle timeout when the token outlives it", async () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
         userName: "Test User",
         userOfficeAccounts: [],
         accessToken: "access-token-123",
-        accessTokenExpiresOn: new Date(Date.now() + ONE_HOUR_MS),
+        accessTokenExpiresOn: new Date(NOW + ONE_HOUR_MS),
         roles: [APP_ROLES.APPLICATION_USER],
       });
 
       await adaptor.callback(req, res);
 
-      const maxAge = req.session.cookie.maxAge ?? 0;
-      assert.ok(
-        Math.abs(maxAge - (ONE_HOUR_MS - BUFFER_MS)) <= TOLERANCE_MS,
-        `expected maxAge ~${ONE_HOUR_MS - BUFFER_MS}, got ${maxAge}`,
+      assert.equal(req.session.cookie.maxAge, SESSION_IDLE_TIMEOUT_MS);
+    });
+
+    it("sets the session cookie maxAge to the token expiry minus the buffer when that is earliest", async () => {
+      req.query = { code: "auth-code-123" } as any;
+      authPort.acquireTokenByCode.resolves({
+        userId: "user-oid-abc",
+        userOfficeAccounts: [],
+        accessToken: "access-token-123",
+        accessTokenExpiresOn: new Date(NOW + TEN_MINUTES_MS),
+        roles: [APP_ROLES.APPLICATION_USER],
+      });
+
+      await adaptor.callback(req, res);
+
+      assert.equal(
+        req.session.cookie.maxAge,
+        TEN_MINUTES_MS - SESSION_EXPIRY_BUFFER_MS,
       );
     });
 
@@ -135,7 +234,7 @@ describe("AuthAdaptor", () => {
         userId: "user-oid-abc",
         userOfficeAccounts: [],
         accessToken: "access-token-123",
-        accessTokenExpiresOn: new Date(Date.now() - ONE_HOUR_MS),
+        accessTokenExpiresOn: new Date(NOW - ONE_HOUR_MS),
         roles: [APP_ROLES.APPLICATION_USER],
       });
 
@@ -144,7 +243,7 @@ describe("AuthAdaptor", () => {
       assert.equal(req.session.cookie.maxAge, 0);
     });
 
-    it("throws when the auth response has no access token expiry", async () => {
+    it("throws and stores no user when the auth response has no access token expiry", async () => {
       req.query = { code: "auth-code-123" } as any;
       authPort.acquireTokenByCode.resolves({
         userId: "user-oid-abc",
@@ -157,6 +256,10 @@ describe("AuthAdaptor", () => {
         () => adaptor.callback(req, res),
         /access token expiry/i,
       );
+
+      assert.equal(req.session["userId"], undefined);
+      assert.equal(req.session["accessToken"], undefined);
+      assert.equal(res.redirect.callCount, 0);
     });
 
     it("propagates error when auth port throws on callback", async () => {
@@ -177,6 +280,7 @@ describe("AuthAdaptor", () => {
       adaptor.logout(req, res, next as NextFunction);
 
       assert.equal((req.session.destroy as sinon.SinonStub).callCount, 1);
+      assert.deepEqual(res.clearCookie.firstCall.args, [config.session.name]);
       assert.equal(res.redirect.callCount, 1);
       assert.equal(
         res.redirect.firstCall.args[0],
@@ -192,6 +296,7 @@ describe("AuthAdaptor", () => {
 
       assert.equal(next.callCount, 1);
       assert.equal(next.firstCall.args[0], destroyError);
+      assert.equal(res.clearCookie.callCount, 1);
       assert.equal(res.redirect.callCount, 0);
     });
   });

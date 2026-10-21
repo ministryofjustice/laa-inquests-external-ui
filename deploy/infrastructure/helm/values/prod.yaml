@@ -67,6 +67,7 @@ env:
   RATE_WINDOW_MS: 900000
   NODE_ENV: "production"
   LOG_LEVEL: "warn"
+  GA_MEASUREMENT_ID: "G-XXC4QNN39R"
 
 ingress:
   enabled: true

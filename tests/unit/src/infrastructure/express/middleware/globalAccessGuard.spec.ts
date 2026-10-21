@@ -92,6 +92,7 @@ describe("globalAccessGuard", () => {
       "/status",
       "/auth/login",
       "/auth/callback",
+      "/accessibility-statement",
     ]) {
       it(`allows unauthenticated access to ${path}`, () => {
         setPath(path);

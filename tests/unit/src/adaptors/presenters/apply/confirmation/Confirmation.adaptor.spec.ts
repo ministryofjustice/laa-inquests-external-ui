@@ -332,6 +332,7 @@ describe("Confirmation adaptor", () => {
     it("passes session input data to render view initiation", () => {
       requestStub.session.clientFirstName = "Test";
       requestStub.session.clientLastName = "User";
+      requestStub.session.firmName = "Test Firm";
 
       confirmationAdaptor.renderClientDeclarationForm(
         requestStub,
@@ -343,6 +344,7 @@ describe("Confirmation adaptor", () => {
 
       assert.equal(argsObject.clientDetails.firstName, "Test");
       assert.equal(argsObject.clientDetails.lastName, "User");
+      assert.equal(argsObject.providerName, "Test Firm");
     });
   });
 
@@ -355,6 +357,7 @@ describe("Confirmation adaptor", () => {
     it("re-renders declaration form with error when declaration checkbox is not selected", async () => {
       requestStub.session.clientFirstName = "Client";
       requestStub.session.clientLastName = "One";
+      requestStub.session.firmName = "Test Firm";
 
       await confirmationAdaptor.processClientDeclarationForm(
         requestStub,
@@ -370,6 +373,7 @@ describe("Confirmation adaptor", () => {
 
       assert.deepEqual(renderArgs[1], {
         csrfToken: "abcdefg",
+        providerName: "Test Firm",
         clientDetails: {
           firstName: "Client",
           lastName: "One",
