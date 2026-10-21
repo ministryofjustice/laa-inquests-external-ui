@@ -41,4 +41,4 @@ ENV HOME=/app
 EXPOSE 3000
 
 # Define the command to run the application
-CMD ["node", "public/app.js"]
+CMD ["node", "--import", "./public/sentryInit.js", "public/app.js"]
