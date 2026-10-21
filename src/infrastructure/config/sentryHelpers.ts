@@ -2,15 +2,29 @@ import type { ErrorEvent, EventHint, NodeOptions } from "@sentry/node";
 import config from "#src/infrastructure/config/config.js";
 
 type SpanData = Record<string, unknown>;
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers -- type-level tuple index, not a runtime value
 type StreamedSpan = Parameters<NonNullable<NodeOptions["beforeSendSpan"]>>[0];
 
 const FILTERED = "[Filtered]";
+const NOT_FOUND = -1;
+const METHOD_START = 0;
+const SPACE_LENGTH = 1;
 
 // Node/Redis/Axios connection errors put the remote address directly into
 // `error.message` (e.g. "connect ECONNREFUSED 10.1.2.3:443"). Nothing else in
-// this config can reach that text, so it needs its own redaction.
+// this config can reach that text, so it needs its own redaction. IPv6 is
+// covered too, since container networking can resolve either address family.
 const REDACTIONS: ReadonlyArray<readonly [RegExp, string]> = [
   [/\b(?:\d{1,3}\.){3}\d{1,3}\b/gv, "[IP]"],
+  [/\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b/gv, "[IP]"],
+  [
+    /(?<![\w:])(?:[A-Fa-f0-9]{1,4}:){1,7}:(?:[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})?(?![\w:])/gv,
+    "[IP]",
+  ],
+  [
+    /(?<![\w:])::(?:[A-Fa-f0-9]{1,4}(?::[A-Fa-f0-9]{1,4}){0,6})(?![\w:])/gv,
+    "[IP]",
+  ],
 ];
 
 export const redactText = (text: string): string =>
@@ -113,9 +127,9 @@ export const scrubSpan = (span: StreamedSpan): StreamedSpan => {
     // "GET https://host/path" keeps the sanitized path for our own API and
     // only the host otherwise. A bare path has no known host, so it is dropped.
     const separator = span.name.indexOf(" ");
-    if (separator !== -1) {
-      const method = span.name.slice(0, separator);
-      const target = span.name.slice(separator + 1);
+    if (separator !== NOT_FOUND) {
+      const method = span.name.slice(METHOD_START, separator);
+      const target = span.name.slice(separator + SPACE_LENGTH);
       if (target.includes("://")) {
         span.name = `${method} ${scrubUrl(target, isApiUrl(target))}`;
       } else if (target.startsWith("/")) {
