@@ -63,6 +63,8 @@ const externalModules: string[] = [
   "http-errors",
   "@azure/msal-node",
   "multer",
+  "@sentry/node",
+  "@sentry/profiling-node",
   "*.node",
   "debug",
 ];
@@ -128,7 +130,12 @@ const buildAppJs = async (
   watch = false,
 ): Promise<esbuild.BuildContext | undefined> => {
   const options: esbuild.BuildOptions = {
-    entryPoints: ["src/app.ts"],
+    // sentryInit.js is loaded before the app with `node --import`, so Sentry
+    // can patch modules such as express before they are imported.
+    entryPoints: {
+      app: "src/app.ts",
+      sentryInit: "src/infrastructure/build/sentryInit.ts",
+    },
     bundle: true,
     platform: "node",
     target: "esnext",
@@ -141,7 +148,7 @@ const buildAppJs = async (
       ".json": "json",
     },
     external: externalModules,
-    outfile: "public/app.js",
+    outdir: "public",
   };
 
   if (watch) {
