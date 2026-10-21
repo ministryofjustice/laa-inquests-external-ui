@@ -61,6 +61,13 @@ if (!isSkipAuthInDevelopment) {
     );
   }
 }
+
+if (
+  process.env.NODE_ENV === "production" &&
+  (process.env.SENTRY_DSN == null || process.env.SENTRY_DSN === "")
+) {
+  throw new Error("SENTRY_DSN must be defined in environment variables.");
+}
 /* eslint-enable eqeqeq */
 
 // Get environment variables
