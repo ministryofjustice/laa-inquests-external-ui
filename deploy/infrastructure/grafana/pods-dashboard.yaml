@@ -450,7 +450,7 @@ data:
         ]
       },
       "timezone": "browser",
-      "title": "laa-inquests-external-ui Pods (__APP_ENVIRONMENT__)",
+      "title": "laa-inquests-external-ui Pods",
       "uid": "extuipods__APP_ENVIRONMENT__",
       "version": 1
     }
