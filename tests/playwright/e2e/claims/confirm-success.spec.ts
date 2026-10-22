@@ -45,7 +45,7 @@ test.describe("Claim - confirm success", () => {
 
   test("sets the browser tab title from the page heading", async ({ page }) => {
     await expect(page).toHaveTitle(
-      /Payment on account claim has been submitted – Inquests – GOV\.UK/,
+      /Payment on account claim has been submitted – Legal aid at inquests – GOV\.UK/,
     );
   });
 

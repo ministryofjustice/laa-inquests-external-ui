@@ -9,11 +9,58 @@ test.describe("Home page", () => {
   });
 
   test("should have the correct title", async ({ page }) => {
-    await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+    await expect(page).toHaveTitle(
+      "What do you want to do? – Legal aid at inquests – GOV.UK",
+    );
   });
 
   test("should display correct navigation content", async ({ page }) => {
     await expect(validateMojHeader(page)).resolves.not.toThrow();
+  });
+
+  test("should display the service name in service navigation", async ({
+    page,
+  }) => {
+    const serviceNavigation = page.locator(".govuk-service-navigation");
+    const serviceLink = serviceNavigation.getByRole("link", {
+      name: "Legal aid at inquests",
+    });
+
+    await expect(serviceLink).toBeVisible();
+    await expect(serviceLink).toHaveAttribute("href", "/");
+
+    await expect(
+      page.getByRole("banner").getByRole("link", {
+        name: "Legal aid at inquests",
+      }),
+    ).toHaveCount(0);
+  });
+
+  test("should return home when the service name is clicked", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      })
+      .check();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/apply");
+
+    await page
+      .locator(".govuk-service-navigation")
+      .getByRole("link", {
+        name: "Legal aid at inquests",
+      })
+      .click();
+
+    await expect(page).toHaveURL("/");
+    await expect(
+      page.getByRole("heading", {
+        name: "What do you want to do?",
+      }),
+    ).toBeVisible();
   });
 
   test("should have the correct link for sign out button", async ({ page }) => {

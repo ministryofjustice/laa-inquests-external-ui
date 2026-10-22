@@ -27,7 +27,7 @@ test.describe("Client details - name and dob", () => {
     page.goto("/apply/client-details/name-and-dob");
 
     await expect(page).toHaveTitle(
-      /Enter your client's details – Inquests – GOV\.UK/,
+      /Enter your client's details – Legal aid at inquests – GOV\.UK/,
     );
   });
 

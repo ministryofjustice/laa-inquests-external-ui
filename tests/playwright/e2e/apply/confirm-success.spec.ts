@@ -23,7 +23,7 @@ test.describe("Apply - confirm success", () => {
     page.goto("/apply/confirmation/success");
 
     await expect(page).toHaveTitle(
-      /Your application has been submitted – Inquests – GOV\.UK/,
+      /Your application has been submitted – Legal aid at inquests – GOV\.UK/,
     );
   });
 

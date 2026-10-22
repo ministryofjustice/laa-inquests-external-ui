@@ -28,7 +28,7 @@ test.describe("Claim - claim type", () => {
 
   test("sets the browser tab title from the page heading", async ({ page }) => {
     await expect(page).toHaveTitle(
-      /What type of claim are you making\? – Inquests – GOV\.UK/,
+      /What type of claim are you making\? – Legal aid at inquests – GOV\.UK/,
     );
   });
 
