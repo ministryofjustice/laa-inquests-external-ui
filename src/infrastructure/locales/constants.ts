@@ -1,6 +1,10 @@
 /* eslint-disable max-lines -- Want to keep constants in singular location. */
 
 export const MAX_CHARACTER_LENGTH = 100;
+
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers -- setting time using calculation
+export const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
+
 export const SERVICE_UNAVAILABLE_MESSAGE =
   "Service unavailable. Please try again later.";
 

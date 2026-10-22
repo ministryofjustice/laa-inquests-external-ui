@@ -45,6 +45,7 @@ declare module "express-session" {
     returnToApplyCheckYourAnswers?: boolean;
     claimDeclaration?: boolean;
     lifetime?: SessionLifetime;
+    returnTo?: string;
   }
 }
 

@@ -2,6 +2,8 @@ import express from "express";
 import type { Request, Response, RequestHandler } from "express";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
+import { CookiesAdaptor } from "#src/adaptors/presenters/cookies/Cookies.adaptor.js";
+import { createCookiesRouter } from "#src/infrastructure/express/routes/cookies.router.js";
 import { ClaimDeclarationAdaptor } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/ClaimDeclaration.adaptor.js";
 import { createClaimDeclarationRouter } from "./claim/claimDeclaration.router.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
@@ -181,6 +183,14 @@ indexRouter.use(
     express.Router(),
     accessibilityStatementAdaptor,
   ),
+);
+
+const cookiesAdaptor = new CookiesAdaptor();
+
+indexRouter.use(
+  "/cookies",
+  requireAuth,
+  createCookiesRouter(express.Router(), cookiesAdaptor),
 );
 
 const helpAdaptor = new HelpAdaptor();
