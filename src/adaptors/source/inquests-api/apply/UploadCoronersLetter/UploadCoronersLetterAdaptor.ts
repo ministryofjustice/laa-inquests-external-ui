@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type {
@@ -115,10 +116,12 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
           duration_ms: Date.now() - startedAt,
         },
       });
+      Sentry.captureException(error);
       return { status: "UPLOAD_REJECTED" };
     }
   }
 
+  // Unexpected upstream behaviour, not the expected virus-scan rejection, so it is worth alerting on.
   #logRejected(message: string, extra: Record<string, unknown>): void {
     logger.logWarn({
       functionName: "upload_coroners_letter_adaptor",
@@ -129,5 +132,6 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
         ...extra,
       },
     });
+    Sentry.captureException(new Error(message));
   }
 }

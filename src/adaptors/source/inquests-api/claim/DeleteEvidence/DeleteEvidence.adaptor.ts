@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type { DeleteEvidencePort } from "#src/ports/source/inquests-api/DeleteEvidence.port.js";
 import type {
@@ -33,15 +34,17 @@ export class DeleteEvidenceAdaptor implements DeleteEvidencePort {
       });
 
       if (response.status !== HTTP_NO_CONTENT) {
+        const message = "Delete evidence rejected by upstream service";
         logger.logWarn({
           functionName: "delete_evidence_adaptor",
-          message: "Delete evidence rejected by upstream service",
+          message,
           extraContext: {
             event: "outbound_api_call",
             operation: OPERATION,
             upstream_status_code: response.status,
           },
         });
+        Sentry.captureException(new Error(message));
         return { status: "DELETE_REJECTED" };
       }
 
@@ -71,6 +74,7 @@ export class DeleteEvidenceAdaptor implements DeleteEvidencePort {
           duration_ms: Date.now() - startedAt,
         },
       });
+      Sentry.captureException(error);
       return { status: "DELETE_REJECTED" };
     }
   }

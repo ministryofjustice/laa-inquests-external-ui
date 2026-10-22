@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type { DeleteCoronersLetterPort } from "#src/ports/source/inquests-api/DeleteCoronersLetter.port.js";
 import type {
@@ -33,15 +34,17 @@ export class DeleteCoronersLetterAdaptor implements DeleteCoronersLetterPort {
       });
 
       if (response.status !== HTTP_NO_CONTENT) {
+        const message = "Delete coroners letter rejected by upstream service";
         logger.logWarn({
           functionName: "delete_coroners_letter_adaptor",
-          message: "Delete coroners letter rejected by upstream service",
+          message,
           extraContext: {
             event: "outbound_api_call",
             operation: OPERATION,
             upstream_status_code: response.status,
           },
         });
+        Sentry.captureException(new Error(message));
         return { status: "DELETE_REJECTED" };
       }
 
@@ -71,6 +74,7 @@ export class DeleteCoronersLetterAdaptor implements DeleteCoronersLetterPort {
           duration_ms: Date.now() - startedAt,
         },
       });
+      Sentry.captureException(error);
       return { status: "DELETE_REJECTED" };
     }
   }
