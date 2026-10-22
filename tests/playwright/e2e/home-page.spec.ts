@@ -34,6 +34,33 @@ test.describe("Home page", () => {
     ).toHaveCount(0);
   });
 
+  test("should return home when the service name is clicked", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      })
+      .check();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/apply");
+
+    await page
+      .locator(".govuk-service-navigation")
+      .getByRole("link", {
+        name: "Legal aid at inquests",
+      })
+      .click();
+
+    await expect(page).toHaveURL("/");
+    await expect(
+      page.getByRole("heading", {
+        name: "What do you want to do?",
+      }),
+    ).toBeVisible();
+  });
+
   test("should have the correct link for sign out button", async ({ page }) => {
     const signOutLink = page.getByRole("link", { name: "Sign out" });
     await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
@@ -96,33 +123,6 @@ test.describe("Home page", () => {
     await submitButton.click();
 
     await expect(page).toHaveURL("/claim");
-  });
-
-  test("should return home when the service name is clicked", async ({
-    page,
-  }) => {
-    await page
-      .getByRole("radio", {
-        name: "Apply for inquest legal aid",
-      })
-      .check();
-    await page.getByRole("button", { name: "Continue" }).click();
-
-    await expect(page).toHaveURL("/apply");
-
-    await page
-      .locator(".govuk-service-navigation")
-      .getByRole("link", {
-        name: "Legal aid at inquests",
-      })
-      .click();
-
-    await expect(page).toHaveURL("/");
-    await expect(
-      page.getByRole("heading", {
-        name: "What do you want to do?",
-      }),
-    ).toBeVisible();
   });
 
   test.describe("RBAC functionality", () => {
