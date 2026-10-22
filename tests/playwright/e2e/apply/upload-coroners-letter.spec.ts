@@ -74,8 +74,34 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     await expect(
       page
         .locator("label[for='documents']")
-        .filter({ hasText: "Attach a file" }),
+        .filter({ hasText: "Upload new files" }),
     ).toBeVisible();
+  });
+
+  test("renders the file guidance before the uploaded files and the upload input", async ({
+    page,
+  }) => {
+    await uploadViaWidget(page, {
+      name: "test-coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("coroners letter content"),
+    });
+
+    const guidance = await page
+      .getByText(/Filenames should only include/)
+      .boundingBox();
+    const uploadedFilesHeading = await page
+      .getByRole("heading", { name: "Uploaded files", level: 2 })
+      .boundingBox();
+    const uploadLabel = await page
+      .locator("label.govuk-label[for='documents']")
+      .boundingBox();
+
+    expect(guidance).not.toBeNull();
+    expect(uploadedFilesHeading).not.toBeNull();
+    expect(uploadLabel).not.toBeNull();
+    expect(guidance!.y).toBeLessThan(uploadedFilesHeading!.y);
+    expect(uploadedFilesHeading!.y).toBeLessThan(uploadLabel!.y);
   });
 
   test("stays on the page and shows an error when continue is clicked without an upload", async ({

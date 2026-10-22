@@ -34,7 +34,8 @@
 
       <form action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-        {% set hintHtml %}
+        <input type="hidden" name="uploadMode" value="html" />
+
       <p class="govuk-body">The maximum file size for each file is 10MB. We can accept these file types:</p>
       <ul class="govuk-list govuk-list--bullet">
         <li>pdf</li>
@@ -43,8 +44,7 @@
         <li>bmp</li>
       </ul>
       <p class="govuk-body">Filenames should only include the letters a-z, numbers 0-9, and the characters .!()_-. Using other characters in your filenames could cause the uploads to fail.</p>
-    {% endset %}
-        <input type="hidden" name="uploadMode" value="html" />
+
         {% set uploadHtml %}
           {% set errorMessage = errorSummaries.coronersLetterError if errorSummaries and errorSummaries.coronersLetterError %}
           {{ govukFileUpload({
@@ -52,11 +52,8 @@
             name: "documents",
             classes: "moj-multi-file-upload__input",
             label: {
-              text: "Attach a file",
+              text: "Upload new files",
               classes: "govuk-label--m"
-            },
-            hint: {
-              html: hintHtml
             },
             attributes: { accept: ".pdf,.jpg,.jpeg,.png,.bmp" },
             errorMessage: errorMessage
@@ -70,7 +67,7 @@
 
         {{ mojMultiFileUpload({
           uploadedFiles: {
-            heading: { text: "Uploaded file" },
+            heading: { text: "Uploaded files" },
             items: uploadedFiles
           },
           uploadHtml: uploadHtml
