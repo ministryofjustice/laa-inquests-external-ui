@@ -12,6 +12,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
 
 const OPERATION = "upload_coroners_letter";
 const UPSTREAM_METHOD = "POST";
@@ -95,6 +96,12 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
             operation: OPERATION,
             upstream_status_code: response.status,
           },
+        });
+        reportClientError({
+          message: "Coroners letter upload rejected by file scan",
+          statusCode: response.status,
+          event: "upload_coroners_letter_rejected_by_file_scan",
+          route: UPSTREAM_ROUTE,
         });
         return { status: "FILE_SCAN_FOUND_VIRUS" };
       }

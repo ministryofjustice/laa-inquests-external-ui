@@ -116,7 +116,7 @@ describe("UploadCoronersLetterAdaptor", () => {
     assert.equal(capturedEvents.length, 1);
   });
 
-  it("returns FILE_SCAN_FOUND_VIRUS on a 422 response without alerting Sentry", async () => {
+  it("returns FILE_SCAN_FOUND_VIRUS on a 422 response and records it in Sentry", async () => {
     axiosStub.post.resolves({
       status: 422,
       data: {},
@@ -130,7 +130,12 @@ describe("UploadCoronersLetterAdaptor", () => {
     await Sentry.flush();
 
     assert.deepEqual(expectedVirusFoundResponse, fileSaveResponse);
-    assert.equal(capturedEvents.length, 0);
+    assert.equal(capturedEvents.length, 1);
+    assert.deepEqual(capturedEvents[0].tags, {
+      status_code: 422,
+      event: "upload_coroners_letter_rejected_by_file_scan",
+      route: "/applications/upload-coroners-letter",
+    });
   });
 
   it("returns UPLOAD_REJECTED on unexpected exception", async () => {

@@ -1,6 +1,8 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
+import * as Sentry from "@sentry/node";
+import { initSentryWithCapturedEvents } from "#tests/unit/helpers/sentryTestClient.js";
 import { FinalBillTemplateAdaptor } from "#src/adaptors/presenters/claim/FinalBillTemplate/FinalBillTemplate.adaptor.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
@@ -204,6 +206,81 @@ describe("FinalBillTemplate adaptor", () => {
         responseStub.status.getCall(0).args[0],
         HTTP_SERVICE_UNAVAILABLE,
       );
+    });
+  });
+
+  describe("processTemplateUpload validation reporting", () => {
+    it("reports a JS validation failure to Sentry with the 422 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      formValidator.validateTemplateUploadFile.returns({
+        templateError: {
+          text: CLAIM_FINAL_BILL_TEMPLATE_ERROR.INVALID_FILE_TYPE,
+        },
+      });
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+
+      await buildAdaptor().processTemplateUpload(requestStub, responseStub);
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: HTTP_UNPROCESSABLE_CONTENT,
+        event: "claim_final_bill_template_upload_validation_failed",
+        route: "/claim/final-bill-template/upload",
+        no_js_upload: false,
+      });
+    });
+  });
+
+  describe("processTemplateDelete missing file id reporting", () => {
+    const buildStubs = (): {
+      requestStub: StubbedInstance<Request>;
+      responseStub: StubbedInstance<Response>;
+    } => {
+      const requestStub = stubInterface<Request>();
+      requestStub.body = {};
+      const responseStub = stubInterface<Response>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      return { requestStub, responseStub };
+    };
+
+    it("reports a JS delete without a file id to Sentry with the 400 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      const { requestStub, responseStub } = buildStubs();
+
+      await buildAdaptor().processTemplateDelete(requestStub, responseStub);
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: 400,
+        event: "claim_final_bill_template_delete_missing_file_id",
+        route: "/claim/final-bill-template/delete",
+        no_js_upload: false,
+      });
+    });
+
+    it("reports a no-JS delete without a file id to Sentry with the 400 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      const { requestStub, responseStub } = buildStubs();
+
+      await buildAdaptor().processTemplateDeleteNoJs(requestStub, responseStub);
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: 400,
+        event: "claim_final_bill_template_delete_missing_file_id",
+        route: "/claim/final-bill-template/upload",
+        no_js_upload: true,
+      });
     });
   });
 
