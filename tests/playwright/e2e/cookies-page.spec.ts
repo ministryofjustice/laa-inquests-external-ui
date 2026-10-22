@@ -13,7 +13,7 @@ test.describe("View cookies page", () => {
   test("should have the correct title", async ({ page }) => {
     await page.goto(cookiesUrl);
 
-    await expect(page).toHaveTitle("Cookies – Inquests – GOV.UK");
+    await expect(page).toHaveTitle("Cookies – Legal aid at inquests – GOV.UK");
   });
 
   test("should display the page heading", async ({ page }) => {
@@ -75,7 +75,7 @@ test.describe("View cookies page", () => {
   });
 
   test("should have success banner link to previous page", async ({ page }) => {
-    await page.goto("/reports");
+    await page.goto("/apply");
     await page.getByRole("link", { name: "Cookies" }).click();
     await expect(page).toHaveURL(cookiesUrl);
 
@@ -90,7 +90,7 @@ test.describe("View cookies page", () => {
     await page
       .getByRole("link", { name: "Go back to the page you were looking at" })
       .click();
-    await expect(page).toHaveURL("/reports");
+    await expect(page).toHaveURL("/apply");
   });
 
   test("should maintain selection after user saves", async ({ page }) => {
