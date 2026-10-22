@@ -13,10 +13,24 @@ import {
   APPLICATION_ERROR_TYPES,
 } from "#src/use-cases/common/ApplicationError.js";
 import {
+  AUTH_FAILURE_REASONS,
   SESSION_ABSOLUTE_TIMEOUT_MS,
   SESSION_EXPIRY_BUFFER_MS,
   SESSION_IDLE_TIMEOUT_MS,
+  SESSION_TERMINATION_REASONS,
 } from "#src/infrastructure/locales/constants.js";
+
+const PRE_LOGIN_SESSION_ID = "pre-login-session-id";
+const POST_LOGIN_SESSION_ID = "post-login-session-id";
+
+type AuditLogStub = sinon.SinonStub<Parameters<typeof logger.logAudit>, void>;
+
+const auditEvents = (logAuditStub: AuditLogStub): Record<string, unknown>[] =>
+  logAuditStub.getCalls().map((call) => {
+    const { extraContext } = call.args[0];
+    assert.ok(extraContext);
+    return extraContext;
+  });
 
 const REDIRECT_URI = "http://localhost:3000/auth/callback";
 const POST_LOGOUT_URI = "http://localhost:3000";
@@ -37,8 +51,9 @@ describe("AuthAdaptor", () => {
   beforeEach(() => {
     authPort = stubInterface<AuthPort>();
     req = stubInterface<Request>();
-    req.sessionID = "original-session-id";
+    req.sessionID = PRE_LOGIN_SESSION_ID;
     res = stubInterface<Response>();
+    res.status.returns(res);
     next = sinon.stub();
     req.session = {} as any;
     adaptor = new AuthAdaptor(
@@ -89,7 +104,7 @@ describe("AuthAdaptor", () => {
         .callsFake((callback: (err: unknown) => void) => {
           if (error === null) {
             req.session = { cookie: {} } as any;
-            req.sessionID = "regenerated-session-id";
+            req.sessionID = POST_LOGIN_SESSION_ID;
           }
           callback(error);
         });
@@ -107,176 +122,241 @@ describe("AuthAdaptor", () => {
       clock.restore();
     });
 
-    it("audits each failed callback step and preserves the failure without logging credentials", async () => {
-      const logAudit = sinon.stub(logger, "logAudit");
-      const tokenError = new ApplicationError(
-        APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
-        "acquire_token",
-        true,
-      );
-      const regenerationError = new Error("store failure");
-      const cases = [
-        { reason: "token_acquisition_failed", error: tokenError },
-        {
-          reason: "session_regeneration_failed",
-          error: regenerationError,
-        },
-        { reason: "invalid_credential_expiry", error: undefined },
-      ];
-      req.query = { code: "private-auth-code" };
+    describe("audit logging", () => {
+      let logAuditStub: AuditLogStub;
 
-      for (const { reason, error } of cases) {
-        req.session = stubInterface<Request["session"]>();
-        req.sessionID = "original-session-id";
-        stubRegenerate(
-          reason === "session_regeneration_failed" ? regenerationError : null,
-        );
+      const resolveToken = (): void => {
         authPort.acquireTokenByCode.resolves({
-          userId: "private-user-id",
-          userOfficeAccounts: [],
-          accessToken: "private-access-token",
-          accessTokenExpiresOn:
-            reason === "invalid_credential_expiry"
-              ? undefined
-              : new Date(NOW + ONE_HOUR_MS),
+          userId: "user-oid-abc",
+          userName: "Test User",
+          firmId: "123",
+          firmName: "Test Firm",
+          userOfficeAccounts: ["A001B"],
+          providerEmail: "test@example.com",
+          accessToken: "access-token-123",
+          accessTokenExpiresOn: new Date(NOW + ONE_HOUR_MS),
           roles: [APP_ROLES.APPLICATION_USER],
         });
-        if (reason === "token_acquisition_failed") {
-          authPort.acquireTokenByCode.rejects(tokenError);
-        }
-        logAudit.resetHistory();
+      };
+
+      beforeEach(() => {
+        req.query = { code: "auth-code-123" };
+        logAuditStub = sinon.stub(logger, "logAudit").callsFake((input) => {
+          if (input.extraContext?.event === "session_created") {
+            assert.equal(req.session.userId, "user-oid-abc");
+            assert.notEqual(req.session.lifetime, undefined);
+          } else if (input.extraContext?.event === "session_id_rotated") {
+            assert.equal(req.session.userId, undefined);
+          }
+        });
+      });
+
+      it("logs the session id rotation and session creation on a successful login", async () => {
+        resolveToken();
+
+        await adaptor.callback(req, res);
+
+        assert.deepEqual(auditEvents(logAuditStub), [
+          {
+            event: "session_id_rotated",
+            trigger: "login",
+            previous_session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+            session_hash: hashSessionId(POST_LOGIN_SESSION_ID),
+            previous_session_authenticated: false,
+          },
+          {
+            event: "session_created",
+            session_hash: hashSessionId(POST_LOGIN_SESSION_ID),
+            login_method: "entra",
+            idle_timeout_ms: SESSION_IDLE_TIMEOUT_MS,
+            absolute_timeout_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
+            credential_expires_in_ms: ONE_HOUR_MS - SESSION_EXPIRY_BUFFER_MS,
+          },
+        ]);
+      });
+
+      it("records when the previous session was authenticated", async () => {
+        req.session.userId = "previous-user-id";
+        resolveToken();
+
+        await adaptor.callback(req, res);
+
+        assert.equal(logAuditStub.callCount, 2);
+        assert.deepEqual(auditEvents(logAuditStub)[0], {
+          event: "session_id_rotated",
+          trigger: "login",
+          previous_session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+          session_hash: hashSessionId(POST_LOGIN_SESSION_ID),
+          previous_session_authenticated: true,
+        });
+        assert.equal(auditEvents(logAuditStub)[1]?.event, "session_created");
+      });
+
+      it("logs a token_acquisition_failed login failure and rethrows", async () => {
+        const error = new ApplicationError(
+          APPLICATION_ERROR_TYPES.UPSTREAM_UNAVAILABLE,
+          "acquire_token",
+          true,
+        );
+        authPort.acquireTokenByCode.rejects(error);
 
         await assert.rejects(
           () => adaptor.callback(req, res),
           (caught: unknown) => {
-            if (error !== undefined) {
-              assert.equal(caught, error);
-            } else {
-              assert.ok(caught instanceof Error);
-              assert.equal(
-                caught.message,
-                "Cannot start session: missing or invalid access token expiry",
-              );
-            }
+            assert.equal(caught, error);
             return true;
           },
         );
 
-        const failures = logAudit
-          .getCalls()
-          .filter(
-            (call) => call.args[0].extraContext?.event === "auth_login_failed",
-          );
-        assert.equal(failures.length, 1);
-        assert.deepEqual(failures[0]?.args[0].extraContext, {
-          event: "auth_login_failed",
-          session_hash: hashSessionId(req.sessionID),
-          reason,
-        });
-        assert.equal(
-          logAudit
-            .getCalls()
-            .some(
-              (call) => call.args[0].extraContext?.event === "session_created",
-            ),
-          false,
-        );
+        assert.deepEqual(auditEvents(logAuditStub), [
+          {
+            event: "auth_login_failed",
+            session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+            reason: AUTH_FAILURE_REASONS.TOKEN_ACQUISITION_FAILED,
+          },
+        ]);
         assert.equal(res.redirect.callCount, 0);
         assert.equal(res.render.callCount, 0);
-      }
-    });
-
-    it("audits rotation before creation after writing the authenticated session", async () => {
-      const logAudit = sinon.stub(logger, "logAudit").callsFake((input) => {
-        if (input.extraContext?.event === "session_created") {
-          assert.equal(req.session.userId, "user-oid-abc");
-          assert.notEqual(req.session.lifetime, undefined);
-        } else if (input.extraContext?.event === "session_id_rotated") {
-          assert.equal(req.session.userId, undefined);
-        }
-      });
-      req.query = { code: "auth-code-123" };
-      authPort.acquireTokenByCode.resolves({
-        userId: "user-oid-abc",
-        userOfficeAccounts: [],
-        accessToken: "access-token-123",
-        accessTokenExpiresOn: new Date(NOW + ONE_HOUR_MS),
-        roles: [APP_ROLES.APPLICATION_USER],
       });
 
-      for (const previousUserId of [undefined, "previous-user-id"]) {
-        req.sessionID = "original-session-id";
-        req.session.userId = previousUserId;
-        stubRegenerate();
-        logAudit.resetHistory();
+      it("logs a session_regeneration_failed login failure and rethrows", async () => {
+        const error = new Error("store failure");
+        resolveToken();
+        stubRegenerate(error);
+
+        await assert.rejects(
+          () => adaptor.callback(req, res),
+          (caught: unknown) => {
+            assert.equal(caught, error);
+            return true;
+          },
+        );
+
+        assert.deepEqual(auditEvents(logAuditStub), [
+          {
+            event: "auth_login_failed",
+            session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+            reason: AUTH_FAILURE_REASONS.SESSION_REGENERATION_FAILED,
+          },
+        ]);
+        assert.equal(res.redirect.callCount, 0);
+        assert.equal(res.render.callCount, 0);
+      });
+
+      it("logs an invalid_credential_expiry login failure and rethrows", async () => {
+        authPort.acquireTokenByCode.resolves({
+          userId: "user-oid-abc",
+          userOfficeAccounts: [],
+          accessToken: "access-token-123",
+          roles: [APP_ROLES.APPLICATION_USER],
+        });
+
+        await assert.rejects(() => adaptor.callback(req, res), {
+          message:
+            "Cannot start session: missing or invalid access token expiry",
+        });
+
+        assert.deepEqual(auditEvents(logAuditStub), [
+          {
+            event: "session_id_rotated",
+            trigger: "login",
+            previous_session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+            session_hash: hashSessionId(POST_LOGIN_SESSION_ID),
+            previous_session_authenticated: false,
+          },
+          {
+            event: "auth_login_failed",
+            session_hash: hashSessionId(POST_LOGIN_SESSION_ID),
+            reason: AUTH_FAILURE_REASONS.INVALID_CREDENTIAL_EXPIRY,
+          },
+        ]);
+        assert.equal(res.redirect.callCount, 0);
+        assert.equal(res.render.callCount, 0);
+      });
+
+      it("never logs user details, tokens or raw session ids", async () => {
+        resolveToken();
 
         await adaptor.callback(req, res);
 
-        assert.equal(logAudit.callCount, 2);
-        assert.deepEqual(logAudit.firstCall.args[0].extraContext, {
-          event: "session_id_rotated",
-          trigger: "login",
-          previous_session_hash: hashSessionId("original-session-id"),
-          session_hash: hashSessionId("regenerated-session-id"),
-          previous_session_authenticated: previousUserId !== undefined,
-        });
-        assert.deepEqual(logAudit.secondCall.args[0].extraContext, {
-          event: "session_created",
-          session_hash: hashSessionId("regenerated-session-id"),
-          login_method: "entra",
-          idle_timeout_ms: SESSION_IDLE_TIMEOUT_MS,
-          absolute_timeout_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
-          credential_expires_in_ms: ONE_HOUR_MS - SESSION_EXPIRY_BUFFER_MS,
-        });
-      }
-    });
+        const serialised = JSON.stringify(auditEvents(logAuditStub));
+        for (const value of [
+          "user-oid-abc",
+          "Test User",
+          "Test Firm",
+          "A001B",
+          "test@example.com",
+          "access-token-123",
+          "auth-code-123",
+          APP_ROLES.APPLICATION_USER,
+          PRE_LOGIN_SESSION_ID,
+          POST_LOGIN_SESSION_ID,
+        ]) {
+          assert.equal(serialised.includes(value), false, value);
+        }
+      });
 
-    it("rejects invalid callbacks with a 400 page and a safe audit without acquiring credentials", async () => {
-      const logAudit = sinon.stub(logger, "logAudit");
-      res.status.returns(res);
-      const cases: {
+      const invalidCallbacks: {
+        name: string;
         query: Request["query"];
         reason: string;
         idpCode?: string;
       }[] = [
-        { query: {}, reason: "missing_code" },
-        { query: { code: "" }, reason: "missing_code" },
-        { query: { code: ["one", "two"] }, reason: "missing_code" },
         {
+          name: "logs a missing_code login failure when there is no code or error",
+          query: {},
+          reason: AUTH_FAILURE_REASONS.MISSING_CODE,
+        },
+        {
+          name: "logs a missing_code login failure when the code is empty",
+          query: { code: "" },
+          reason: AUTH_FAILURE_REASONS.MISSING_CODE,
+        },
+        {
+          name: "logs a missing_code login failure when the code is not a string",
+          query: { code: ["one", "two"] },
+          reason: AUTH_FAILURE_REASONS.MISSING_CODE,
+        },
+        {
+          name: "logs an idp_error login failure with the sanitised error code when Entra returns an error",
           query: { error: "access_denied" },
-          reason: "idp_error",
+          reason: AUTH_FAILURE_REASONS.IDP_ERROR,
           idpCode: "access_denied",
         },
         {
+          name: "logs an idp_error login failure when Entra returns an error alongside a code",
           query: { code: "private-auth-code", error: "private@example.com" },
-          reason: "idp_error",
+          reason: AUTH_FAILURE_REASONS.IDP_ERROR,
           idpCode: "other",
         },
       ];
 
-      for (const { query, reason, idpCode } of cases) {
-        req.query = query;
+      for (const { name, query, reason, idpCode } of invalidCallbacks) {
+        it(name, async () => {
+          req.query = query;
 
-        await adaptor.callback(req, res);
+          await adaptor.callback(req, res);
 
-        assert.deepEqual(res.status.lastCall.args, [400]);
-        assert.deepEqual(res.render.lastCall.args, [
-          "main/error",
-          { status: 400, message: "Invalid request" },
-        ]);
-        assert.deepEqual(logAudit.lastCall.args[0].extraContext, {
-          event: "auth_login_failed",
-          session_hash: hashSessionId("original-session-id"),
-          reason,
-          ...(idpCode === undefined ? {} : { idp_error_code: idpCode }),
+          assert.equal(res.status.callCount, 1);
+          assert.deepEqual(res.status.firstCall.args, [400]);
+          assert.equal(res.render.callCount, 1);
+          assert.deepEqual(res.render.firstCall.args, [
+            "main/error",
+            { status: 400, message: "Invalid request" },
+          ]);
+          assert.deepEqual(auditEvents(logAuditStub), [
+            {
+              event: "auth_login_failed",
+              session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+              reason,
+              ...(idpCode === undefined ? {} : { idp_error_code: idpCode }),
+            },
+          ]);
+          assert.equal(authPort.acquireTokenByCode.callCount, 0);
+          assert.equal(regenerate.callCount, 0);
+          assert.equal(res.redirect.callCount, 0);
         });
       }
-      assert.equal(logAudit.callCount, cases.length);
-      assert.equal(authPort.acquireTokenByCode.callCount, 0);
-      assert.equal(regenerate.callCount, 0);
-      assert.equal(res.redirect.callCount, 0);
-      assert.equal(res.status.callCount, cases.length);
-      assert.equal(res.render.callCount, cases.length);
     });
 
     it("stores required data in session and redirects to /", async () => {
@@ -454,57 +534,75 @@ describe("AuthAdaptor", () => {
   });
 
   describe("logout", () => {
-    it("audits only successfully destroyed authenticated sessions using the original hash", () => {
-      const logAudit = sinon.stub(logger, "logAudit");
-      Object.defineProperty(req, "path", { value: "/auth/logout" });
-      const destroyError = new Error("store failure");
-      const cases = [
-        { userId: "private-user-id", error: undefined },
-        { userId: undefined, error: undefined },
-        { userId: "private-user-id", error: destroyError },
-      ];
+    describe("audit logging", () => {
+      let logAuditStub: AuditLogStub;
+      let session: StubbedInstance<Request["session"]>;
+      let complete: ((err?: unknown) => void) | undefined;
 
-      for (const { userId, error } of cases) {
-        const session = stubInterface<Request["session"]>();
-        session.userId = userId;
-        let complete: ((err?: unknown) => void) | undefined;
+      beforeEach(() => {
+        logAuditStub = sinon.stub(logger, "logAudit");
+        Object.defineProperty(req, "path", { value: "/auth/logout" });
+        session = stubInterface<Request["session"]>();
+        session.userId = "private-user-id";
+        complete = undefined;
         session.destroy.callsFake((callback) => {
           complete = callback;
           return session;
         });
         req.session = session;
-        req.sessionID = "original-session-id";
-        logAudit.resetHistory();
-        next.resetHistory();
-        res.redirect.resetHistory();
+      });
 
+      const startLogout = (): void => {
         adaptor.logout(req, res, next as NextFunction);
 
-        assert.equal(logAudit.callCount, 0);
+        assert.equal(session.destroy.callCount, 1);
+        assert.equal(logAuditStub.callCount, 0);
         Reflect.deleteProperty(req, "session");
         req.sessionID = "replacement-session-id";
+      };
+
+      it("logs a user_logout termination with the hash of the destroyed session", () => {
+        startLogout();
+
+        assert.ok(complete);
+        complete();
+
+        assert.deepEqual(auditEvents(logAuditStub), [
+          {
+            event: "session_terminated",
+            session_hash: hashSessionId(PRE_LOGIN_SESSION_ID),
+            reason: SESSION_TERMINATION_REASONS.USER_LOGOUT,
+            route: "/auth/logout",
+          },
+        ]);
+        assert.equal(next.callCount, 0);
+        assert.equal(res.redirect.callCount, 1);
+      });
+
+      it("does not log a termination when destroying the session fails", () => {
+        const error = new Error("store failure");
+        startLogout();
+
         assert.ok(complete);
         complete(error);
 
-        if (userId !== undefined && error === undefined) {
-          assert.equal(logAudit.callCount, 1);
-          assert.deepEqual(logAudit.firstCall.args[0].extraContext, {
-            event: "session_terminated",
-            session_hash: hashSessionId("original-session-id"),
-            reason: "user_logout",
-            route: "/auth/logout",
-          });
-        } else {
-          assert.equal(logAudit.callCount, 0);
-        }
-        if (error !== undefined) {
-          assert.equal(next.firstCall.args[0], error);
-          assert.equal(res.redirect.callCount, 0);
-        } else {
-          assert.equal(next.callCount, 0);
-          assert.equal(res.redirect.callCount, 1);
-        }
-      }
+        assert.equal(logAuditStub.callCount, 0);
+        assert.equal(next.callCount, 1);
+        assert.equal(next.firstCall.args[0], error);
+        assert.equal(res.redirect.callCount, 0);
+      });
+
+      it("does not log a termination when no user was signed in", () => {
+        session.userId = undefined;
+        startLogout();
+
+        assert.ok(complete);
+        complete();
+
+        assert.equal(logAuditStub.callCount, 0);
+        assert.equal(next.callCount, 0);
+        assert.equal(res.redirect.callCount, 1);
+      });
     });
 
     it("destroys session and redirects to post logout URI", () => {

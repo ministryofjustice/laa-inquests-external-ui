@@ -160,7 +160,7 @@ describe("logger output", () => {
     assert.equal(warnSpy.callCount, 1);
   });
 
-  it("always emits audit events at info with an audit log type callers cannot override", () => {
+  it("emits audit logs at info level even when the configured threshold is higher", () => {
     const subject = new Logger("fatal");
     config.app.environment = "prod";
 
@@ -169,7 +169,6 @@ describe("logger output", () => {
       message: "Session created",
       extraContext: {
         event: "session_created",
-        log_type: "caller-override",
       },
     });
 
@@ -181,6 +180,22 @@ describe("logger output", () => {
     assert.equal(output.log_type, "audit");
     assert.equal(warnSpy.callCount, 0);
     assert.equal(errorSpy.callCount, 0);
+  });
+
+  it("does not let extra context override the audit log type", () => {
+    const subject = new Logger("info");
+    config.app.environment = "prod";
+
+    subject.logAudit({
+      functionName: "test-function",
+      message: "audit message",
+      extraContext: { log_type: "application" },
+    });
+
+    assert.equal(logSpy.callCount, 1);
+    const [rawOutput] = logSpy.firstCall.args as [string];
+    const output = JSON.parse(rawOutput) as Record<string, unknown>;
+    assert.equal(output.log_type, "audit");
   });
 
   it("emits safe error metadata without stack traces", () => {
