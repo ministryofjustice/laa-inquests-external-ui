@@ -28,6 +28,17 @@ if (
 }
 
 if (
+  process.env.NODE_ENV !== "test" &&
+  (process.env.SESSION_LOG_HASH_SECRET == null ||
+    process.env.SESSION_LOG_HASH_SECRET === "" ||
+    process.env.SESSION_LOG_HASH_SECRET === "undefined")
+) {
+  throw new Error(
+    "SESSION_LOG_HASH_SECRET must be defined in environment variables.",
+  );
+}
+
+if (
   useRedis &&
   process.env.NODE_ENV !== "test" &&
   (process.env.REDIS_HOST_NAME == null || process.env.REDIS_HOST_NAME === "")
@@ -112,6 +123,7 @@ const config: Config = {
   USE_REDIS: useRedis,
   REDIS_HOST_NAME: process.env.REDIS_HOST_NAME ?? "",
   REDIS_AUTH_TOKEN: process.env.REDIS_AUTH_TOKEN ?? "",
+  SESSION_LOG_HASH_SECRET: process.env.SESSION_LOG_HASH_SECRET ?? "",
   session: {
     secret: process.env.SESSION_SECRET,
     name: process.env.SESSION_NAME,

@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from "express";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { handleAuthErrors } from "#src/infrastructure/express/middleware/errors/authErrors.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
 import {
   ApplicationError,
   APPLICATION_ERROR_TYPES,
@@ -17,6 +18,7 @@ describe("handleAuthErrors", () => {
 
   beforeEach(() => {
     req = stubInterface<Request>();
+    req.sessionID = "original-session-id";
     res = stubInterface<Response>();
     res.status.returns(res);
     next = sinon.stub();
@@ -32,6 +34,43 @@ describe("handleAuthErrors", () => {
     "get_public_bodies",
     false,
   );
+
+  it("retains the auth warning and audits credential rejection before best-effort destruction", () => {
+    const logWarn = sinon.stub(logger, "logWarn");
+    const logAudit = sinon.stub(logger, "logAudit");
+
+    for (const destroyError of [undefined, new Error("store unavailable")]) {
+      const session = stubInterface<Request["session"]>();
+      session.destroy.callsFake((callback) => {
+        assert.equal(logWarn.callCount, 1);
+        assert.equal(logAudit.callCount, 1);
+        Reflect.deleteProperty(req, "session");
+        req.sessionID = "replacement-session-id";
+        callback?.(destroyError);
+        return session;
+      });
+      req.session = session;
+      req.sessionID = "original-session-id";
+      logWarn.resetHistory();
+      logAudit.resetHistory();
+      res.redirect.resetHistory();
+
+      handleAuthErrors(authError, req, res, next as NextFunction);
+
+      assert.deepEqual(logWarn.firstCall.args[0].extraContext, {
+        event: "auth_session_expired",
+        operation: "get_public_bodies",
+      });
+      assert.deepEqual(logAudit.firstCall.args[0].extraContext, {
+        event: "session_terminated",
+        session_hash: hashSessionId("original-session-id"),
+        reason: "credential_rejected",
+        route: "/apply/public-authority",
+      });
+      assert.deepEqual(res.redirect.firstCall.args, ["/auth/login"]);
+      assert.equal(next.callCount, 0);
+    }
+  });
 
   it("passes non-application errors to next", () => {
     const err = new Error("boom");

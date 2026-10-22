@@ -5,6 +5,8 @@ import type { Request, Response, NextFunction } from "express";
 import type { SessionLifetime } from "express-session";
 import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
 import config from "#src/infrastructure/config/config.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
 import {
   SESSION_ABSOLUTE_TIMEOUT_MS,
   SESSION_IDLE_TIMEOUT_MS,
@@ -35,6 +37,7 @@ describe("sessionLifetimeGuard", () => {
   beforeEach(() => {
     clock = sinon.useFakeTimers({ now: NOW, toFake: ["Date"] });
     req = stubInterface<Request>();
+    req.sessionID = "original-session-id";
     res = stubInterface<Response>();
     next = sinon.stub();
     destroy = sinon.stub().callsArg(0);
@@ -58,6 +61,59 @@ describe("sessionLifetimeGuard", () => {
     assert.equal(res.redirect.firstCall.args[0], "/auth/login");
     assert.equal(next.callCount, 0);
   };
+
+  it("audits each expiry reason with the session hash before destruction instead of session_expired", () => {
+    const logAudit = sinon.stub(logger, "logAudit");
+    const logInfo = sinon.stub(logger, "logInfo");
+    const cases: {
+      lifetime: SessionLifetime | undefined;
+      reason: string;
+    }[] = [
+      {
+        lifetime: {
+          ...lifetime(),
+          lastActivityAt: NOW - SESSION_IDLE_TIMEOUT_MS,
+        },
+        reason: "idle_timeout",
+      },
+      {
+        lifetime: { ...lifetime(), absoluteExpiresAt: NOW },
+        reason: "absolute_timeout",
+      },
+      {
+        lifetime: { ...lifetime(), credentialExpiresAt: NOW },
+        reason: "credential_expiry",
+      },
+      { lifetime: undefined, reason: "invalid_session" },
+    ];
+
+    for (const entry of cases) {
+      const session = stubInterface<Request["session"]>();
+      session.userId = "private-user-id";
+      session.lifetime = entry.lifetime;
+      session.destroy.callsFake((callback) => {
+        assert.equal(logAudit.callCount, 1);
+        Reflect.deleteProperty(req, "session");
+        req.sessionID = "replacement-session-id";
+        callback?.(undefined);
+        return session;
+      });
+      req.session = session;
+      req.sessionID = "original-session-id";
+      logAudit.resetHistory();
+
+      sessionLifetimeGuard(req, res, next as NextFunction);
+
+      assert.equal(session.destroy.callCount, 1);
+      assert.deepEqual(logAudit.firstCall.args[0].extraContext, {
+        event: "session_terminated",
+        session_hash: hashSessionId("original-session-id"),
+        reason: entry.reason,
+        route: "/",
+      });
+      assert.equal(logInfo.callCount, 0);
+    }
+  });
 
   it("calls next without checks for public paths", () => {
     setPath("/auth/login");

@@ -38,6 +38,8 @@ deploy_branch() {
                 --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_REDIS_SECRET="inquests-external-ui-$ENVIRONMENT-redis-ec-cluster" \
+                --set env.AWS_SECRETS_SESSION_SECRET="session-secret-$ENVIRONMENT" \
+                --set env.AWS_SECRETS_SESSION_LOG_HASH_SECRET="session-log-hash-secret-$ENVIRONMENT" \
                 --set env.SERVICE_NAME="$SERVICE_NAME" \
                 --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                 --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
@@ -48,7 +50,6 @@ deploy_branch() {
                 --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
                 --set env.SENTRY_DSN="$SENTRY_DSN" \
                 --set env.SERVICE_URL="$SERVICE_URL" \
-                --set env.SESSION_SECRET="$SESSION_SECRET" \
                 --set env.SESSION_NAME="$SESSION_NAME" \
                 --set env.SILAS_HOMEPAGE="$SILAS_HOMEPAGE" \
                 --set env.NODE_ENV="$NODE_ENV"
@@ -77,6 +78,8 @@ deploy_main() {
                           --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_REDIS_SECRET="inquests-external-ui-$ENVIRONMENT-redis-ec-cluster" \
+                          --set env.AWS_SECRETS_SESSION_SECRET="session-secret-$ENVIRONMENT" \
+                          --set env.AWS_SECRETS_SESSION_LOG_HASH_SECRET="session-log-hash-secret-$ENVIRONMENT" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
                           --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
@@ -87,7 +90,6 @@ deploy_main() {
                           --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
                           --set env.SENTRY_DSN="$SENTRY_DSN" \
                           --set env.SERVICE_URL="$SERVICE_URL" \
-                          --set env.SESSION_SECRET="$SESSION_SECRET" \
                           --set env.SESSION_NAME="$SESSION_NAME" \
                           --set env.SILAS_HOMEPAGE="$SILAS_HOMEPAGE" \
                           --set env.NODE_ENV="$NODE_ENV"
