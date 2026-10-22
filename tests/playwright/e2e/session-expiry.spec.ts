@@ -46,7 +46,7 @@ test.describe("Session expiry", () => {
       `/auth/test-login?tokenExpirySeconds=${BUFFER_SECONDS + EFFECTIVE_SECONDS}`,
     );
     await page.waitForURL("/");
-    await expect(page).toHaveTitle(/Inquests/);
+    await expect(page).toHaveTitle(/Legal aid at inquests/);
     await checkAccessibility();
 
     await waitSeconds(page, EFFECTIVE_SECONDS + 1);

@@ -28,7 +28,7 @@ test.describe("Claim - counsel number", () => {
 
   test("sets the browser tab title from the page heading", async ({ page }) => {
     await expect(page).toHaveTitle(
-      /How many counsel were instructed on this case\? – Inquests – GOV\.UK/,
+      /How many counsel were instructed on this case\? – Legal aid at inquests – GOV\.UK/,
     );
   });
 

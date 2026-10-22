@@ -48,7 +48,7 @@ test.describe("Add proceedings", () => {
     await page.goto("/apply/proceeding");
 
     await expect(page).toHaveTitle(
-      /What does your client want legal aid for\? – Inquests – GOV\.UK/,
+      /What does your client want legal aid for\? – Legal aid at inquests – GOV\.UK/,
     );
   });
 

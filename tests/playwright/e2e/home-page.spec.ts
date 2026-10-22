@@ -9,7 +9,9 @@ test.describe("Home page", () => {
   });
 
   test("should have the correct title", async ({ page }) => {
-    await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+    await expect(page).toHaveTitle(
+      "What do you want to do? – Legal aid at inquests – GOV.UK",
+    );
   });
 
   test("should display correct navigation content", async ({ page }) => {
