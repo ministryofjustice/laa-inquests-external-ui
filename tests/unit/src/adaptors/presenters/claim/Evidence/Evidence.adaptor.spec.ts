@@ -1,6 +1,8 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
+import * as Sentry from "@sentry/node";
+import { initSentryWithCapturedEvents } from "#tests/unit/helpers/sentryTestClient.js";
 import { EvidenceAdaptor } from "#src/adaptors/presenters/claim/Evidence/Evidence.adaptor.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
 import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCase.js";
@@ -270,6 +272,33 @@ describe("Evidence adaptor", () => {
       }) as Request["session"]["reload"];
       return requestStub;
     };
+
+    it("reports a JS validation failure to Sentry with the 422 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      uploadEvidenceValidator.validateEvidenceUploadFile.returns({
+        evidenceError: { text: "invalid" },
+      });
+      const responseStub = stubInterface<Response>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+
+      await new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      ).processEvidenceUpload(setupFileRequest(), responseStub);
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: 422,
+        event: "claim_evidence_upload_validation_failed",
+        route: "/claim/evidence/upload",
+        no_js_upload: false,
+      });
+      assert.ok(!JSON.stringify(capturedEvents).includes(evidenceFileName));
+    });
 
     it("redirects for no-js uploads and appends uploaded evidence metadata to claim session", async () => {
       const adaptor = new EvidenceAdaptor(
@@ -552,6 +581,62 @@ describe("Evidence adaptor", () => {
           .sort((a, b) => a.localeCompare(b)),
         ["id-file-a.pdf", "id-file-b.pdf"],
       );
+    });
+  });
+
+  describe("processEvidenceDelete missing file id reporting", () => {
+    const buildStubs = (): {
+      requestStub: StubbedInstance<Request>;
+      responseStub: StubbedInstance<Response>;
+    } => {
+      const requestStub = stubInterface<Request>();
+      requestStub.body = {};
+      const responseStub = stubInterface<Response>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      return { requestStub, responseStub };
+    };
+
+    it("reports a JS delete without a file id to Sentry with the 400 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      const { requestStub, responseStub } = buildStubs();
+
+      await new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      ).processEvidenceDelete(requestStub, responseStub);
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: 400,
+        event: "claim_evidence_delete_missing_file_id",
+        route: "/claim/evidence/delete",
+        no_js_upload: false,
+      });
+    });
+
+    it("reports a no-JS delete without a file id to Sentry with the 400 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      const { requestStub, responseStub } = buildStubs();
+
+      await new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      ).processEvidenceDeleteNoJs(requestStub, responseStub);
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: 400,
+        event: "claim_evidence_delete_missing_file_id",
+        route: "/claim/evidence/upload",
+        no_js_upload: true,
+      });
     });
   });
 

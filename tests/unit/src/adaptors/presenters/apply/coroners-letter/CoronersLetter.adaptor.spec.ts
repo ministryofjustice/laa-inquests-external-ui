@@ -1,6 +1,8 @@
 import { strict as assert } from "assert";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
+import * as Sentry from "@sentry/node";
+import { initSentryWithCapturedEvents } from "#tests/unit/helpers/sentryTestClient.js";
 import { v4 as uuidv4 } from "uuid";
 import { CoronersLetterAdaptor } from "#src/adaptors/presenters/apply/CoronersLetter/CoronersLetter.adaptor.js";
 import type { UploadCoronersLetterUseCase } from "#src/use-cases/apply/coronersLetter/UploadCoronersLetter.useCase.js";
@@ -174,6 +176,65 @@ describe("Coroners Letter adaptor", () => {
       );
     });
 
+    it("reports a JS validation failure to Sentry with the 422 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      formValidator.validateCoronersLetterUploadFile.returns({
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.INVALID_FILE_TYPE },
+      });
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.file = buildFile();
+
+      await buildAdaptor().processCoronersLetterUpload(
+        requestStub,
+        responseStub,
+      );
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: HTTP_UNPROCESSABLE_CONTENT,
+        event: "apply_coroners_letter_upload_validation_failed",
+        route: "/apply/upload-coroners-letter/upload",
+        no_js_upload: false,
+      });
+      assert.ok(
+        !JSON.stringify(capturedEvents).includes(testCoronersLetterFileName),
+      );
+    });
+
+    it("reports a no-JS validation failure to Sentry with the 400 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      formValidator.validateCoronersLetterUploadFile.returns({
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+      });
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.body = { uploadMode: "html" };
+
+      await buildAdaptor().processCoronersLetterUpload(
+        requestStub,
+        responseStub,
+      );
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.equal(
+        (capturedEvents[0].tags as Record<string, unknown>).status_code,
+        HTTP_BAD_REQUEST,
+      );
+      assert.equal(
+        (capturedEvents[0].tags as Record<string, unknown>).no_js_upload,
+        true,
+      );
+    });
+
     it("stores the uploaded letter in session and returns 201 on success", async () => {
       uploadCoronersLetterUseCase.execute.resolves({
         status: "SUCCESS",
@@ -237,6 +298,60 @@ describe("Coroners Letter adaptor", () => {
           .error.message,
         CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
       );
+    });
+  });
+
+  describe("processCoronersLetterDelete missing file id reporting", () => {
+    const buildStubs = (): {
+      requestStub: StubbedInstance<Request>;
+      responseStub: StubbedInstance<Response>;
+    } => {
+      const requestStub = stubInterface<Request>();
+      requestStub.body = {};
+      const responseStub = stubInterface<Response>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      return { requestStub, responseStub };
+    };
+
+    it("reports a JS delete without a file id to Sentry with the 400 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      const { requestStub, responseStub } = buildStubs();
+
+      await buildAdaptor().processCoronersLetterDelete(
+        requestStub,
+        responseStub,
+      );
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: 400,
+        event: "apply_coroners_letter_delete_missing_file_id",
+        route: "/apply/upload-coroners-letter/delete",
+        no_js_upload: false,
+      });
+    });
+
+    it("reports a no-JS delete without a file id to Sentry with the 400 status", async () => {
+      const capturedEvents = initSentryWithCapturedEvents();
+      const { requestStub, responseStub } = buildStubs();
+
+      await buildAdaptor().processCoronersLetterDeleteNoJs(
+        requestStub,
+        responseStub,
+      );
+      await Sentry.flush();
+      await Sentry.close();
+
+      assert.equal(capturedEvents.length, 1);
+      assert.deepEqual(capturedEvents[0].tags, {
+        status_code: 400,
+        event: "apply_coroners_letter_delete_missing_file_id",
+        route: "/apply/upload-coroners-letter/upload",
+        no_js_upload: true,
+      });
     });
   });
 

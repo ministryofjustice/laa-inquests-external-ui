@@ -14,6 +14,7 @@ import {
   SERVICE_UNAVAILABLE_MESSAGE,
 } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
 import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,
@@ -155,6 +156,13 @@ export class CoronersLetterAdaptor {
           event: "apply_coroners_letter_delete_failed",
         },
       });
+      reportClientError({
+        message: "Coroners letter delete request missing file identifier",
+        statusCode: HTTP_BAD_REQUEST,
+        event: "apply_coroners_letter_delete_missing_file_id",
+        route: "/apply/upload-coroners-letter/delete",
+        tags: { no_js_upload: false },
+      });
       res.status(HTTP_BAD_REQUEST).json({
         error: { message: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
       });
@@ -192,6 +200,13 @@ export class CoronersLetterAdaptor {
     const coronersLetterId = extractFileId(req.body as Record<string, unknown>);
 
     if (typeof coronersLetterId !== "string" || coronersLetterId === "") {
+      reportClientError({
+        message: "No-js coroners letter delete request missing file identifier",
+        statusCode: HTTP_BAD_REQUEST,
+        event: "apply_coroners_letter_delete_missing_file_id",
+        route: "/apply/upload-coroners-letter/upload",
+        tags: { no_js_upload: true },
+      });
       this.#renderNoJsError(
         req,
         res,
@@ -277,6 +292,14 @@ export class CoronersLetterAdaptor {
   ): void {
     const message =
       errors.coronersLetterError?.text ?? CORONERS_LETTER_ERROR.NO_FILE_CHOSEN;
+
+    reportClientError({
+      message: "Coroners letter upload validation failed",
+      statusCode: isNoJsUpload ? HTTP_BAD_REQUEST : HTTP_UNPROCESSABLE_CONTENT,
+      event: "apply_coroners_letter_upload_validation_failed",
+      route: "/apply/upload-coroners-letter/upload",
+      tags: { no_js_upload: isNoJsUpload },
+    });
 
     if (isNoJsUpload) {
       this.#renderNoJsError(req, res, message, HTTP_BAD_REQUEST);
