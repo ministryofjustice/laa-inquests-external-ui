@@ -1,13 +1,17 @@
 import { assert } from "chai";
 import { AxiosInstance } from "axios";
 import { StubbedInstance, stubInterface } from "ts-sinon";
+import * as Sentry from "@sentry/node";
 import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/UploadCoronersLetterAdaptor.js";
 import { UploadCoronersLetterResponse } from "#src/adaptors/source/inquests-api/apply/UploadCoronersLetter/models/UploadCoronersLetter.types.js";
 import { v4 as uuidv4 } from "uuid";
 
+const TEST_DSN = "https://key@o0.ingest.sentry.io/1";
+
 describe("UploadCoronersLetterAdaptor", () => {
   let axiosStub: StubbedInstance<AxiosInstance>;
   let uploadCoronersLetterAdaptor: UploadCoronersLetterAdaptor;
+  let capturedEvents: Record<string, unknown>[];
   const testCoronersLetterId = uuidv4();
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
 
@@ -21,10 +25,31 @@ describe("UploadCoronersLetterAdaptor", () => {
       },
     });
 
+    capturedEvents = [];
+    Sentry.init({
+      dsn: TEST_DSN,
+      transport: () => ({
+        send: async (envelope) => {
+          const [, items] = envelope;
+          for (const [header, payload] of items) {
+            if ((header as { type: string }).type === "event") {
+              capturedEvents.push(payload as Record<string, unknown>);
+            }
+          }
+          return {};
+        },
+        flush: async () => true,
+      }),
+    });
+
     uploadCoronersLetterAdaptor = new UploadCoronersLetterAdaptor(
       axiosStub,
       "http://localhost",
     );
+  });
+
+  afterEach(async () => {
+    await Sentry.close();
   });
 
   const expectedSuccessResponse: UploadCoronersLetterResponse = {
@@ -68,8 +93,10 @@ describe("UploadCoronersLetterAdaptor", () => {
         submitBodyRaw,
         "access-token-123",
       );
+    await Sentry.flush();
 
     assert.deepEqual(expectedRejectedResponse, fileSaveResponse);
+    assert.equal(capturedEvents.length, 1);
   });
 
   it("returns UPLOAD_REJECTED on a malformed 201 payload", async () => {
@@ -83,11 +110,13 @@ describe("UploadCoronersLetterAdaptor", () => {
         submitBodyRaw,
         "access-token-123",
       );
+    await Sentry.flush();
 
     assert.deepEqual(expectedRejectedResponse, fileSaveResponse);
+    assert.equal(capturedEvents.length, 1);
   });
 
-  it("returns FILE_SCAN_FOUND_VIRUS on a 422 response", async () => {
+  it("returns FILE_SCAN_FOUND_VIRUS on a 422 response without alerting Sentry", async () => {
     axiosStub.post.resolves({
       status: 422,
       data: {},
@@ -98,8 +127,10 @@ describe("UploadCoronersLetterAdaptor", () => {
         submitBodyRaw,
         "access-token-123",
       );
+    await Sentry.flush();
 
     assert.deepEqual(expectedVirusFoundResponse, fileSaveResponse);
+    assert.equal(capturedEvents.length, 0);
   });
 
   it("returns UPLOAD_REJECTED on unexpected exception", async () => {
@@ -110,8 +141,10 @@ describe("UploadCoronersLetterAdaptor", () => {
         submitBodyRaw,
         "access-token-123",
       );
+    await Sentry.flush();
 
     assert.deepEqual(expectedRejectedResponse, fileSaveResponse);
+    assert.equal(capturedEvents.length, 1);
   });
 
   it("calls correct api endpoint with parameters", async () => {

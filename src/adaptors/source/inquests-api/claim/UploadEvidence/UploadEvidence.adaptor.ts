@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type { UploadEvidencePort } from "#src/ports/source/inquests-api/UploadEvidence.port.js";
 import type {
@@ -116,10 +117,12 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
           duration_ms: Date.now() - startedAt,
         },
       });
+      Sentry.captureException(error);
       return { status: "UPLOAD_REJECTED" };
     }
   }
 
+  // Unexpected upstream behaviour, not the expected virus-scan rejection, so it is worth alerting on.
   #logRejected(message: string, extra: Record<string, unknown>): void {
     logger.logWarn({
       functionName: "upload_evidence_adaptor",
@@ -130,5 +133,6 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
         ...extra,
       },
     });
+    Sentry.captureException(new Error(message));
   }
 }

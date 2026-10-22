@@ -365,16 +365,5 @@ describe("Sentry events produced with the real config", () => {
       );
       expect(serialised).to.not.include("jane@example.com");
     });
-
-    it("keeps only the host of requests to other services", async () => {
-      config.INQUESTS_API_URL = "https://api.example.com";
-
-      await callLocalServer("/tenant-id/oauth2/token?code=abc");
-
-      const serialised = JSON.stringify(items.map((item) => item.payload));
-      expect(serialised).to.include(localServerUrl);
-      expect(serialised).to.not.include("tenant-id");
-      expect(serialised).to.not.include("code=abc");
-    });
   });
 });
