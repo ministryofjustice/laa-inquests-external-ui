@@ -193,8 +193,13 @@ jobs:
           SESSION_NAME: "sessionId"
           NODE_ENV: "test"
           # Add other required environment variables
+<<<<<<< HEAD
           SERVICE_NAME: "Legal aid at inquests"
           SERVICE_PHASE: "Alpha"
+=======
+          SERVICE_NAME: "Inquests"
+          SERVICE_PHASE: "Beta"
+>>>>>>> 484667ab ([IDDS-1048] Changed gov phas banner with new feedback link)
           DEPARTMENT_NAME: "LAA Digital"
           DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
           CONTACT_EMAIL: "your-team@digital.justice.gov.uk"
