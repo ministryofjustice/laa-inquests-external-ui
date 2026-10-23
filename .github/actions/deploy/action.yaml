@@ -35,8 +35,6 @@ inputs:
   sentry_dsn:
     description: "Sentry DSN"
     required: true
-  session_secret:
-    description: "Session secret"
   service_name:
     description: "Service name"
   session_name:
@@ -100,7 +98,6 @@ runs:
         SENTRY_DSN: ${{ inputs.sentry_dsn }}
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
-        SESSION_SECRET: ${{ inputs.session_secret || 'default-session-secret' }}
         SILAS_HOMEPAGE: ${{ inputs.silas_homepage || '' }}
       run: |
         echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID" >> "$GITHUB_ENV"
@@ -113,7 +110,6 @@ runs:
         echo "SENTRY_DSN=$SENTRY_DSN" >> "$GITHUB_ENV"
         echo "SERVICE_NAME=$SERVICE_NAME" >> "$GITHUB_ENV"
         echo "SESSION_NAME=$SESSION_NAME" >> "$GITHUB_ENV"
-        echo "SESSION_SECRET=$SESSION_SECRET" >> "$GITHUB_ENV"
         echo "SILAS_HOMEPAGE=$SILAS_HOMEPAGE" >> "$GITHUB_ENV"
 
     - name: Deploy using Helm
