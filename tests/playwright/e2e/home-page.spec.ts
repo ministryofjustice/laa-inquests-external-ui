@@ -72,7 +72,7 @@ test.describe("Home page", () => {
     await expect(banner).toBeVisible();
     await expect(banner.locator(".govuk-tag")).toHaveText("Beta");
     await expect(banner).toContainText(
-      "This is a ew service – your feedback will help us to improve it.",
+      "This is a new service – your feedback will help us to improve it.",
     );
 
     await expect(feedbackLink).toHaveAttribute(
