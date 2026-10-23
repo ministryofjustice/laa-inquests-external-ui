@@ -35,7 +35,6 @@ jobs:
           image-tag: ${{ github.sha }}
           service_name: ${{ vars.SERVICE_NAME }}
           session_name: ${{ vars.SESSION_NAME}}
-          session_secret: ${{ secrets.SESSION_SECRET }}
           sentry_dsn: ${{ secrets.SENTRY_DSN }}
           silas_homepage: ${{ vars.SILAS_HOMEPAGE }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}
@@ -87,7 +86,6 @@ jobs:
           image-tag: ${{ github.sha }}
           service_name: ${{ vars.SERVICE_NAME }}
           session_name: ${{ vars.SESSION_NAME}}
-          session_secret: ${{ secrets.SESSION_SECRET }}
           sentry_dsn: ${{ secrets.SENTRY_DSN }}
           silas_homepage: ${{ vars.SILAS_HOMEPAGE }}
           inquests_api_url: ${{ vars.INQUESTS_API_URL }}

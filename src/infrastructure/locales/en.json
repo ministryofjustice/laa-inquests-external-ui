@@ -104,6 +104,7 @@
     },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
+      "invalidRequest": "Invalid request",
       "unauthorisedError": {
         "heading": "You cannot access this page",
         "body1": "Your account does not have permission to view this page. Go to the home page to see the pages and actions available to your role.",

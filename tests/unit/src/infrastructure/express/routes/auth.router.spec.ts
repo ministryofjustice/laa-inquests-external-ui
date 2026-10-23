@@ -6,6 +6,8 @@ import type { Request, Response } from "express";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
 import {
   SESSION_ABSOLUTE_TIMEOUT_MS,
   SESSION_EXPIRY_BUFFER_MS,
@@ -56,6 +58,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
 
       route?.stack[0].handle(req, res);
@@ -77,6 +80,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
 
       route?.stack[0].handle(req, res);
@@ -93,6 +97,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
       req.query = { role: "application" } as never;
 
@@ -107,6 +112,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
       req.query = { role: "claims" } as never;
 
@@ -121,6 +127,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
       req.query = { role: "none" } as never;
 
@@ -135,6 +142,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
       req.query = { role: "caseworker" } as never;
 
@@ -152,6 +160,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
       req.query = { officeAccounts: "A004B, A005B" } as never;
 
@@ -166,6 +175,7 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
       req.session = { cookie: {} } as never;
       req.query = { officeAccounts: "" } as never;
 
@@ -185,6 +195,7 @@ describe("createAuthRouter", () => {
         const route = findRoute(router, "/test-login");
         const req = stubInterface<Request>();
         const res = stubInterface<Response>();
+        req.sessionID = "test-session-id";
         req.session = { cookie: {} } as never;
         req.query = query as never;
         route?.stack[0].handle(req, res);
@@ -197,6 +208,23 @@ describe("createAuthRouter", () => {
 
       afterEach(() => {
         clock.restore();
+      });
+
+      it("audits creation of the seeded test session without provider or role information", () => {
+        const logAudit = sinon.stub(logger, "logAudit");
+
+        const req = runTestLogin();
+
+        assert.equal(req.session.userId, "test-provider");
+        assert.equal(logAudit.callCount, 1);
+        assert.deepEqual(logAudit.firstCall.args[0].extraContext, {
+          event: "session_created",
+          session_hash: hashSessionId("test-session-id"),
+          login_method: "test",
+          idle_timeout_ms: SESSION_IDLE_TIMEOUT_MS,
+          absolute_timeout_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
+          credential_expires_in_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
+        });
       });
 
       it("starts a default lifetime whose credential lasts until the absolute cap", () => {

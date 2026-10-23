@@ -36,7 +36,7 @@
     "@sentry/node": "^11.8.0",
     "@sentry/profiling-node": "^11.8.0",
     "axios": "^1.20.0",
-    "body-parser": "^2.3.0",
+    "body-parser": "^2.4.0",
     "compression": "^1.8.2",
     "connect-redis": "^10.0.0",
     "cookie-parser": "~1.4.6",
@@ -55,7 +55,7 @@
     "i18next": "^26.5.2",
     "moment": "^2.31.0",
     "morgan": "~1.12.1",
-    "multer": "^2.4.0",
+    "multer": "^2.5.0",
     "nunjucks": "^3.2.4",
     "zod": "^4.6.7"
   },

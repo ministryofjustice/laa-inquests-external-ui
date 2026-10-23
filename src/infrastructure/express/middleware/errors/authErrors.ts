@@ -4,7 +4,12 @@ import {
   isApplicationError,
   APPLICATION_ERROR_TYPES,
 } from "#src/use-cases/common/ApplicationError.js";
-import { HTTP_FORBIDDEN } from "#src/infrastructure/locales/constants.js";
+import {
+  HTTP_FORBIDDEN,
+  SESSION_TERMINATION_REASONS,
+} from "#src/infrastructure/locales/constants.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+import { logSessionTerminated } from "#src/infrastructure/express/session/sessionAudit.js";
 
 const AUTH_PATH_PREFIX = "/auth/";
 
@@ -31,6 +36,13 @@ const handleAuthErrors = (
           operation: err.operation,
         },
       });
+
+      logSessionTerminated(
+        req,
+        "auth_error_middleware",
+        hashSessionId(req.sessionID),
+        SESSION_TERMINATION_REASONS.CREDENTIAL_REJECTED,
+      );
 
       req.session.destroy(() => {
         res.redirect("/auth/login");

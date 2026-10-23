@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
 import { startSessionLifetime } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { logSessionCreated } from "#src/infrastructure/express/session/sessionAudit.js";
 import {
   SESSION_ABSOLUTE_TIMEOUT_MS,
   SESSION_EXPIRY_BUFFER_MS,
@@ -34,6 +35,7 @@ export const seedDevAuthSession = (
     now,
   );
   Object.assign(req.session, DEV_SESSION_DATA);
+  logSessionCreated(req, "seed_dev_auth_session", "dev");
 
   const { locals } = res;
   const { user } = DEV_SESSION_DATA;

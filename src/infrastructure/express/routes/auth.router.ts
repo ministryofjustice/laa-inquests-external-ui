@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { startSessionLifetime } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { logSessionCreated } from "#src/infrastructure/express/session/sessionAudit.js";
 import {
   APP_ROLES,
   type ProviderRole,
@@ -126,6 +127,7 @@ export function createAuthRouter(
         absoluteTimeoutMs,
       });
 
+      logSessionCreated(req, "auth_route", "test");
       res.redirect("/");
     });
   }

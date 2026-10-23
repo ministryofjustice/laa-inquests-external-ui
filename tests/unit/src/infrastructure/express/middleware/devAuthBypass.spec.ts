@@ -4,6 +4,12 @@ import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response, NextFunction } from "express";
 import { seedDevAuthSession } from "#src/infrastructure/express/middleware/auth/devAuthBypass.js";
 import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+import {
+  SESSION_ABSOLUTE_TIMEOUT_MS,
+  SESSION_IDLE_TIMEOUT_MS,
+} from "#src/infrastructure/locales/constants.js";
 
 describe("seedDevAuthSession", () => {
   let req: StubbedInstance<Request>;
@@ -12,6 +18,7 @@ describe("seedDevAuthSession", () => {
 
   beforeEach(() => {
     req = stubInterface<Request>();
+    req.sessionID = "dev-session-id";
     res = stubInterface<Response>();
     next = sinon.stub();
     req.session = { cookie: {} } as any;
@@ -20,6 +27,28 @@ describe("seedDevAuthSession", () => {
 
   afterEach(() => {
     sinon.restore();
+  });
+
+  it("audits creation only when a development session is newly seeded", () => {
+    sinon.useFakeTimers({ now: 1_800_000_000_000, toFake: ["Date"] });
+    const logAudit = sinon.stub(logger, "logAudit").callsFake(() => {
+      assert.equal(req.session.userId, "dev-user-id");
+      assert.notEqual(req.session.lifetime, undefined);
+    });
+
+    seedDevAuthSession(req, res, next as NextFunction);
+    seedDevAuthSession(req, res, next as NextFunction);
+
+    assert.equal(logAudit.callCount, 1);
+    assert.deepEqual(logAudit.firstCall.args[0].extraContext, {
+      event: "session_created",
+      session_hash: hashSessionId("dev-session-id"),
+      login_method: "dev",
+      idle_timeout_ms: SESSION_IDLE_TIMEOUT_MS,
+      absolute_timeout_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
+      credential_expires_in_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
+    });
+    assert.equal(next.callCount, 2);
   });
 
   it("seeds an authenticated user when session has no userId", () => {

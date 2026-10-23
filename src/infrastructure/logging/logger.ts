@@ -37,6 +37,7 @@ interface EmitInput {
   request?: Request;
   err?: unknown;
   extraContext?: ExtraContext;
+  alwaysEmit?: boolean;
 }
 
 interface LogInput {
@@ -179,6 +180,23 @@ class Logger {
     });
   };
 
+  // Security audit events must reach prod regardless of LOG_LEVEL.
+  public logAudit = ({
+    functionName,
+    message,
+    request,
+    extraContext,
+  }: LogInput): void => {
+    this.#emit({
+      level: "info",
+      functionName,
+      message,
+      request,
+      extraContext: { ...extraContext, log_type: "audit" },
+      alwaysEmit: true,
+    });
+  };
+
   #getErrorMessage(err: unknown): string {
     if (typeof err === "string") {
       return err;
@@ -206,8 +224,9 @@ class Logger {
     request,
     err,
     extraContext,
+    alwaysEmit = false,
   }: EmitInput): void {
-    if (!shouldLog(level, this.configuredLogLevel)) {
+    if (!alwaysEmit && !shouldLog(level, this.configuredLogLevel)) {
       return;
     }
 
