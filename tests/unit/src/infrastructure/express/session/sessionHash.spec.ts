@@ -8,11 +8,11 @@ describe("hashSessionId", () => {
   let originalSecret: string;
 
   beforeEach(() => {
-    originalSecret = config.SESSION_LOG_HASH_SECRET;
+    originalSecret = config.SESSION_LOG_SECRET;
   });
 
   afterEach(() => {
-    config.SESSION_LOG_HASH_SECRET = originalSecret;
+    config.SESSION_LOG_SECRET = originalSecret;
   });
 
   it("returns the same hash for the same session id", () => {
@@ -32,7 +32,7 @@ describe("hashSessionId", () => {
   });
 
   it("returns the HMAC-SHA256 hex digest using the configured secret", () => {
-    config.SESSION_LOG_HASH_SECRET = "Jefe";
+    config.SESSION_LOG_SECRET = "Jefe";
 
     assert.equal(
       hashSessionId("what do ya want for nothing?"),
