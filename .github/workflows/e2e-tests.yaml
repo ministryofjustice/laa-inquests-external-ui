@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4]
     permissions:
       contents: read
       packages: read
@@ -182,7 +182,7 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          yarn test:e2e --shard=${{ matrix.shard }}/3
+          yarn test:e2e --shard=${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
