@@ -245,6 +245,7 @@ jobs:
     needs: playwright
     if: always()
     runs-on: ubuntu-latest
+    permissions: {}
     outputs:
       status: ${{ needs.playwright.result }}
     steps:
