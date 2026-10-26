@@ -20,28 +20,18 @@ on:
 
 jobs:
   playwright:
-    name: Playwright Tests
+    name: Playwright shard ${{ matrix.shard }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     permissions:
       contents: read
       packages: read
-    # Mark this job as required for PR checks
-    outputs:
-      status: ${{ job.status }}
 
-    services:
-      api-db:
-        image: postgres:18
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: api
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
-          --health-timeout 3s --health-retries 5
+    # NOTE: The api-db Postgres service is not needed while the API is mocked via MSW.
 
     steps:
       - name: Checkout code
@@ -199,7 +189,7 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          yarn test:e2e
+          yarn test:e2e --shard=${{ matrix.shard }}/3
         env:
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
@@ -238,7 +228,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: playwright-traces
+          name: playwright-traces-${{ matrix.shard }}
           path: |
             test-results/**/trace*.zip
             test-results/**/*.webm
@@ -248,3 +238,18 @@ jobs:
         if: failure()
         run: echo "::error::Playwright tests failed! Check the test report for
           details."
+
+  # Single check that passes only when every shard passes. Mark this job as required for PR checks.
+  playwright-result:
+    name: Playwright Tests
+    needs: playwright
+    if: always()
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ needs.playwright.result }}
+    steps:
+      - name: Fail if any shard failed
+        if: needs.playwright.result != 'success'
+        run: |
+          echo "::error::Playwright tests failed. Check the shard logs and trace artifacts."
+          exit 1
