@@ -293,18 +293,14 @@ describe("Client details adaptor", () => {
     const renderModel = renderArgs[1] as unknown as {
       errorSummaries: {
         noFixedAbodeInputError?: { text: string };
-        addressLine1InputError?: { text: string };
       };
       client: { hasNoFixedAbode: boolean };
     };
-    assert.equal(
-      renderModel.errorSummaries.noFixedAbodeInputError?.text,
-      CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-    );
-    assert.equal(
-      renderModel.errorSummaries.addressLine1InputError?.text,
-      CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-    );
+    assert.deepEqual(renderModel.errorSummaries, {
+      noFixedAbodeInputError: {
+        text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      },
+    });
     assert.equal(renderModel.client.hasNoFixedAbode, true);
   });
 

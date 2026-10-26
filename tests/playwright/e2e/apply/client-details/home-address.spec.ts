@@ -747,7 +747,7 @@ test.describe("Client details - home address", () => {
   });
 
   test.describe("conflicting no fixed abode and home address", () => {
-    test("shows an error when no fixed abode is checked and an address is entered", async ({
+    test("shows a single conflict error when no fixed abode is checked and address line 1 is entered", async ({
       page,
       checkAccessibility,
     }) => {
@@ -759,7 +759,7 @@ test.describe("Client details - home address", () => {
       await getAndUpdateFormFields(page, {
         "Address line 1": "4 Privet Drive",
       });
-      await page.getByLabel("Client has no fixed abode").check();
+      await page.getByLabel("My client has no fixed abode").check();
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
@@ -779,19 +779,24 @@ test.describe("Client details - home address", () => {
         CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
       );
 
-      const addressLine1ErrorMessageElement = addressForm.locator(
-        "#home-address-line-1-error",
-      );
-      await expect(addressLine1ErrorMessageElement).toBeVisible();
-      await expect(addressLine1ErrorMessageElement).toContainText(
+      const conflictLink = errorSummary.getByRole("link");
+      await expect(conflictLink).toHaveCount(1);
+      await expect(conflictLink).toHaveText(
         CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
       );
-      await expect(page.getByLabel("Client has no fixed abode")).toBeChecked();
+      await expect(conflictLink).toHaveAttribute("href", "#has-no-fixed-abode");
+      await expect(addressForm.locator(".govuk-error-message")).toHaveCount(1);
+      await expect(
+        page.getByLabel("My client has no fixed abode"),
+      ).toBeChecked();
+      await expect(addressForm.getByLabel("Address line 1")).toHaveValue(
+        "4 Privet Drive",
+      );
 
       await checkAccessibility();
     });
 
-    test("shows an error when no fixed abode is checked and an optional field is entered", async ({
+    test("shows a single conflict error when no fixed abode is checked and an optional field is entered", async ({
       page,
     }) => {
       await page.goto("/apply/client-details/home-address");
@@ -801,7 +806,7 @@ test.describe("Client details - home address", () => {
       await getAndUpdateFormFields(page, {
         "County (optional)": "Surrey",
       });
-      await page.getByLabel("Client has no fixed abode").check();
+      await page.getByLabel("My client has no fixed abode").check();
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
@@ -812,18 +817,26 @@ test.describe("Client details - home address", () => {
         CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
       );
 
-      const countyErrorMessageElement =
-        addressForm.locator("#home-county-error");
-      await expect(countyErrorMessageElement).toBeVisible();
-      await expect(countyErrorMessageElement).toContainText(
+      await expect(errorSummary.getByRole("link")).toHaveCount(1);
+      await expect(errorSummary.getByRole("link")).toHaveAttribute(
+        "href",
+        "#has-no-fixed-abode",
+      );
+      await expect(addressForm.locator(".govuk-error-message")).toHaveCount(1);
+      await expect(
+        addressForm.locator("#has-no-fixed-abode-error"),
+      ).toContainText(
         CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
+      );
+      await expect(addressForm.getByLabel("County (optional)")).toHaveValue(
+        "Surrey",
       );
       await expect(
         addressForm.locator("#home-address-line-1-error"),
       ).toHaveCount(0);
     });
 
-    test("shows the error against town or city and postcode when only those are entered and no fixed abode is checked", async ({
+    test("shows a single conflict error when town or city and postcode are entered and no fixed abode is checked", async ({
       page,
     }) => {
       await page.goto("/apply/client-details/home-address");
@@ -834,7 +847,7 @@ test.describe("Client details - home address", () => {
         "Town or city": "London",
         Postcode: "SW1A 1AA",
       });
-      await page.getByLabel("Client has no fixed abode").check();
+      await page.getByLabel("My client has no fixed abode").check();
 
       await addressForm.getByRole("button", { name: "Continue" }).click();
       await page.waitForLoadState("domcontentloaded");
@@ -845,21 +858,21 @@ test.describe("Client details - home address", () => {
         CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
       );
 
-      const townOrCityErrorMessageElement = addressForm.locator(
-        "#home-town-or-city-error",
+      await expect(errorSummary.getByRole("link")).toHaveCount(1);
+      await expect(errorSummary.getByRole("link")).toHaveAttribute(
+        "href",
+        "#has-no-fixed-abode",
       );
-      await expect(townOrCityErrorMessageElement).toBeVisible();
-      await expect(townOrCityErrorMessageElement).toContainText(
+      await expect(addressForm.locator(".govuk-error-message")).toHaveCount(1);
+      await expect(
+        addressForm.locator("#has-no-fixed-abode-error"),
+      ).toContainText(
         CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
       );
-
-      const postcodeErrorMessageElement = addressForm.locator(
-        "#home-postcode-error",
+      await expect(addressForm.getByLabel("Town or city")).toHaveValue(
+        "London",
       );
-      await expect(postcodeErrorMessageElement).toBeVisible();
-      await expect(postcodeErrorMessageElement).toContainText(
-        CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-      );
+      await expect(addressForm.getByLabel("Postcode")).toHaveValue("SW1A 1AA");
 
       await expect(
         addressForm.locator("#home-address-line-1-error"),
