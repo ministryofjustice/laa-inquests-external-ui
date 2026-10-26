@@ -31,6 +31,10 @@ export interface RoutePolicy {
 }
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
+  {
+    prefix: "/cookies",
+    allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
+  },
   { prefix: "/apply", allowedRoles: [APP_ROLES.APPLICATION_USER] },
   { prefix: "/claim", allowedRoles: [APP_ROLES.CLAIMS_USER] },
   {

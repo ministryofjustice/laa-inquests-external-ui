@@ -46,6 +46,7 @@ declare module "express-session" {
     claimDeclaration?: boolean;
     lifetime?: SessionLifetime;
     returnTo?: string;
+    cookieBannerState?: string;
   }
 }
 
