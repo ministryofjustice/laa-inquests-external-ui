@@ -17,7 +17,10 @@ test.describe("Cookies banner", () => {
   }) => {
     await page.goto("/");
 
-    const banner = page.getByRole("region", { name: "Cookies on inquests" });
+    const banner = page.getByRole("region", {
+      name: "Cookies on legal aid at inquests",
+      exact: true,
+    });
 
     await expect(banner).toBeVisible();
     await expect(
@@ -79,7 +82,10 @@ test.describe("Cookies banner", () => {
       await context.clearCookies({ name: "cookies_policy" });
 
       await page.goto("/apply");
-      const banner = page.getByRole("region", { name: "Cookies on inquests" });
+      const banner = page.getByRole("region", {
+        name: "Cookies on legal aid at inquests",
+        exact: true,
+      });
       await expect(
         banner.getByRole("button", { name: "Accept additional cookies" }),
       ).toBeVisible();
@@ -125,7 +131,10 @@ test.describe("Cookies banner", () => {
       ]);
 
       await page.goto("/apply");
-      const banner = page.getByRole("region", { name: "Cookies on inquests" });
+      const banner = page.getByRole("region", {
+        name: "Cookies on legal aid at inquests",
+        exact: true,
+      });
       await expect(
         banner.getByRole("button", { name: buttonName }),
       ).toBeVisible();
@@ -157,7 +166,10 @@ test.describe("Cookies banner", () => {
       await page.goto("/apply");
       await page.getByRole("button", { name: buttonName }).click();
 
-      const banner = page.getByRole("region", { name: "Cookies on inquests" });
+      const banner = page.getByRole("region", {
+        name: "Cookies on legal aid at inquests",
+        exact: true,
+      });
       await expect(page).toHaveURL("/apply");
       await expect(banner).toBeVisible();
       await expect(banner).toContainText(
@@ -198,7 +210,10 @@ test.describe("Cookies banner", () => {
       await page.getByRole("button", { name: buttonName }).click();
 
       await page
-        .getByRole("region", { name: "Cookies on inquests" })
+        .getByRole("region", {
+          name: "Cookies on legal aid at inquests",
+          exact: true,
+        })
         .getByRole("link", { name: "change your cookie settings" })
         .click();
 
@@ -225,7 +240,10 @@ test.describe("Cookies banner", () => {
         .locator('form[action="/cookies/banner"] input[name="_csrf"]')
         .inputValue();
 
-      const banner = page.getByRole("region", { name: "Cookies on inquests" });
+      const banner = page.getByRole("region", {
+        name: "Cookies on legal aid at inquests",
+        exact: true,
+      });
       await banner.getByRole("button", { name: buttonName }).click();
 
       await expect

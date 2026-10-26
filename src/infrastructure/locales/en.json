@@ -17,7 +17,6 @@
     "mainNav": {},
     "header": {
       "organisationLabel": "Legal Aid Agency",
-      "serviceLabel": "Legal aid at inquests",
       "signOut": "Sign out"
     },
     "footer": {
@@ -158,7 +157,7 @@
       },
       "analytics": {
         "heading": "Analytics cookies (optional)",
-        "purpose": "We use Google Analytics software to understand how people use legal aid at inquests. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
+        "purpose": "We use Google Analytics software to understand how people use {serviceName}. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
         "collection": "We do not collect or store your personal information (for example your name or address) so this information cannot be used to identify who you are.",
         "dataSharing": "We do not allow Google to use or share our analytics data.",
         "googleStorage": {

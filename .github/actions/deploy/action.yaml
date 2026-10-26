@@ -96,7 +96,7 @@ runs:
         AUTH_REDIRECT_URI: ${{ inputs.auth_redirect_uri || '' }}
         INQUESTS_API_URL: ${{ inputs.inquests_api_url || '' }}
         SENTRY_DSN: ${{ inputs.sentry_dsn }}
-        SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
+        SERVICE_NAME: ${{ inputs.service_name || 'Legal aid at inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
         SILAS_HOMEPAGE: ${{ inputs.silas_homepage || '' }}
       run: |
