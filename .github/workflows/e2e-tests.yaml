@@ -47,12 +47,12 @@ jobs:
 
       # yarn test:e2e builds the app itself, so no separate build step is needed
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
       # NOTE: The live Inquests API is not currently required for the E2E tests to run as all requests are mocked
       # via MSW. The steps below are kept (commented out) so the
