@@ -42,8 +42,7 @@ jobs:
       - name: Setup Node and Dependencies
         uses: ./.github/actions/setup-node
 
-      - name: Build application
-        run: yarn build
+      # yarn test:e2e builds the app itself, so no separate build step is needed
 
       - name: Install Playwright Chromium
         run: yarn playwright install chromium --with-deps

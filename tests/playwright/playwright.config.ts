@@ -31,11 +31,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 1 : 0,
-  workers: process.env.CI === "true" ? 2 : "50%", // 50% of computer cores. 7 locally. 4 is most we can do on action
+  workers: process.env.CI === "true" ? 2 : "50%", // CI runners have 2 vCPUs, so 2 workers; locally use 50% of cores
   reporter: "html",
   use: {
     baseURL: TEST_CONFIG.BASE_URL,
-    trace: process.env.CI === "true" ? "on" : "on-first-retry",
+    trace: process.env.CI === "true" ? "retain-on-failure" : "on-first-retry",
   },
   projects: [
     {
