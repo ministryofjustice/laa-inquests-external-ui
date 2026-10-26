@@ -5,60 +5,79 @@ ignore:
         expires: 2026-11-26T00:00:00.000Z
         created: 2026-10-08T00:00:00.000Z
         reason:
-          "Temp ignore as bundled with npm with no direct upgrade as of npm
-          v12.2.1. Resolved when npm releases version with fixed
-          http-cache-semantics."
+          "Temp ignore as bundled with npm with no direct upgrade as of npm v12.2.1. Resolved when
+          npm releases version with fixed http-cache-semantics."
   "SNYK-JS-HTTPCACHESEMANTICS-19964068":
     - "*":
         expires: 2026-11-26T00:00:00.000Z
         created: 2026-10-08T00:00:00.000Z
         reason:
-          "Temp ignore as bundled with npm with no direct as of npm v12.2.1.
-          Resolved when npm releases version with fixed http-cache-semantics."
+          "Temp ignore as bundled with npm with no direct upgrade as of npm v12.2.1. Resolved when
+          npm releases version with fixed http-cache-semantics."
+  "SNYK-JS-BRACEEXPANSION-20244948":
+    - "*":
+        expires: 2026-11-26T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
+        reason:
+          "Temp ignore as bundled with npm with no direct upgrade as of npm v12.2.1. Resolved when
+          new docker image is released with upgraded npm version"
+  "SNYK-JS-BRACEEXPANSION-20244952":
+    - "*":
+        expires: 2026-11-26T00:00:00.000Z
+        created: 2026-10-08T00:00:00.000Z
+        reason:
+          "Temp ignore as bundled with npm with no direct upgrade as of npm v12.2.1. Resolved when
+          new docker image is released with upgraded npm version"
+  "SNYK-JS-QS-20943482":
+    - "*":
+        expires: 2026-11-26T00:00:00.000Z
+        reason:
+          "Temp ignore due to being a subdependency (no fix available as of npm v12.2.1), and us not having
+          arrayFormat: 'comma' set anywhere which causes this vulnerability"
   "SNYK-JS-UNDICI-21181005":
     - "*":
-        reason:
-          "Temp ignore for undici bundled with global npm in the Docker image,
-          no patch as of npm v12.2.1. Checked npm releases still bundle
-          vulnerable versions. Remove when the image includes npm with
-          undici@6.29.1 or a patched version on another major line."
         expires: "2026-11-18T00:00:00.000Z"
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image, no fix available as of npm v12.2.1.
+          Checked npm releases still bundle vulnerable versions. Remove when the
+          image includes npm with undici@6.29.1 or a patched version on another
+          major line."
   "SNYK-JS-UNDICI-21181013":
     - "*":
+        expires: 2026-11-26T00:00:00.000Z
         reason:
-          "Temp ignore for undici bundled with global npm in the Docker image,
-          no patch as of npm v12.2.1. Checked npm releases still bundle
-          vulnerable versions. Remove when the image includes npm with
-          undici@6.29.1 or a patched version on another major line."
-        expires: "2026-11-18T00:00:00.000Z"
+          "Temp ignore for undici bundled with global npm in the Docker image, no fix available as of npm v12.2.1.
+          Checked npm releases still bundle vulnerable versions. Remove when the
+          image includes npm with undici@6.29.1 or a patched version on another
+          major line."
   "SNYK-JS-UNDICI-21181015":
     - "*":
-        reason:
-          "Temp ignore for undici bundled with global npm in the Docker image,
-          no patch as of npm v12.2.1. Checked npm releases still bundle
-          vulnerable versions. Remove when the image includes npm with
-          undici@6.29.1 or a patched version on another major line."
         expires: "2026-11-18T00:00:00.000Z"
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image, no fix available as of npm v12.2.1.
+          Checked npm releases still bundle vulnerable versions. Remove when the
+          image includes npm with undici@6.29.1 or a patched version on another
+          major line."
   "SNYK-JS-UNDICI-21181019":
     - "*":
-        reason:
-          "Temp ignore for undici bundled with global npm in the Docker image,
-          no patch as of npm v12.2.1. Checked npm releases still bundle
-          vulnerable versions. Remove when the image includes npm with
-          undici@6.29.1 or a patched version on another major line."
         expires: "2026-11-18T00:00:00.000Z"
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image,  no fix available as of npm v12.2.1.
+          Checked npm releases still bundle vulnerable versions. Remove when the
+          image includes npm with undici@6.29.1 or a patched version on another
+          major line."
   "SNYK-JS-UNDICI-21185768":
     - "*":
-        reason:
-          "Temp ignore for undici bundled with global npm in the Docker image,
-          no patch as of npm v12.2.1. Checked npm releases still bundle
-          vulnerable versions. Remove when the image includes npm with
-          undici@6.29.1 or a patched version on another major line."
         expires: "2026-11-18T00:00:00.000Z"
+        reason:
+          "Temp ignore for undici bundled with global npm in the Docker image, no fix available as of npm v12.2.1.
+          Checked npm releases still bundle vulnerable versions. Remove when the
+          image includes npm with undici@6.29.1 or a patched version on another
+          major line."
   "SNYK-JS-PICOMATCH-21248802":
     - "*":
+        expires: "2026-11-20T00:00:00.000Z"
         reason:
           "Temp ignore picomatch is pulled in by npm@11.20.0 in the Docker
-          image, and Snyk reports no patch as of npm v12.2.1. Revisit when the
-          image includes a patched npm/picomatch."
-        expires: "2026-11-20T00:00:00.000Z"
+          image, and Snyk reports no patch as of npm v12.2.1. Revisit when the image includes a
+          patched npm/picomatch."
