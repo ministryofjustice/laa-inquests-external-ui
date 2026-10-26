@@ -210,6 +210,11 @@ describe("globalAccessGuard", () => {
         allowedRoles: [APP_ROLES.CLAIMS_USER],
       },
       {
+        description: "Authenticated requests to cookie routes for both roles",
+        path: "/cookies/banner",
+        allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
+      },
+      {
         description: "Only authenticated requests to home route",
         path: "/",
         allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],

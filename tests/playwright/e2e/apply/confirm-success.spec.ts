@@ -5,7 +5,7 @@ test.describe("Apply - confirm success", () => {
     page,
     checkAccessibility,
   }) => {
-    page.goto("/apply/confirmation/success");
+    await page.goto("/apply/confirmation/success");
 
     const confirmSuccessHeading = await page.getByRole("heading", {
       level: 1,
@@ -20,7 +20,7 @@ test.describe("Apply - confirm success", () => {
   });
 
   test("sets the browser tab title from the page heading", async ({ page }) => {
-    page.goto("/apply/confirmation/success");
+    await page.goto("/apply/confirmation/success");
 
     await expect(page).toHaveTitle(
       /Your application has been submitted – Legal aid at inquests – GOV\.UK/,
@@ -28,7 +28,7 @@ test.describe("Apply - confirm success", () => {
   });
 
   test("renders confirm success page content", async ({ page }) => {
-    page.goto("/apply/confirmation/success");
+    await page.goto("/apply/confirmation/success");
 
     const whatHappensNext = await page.getByRole("heading", {
       level: 2,

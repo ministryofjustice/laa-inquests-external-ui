@@ -166,4 +166,47 @@ describe("createCookiesRouter", () => {
       assert.equal(next.firstCall.args[0], error);
     });
   });
+
+  describe("POST banner routes", () => {
+    for (const { path, adaptorMethod } of [
+      { path: "/banner", adaptorMethod: "saveBannerPreference" },
+      { path: "/banner/hide", adaptorMethod: "hideBannerConfirmation" },
+    ] as const) {
+      it(`delegates ${path} to the cookies adaptor`, () => {
+        const cookiesAdaptor = stubInterface<CookiesAdaptor>();
+        const router = createCookiesRouter(express.Router(), cookiesAdaptor);
+        const route = (
+          router as unknown as {
+            stack: Array<{
+              route?: {
+                path: string;
+                methods: Record<string, boolean>;
+                stack: Array<{
+                  handle: (
+                    req: Request,
+                    res: Response,
+                    next: NextFunction,
+                  ) => void;
+                }>;
+              };
+            }>;
+          }
+        ).stack.find(
+          (layer) => layer.route?.path === path && layer.route.methods.post,
+        )?.route;
+        const req = stubInterface<Request>();
+        const res = stubInterface<Response>();
+        const next = sinon.stub();
+
+        route?.stack[0].handle(req, res, next);
+
+        assert.equal(cookiesAdaptor[adaptorMethod].callCount, 1);
+        assert.deepEqual(cookiesAdaptor[adaptorMethod].firstCall.args, [
+          req,
+          res,
+        ]);
+        assert.equal(next.callCount, 0);
+      });
+    }
+  });
 });

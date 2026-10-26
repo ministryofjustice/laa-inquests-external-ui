@@ -80,7 +80,10 @@ test.describe("Apply - check your answers", () => {
     );
     await expect(pageInsetText).toBeVisible();
 
-    const continueButton = page.getByRole("button");
+    const continueButton = page.getByRole("button", {
+      name: "Continue",
+      exact: true,
+    });
     await expect(continueButton).toHaveText("Continue");
 
     await continueButton.click();
@@ -249,6 +252,7 @@ test.describe("Apply - check your answers", () => {
     const inquestHeading = await page.getByRole("heading", {
       level: 2,
       name: "Inquest",
+      exact: true,
     });
 
     await expect(inquestHeading).toBeVisible();
