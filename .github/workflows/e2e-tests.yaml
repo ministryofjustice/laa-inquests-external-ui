@@ -182,8 +182,10 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          yarn test:e2e --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          yarn test:e2e --shard="$SHARD_INDEX/$SHARD_TOTAL"
         env:
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_TOTAL: ${{ strategy.job-total }}
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
           # Add session-related environment variables
