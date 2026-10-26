@@ -51,7 +51,7 @@
     }) }}
 
     <h2 class="govuk-heading-m">{{ t('pages.cookies.analytics.heading') }}</h2>
-    <p class="govuk-body">{{ t('pages.cookies.analytics.purpose') }}</p>
+    <p class="govuk-body">{{ t('pages.cookies.analytics.purpose', { serviceName: config.SERVICE_NAME.toLowerCase() }) }}</p>
     <p class="govuk-body">{{ t('pages.cookies.analytics.collection') }}</p>
     <p class="govuk-body">{{ t('pages.cookies.analytics.dataSharing') }}</p>
     <p class="govuk-body">{{ t('pages.cookies.analytics.googleStorage.description') }}</p>

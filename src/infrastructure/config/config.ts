@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import type { Config } from "#src/infrastructure/config/config.types.js";
 dotenv.config({ path: "../.env.external" });
 
+const serviceName = process.env.SERVICE_NAME ?? "Legal aid at inquests";
 const DEFAULT_RATE_LIMIT_MAX = 10000;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
@@ -115,7 +116,7 @@ const config: Config = {
       DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE,
   ),
   SENTRY_DSN: process.env.SENTRY_DSN ?? "",
-  SERVICE_NAME: process.env.SERVICE_NAME,
+  SERVICE_NAME: serviceName,
   SERVICE_PHASE: process.env.SERVICE_PHASE,
   SERVICE_URL: process.env.SERVICE_URL,
   SILAS_HOMEPAGE: process.env.SILAS_HOMEPAGE,
@@ -138,7 +139,7 @@ const config: Config = {
   app: {
     port: Number(process.env.PORT ?? DEFAULT_PORT),
     environment: process.env.NODE_ENV ?? "development",
-    appName: process.env.SERVICE_NAME ?? "Inquests",
+    appName: serviceName,
     useHttps: process.env.NODE_ENV === "production", // Use HTTPS in production
     skipAuthInDev: isSkipAuthInDevelopment,
   },

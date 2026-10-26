@@ -66,7 +66,7 @@ export default defineConfig({
       PORT: "3000",
       SESSION_SECRET: "test-secret-key-for-playwright-tests",
       SESSION_NAME: "test-session",
-      SERVICE_NAME: "Inquests",
+      SERVICE_NAME: "Legal aid at inquests",
       SILAS_HOMEPAGE:
         "https://dev.your-legal-aid-services.service.justice.gov.uk/home",
       // Auth is faked via the /auth/test-login route, so real Entra credentials
