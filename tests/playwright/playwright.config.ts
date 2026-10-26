@@ -28,10 +28,10 @@ export const TEST_CONFIG = {
 export default defineConfig({
   testDir: "./e2e",
   timeout: 10000,
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 1 : 0,
-  workers: 1,
+  workers: "50%", // 50% of computer cores. 7 locally
   reporter: "html",
   use: {
     baseURL: TEST_CONFIG.BASE_URL,
