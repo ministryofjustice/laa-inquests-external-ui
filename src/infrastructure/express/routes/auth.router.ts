@@ -1,12 +1,30 @@
 import type { NextFunction, Request, Response, Router } from "express";
 import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
-import { applySessionExpiry } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { startSessionLifetime } from "#src/infrastructure/express/session/sessionExpiry.js";
+import { logSessionCreated } from "#src/infrastructure/express/session/sessionAudit.js";
 import {
   APP_ROLES,
   type ProviderRole,
 } from "#src/infrastructure/config/accessControl.js";
+import {
+  SESSION_ABSOLUTE_TIMEOUT_MS,
+  SESSION_EXPIRY_BUFFER_MS,
+  SESSION_IDLE_TIMEOUT_MS,
+} from "#src/infrastructure/locales/constants.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;
+
+// Converts an optional seconds query param to milliseconds, falling back when absent or invalid.
+function secondsParamToMs(value: unknown, fallbackMs: number): number {
+  if (typeof value !== "string" || value === "") {
+    return fallbackMs;
+  }
+  const seconds = Number(value);
+  if (Number.isNaN(seconds)) {
+    return fallbackMs;
+  }
+  return seconds * MILLISECONDS_IN_A_SECOND;
+}
 
 // Allows E2E tests to exercise office filtering by overriding the seeded office codes.
 function parseOfficeAccountsQueryParam(value: unknown): string[] {
@@ -91,15 +109,25 @@ export function createAuthRouter(
       req.session.providerEmail = "test@example.com";
       req.session.roles = parseRolesQueryParam(req.query.role);
 
-      // Optional expiry to exercise session-expiry behaviour in E2E tests.
-      const tokenExpirySeconds = Number(req.query.tokenExpirySeconds);
-      if (!Number.isNaN(tokenExpirySeconds)) {
-        applySessionExpiry(
-          req.session,
-          new Date(Date.now() + tokenExpirySeconds * MILLISECONDS_IN_A_SECOND),
-        );
-      }
+      // Optional overrides to exercise session-expiry behaviour in E2E tests.
+      const now = Date.now();
+      const absoluteTimeoutMs = secondsParamToMs(
+        req.query.absoluteSeconds,
+        SESSION_ABSOLUTE_TIMEOUT_MS,
+      );
+      const tokenExpiryMs = secondsParamToMs(
+        req.query.tokenExpirySeconds,
+        absoluteTimeoutMs + SESSION_EXPIRY_BUFFER_MS,
+      );
+      startSessionLifetime(req.session, new Date(now + tokenExpiryMs), now, {
+        idleTimeoutMs: secondsParamToMs(
+          req.query.idleSeconds,
+          SESSION_IDLE_TIMEOUT_MS,
+        ),
+        absoluteTimeoutMs,
+      });
 
+      logSessionCreated(req, "auth_route", "test");
       res.redirect("/");
     });
   }

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- This adaptor handles upload, delete and view for both JS and no-JS flows. */
 import type { Request, Response } from "express";
 import {
   CLAIM_EVIDENCE_ERROR,
@@ -16,6 +17,7 @@ import type { UploadEvidenceResponse } from "#src/adaptors/source/inquests-api/c
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
 import {
   runExclusivePerSession,
   saveSession,
@@ -164,6 +166,13 @@ export class EvidenceAdaptor {
           event: "claim_evidence_delete_failed",
         },
       });
+      reportClientError({
+        message: "Evidence delete request missing file identifier",
+        statusCode: HTTP_BAD_REQUEST,
+        event: "claim_evidence_delete_missing_file_id",
+        route: "/claim/evidence/delete",
+        tags: { no_js_upload: false },
+      });
       res.status(HTTP_BAD_REQUEST).json({
         error: { message: CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN },
       });
@@ -206,6 +215,13 @@ export class EvidenceAdaptor {
           event: "claim_evidence_delete_failed",
           no_js_upload: true,
         },
+      });
+      reportClientError({
+        message: "No-js evidence delete request missing file identifier",
+        statusCode: HTTP_BAD_REQUEST,
+        event: "claim_evidence_delete_missing_file_id",
+        route: "/claim/evidence/upload",
+        tags: { no_js_upload: true },
       });
       this.#renderNoJsError(
         req,
@@ -314,6 +330,14 @@ export class EvidenceAdaptor {
   ): void {
     const message =
       errors.evidenceError?.text ?? CLAIM_EVIDENCE_ERROR.NO_FILE_CHOSEN;
+
+    reportClientError({
+      message: "Evidence upload validation failed",
+      statusCode: isNoJsUpload ? HTTP_BAD_REQUEST : HTTP_UNPROCESSABLE_CONTENT,
+      event: "claim_evidence_upload_validation_failed",
+      route: "/claim/evidence/upload",
+      tags: { no_js_upload: isNoJsUpload },
+    });
 
     if (isNoJsUpload) {
       this.#renderNoJsError(req, res, message, HTTP_BAD_REQUEST);

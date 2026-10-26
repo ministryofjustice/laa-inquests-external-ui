@@ -10,7 +10,7 @@ interface TestFixtures {
 
 export const test = base.extend<TestFixtures>({
   // Reset per-test journey state while staying authenticated to prevent tests conflicting
-  // Visiting "/" calls clearApplyFormData
+  // Visiting "/" calls clearFormData
   freshSession: [
     async ({ page }, use): Promise<void> => {
       await page.goto("/");

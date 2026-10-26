@@ -3,7 +3,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% set pageHeading = "What is the coroner's reference?" %}
+{% set pageHeading = "Do you have a reference number from the coroner? (optional)" %}
 {% set pageTitle = pageHeading %}
 
 {% block content %}
@@ -25,7 +25,6 @@
                 ]
             }) }}
             {% endif %}
-            <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
             <form data-testid="deceased-coroner-reference-form" action="/apply/deceased-details/coroner-reference" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />
                 {{ govukInput({
@@ -33,9 +32,13 @@
                     name: "deceased-coroner-reference",
                     type: "text",
                     spellcheck: false,
-                    classes: "govuk-!-width-one-half",
                     label: {
-                        text: "Please enter your reference number"
+                        text: pageHeading,
+                        classes: "govuk-label--l",
+                        isPageHeading: true
+                    },
+                    hint: {
+                        text: "If your correspondence with the coroner has included a reference for this inquest, enter it here."
                     },
                     errorMessage: errorSummaries.coronerReferenceInputError,
                     value: deceasedDetails.coronerReference

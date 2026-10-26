@@ -103,6 +103,7 @@ export class ConfirmationAdaptor {
 
     res.render("apply/submit/client-declaration", {
       csrfToken,
+      providerName: req.session.firmName ?? "",
       clientDetails: {
         firstName: req.session.clientFirstName ?? "",
         lastName: req.session.clientLastName ?? "",
@@ -128,6 +129,7 @@ export class ConfirmationAdaptor {
 
       res.render("apply/submit/client-declaration", {
         csrfToken,
+        providerName: req.session.firmName ?? "",
         clientDetails: {
           firstName: req.session.clientFirstName ?? "",
           lastName: req.session.clientLastName ?? "",
@@ -149,7 +151,7 @@ export class ConfirmationAdaptor {
         laa_reference: laaReference,
       },
     });
-    this.sessionHelper.clearApplyFormData(req);
+    this.sessionHelper.clearFormData(req);
     session.applicationReferenceNumber = laaReference;
     res.redirect("/apply/confirmation/success");
   }
@@ -168,7 +170,7 @@ export class ConfirmationAdaptor {
       csrfToken,
       applicationReferenceNumber,
     });
-    this.sessionHelper.clearApplyFormData(req);
+    this.sessionHelper.clearFormData(req);
   }
 
   #getConfirmationSessionState(req: Request): ConfirmationSessionState {

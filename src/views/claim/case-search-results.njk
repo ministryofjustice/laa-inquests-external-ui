@@ -1,6 +1,7 @@
 {% extends "base.njk" %}
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
 {% set pageHeading = t("pages.claim.caseSearch.results.title") %}
 {% set pageTitle = pageHeading %}
@@ -10,10 +11,16 @@
 <div class="govuk-width-container">
   {{ govukBackLink({
     text: "Back",
-    href: "/claim"
+    href: "/claim/search"
   }) }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
+      {% if errorSummaries and errorSummaries.selectionError %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [{ text: errorSummaries.selectionError.text }]
+        }) }}
+      {% endif %}
       <h1 class="govuk-heading-l govuk-!-margin-bottom-2">{{ pageHeading }}</h1>
       <p class="govuk-body">{{ t("pages.claim.caseSearch.results.hint") }}</p>
       {% if cases | length %}
@@ -45,7 +52,7 @@
       <p class="govuk-body" data-testid="no-results-message">There are no results that match the search criteria</p>
       {{ govukButton({
         text: "Refine your search",
-        href: "/claim"
+        href: "/claim/search"
       }) }}
       {% endif %}
     </div>

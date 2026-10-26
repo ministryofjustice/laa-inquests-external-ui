@@ -1,6 +1,7 @@
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
 import assert from "assert";
+import { searchAndSelectCase } from "../../utils/claim-journey.js";
 
 // Mirrors the ids/name returned by the mocked claim evidence endpoints in
 // tests/playwright/factories/handlers/api.ts
@@ -294,6 +295,11 @@ test.describe("Claim - confirm and submit", () => {
   }) => {
     await page.goto("/claim");
     await page
+      .getByLabel("I confirm that I have read and agree to the declaration")
+      .check();
+    await page.getByRole("button", { name: "Start" }).click();
+    await expect(page).toHaveURL("/claim/search");
+    await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
       .fill("INQ-YYY-001");
@@ -324,6 +330,7 @@ test.describe("Claim - confirm and submit", () => {
   test("redirects to the claim confirmation success page when the claim is submitted", async ({
     page,
   }) => {
+    await searchAndSelectCase(page, "INQ-YYY-001");
     await page.goto("/claim/evidence");
     await Promise.all([
       page.waitForResponse(
@@ -349,9 +356,25 @@ test.describe("Claim - confirm and submit", () => {
     await expect(page).toHaveURL("/claim/confirmation/success");
   });
 
+  test("redirects to the claim start page when no case has been selected", async ({
+    page,
+  }) => {
+    await uploadEvidence(page);
+    await page.goto("/claim/check-your-answers");
+
+    await page
+      .getByTestId("confirm-and-submit-form")
+      .getByRole("button", { name: "Finish and submit claim" })
+      .click();
+
+    await expect(page).toHaveURL("/claim");
+  });
+
   test("displays a 'There is a problem' error summary when claim evidence is missing", async ({
     page,
   }) => {
+    await searchAndSelectCase(page, "INQ-YYY-001");
+    await page.goto("/claim/check-your-answers");
     await page
       .getByTestId("confirm-and-submit-form")
       .getByRole("button", { name: "Finish and submit claim" })
@@ -368,6 +391,11 @@ test.describe("Claim - confirm and submit", () => {
     page,
   }) => {
     await page.goto("/claim");
+    await page
+      .getByLabel("I confirm that I have read and agree to the declaration")
+      .check();
+    await page.getByRole("button", { name: "Start" }).click();
+    await expect(page).toHaveURL("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")

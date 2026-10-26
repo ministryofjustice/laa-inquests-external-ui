@@ -8,7 +8,7 @@ test.describe("Client details - name and dob", () => {
     page,
     checkAccessibility,
   }) => {
-    page.goto("/apply/client-details/name-and-dob");
+    await page.goto("/apply/client-details/name-and-dob");
     const clientDetailsHeading = await page.getByRole("heading", {
       level: 1,
       name: "Enter your client's details",
@@ -24,15 +24,15 @@ test.describe("Client details - name and dob", () => {
   });
 
   test("sets the browser tab title from the page heading", async ({ page }) => {
-    page.goto("/apply/client-details/name-and-dob");
+    await page.goto("/apply/client-details/name-and-dob");
 
     await expect(page).toHaveTitle(
-      /Enter your client's details – Inquests – GOV\.UK/,
+      /Enter your client's details – Legal aid at inquests – GOV\.UK/,
     );
   });
 
   test("renders basic client details form", async ({ page }) => {
-    page.goto("/apply/client-details/name-and-dob");
+    await page.goto("/apply/client-details/name-and-dob");
 
     const basicDetailsForm = await page.getByTestId("client-details-form");
     const errorSummary = await page.getByRole("alert");
@@ -88,7 +88,7 @@ test.describe("Client details - name and dob", () => {
 
   test.describe("render validation errors", () => {
     test("if first name input is missing", async ({ page }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
 
@@ -105,7 +105,7 @@ test.describe("Client details - name and dob", () => {
     test("if first name input is more than 100 characters", async ({
       page,
     }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
       getAndUpdateFormFields(page, { "First name": "a".repeat(101) });
@@ -127,7 +127,7 @@ test.describe("Client details - name and dob", () => {
       );
     });
     test("if last name input is missing", async ({ page }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
       getAndUpdateFormFields(page, { "First name": "test name" });
@@ -144,7 +144,7 @@ test.describe("Client details - name and dob", () => {
     });
 
     test("if last name input is more than 100 characters", async ({ page }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
 
@@ -173,7 +173,7 @@ test.describe("Client details - name and dob", () => {
     test("if no radio selected for last name changed input", async ({
       page,
     }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
       getAndUpdateFormFields(
@@ -196,7 +196,7 @@ test.describe("Client details - name and dob", () => {
     test("if radio is selected but birth name is not provided", async ({
       page,
     }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
 
@@ -222,7 +222,7 @@ test.describe("Client details - name and dob", () => {
     test("renders partially filled in form entries from session on error", async ({
       page,
     }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
       const { "First name": firstNameInput, "Last name": lastNameInput } =
@@ -239,7 +239,7 @@ test.describe("Client details - name and dob", () => {
       await expect(lastNameInput).toHaveValue("testington");
     });
     test("shows dob error when not provided", async ({ page }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
 
@@ -253,7 +253,7 @@ test.describe("Client details - name and dob", () => {
       );
     });
     test("shows dob error when non-numeric", async ({ page }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
 
@@ -273,7 +273,7 @@ test.describe("Client details - name and dob", () => {
       );
     });
     test("shows dob error when date is in the future", async ({ page }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
 
@@ -295,7 +295,7 @@ test.describe("Client details - name and dob", () => {
     test("renders error summary component summarising all errors", async ({
       page,
     }) => {
-      page.goto("/apply/client-details/name-and-dob");
+      await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const errorSummary = await page.getByRole("alert");
       const continueButton = await basicDetailsForm.getByRole("button");

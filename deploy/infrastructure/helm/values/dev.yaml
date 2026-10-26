@@ -91,6 +91,8 @@ env:
   AWS_SECRETS_AUTH_CLIENT_SECRET: ""
   AWS_SECRETS_AUTH_DIRECTORY_URL: ""
   AWS_SECRETS_REDIS_SECRET: ""
+  AWS_SECRETS_SESSION_SECRET: ""
+  AWS_SECRETS_SESSION_LOG_SECRET: ""
   AUTH_REDIRECT_URL: ""
   SERVICE_NAME: "Express TypeScript Template"
   SERVICE_PHASE: "Beta"
@@ -98,8 +100,10 @@ env:
   DEPARTMENT_URL: "https://www.gov.uk/government/organisations/legal-aid-agency"
   CONTACT_EMAIL: "eligibility@justice.gov.uk"
   CONTACT_PHONE: ""
+  ENVIRONMENT: ""
   # TODO: Is this value actually being used, I think the real one might be the github variable
   INQUESTS_API_URL: "https://laa-inquests-api-dev.apps.live.cloud-platform.service.justice.gov.uk"
+  SENTRY_DSN: ""
   SERVICE_URL: "https://www.gov.uk/legal-aid"
   SESSION_NAME: "sessionId"
   SILAS_HOMEPAGE: ""
@@ -108,6 +112,7 @@ env:
   RATE_WINDOW_MS: 900000
   NODE_ENV: "dev"
   LOG_LEVEL: "info"
+  GA_MEASUREMENT_ID: "G-D2JRNWLJY5"
 
 autoscaling:
   enabled: false

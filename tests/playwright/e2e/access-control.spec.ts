@@ -139,41 +139,6 @@ test.describe("Role-based access control", () => {
       expect(response?.status()).toBe(HTTP_FORBIDDEN);
     });
   });
-
-  test.describe("Home journey links", () => {
-    test("shows only Apply for an application user", async ({ page }) => {
-      await loginAs(page, "application");
-
-      await page.goto("/");
-
-      await expect(page.getByRole("button", { name: "Apply" })).toBeVisible();
-      await expect(
-        page.getByRole("button", { name: "Make a claim" }),
-      ).toHaveCount(0);
-    });
-
-    test("shows only Make a claim for a claims user", async ({ page }) => {
-      await loginAs(page, "claims");
-
-      await page.goto("/");
-
-      await expect(
-        page.getByRole("button", { name: "Make a claim" }),
-      ).toBeVisible();
-      await expect(page.getByRole("button", { name: "Apply" })).toHaveCount(0);
-    });
-
-    test("shows both links for a user with both roles", async ({ page }) => {
-      await loginAs(page, "both");
-
-      await page.goto("/");
-
-      await expect(page.getByRole("button", { name: "Apply" })).toBeVisible();
-      await expect(
-        page.getByRole("button", { name: "Make a claim" }),
-      ).toBeVisible();
-    });
-  });
 });
 
 // Keeps the shared role constants referenced so the exact display names stay in

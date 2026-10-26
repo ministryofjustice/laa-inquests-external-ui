@@ -32,8 +32,9 @@ inputs:
   ecr-registry_url:
     description: "ECR registry url"
     required: true
-  session_secret:
-    description: "Session secret"
+  sentry_dsn:
+    description: "Sentry DSN"
+    required: true
   service_name:
     description: "Service name"
   session_name:
@@ -65,16 +66,17 @@ runs:
     - uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076
       id: login-ecr
 
-    - name: Deploy infrastructure to dev
+    - name: Deploy monitoring dashboards
       shell: bash
       env:
         APP_ENVIRONMENT: ${{ inputs.app-environment }}
+        K8S_NAMESPACE: ${{ inputs.kube-namespace }}
       run: |
-        if [ "$APP_ENVIRONMENT" == "dev" ]
-        then
-          echo "DEPLOYING"
-          kubectl apply --record=false -f ./deploy/infrastructure/grafana/
-        fi
+        for f in ./deploy/infrastructure/grafana/*.yaml; do
+          sed -e "s/laa-inquests-external-ui-dev/${K8S_NAMESPACE}/g" \
+              -e "s/__APP_ENVIRONMENT__/${APP_ENVIRONMENT}/g" \
+              "$f" | kubectl apply --record=false -f -
+        done
     - run: |
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
@@ -93,9 +95,9 @@ runs:
         AUTH_POST_LOGOUT_URI: ${{ inputs.auth_post_logout_uri || '' }}
         AUTH_REDIRECT_URI: ${{ inputs.auth_redirect_uri || '' }}
         INQUESTS_API_URL: ${{ inputs.inquests_api_url || '' }}
+        SENTRY_DSN: ${{ inputs.sentry_dsn }}
         SERVICE_NAME: ${{ inputs.service_name || 'Inquests' }}
         SESSION_NAME: ${{ inputs.session_name || 'sessionId' }}
-        SESSION_SECRET: ${{ inputs.session_secret || 'default-session-secret' }}
         SILAS_HOMEPAGE: ${{ inputs.silas_homepage || '' }}
       run: |
         echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID" >> "$GITHUB_ENV"
@@ -105,9 +107,9 @@ runs:
         echo "AUTH_REDIRECT_URI=$AUTH_REDIRECT_URI" >> "$GITHUB_ENV"
         echo "NODE_ENV=production" >> "$GITHUB_ENV"
         echo "INQUESTS_API_URL=$INQUESTS_API_URL" >> "$GITHUB_ENV"
+        echo "SENTRY_DSN=$SENTRY_DSN" >> "$GITHUB_ENV"
         echo "SERVICE_NAME=$SERVICE_NAME" >> "$GITHUB_ENV"
         echo "SESSION_NAME=$SESSION_NAME" >> "$GITHUB_ENV"
-        echo "SESSION_SECRET=$SESSION_SECRET" >> "$GITHUB_ENV"
         echo "SILAS_HOMEPAGE=$SILAS_HOMEPAGE" >> "$GITHUB_ENV"
 
     - name: Deploy using Helm

@@ -9,11 +9,58 @@ test.describe("Home page", () => {
   });
 
   test("should have the correct title", async ({ page }) => {
-    await expect(page).toHaveTitle(/Inquests – GOV.UK/);
+    await expect(page).toHaveTitle(
+      "What do you want to do? – Legal aid at inquests – GOV.UK",
+    );
   });
 
   test("should display correct navigation content", async ({ page }) => {
     await expect(validateMojHeader(page)).resolves.not.toThrow();
+  });
+
+  test("should display the service name in service navigation", async ({
+    page,
+  }) => {
+    const serviceNavigation = page.locator(".govuk-service-navigation");
+    const serviceLink = serviceNavigation.getByRole("link", {
+      name: "Legal aid at inquests",
+    });
+
+    await expect(serviceLink).toBeVisible();
+    await expect(serviceLink).toHaveAttribute("href", "/");
+
+    await expect(
+      page.getByRole("banner").getByRole("link", {
+        name: "Legal aid at inquests",
+      }),
+    ).toHaveCount(0);
+  });
+
+  test("should return home when the service name is clicked", async ({
+    page,
+  }) => {
+    await page
+      .getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      })
+      .check();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/apply");
+
+    await page
+      .locator(".govuk-service-navigation")
+      .getByRole("link", {
+        name: "Legal aid at inquests",
+      })
+      .click();
+
+    await expect(page).toHaveURL("/");
+    await expect(
+      page.getByRole("heading", {
+        name: "What do you want to do?",
+      }),
+    ).toBeVisible();
   });
 
   test("should have the correct link for sign out button", async ({ page }) => {
@@ -42,5 +89,99 @@ test.describe("Home page", () => {
     const accountLink = navigation.getByRole("link").nth(0);
 
     await expect(accountLink).toHaveText(PROVIDER_DISPLAY_NAME);
+  });
+
+  test("should show error summary if you do not select a journey type", async ({
+    page,
+  }) => {
+    const errorSummary = page.getByRole("alert");
+    await expect(errorSummary).not.toBeVisible();
+
+    const submitButton = page.getByRole("button", { name: "Continue" });
+    await submitButton.click();
+
+    await expect(errorSummary).toHaveText(/Select what you need to do/);
+  });
+
+  test("should go to /apply if Apply selected", async ({ page }) => {
+    const applyRadio = page.getByRole("radio", {
+      name: "Apply for inquest legal aid",
+    });
+    await applyRadio.check();
+
+    const submitButton = page.getByRole("button", { name: "Continue" });
+    await submitButton.click();
+
+    await expect(page).toHaveURL("/apply");
+  });
+
+  test("should go to /claim if Claim selected", async ({ page }) => {
+    const claimRadio = page.getByRole("radio", {
+      name: "Make a claim against a certificate",
+    });
+    await claimRadio.check();
+
+    const submitButton = page.getByRole("button", { name: "Continue" });
+    await submitButton.click();
+
+    await expect(page).toHaveURL("/claim");
+  });
+
+  test.describe("Footer", () => {
+    test("navigates to the cookies page", async ({ page }) => {
+      await page.goto("/");
+
+      const cookiesLink = page.getByRole("link", {
+        name: "Cookies",
+        exact: true,
+      });
+      await expect(cookiesLink).toHaveAttribute("href", "/cookies");
+      await cookiesLink.click();
+      await expect(page).toHaveURL("/cookies");
+    });
+
+    test("navigates to the privacy page", async ({ page }) => {
+      await page.goto("/");
+
+      const privacyLink = page.getByRole("link", { name: "Privacy" });
+      await expect(privacyLink).toHaveAttribute(
+        "href",
+        "https://assets.publishing.service.gov.uk/media/68c7f1b553f33f9d46e206a1/LAA_User_Privacy_Notice.pdf",
+      );
+    });
+  });
+
+  test.describe("RBAC functionality", () => {
+    test.afterEach(async ({ page }) => {
+      await page.goto("/auth/test-login");
+    });
+    test("shows only the Apply option for users with only the Applications Provider role", async ({
+      page,
+    }) => {
+      await page.goto("/auth/test-login?role=application");
+      const applyRadio = page.getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      });
+      const claimRadio = page.getByRole("radio", {
+        name: "Make a claim against a certificate",
+      });
+
+      await expect(applyRadio).toBeVisible();
+      await expect(claimRadio).not.toBeVisible();
+    });
+    test("shows only the Claim option for users with only the Claims Provider role", async ({
+      page,
+    }) => {
+      await page.goto("/auth/test-login?role=claims");
+      const applyRadio = page.getByRole("radio", {
+        name: "Apply for inquest legal aid",
+      });
+      const claimRadio = page.getByRole("radio", {
+        name: "Make a claim against a certificate",
+      });
+
+      await expect(applyRadio).not.toBeVisible();
+      await expect(claimRadio).toBeVisible();
+    });
   });
 });

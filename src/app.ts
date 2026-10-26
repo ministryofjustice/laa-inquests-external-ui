@@ -34,6 +34,9 @@ import crypto from "node:crypto";
 import multer from "multer";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { requestContextMiddleware } from "#src/infrastructure/logging/requestContextMiddleware.js";
+import processCookies from "./infrastructure/express/middleware/cookies/cookies.js";
+import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
+import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -137,6 +140,8 @@ app.use(
   }),
 );
 app.use(setupRateLimiter(config));
+app.use(sessionLifetimeGuard);
+app.use(processCookies);
 app.use((req: Request, res: Response, next: NextFunction): void => {
   res.locals.config = config;
   res.locals.userName = req.session.user?.name;
@@ -149,6 +154,7 @@ setupNunjucks(app);
 
 app.use(viewContext);
 app.use(globalAccessGuard);
+app.use(setupNavigationData);
 
 const upload = multer({ storage: multer.memoryStorage() });
 

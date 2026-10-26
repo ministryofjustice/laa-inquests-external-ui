@@ -14,6 +14,7 @@ import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.
 import type { UploadEvidenceResponse } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/models/UploadEvidence.types.js";
 import type { FinalBillTemplateValidator } from "./FinalBillTemplate.validator.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
 import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,
@@ -158,6 +159,13 @@ export class FinalBillTemplateAdaptor {
           event: "claim_final_bill_template_delete_failed",
         },
       });
+      reportClientError({
+        message: "Final bill template delete request missing file identifier",
+        statusCode: HTTP_BAD_REQUEST,
+        event: "claim_final_bill_template_delete_missing_file_id",
+        route: "/claim/final-bill-template/delete",
+        tags: { no_js_upload: false },
+      });
       res.status(HTTP_BAD_REQUEST).json({
         error: { message: CLAIM_FINAL_BILL_TEMPLATE_ERROR.NO_FILE_CHOSEN },
       });
@@ -191,6 +199,14 @@ export class FinalBillTemplateAdaptor {
   async processTemplateDeleteNoJs(req: Request, res: Response): Promise<void> {
     const fileId = extractFileId(req.body as Record<string, unknown>);
     if (typeof fileId !== "string" || fileId === "") {
+      reportClientError({
+        message:
+          "No-js final bill template delete request missing file identifier",
+        statusCode: HTTP_BAD_REQUEST,
+        event: "claim_final_bill_template_delete_missing_file_id",
+        route: "/claim/final-bill-template/upload",
+        tags: { no_js_upload: true },
+      });
       this.#renderNoJsError(
         req,
         res,
@@ -275,6 +291,14 @@ export class FinalBillTemplateAdaptor {
     const message =
       errors.templateError?.text ??
       CLAIM_FINAL_BILL_TEMPLATE_ERROR.NO_FILE_CHOSEN;
+
+    reportClientError({
+      message: "Final bill template upload validation failed",
+      statusCode: isNoJsUpload ? HTTP_BAD_REQUEST : HTTP_UNPROCESSABLE_CONTENT,
+      event: "claim_final_bill_template_upload_validation_failed",
+      route: "/claim/final-bill-template/upload",
+      tags: { no_js_upload: isNoJsUpload },
+    });
 
     if (isNoJsUpload) {
       this.#renderNoJsError(req, res, message, HTTP_BAD_REQUEST);

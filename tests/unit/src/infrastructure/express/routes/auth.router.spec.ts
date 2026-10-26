@@ -6,6 +6,13 @@ import type { Request, Response } from "express";
 import { createAuthRouter } from "#src/infrastructure/express/routes/auth.router.js";
 import type { AuthAdaptor } from "#src/adaptors/presenters/auth/Auth.adaptor.js";
 import { APP_ROLES } from "#src/infrastructure/config/accessControl.js";
+import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
+import {
+  SESSION_ABSOLUTE_TIMEOUT_MS,
+  SESSION_EXPIRY_BUFFER_MS,
+  SESSION_IDLE_TIMEOUT_MS,
+} from "#src/infrastructure/locales/constants.js";
 
 interface RouteLayer {
   route?: {
@@ -51,7 +58,8 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
 
       route?.stack[0].handle(req, res);
 
@@ -72,7 +80,8 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
 
       route?.stack[0].handle(req, res);
 
@@ -88,7 +97,8 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
       req.query = { role: "application" } as never;
 
       route?.stack[0].handle(req, res);
@@ -102,7 +112,8 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
       req.query = { role: "claims" } as never;
 
       route?.stack[0].handle(req, res);
@@ -116,7 +127,8 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
       req.query = { role: "none" } as never;
 
       route?.stack[0].handle(req, res);
@@ -130,7 +142,8 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
       req.query = { role: "caseworker" } as never;
 
       route?.stack[0].handle(req, res);
@@ -147,7 +160,8 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
       req.query = { officeAccounts: "A004B, A005B" } as never;
 
       route?.stack[0].handle(req, res);
@@ -161,12 +175,98 @@ describe("createAuthRouter", () => {
       const route = findRoute(router, "/test-login");
       const req = stubInterface<Request>();
       const res = stubInterface<Response>();
-      req.session = {} as never;
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
       req.query = { officeAccounts: "" } as never;
 
       route?.stack[0].handle(req, res);
 
       assert.deepEqual(req.session.userOfficeAccounts, []);
+    });
+
+    describe("session lifetime", () => {
+      const NOW = 1_800_000_000_000;
+      const MILLISECONDS_IN_A_SECOND = 1000;
+      let clock: sinon.SinonFakeTimers;
+
+      const runTestLogin = (query: Record<string, string> = {}): Request => {
+        process.env.NODE_ENV = "test";
+        const router = createAuthRouter(express.Router(), authAdaptor);
+        const route = findRoute(router, "/test-login");
+        const req = stubInterface<Request>();
+        const res = stubInterface<Response>();
+        req.sessionID = "test-session-id";
+        req.session = { cookie: {} } as never;
+        req.query = query as never;
+        route?.stack[0].handle(req, res);
+        return req;
+      };
+
+      beforeEach(() => {
+        clock = sinon.useFakeTimers({ now: NOW, toFake: ["Date"] });
+      });
+
+      afterEach(() => {
+        clock.restore();
+      });
+
+      it("audits creation of the seeded test session without provider or role information", () => {
+        const logAudit = sinon.stub(logger, "logAudit");
+
+        const req = runTestLogin();
+
+        assert.equal(req.session.userId, "test-provider");
+        assert.equal(logAudit.callCount, 1);
+        assert.deepEqual(logAudit.firstCall.args[0].extraContext, {
+          event: "session_created",
+          session_hash: hashSessionId("test-session-id"),
+          login_method: "test",
+          idle_timeout_ms: SESSION_IDLE_TIMEOUT_MS,
+          absolute_timeout_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
+          credential_expires_in_ms: SESSION_ABSOLUTE_TIMEOUT_MS,
+        });
+      });
+
+      it("starts a default lifetime whose credential lasts until the absolute cap", () => {
+        const req = runTestLogin();
+
+        assert.deepEqual(req.session.lifetime, {
+          absoluteExpiresAt: NOW + SESSION_ABSOLUTE_TIMEOUT_MS,
+          credentialExpiresAt: NOW + SESSION_ABSOLUTE_TIMEOUT_MS,
+          lastActivityAt: NOW,
+          idleTimeoutMs: SESSION_IDLE_TIMEOUT_MS,
+        });
+        assert.equal(req.session.cookie.maxAge, SESSION_IDLE_TIMEOUT_MS);
+      });
+
+      it("applies idleSeconds, absoluteSeconds and tokenExpirySeconds overrides", () => {
+        const req = runTestLogin({
+          idleSeconds: "2",
+          absoluteSeconds: "4",
+          tokenExpirySeconds: "3600",
+        });
+
+        assert.deepEqual(req.session.lifetime, {
+          absoluteExpiresAt: NOW + 4 * MILLISECONDS_IN_A_SECOND,
+          credentialExpiresAt:
+            NOW + 3600 * MILLISECONDS_IN_A_SECOND - SESSION_EXPIRY_BUFFER_MS,
+          lastActivityAt: NOW,
+          idleTimeoutMs: 2 * MILLISECONDS_IN_A_SECOND,
+        });
+      });
+
+      it("falls back to defaults for non-numeric overrides", () => {
+        const req = runTestLogin({ idleSeconds: "abc", absoluteSeconds: "" });
+
+        assert.equal(
+          req.session.lifetime?.idleTimeoutMs,
+          SESSION_IDLE_TIMEOUT_MS,
+        );
+        assert.equal(
+          req.session.lifetime?.absoluteExpiresAt,
+          NOW + SESSION_ABSOLUTE_TIMEOUT_MS,
+        );
+      });
     });
   });
 

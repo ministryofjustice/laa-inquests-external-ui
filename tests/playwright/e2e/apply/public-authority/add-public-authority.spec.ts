@@ -13,12 +13,19 @@ test.describe("Add interested party (public authority)", () => {
     );
 
     const heading = page.getByRole("heading", {
-      name: "Who are the listed interested parties on this application?",
+      name: "Which public authorities are named as interested parties?",
     });
-    const continueButton = page.getByRole("button");
+    const hint = page.getByText(
+      "Select the parent department of any public authorities the coroner has identified as interested parties.",
+    );
+    const continueButton = page.getByRole("button", {
+      name: "Continue",
+      exact: true,
+    });
     const checkboxes = page.getByRole("checkbox");
 
     await expect(heading).toBeVisible();
+    await expect(hint).toBeVisible();
     await expect(continueButton).toBeVisible();
 
     const checkboxCount = await checkboxes.count();
@@ -34,7 +41,7 @@ test.describe("Add interested party (public authority)", () => {
 
     const checkboxes = page.getByRole("checkbox");
     await checkboxes.nth(0).check();
-    await page.getByRole("button").click();
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
 
     await expect(page).toHaveURL("/apply/upload-coroners-letter");
   });
@@ -47,7 +54,7 @@ test.describe("Add interested party (public authority)", () => {
     const checkboxes = page.getByRole("checkbox");
     await checkboxes.nth(0).check();
     await checkboxes.nth(1).check();
-    await page.getByRole("button").click();
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
 
     await expect(page).toHaveURL("/apply/upload-coroners-letter");
   });
@@ -57,7 +64,7 @@ test.describe("Add interested party (public authority)", () => {
   }) => {
     await page.goto("/apply/public-authority");
 
-    await page.getByRole("button").click();
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
 
     const errorMessage = page.getByText(
       "Please select at least one interested party",

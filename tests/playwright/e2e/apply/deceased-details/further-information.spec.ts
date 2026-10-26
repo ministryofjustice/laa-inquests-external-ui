@@ -8,7 +8,6 @@ import {
   validateCSRFToken,
   validateFormAttributes,
   validateHeader,
-  validateYesNoRadioWithConditionalInput,
 } from "../../../utils/govuk-validators.js";
 
 test.describe("Provider can", () => {
@@ -24,7 +23,7 @@ test.describe("Provider can", () => {
   }) => {
     await validateHeader(
       page,
-      "Are there any other applications for legal aid being made by family members for an inquest arising from this same incident?",
+      "Are there any other inquests relating to this incident?",
       1,
     );
     await validateBackButton(page, "/apply/deceased-details/coroner-reference");
@@ -34,20 +33,49 @@ test.describe("Provider can", () => {
     );
     await validateCSRFToken(form);
     await validateContinueButton(form);
-    await validateYesNoRadioWithConditionalInput(
-      form,
-      "Please provide any details available of linked or bridged inquests",
+    const yesRadio = form.getByRole("radio", { name: "Yes", exact: true });
+    const noRadio = form.getByRole("radio", { name: "No", exact: true });
+    const dontKnowRadio = form.getByRole("radio", {
+      name: "Don't know",
+      exact: true,
+    });
+    const detailsInput = form.getByLabel(
+      "Enter details of any linked or bridged inquests you are aware of (optional)",
     );
+    await expect(yesRadio).toBeVisible();
+    await expect(noRadio).toBeVisible();
+    await expect(dontKnowRadio).toBeVisible();
+    await expect(detailsInput).toBeHidden();
+    await yesRadio.click();
+    await expect(detailsInput).toBeVisible();
 
     await checkAccessibility();
   });
 
   test("continue to confirmation page", async ({ page }) => {
-    const noRadio = form.getByLabel("No");
+    const noRadio = form.getByRole("radio", { name: "No", exact: true });
     await noRadio.click();
 
     await continueToNextPage(form, page);
     await expect(page.url()).toContain("apply/public-authority");
+  });
+
+  test("Don't know continues to the public authority page", async ({
+    page,
+  }) => {
+    await form.getByRole("radio", { name: "Don't know", exact: true }).check();
+
+    await continueToNextPage(form, page);
+    await expect(page).toHaveURL(/apply\/public-authority/);
+  });
+
+  test("continues when Yes is selected without entering details", async ({
+    page,
+  }) => {
+    await form.getByRole("radio", { name: "Yes", exact: true }).check();
+
+    await continueToNextPage(form, page);
+    await expect(page).toHaveURL(/apply\/public-authority/);
   });
 
   test("shows an error when no option is selected", async ({ page }) => {
@@ -70,7 +98,7 @@ test.describe("Provider can", () => {
     await yesRadio.click();
 
     const infoInput = form.getByLabel(
-      "Please provide any details available of linked or bridged inquests",
+      "Enter details of any linked or bridged inquests you are aware of (optional)",
     );
     await infoInput.fill("a");
 
@@ -91,7 +119,7 @@ test.describe("Provider can", () => {
     await yesRadio.click();
 
     const infoInput = form.getByLabel(
-      "Please provide any details available of linked or bridged inquests",
+      "Enter details of any linked or bridged inquests you are aware of (optional)",
     );
     await infoInput.fill("a".repeat(501));
 
@@ -111,7 +139,7 @@ test.describe("Provider can", () => {
     const yesRadio = form.getByLabel("Yes");
     await yesRadio.click();
     const yesInput = form.getByLabel(
-      "Please provide any details available of linked or bridged inquests",
+      "Enter details of any linked or bridged inquests you are aware of (optional)",
     );
     await yesInput.fill("Test");
 

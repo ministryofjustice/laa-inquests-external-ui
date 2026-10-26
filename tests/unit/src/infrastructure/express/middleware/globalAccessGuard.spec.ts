@@ -92,6 +92,7 @@ describe("globalAccessGuard", () => {
       "/status",
       "/auth/login",
       "/auth/callback",
+      "/accessibility-statement",
     ]) {
       it(`allows unauthenticated access to ${path}`, () => {
         setPath(path);
@@ -207,6 +208,11 @@ describe("globalAccessGuard", () => {
         description: "Only authenticated requests to claim routes",
         path: "/claim/client-details",
         allowedRoles: [APP_ROLES.CLAIMS_USER],
+      },
+      {
+        description: "Authenticated requests to cookie routes for both roles",
+        path: "/cookies/banner",
+        allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
       },
       {
         description: "Only authenticated requests to home route",

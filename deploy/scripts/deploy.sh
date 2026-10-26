@@ -2,6 +2,12 @@
 
 ENVIRONMENT=$1
 
+if [[ "$ENVIRONMENT" == "suppliertest" ]]; then
+  VALUES_FILE="./deploy/infrastructure/helm/values/dev.yaml"
+else
+  VALUES_FILE="./deploy/infrastructure/helm/values/$ENVIRONMENT.yaml"
+fi
+
 deploy_branch() {
 # Convert the branch name into a string that can be turned into a valid URL
   BRANCH_RELEASE_NAME=$(echo "$branch_name" | tr '[:upper:]' '[:lower:]' | sed 's:^\w*\/::' | tr -s ' _/[]().' '-' | cut -c1-18 | sed 's/-$//')
@@ -17,7 +23,7 @@ deploy_branch() {
   helm upgrade "$BRANCH_RELEASE_NAME" ./deploy/infrastructure/helm/. \
                 --install --wait --timeout 10m \
                 --namespace="${K8S_NAMESPACE}" \
-                --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
+                --values "$VALUES_FILE" \
                 --set image.repository="$REGISTRY/$REPOSITORY" \
                 --set image.tag="$IMAGE_TAG" \
                 --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
@@ -32,15 +38,17 @@ deploy_branch() {
                 --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                 --set env.AWS_SECRETS_REDIS_SECRET="inquests-external-ui-$ENVIRONMENT-redis-ec-cluster" \
+                --set env.AWS_SECRETS_SESSION_SECRET="session-secret-$ENVIRONMENT" \
                 --set env.SERVICE_NAME="$SERVICE_NAME" \
                 --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                 --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
                 --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                 --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
                 --set env.CONTACT_PHONE="$CONTACT_PHONE" \
+                --set env.ENVIRONMENT="$ENVIRONMENT" \
                 --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
+                --set env.SENTRY_DSN="$SENTRY_DSN" \
                 --set env.SERVICE_URL="$SERVICE_URL" \
-                --set env.SESSION_SECRET="$SESSION_SECRET" \
                 --set env.SESSION_NAME="$SESSION_NAME" \
                 --set env.SILAS_HOMEPAGE="$SILAS_HOMEPAGE" \
                 --set env.NODE_ENV="$NODE_ENV"
@@ -48,14 +56,17 @@ deploy_branch() {
 
 deploy_main() {
   RELEASE_HOST="laa-inquests-external-ui-$ENVIRONMENT.apps.live.cloud-platform.service.justice.gov.uk"
+  IDENTIFIER="laa-inquests-external-ui-$K8S_NAMESPACE-green"
   AUTH_POST_LOGOUT_URI="https://$RELEASE_HOST/"
   AUTH_REDIRECT_URI="https://$RELEASE_HOST/auth/callback"
   helm upgrade laa-inquests-external-ui ./deploy/infrastructure/helm/. \
                           --install --wait --timeout 10m \
                           --namespace="${K8S_NAMESPACE}" \
-                          --values ./deploy/infrastructure/helm/values/"$ENVIRONMENT".yaml \
+                          --values "$VALUES_FILE" \
                           --set image.repository="$REGISTRY/$REPOSITORY" \
                           --set image.tag="$IMAGE_TAG" \
+                          --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/set-identifier"="$IDENTIFIER" \
+                          --set ingress.hosts[0].host="$RELEASE_HOST" \
                           --set env.AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
                           --set env.AUTH_CLIENT_SECRET="$AUTH_CLIENT_SECRET" \
                           --set env.AUTH_DIRECTORY_URL="$AUTH_DIRECTORY_URL" \
@@ -66,15 +77,17 @@ deploy_main() {
                           --set env.AWS_SECRETS_AUTH_CLIENT_SECRET="auth-client-secret-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_AUTH_DIRECTORY_URL="auth-directory-url-$ENVIRONMENT" \
                           --set env.AWS_SECRETS_REDIS_SECRET="inquests-external-ui-$ENVIRONMENT-redis-ec-cluster" \
+                          --set env.AWS_SECRETS_SESSION_SECRET="session-secret-$ENVIRONMENT" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
                           --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
                           --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                           --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
                           --set env.CONTACT_PHONE="$CONTACT_PHONE" \
+                          --set env.ENVIRONMENT="$ENVIRONMENT" \
                           --set env.INQUESTS_API_URL="$INQUESTS_API_URL" \
+                          --set env.SENTRY_DSN="$SENTRY_DSN" \
                           --set env.SERVICE_URL="$SERVICE_URL" \
-                          --set env.SESSION_SECRET="$SESSION_SECRET" \
                           --set env.SESSION_NAME="$SESSION_NAME" \
                           --set env.SILAS_HOMEPAGE="$SILAS_HOMEPAGE" \
                           --set env.NODE_ENV="$NODE_ENV"
@@ -87,11 +100,8 @@ if [ -z "$branch_name" ]; then
   branch_name="$GITHUB_REF_NAME" # Branch name if this is a push event
 fi
 
-if [[ ("$ENVIRONMENT" == 'dev') && "$branch_name" == "main" ]] || \
-   [[ (("$ENVIRONMENT" == 'staging' || "$ENVIRONMENT" == 'prod') && "$branch_name" =~ $releaseTag) ]]
+if  [[ ("$ENVIRONMENT" == 'dev') && "$branch_name" != "main" ]] 
 then
-  deploy_main
-else
   if deploy_branch; then
     echo "Deploy succeeded"
   else
@@ -104,4 +114,6 @@ else
       exit 1
     fi
   fi
+else
+  deploy_main
 fi

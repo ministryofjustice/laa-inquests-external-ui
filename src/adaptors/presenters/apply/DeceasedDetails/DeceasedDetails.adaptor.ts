@@ -300,6 +300,8 @@ export class DeceasedDetailsAdaptor {
         errorSummaries,
         deceasedDetails: clientRelationshipView.deceasedDetails,
       });
+    } else if (deceasedHasClientRelationship === "false") {
+      res.render("apply/deceased-details/not-eligible");
     } else {
       this.#redirectAfterSuccess(
         req,

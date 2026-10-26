@@ -9,7 +9,7 @@ test.describe("Previous application", () => {
     page.goto("/apply/client-details/has-prev-application");
     const clientDetailsHeading = await page.getByRole("heading", {
       level: 1,
-      name: "Has your client applied for Inquest legal aid before?",
+      name: "Has your client applied for legal aid for an inquest before",
     });
     await expect(clientDetailsHeading).toBeVisible();
 
@@ -21,9 +21,12 @@ test.describe("Previous application", () => {
     );
 
     const descriptionText = page.getByText(
-      "By this, we mean certificated and licensed work. You do not need to tell us about controlled work and family mediation. \n We\'ll find any previous records to make sure any contributions we calculate are correct.",
+      "Let us know if your client has previously applied for legal aid for this, or any other inquests. Please answer even if they did not receive funding.",
     );
     await expect(descriptionText).toBeVisible();
+    await expect(
+      page.getByText("You don't need to tell us about controlled work."),
+    ).toBeVisible();
 
     await checkAccessibility();
   });
@@ -35,12 +38,18 @@ test.describe("Previous application", () => {
     await expect(prevApplicationStatusForm).toBeVisible();
 
     const yesRadioLabel = prevApplicationStatusForm.getByLabel("Yes");
-    const noRadioLabel = prevApplicationStatusForm.getByLabel("No");
+    const noRadioLabel = prevApplicationStatusForm.getByRole("radio", {
+      name: "No",
+      exact: true,
+    });
+    const dontKnowRadioLabel =
+      prevApplicationStatusForm.getByLabel("Don't know");
     const yesInputLabel = prevApplicationStatusForm.getByLabel(
-      "Give the LAA reference number for any previous application.",
+      "Enter the LAA reference for any previous applications (optional)",
     );
     await expect(yesRadioLabel).toBeVisible();
     await expect(noRadioLabel).toBeVisible();
+    await expect(dontKnowRadioLabel).toBeVisible();
     await expect(yesInputLabel).toBeHidden();
 
     yesRadioLabel.click();
@@ -55,7 +64,10 @@ test.describe("Previous application", () => {
     await expect(errorSummary).not.toBeVisible();
 
     const continueButton = prevApplicationStatusForm.getByRole("button");
-    const noRadio = prevApplicationStatusForm.getByLabel("No");
+    const noRadio = prevApplicationStatusForm.getByRole("radio", {
+      name: "No",
+      exact: true,
+    });
     await noRadio.click();
 
     await expect(continueButton).toHaveText("Continue");
@@ -66,6 +78,19 @@ test.describe("Previous application", () => {
 
     await expect(errorSummary).not.toBeVisible();
     await expect(page.url()).toContain("apply/client-details/home-address");
+  });
+  test("Don't know continues to the home address page", async ({ page }) => {
+    await page.goto("/apply/client-details/has-prev-application");
+    const prevApplicationStatusForm = page.getByTestId(
+      "has-prev-application-form",
+    );
+
+    await prevApplicationStatusForm.getByLabel("Don't know").check();
+    await prevApplicationStatusForm
+      .getByRole("button", { name: "Continue" })
+      .click();
+
+    await expect(page).toHaveURL(/apply\/client-details\/home-address/);
   });
   test("renders error message and summary when no input selected", async ({
     page,
@@ -99,11 +124,11 @@ test.describe("Previous application", () => {
   test("renders error message and summary when input selected but no reference provided", async ({
     page,
   }) => {
-    page.goto("/apply/client-details/has-prev-application");
-    const prevApplicationStatusForm = await page.getByTestId(
+    await page.goto("/apply/client-details/has-prev-application");
+    const prevApplicationStatusForm = page.getByTestId(
       "has-prev-application-form",
     );
-    const errorSummary = await page.getByRole("alert");
+    const errorSummary = page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
 
     const yesRadio = prevApplicationStatusForm.getByLabel("Yes");
@@ -111,8 +136,8 @@ test.describe("Previous application", () => {
 
     await yesRadio.click();
     await continueButton.click();
-    await page.waitForLoadState("domcontentloaded");
 
+    await expect(page).toHaveURL(/apply\/client-details\/has-prev-application/);
     await expect(errorSummary).toBeVisible();
     await expect(errorSummary).toContainText("There is a problem");
     await expect(errorSummary).toContainText(
@@ -142,7 +167,7 @@ test.describe("Previous application", () => {
 
     await yesRadio.click();
     const prevApplicationRefInput = prevApplicationStatusForm.getByLabel(
-      "Give the LAA reference number for any previous application.",
+      "Enter the LAA reference for any previous applications (optional)",
     );
 
     await prevApplicationRefInput.fill("a".repeat(36));

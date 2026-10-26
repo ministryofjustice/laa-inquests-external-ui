@@ -2,6 +2,10 @@ import express from "express";
 import type { Request, Response, RequestHandler } from "express";
 import { createClientDetailsRouter } from "#src/infrastructure/express/routes/apply/clientDetails.router.js";
 import { ClientDetailsAdaptor } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.adaptor.js";
+import { CookiesAdaptor } from "#src/adaptors/presenters/cookies/Cookies.adaptor.js";
+import { createCookiesRouter } from "#src/infrastructure/express/routes/cookies.router.js";
+import { ClaimDeclarationAdaptor } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/ClaimDeclaration.adaptor.js";
+import { createClaimDeclarationRouter } from "./claim/claimDeclaration.router.js";
 import { createConfirmationRouter } from "./apply/confirmation.router.js";
 import { createDeceasedDetailsRouter } from "./apply/deceasedDetails.router.js";
 import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDetails/ClientDetails.validator.js";
@@ -76,6 +80,10 @@ import { GetProviderOfficesAdaptor } from "#src/adaptors/source/inquests-api/app
 import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
 import { createOfficeAccountsRouter } from "#src/infrastructure/express/routes/apply/officeAccounts.router.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
+import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
+import { AccessibilityStatementAdaptor } from "#src/adaptors/presenters/footer/AccessibilityStatement.adaptor.js";
+import { createHelpRouter } from "#src/infrastructure/express/routes/help.router.js";
+import { HelpAdaptor } from "#src/adaptors/presenters/footer/Help.adaptor.js";
 import axios from "axios";
 
 import config from "#src/infrastructure/config/config.js";
@@ -93,6 +101,9 @@ import { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.useCa
 import { DownloadEvidenceAdaptor as DownloadEvidenceSource } from "#src/adaptors/source/inquests-api/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
 import { DownloadEvidenceUseCase } from "#src/use-cases/claim/DownloadEvidence.useCase.js";
 import { DownloadEvidenceAdaptor } from "#src/adaptors/presenters/claim/DownloadEvidence/DownloadEvidence.adaptor.js";
+import { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
+import { createApplicationDeclarationRouter } from "#src/infrastructure/express/routes/apply/applicationDeclaration.router.js";
+import { ApplicationDeclarationAdaptor } from "#src/adaptors/presenters/apply/ApplicationDeclaration/ApplicationDeclaration.adaptor.js";
 
 const DEV_AUTH_BYPASS_MODULE_PATH =
   "#public/src/infrastructure/express/middleware/auth/devAuthBypass.js";
@@ -100,6 +111,7 @@ const DEV_AUTH_BYPASS_MODULE_PATH =
 // Create a new router
 const indexRouter = express.Router();
 const clientDetailsRouter = express.Router();
+const claimDeclarationRouter = express.Router();
 const caseSearchRouter = express.Router();
 const deceasedDetailsRouter = express.Router();
 const proceedingsRouter = express.Router();
@@ -107,6 +119,7 @@ const confirmationRouter = express.Router();
 const publicAuthorityRouter = express.Router();
 const coronersLetterRouter = express.Router();
 const officeAccountsRouter = express.Router();
+const applicationDeclarationRouter = express.Router();
 const claimTypeRouter = express.Router();
 const cannotClaimRouter = express.Router();
 const confirmAndSubmitClaimRouter = express.Router();
@@ -162,6 +175,32 @@ if (process.env.NODE_ENV === "development" && config.app.skipAuthInDev) {
   indexRouter.use(seedDevAuthSession);
 }
 
+const accessibilityStatementAdaptor = new AccessibilityStatementAdaptor();
+
+indexRouter.use(
+  "/accessibility-statement",
+  createAccessibilityStatementRouter(
+    express.Router(),
+    accessibilityStatementAdaptor,
+  ),
+);
+
+const cookiesAdaptor = new CookiesAdaptor();
+
+indexRouter.use(
+  "/cookies",
+  requireAuth,
+  createCookiesRouter(express.Router(), cookiesAdaptor),
+);
+
+const helpAdaptor = new HelpAdaptor();
+
+indexRouter.use(
+  "/help",
+  requireAuth,
+  createHelpRouter(express.Router(), helpAdaptor),
+);
+
 indexRouter.use(requireAuth);
 
 const homeAdaptor = new HomeAdaptor(new SessionHelper());
@@ -170,10 +209,13 @@ const homeAdaptor = new HomeAdaptor(new SessionHelper());
 indexRouter.get("/", (req: Request, res: Response): void => {
   homeAdaptor.renderHome(req, res);
 });
-
-indexRouter.get("/apply", (req: Request, res: Response): void => {
-  res.render("apply/declaration");
+indexRouter.post("/", (req: Request, res: Response): void => {
+  homeAdaptor.processForm(req, res);
 });
+
+const applicationDeclarationAdaptor = new ApplicationDeclarationAdaptor(
+  new ValidateBeforeYouStartDeclarationUseCase(),
+);
 
 const clientDetailsFormValidator = new ClientDetailsValidator();
 const clientDetailsFormatter = new ClientDetailsFormatter();
@@ -239,6 +281,9 @@ const coronersLetterAdaptor = new CoronersLetterAdaptor(
   uploadCoronersLetterValidator,
   uploadCoronersLetterUseCase,
   deleteCoronersLetterUseCase,
+);
+const claimDeclarationAdaptor = new ClaimDeclarationAdaptor(
+  new ValidateBeforeYouStartDeclarationUseCase(),
 );
 const caseSearchValidator = new CaseSearchValidator();
 const searchCasesSource = new SearchCasesAdaptor(
@@ -356,6 +401,7 @@ const counselPayConfirmationAdaptor = new CounselPayConfirmationAdaptor(
 
 indexRouter.use(
   "/claim",
+  createClaimDeclarationRouter(claimDeclarationRouter, claimDeclarationAdaptor),
   createCaseSearchRouter(caseSearchRouter, caseSearchAdaptor),
   createCannotClaimRouter(cannotClaimRouter, cannotClaimAdaptor),
   createClaimTypeRouter(claimTypeRouter, claimTypeAdaptor),
@@ -393,16 +439,6 @@ indexRouter.use(
   createPayingPartyRouter(payingPartyRouter, payingPartyAdaptor),
 );
 
-indexRouter.use(
-  "/apply",
-  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
-  createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
-  createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
-  createConfirmationRouter(confirmationRouter, confirmationAdaptor),
-  createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
-  createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
-);
-
 const getProviderOfficesSource = new GetProviderOfficesAdaptor(
   axios.create(),
   config.INQUESTS_API_URL,
@@ -413,7 +449,17 @@ const officeAccountsAdaptor = new OfficeAccountsAdaptor(
 
 indexRouter.use(
   "/apply",
+  createApplicationDeclarationRouter(
+    applicationDeclarationRouter,
+    applicationDeclarationAdaptor,
+  ),
   createOfficeAccountsRouter(officeAccountsRouter, officeAccountsAdaptor),
+  createClientDetailsRouter(clientDetailsRouter, clientDetailsAdaptor),
+  createProceedingsRouter(proceedingsRouter, proceedingsAdaptor),
+  createDeceasedDetailsRouter(deceasedDetailsRouter, deceasedDetailsAdaptor),
+  createConfirmationRouter(confirmationRouter, confirmationAdaptor),
+  createPublicAuthorityRouter(publicAuthorityRouter, publicAuthorityAdaptor),
+  createCoronersLetterRouter(coronersLetterRouter, coronersLetterAdaptor),
 );
 
 export default indexRouter;

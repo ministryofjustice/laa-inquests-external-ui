@@ -1,30 +1,57 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% set pageHeading = "Inquests" %}
-{% set pageTitle = pageHeading %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set title = "What do you want to do?" %}
+{% set pageTitle = title %}
 
 {% block content %}
-    <h1 class="govuk-heading-xl">{{ pageHeading }}</h1>
-
-    <p class="govuk-body">{{ t('pages.home.defaultTemplate') }}</p>
-
-
-    {% if hasRole(appRoles.APPLICATION_USER) %}
-        <div>
-            {{ govukButton({
-                text: "Apply",
-                href: "/apply"
-            }) }}
-        </div>
+    {% if errorSummaries %}
+        {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [
+            {
+            text: errorSummaries.noJourneySelected.text,
+            href: "#what-do-you-want-to-do-option"
+            }
+        ]
+        })
+    }}
     {% endif %}
-
-    {% if hasRole(appRoles.CLAIMS_USER) %}
-        <div>
-            {{ govukButton({
-                text: "Make a claim",
-                href: "/claim"
-            }) }}
-        </div>
-    {% endif %}
+    <form data-testid="what-do-you-want-to-do-form" action="/" method="POST">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        {{ govukRadios({
+            name: "what-do-you-want-to-do-option",
+            errorMessage: errorSummaries.noJourneySelected,
+            fieldset: {
+                legend: {
+                  text: title,
+                  isPageHeading: true,
+                  classes: "govuk-fieldset__legend--l"
+                }
+            },
+            items: [
+                {
+                    value: "Apply",
+                    html: "<strong>Apply for inquest legal aid</strong>",
+                    hint: {
+                        text: "Start a new legal aid application for inquest proceedings"
+                    }
+                } if hasRole(appRoles.APPLICATION_USER),
+                {
+                    value: "Claim",
+                    html: "<strong>Make a claim against a certificate</strong>",
+                    hint: {
+                        text: "Submit a POA or final bill claim for an existing inquest"
+                    }
+                } if hasRole(appRoles.CLAIMS_USER)
+            ]
+            })
+        }}
+        {{ govukButton({
+            text: "Continue"
+        }) }}
+    </form>
 
 {% endblock %}

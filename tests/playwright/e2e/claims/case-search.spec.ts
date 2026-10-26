@@ -2,14 +2,17 @@ import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - case search", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim");
+    await page.goto("/claim/search");
   });
 
-  test("renders back link to home", async ({ page, checkAccessibility }) => {
+  test("renders back link to claim declaration", async ({
+    page,
+    checkAccessibility,
+  }) => {
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
     await expect(backLink).toBeVisible();
-    await expect(backLink).toHaveAttribute("href", "/");
+    await expect(backLink).toHaveAttribute("href", "/claim");
 
     await checkAccessibility();
   });
@@ -76,23 +79,5 @@ test.describe("Claim - case search", () => {
     await expect(page).toHaveURL("/claim/results");
     await expect(page.getByTestId("no-results-message")).toBeVisible();
     await expect(page.getByRole("table")).not.toBeVisible();
-  });
-
-  test("clears claim session data so back link on total cost reverts to /claim/type", async ({
-    page,
-  }) => {
-    await page.goto("/claim/type");
-    await page.getByLabel("Payment on account (POA)").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/subtype");
-    await page.getByLabel("Expert cost").check();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await page.waitForURL("**/claim/total-cost");
-
-    await page.goto("/claim");
-    await page.goto("/claim/total-cost");
-
-    const backLink = page.getByRole("link", { name: "Back", exact: true });
-    await expect(backLink).toHaveAttribute("href", "/claim/type");
   });
 });

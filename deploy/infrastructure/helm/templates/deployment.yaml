@@ -81,6 +81,16 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.AWS_SECRETS_REDIS_SECRET }}
                   key: "auth_token"
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.AWS_SECRETS_SESSION_SECRET }}
+                  key: SESSION_SECRET
+            - name: SESSION_LOG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.AWS_SECRETS_SESSION_SECRET }}
+                  key: SESSION_LOG_SECRET
             - name: AUTH_POST_LOGOUT_URI
               value: "{{ .Values.env.AUTH_POST_LOGOUT_URI }}"
             - name: AUTH_REDIRECT_URI
@@ -97,12 +107,14 @@ spec:
               value: "{{ .Values.env.CONTACT_EMAIL }}"
             - name: CONTACT_PHONE
               value: "{{ .Values.env.CONTACT_PHONE }}"
+            - name: ENVIRONMENT
+              value: "{{ .Values.env.ENVIRONMENT }}"
             - name: INQUESTS_API_URL
               value: "{{ .Values.env.INQUESTS_API_URL }}"
+            - name: SENTRY_DSN
+              value: "{{ .Values.env.SENTRY_DSN }}"
             - name: SERVICE_URL
               value: "{{ .Values.env.SERVICE_URL }}"
-            - name: SESSION_SECRET
-              value: "{{ .Values.env.SESSION_SECRET }}"
             - name: SESSION_NAME
               value: "{{ .Values.env.SESSION_NAME }}"
             - name: SILAS_HOMEPAGE
@@ -115,6 +127,8 @@ spec:
               value: "{{ .Values.env.RATE_WINDOW_MS }}"
             - name: NODE_ENV
               value: "{{ .Values.env.NODE_ENV }}"
+            - name: GA_MEASUREMENT_ID
+              value: "{{ .Values.env.GA_MEASUREMENT_ID }}"
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}

@@ -24,7 +24,7 @@ export class SessionHelper {
     req.session[namespace] = undefined;
   }
 
-  clearApplyFormData(req: Request): void {
+  clearFormData(req: Request): void {
     const sessionKeys = Object.keys(req.session);
     sessionKeys
       .filter(
@@ -39,6 +39,8 @@ export class SessionHelper {
             "providerEmail",
             "accessToken",
             "roles",
+            "csrfToken",
+            "lifetime",
           ].includes(k),
       )
       .forEach((key) => {

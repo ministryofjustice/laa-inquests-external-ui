@@ -28,3 +28,8 @@ body.js-enabled {
 .govuk-panel.app-panel--rejected {
   background-color: index.govuk-colour("red");
 }
+
+// Remove bottom border from moj header
+.moj-header--no-border {
+  border-bottom: 0;
+}

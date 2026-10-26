@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import type { UploadCoronersLetterPort } from "#src/ports/source/inquests-api/UploadCoronersLetter.port.js";
 import type { AxiosInstance, AxiosResponse } from "axios";
 import type {
@@ -11,6 +12,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { postToInquestsApi } from "#src/adaptors/source/inquests-api/utils.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
 
 const OPERATION = "upload_coroners_letter";
 const UPSTREAM_METHOD = "POST";
@@ -95,6 +97,12 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
             upstream_status_code: response.status,
           },
         });
+        reportClientError({
+          message: "Coroners letter upload rejected by file scan",
+          statusCode: response.status,
+          event: "upload_coroners_letter_rejected_by_file_scan",
+          route: UPSTREAM_ROUTE,
+        });
         return { status: "FILE_SCAN_FOUND_VIRUS" };
       }
 
@@ -115,10 +123,12 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
           duration_ms: Date.now() - startedAt,
         },
       });
+      Sentry.captureException(error);
       return { status: "UPLOAD_REJECTED" };
     }
   }
 
+  // Unexpected upstream behaviour, not the expected virus-scan rejection, so it is worth alerting on.
   #logRejected(message: string, extra: Record<string, unknown>): void {
     logger.logWarn({
       functionName: "upload_coroners_letter_adaptor",
@@ -129,5 +139,6 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
         ...extra,
       },
     });
+    Sentry.captureException(new Error(message));
   }
 }

@@ -10,7 +10,7 @@ test.describe("Apply - check your answers", () => {
     await page.getByLabel("Yes").click();
     await page
       .getByLabel(
-        "Please provide any details available of linked or bridged inquests",
+        "Enter details of any linked or bridged inquests you are aware of (optional)",
       )
       .fill("Linked case details provided");
     await page.getByRole("button", { name: "Continue" }).click();
@@ -46,7 +46,7 @@ test.describe("Apply - check your answers", () => {
   }) => {
     await page.goto("/apply/deceased-details/further-information");
 
-    await page.getByLabel("No").click();
+    await page.getByRole("radio", { name: "No", exact: true }).click();
     await page.getByRole("button", { name: "Continue" }).click();
 
     await page.goto("/apply/check-your-answers");
@@ -80,7 +80,10 @@ test.describe("Apply - check your answers", () => {
     );
     await expect(pageInsetText).toBeVisible();
 
-    const continueButton = page.getByRole("button");
+    const continueButton = page.getByRole("button", {
+      name: "Continue",
+      exact: true,
+    });
     await expect(continueButton).toHaveText("Continue");
 
     await continueButton.click();
@@ -249,6 +252,7 @@ test.describe("Apply - check your answers", () => {
     const inquestHeading = await page.getByRole("heading", {
       level: 2,
       name: "Inquest",
+      exact: true,
     });
 
     await expect(inquestHeading).toBeVisible();

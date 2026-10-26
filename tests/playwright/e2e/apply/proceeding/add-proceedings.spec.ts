@@ -20,9 +20,13 @@ test.describe("Add proceedings", () => {
     const heading = selectProceedingForm.getByText(
       "What does your client want legal aid for?",
     );
+    const searchHint = page.getByText(
+      "Select the matter type that is closest to the subject matter of the inquest. You must hold a relevant civil contract for the subject matter of your inquest.",
+    );
     const continueButton = selectProceedingForm.getByRole("button");
 
     await expect(heading).toBeVisible();
+    await expect(searchHint).toBeVisible();
     await expect(continueButton).toBeVisible();
 
     for (const option of PROCEEDING_OPTIONS) {
@@ -44,7 +48,7 @@ test.describe("Add proceedings", () => {
     await page.goto("/apply/proceeding");
 
     await expect(page).toHaveTitle(
-      /What does your client want legal aid for\? – Inquests – GOV\.UK/,
+      /What does your client want legal aid for\? – Legal aid at inquests – GOV\.UK/,
     );
   });
 

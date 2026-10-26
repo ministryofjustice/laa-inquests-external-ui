@@ -29,7 +29,7 @@ const uploadViaWidget = async (
   ]);
 };
 
-test.describe("Apply - upload coroner's letter", () => {
+test.describe("Apply - upload correspondence from the coroner", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/upload-coroners-letter");
   });
@@ -38,8 +38,20 @@ test.describe("Apply - upload coroner's letter", () => {
     page,
     checkAccessibility,
   }) => {
-    await validateHeader(page, "Upload coroner's letter", 1);
+    await validateHeader(page, "Upload correspondence from the coroner", 1);
     await validateBackButton(page, "/apply/public-authority");
+
+    await expect(
+      page.getByText(
+        "Your file should include details of the inquest, including specific reference to one or more public authorities being named as interested parties. We will use this evidence when assessing your claim.",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/maximum file size for each file is 10MB/),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/We can accept these file types/),
+    ).toBeVisible();
 
     const continueForm = page.getByTestId("upload-coroners-letter-form");
     await validateCSRFToken(continueForm);
@@ -62,8 +74,34 @@ test.describe("Apply - upload coroner's letter", () => {
     await expect(
       page
         .locator("label[for='documents']")
-        .filter({ hasText: "Attach a file" }),
+        .filter({ hasText: "Upload new files" }),
     ).toBeVisible();
+  });
+
+  test("renders the file guidance before the uploaded files and the upload input", async ({
+    page,
+  }) => {
+    await uploadViaWidget(page, {
+      name: "test-coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("coroners letter content"),
+    });
+
+    const guidance = await page
+      .getByText(/Filenames should only include/)
+      .boundingBox();
+    const uploadedFilesHeading = await page
+      .getByRole("heading", { name: "Uploaded files", level: 2 })
+      .boundingBox();
+    const uploadLabel = await page
+      .locator("label.govuk-label[for='documents']")
+      .boundingBox();
+
+    expect(guidance).not.toBeNull();
+    expect(uploadedFilesHeading).not.toBeNull();
+    expect(uploadLabel).not.toBeNull();
+    expect(guidance!.y).toBeLessThan(uploadedFilesHeading!.y);
+    expect(uploadedFilesHeading!.y).toBeLessThan(uploadLabel!.y);
   });
 
   test("stays on the page and shows an error when continue is clicked without an upload", async ({

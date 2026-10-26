@@ -1,5 +1,5 @@
 import { strict as assert } from "assert";
-import { stubInterface } from "ts-sinon";
+import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { CaseSearchAdaptor } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.adaptor.js";
 import { CaseSearchValidator } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.validator.js";
@@ -15,6 +15,14 @@ const storedClient = {
   clientLastName: "Smith",
   dateOfBirth: "01/01/2000",
 };
+
+function stubRequest(): StubbedInstance<Request> {
+  const requestStub = stubInterface<Request>();
+  requestStub.session.save = ((callback: (err?: Error) => void): void => {
+    callback();
+  }) as Request["session"]["save"];
+  return requestStub;
+}
 
 function buildAdaptor(selectCaseUseCase: SelectCaseUseCase) {
   return new CaseSearchAdaptor(
@@ -37,7 +45,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     const adaptor = buildAdaptor(selectCaseUseCase);
 
     const responseStub = stubInterface<Response>();
-    const requestStub = stubInterface<Request>();
+    const requestStub = stubRequest();
     requestStub.params = { reference: "12345" };
     requestStub.session.claim = { searchResults: [storedClient] };
     requestStub.session.accessToken = "access-token-123";
@@ -67,7 +75,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     const adaptor = buildAdaptor(selectCaseUseCase);
 
     const responseStub = stubInterface<Response>();
-    const requestStub = stubInterface<Request>();
+    const requestStub = stubRequest();
     requestStub.params = { reference: "12345" };
     requestStub.session.claim = { searchResults: [storedClient] };
     requestStub.session.accessToken = "access-token-123";
@@ -81,7 +89,33 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     assert.equal(redirectUrl, "/claim/cannot-claim");
   });
 
-  it("redirects back to the results when the selected case is not found", async () => {
+  it("saves the session before redirecting to /claim/cannot-claim", async () => {
+    const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
+    selectCaseUseCase.execute.resolves({
+      status: "BLOCKED",
+      client: storedClient,
+    });
+    const adaptor = buildAdaptor(selectCaseUseCase);
+
+    const calls: string[] = [];
+    const responseStub = stubInterface<Response>();
+    responseStub.redirect.callsFake(() => {
+      calls.push("redirect");
+    });
+    const requestStub = stubInterface<Request>();
+    requestStub.params = { reference: "12345" };
+    requestStub.session.claim = { searchResults: [storedClient] };
+    requestStub.session.save = ((callback: (err?: Error) => void): void => {
+      calls.push("save");
+      callback();
+    }) as Request["session"]["save"];
+
+    await adaptor.selectCase(requestStub, responseStub);
+
+    assert.deepEqual(calls, ["save", "redirect"]);
+  });
+
+  it("redirects back to the results with a selection error when the selected case is not found", async () => {
     const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
     selectCaseUseCase.execute.resolves({ status: "NOT_FOUND" });
     const adaptor = buildAdaptor(selectCaseUseCase);
@@ -97,7 +131,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     assert.equal(requestStub.session.claim?.client, undefined);
     assert.equal(responseStub.redirect.callCount, 1);
     const [redirectUrl] = responseStub.redirect.getCall(0).args;
-    assert.equal(redirectUrl, "/claim/results");
+    assert.equal(redirectUrl, "/claim/results?selectionError=true");
   });
 
   it("propagates a use-case rejection unchanged", async () => {

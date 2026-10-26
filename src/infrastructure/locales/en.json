@@ -17,19 +17,34 @@
     "mainNav": {},
     "header": {
       "organisationLabel": "Legal Aid Agency",
-      "serviceLabel": "Inquests",
+      "serviceLabel": "Legal aid at inquests",
       "signOut": "Sign out"
     },
     "footer": {
-      "accessibility": "Accessibility",
+      "accessibility": "Accessibility statement",
       "cookiePolicy": "Cookies",
-      "privacyPolicy": "Privacy"
+      "privacyPolicy": "Privacy",
+      "help": "Help"
     }
   },
   "components": {
     "phaseBanner": {
       "feedbackText": "This is a new service. Help us improve it and ",
       "feedbackLinkTextHTML": "<a class='govuk-link' href='#'>give your feedback by email</a>."
+    },
+    "cookieBanner": {
+      "heading": "Cookies on",
+      "essentialDescription": "We use some essential cookies to make this service work.",
+      "additionalDescription": "We’d like to set additional cookies so we can remember your settings, understand how people use the service and make improvements.",
+      "accept": "Accept additional cookies",
+      "reject": "Reject additional cookies",
+      "view": "View cookies",
+      "accepted": "You've accepted additional cookies.",
+      "rejected": "You've rejected additional cookies.",
+      "confirmationPrefix": "You can",
+      "changeSettings": "change your cookie settings",
+      "confirmationSuffix": "at any time.",
+      "hide": "Hide cookie message"
     },
     "errorSummary": {
       "title": "There is a problem"
@@ -44,7 +59,7 @@
         "title": "What does your client want legal aid for?",
         "search": {
           "label": "Search for legal proceedings",
-          "hint": "Select what the legal aid application is for",
+          "hint": "Select the matter type that is closest to the subject matter of the inquest. You must hold a relevant civil contract for the subject matter of your inquest.",
           "options": []
         },
         "radio": {
@@ -53,10 +68,10 @@
         }
       },
       "publicAuthority": {
-        "title": "Who are the listed interested parties on this application?",
+        "title": "Which public authorities are named as interested parties?",
         "search": {
           "label": "Search for interested parties",
-          "hint": "Select all that apply"
+          "hint": "Select the parent department of any public authorities the coroner has identified as interested parties."
         }
       },
       "RemovePublicAuthority": {
@@ -103,6 +118,7 @@
     },
     "error": {
       "pageTitle": "Sorry, there is a problem with the service – {SERVICE_NAME} – GOV.UK",
+      "invalidRequest": "Invalid request",
       "unauthorisedError": {
         "heading": "You cannot access this page",
         "body1": "Your account does not have permission to view this page. Go to the home page to see the pages and actions available to your role.",
@@ -115,6 +131,56 @@
         "IpLimitMessage": "We received too many requests from your network or device in a short space of time. Your access has been paused to protect the service. We have not saved your answers. When the service is available, you will have to start again.",
         "tryAgainMessageIp": "Try again in 15 minutes."
       }
+    },
+    "cookies": {
+      "title": "Cookies",
+      "description": "Cookies are small files saved on your phone, tablet or computer when you visit a website.",
+      "purpose": "We use cookies to make this site work and collect information about how you use our service.",
+      "essential": {
+        "heading": "Essential cookies",
+        "body": "We use as essential cookie to remember when you accept or reject cookies on our website, and another to remember your answers as you complete forms.",
+        "tableCaption": "Essential cookies we use",
+        "sessionCookie": {
+          "name": "session_cookie",
+          "purpose": "Used to keep you signed in",
+          "expires": "20 hours"
+        },
+        "cookiePolicy": {
+          "name": "cookies_policy",
+          "purpose": "Saves your cookie consent settings",
+          "expires": "1 year"
+        }
+      },
+      "table": {
+        "name": "Name",
+        "purpose": "Purpose",
+        "expires": "Expires"
+      },
+      "analytics": {
+        "heading": "Analytics cookies (optional)",
+        "purpose": "We use Google Analytics software to understand how people use legal aid at inquests. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
+        "collection": "We do not collect or store your personal information (for example your name or address) so this information cannot be used to identify who you are.",
+        "dataSharing": "We do not allow Google to use or share our analytics data.",
+        "googleStorage": {
+          "description": "Google Analytics stores information about:",
+          "storesPages": "the pages you visit",
+          "storesTime": "how long you spend on each page",
+          "storesArrival": "how you arrived at the site",
+          "storesClicks": "what you click on while you visit the site",
+          "storesDevice": "the device and browser you use"
+        },
+        "googleAnalytics": {
+          "name": "GoogleAnalytics_ga",
+          "purpose": "Helps us count how many people visit Manage Inquest Legal Aid by telling us if you’ve visited before.",
+          "expires": "1 year"
+        },
+        "radio": {
+          "label": "Do you want to accept analytics cookies?",
+          "yes": "Yes",
+          "no": "No"
+        }
+      },
+      "saveButton": "Save cookie settings"
     }
   },
   "forms": {

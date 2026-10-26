@@ -4,6 +4,7 @@ import type { NextFunction, Request, Response } from "express";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import { handleAuthErrors } from "#src/infrastructure/express/middleware/errors/authErrors.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { hashSessionId } from "#src/infrastructure/express/session/sessionHash.js";
 import {
   ApplicationError,
   APPLICATION_ERROR_TYPES,
@@ -17,6 +18,7 @@ describe("handleAuthErrors", () => {
 
   beforeEach(() => {
     req = stubInterface<Request>();
+    req.sessionID = "original-session-id";
     res = stubInterface<Response>();
     res.status.returns(res);
     next = sinon.stub();
@@ -166,5 +168,78 @@ describe("handleAuthErrors", () => {
       logSpy.firstCall.args[0].extraContext?.operation,
       "get_public_bodies",
     );
+  });
+
+  describe("audit logging", () => {
+    let logWarnStub: sinon.SinonStub<Parameters<typeof logger.logWarn>, void>;
+    let logAuditStub: sinon.SinonStub<Parameters<typeof logger.logAudit>, void>;
+    let session: StubbedInstance<Request["session"]>;
+
+    const stubDestroy = (error?: Error): void => {
+      session.destroy.callsFake((callback) => {
+        assert.equal(logWarnStub.callCount, 1);
+        assert.equal(logAuditStub.callCount, 1);
+        Reflect.deleteProperty(req, "session");
+        req.sessionID = "replacement-session-id";
+        callback?.(error);
+        return session;
+      });
+    };
+
+    beforeEach(() => {
+      logWarnStub = sinon.stub(logger, "logWarn");
+      logAuditStub = sinon.stub(logger, "logAudit");
+      session = stubInterface<Request["session"]>();
+      req.session = session;
+      stubDestroy();
+    });
+
+    const expectCredentialRejected = (): void => {
+      assert.equal(logWarnStub.callCount, 1);
+      assert.deepEqual(logWarnStub.firstCall.args[0].extraContext, {
+        event: "auth_session_expired",
+        operation: "get_public_bodies",
+      });
+      assert.equal(logAuditStub.callCount, 1);
+      assert.deepEqual(logAuditStub.firstCall.args[0].extraContext, {
+        event: "session_terminated",
+        session_hash: hashSessionId("original-session-id"),
+        reason: "credential_rejected",
+        route: "/apply/public-authority",
+      });
+      assert.equal(session.destroy.callCount, 1);
+      assert.equal(res.redirect.callCount, 1);
+      assert.deepEqual(res.redirect.firstCall.args, ["/auth/login"]);
+      assert.equal(next.callCount, 0);
+    };
+
+    it("logs a credential_rejected session termination when unauthenticated", () => {
+      handleAuthErrors(authError, req, res, next as NextFunction);
+
+      expectCredentialRejected();
+    });
+
+    it("retains the warning and termination audit when destroying the session fails", () => {
+      stubDestroy(new Error("store unavailable"));
+
+      handleAuthErrors(authError, req, res, next as NextFunction);
+
+      expectCredentialRejected();
+    });
+
+    it("does not log a session termination when forbidden", () => {
+      const forbidden = new ApplicationError(
+        APPLICATION_ERROR_TYPES.FORBIDDEN,
+        "get_public_bodies",
+        false,
+      );
+
+      handleAuthErrors(forbidden, req, res, next as NextFunction);
+
+      assert.equal(logAuditStub.callCount, 0);
+      assert.equal(session.destroy.callCount, 0);
+      assert.equal(res.status.firstCall.args[0], 403);
+      assert.equal(res.render.callCount, 1);
+    });
   });
 });
