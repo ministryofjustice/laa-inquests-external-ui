@@ -133,3 +133,14 @@ describe("config SENTRY_DSN", () => {
     expect(module.default.SENTRY_DSN).to.equal("");
   });
 });
+
+describe("config SERVICE_PHASE", () => {
+  it("uses Beta when the environment variable has a different value", async () => {
+    const module = (await importConfig({
+      NODE_ENV: "development",
+      SERVICE_PHASE: "Alpha",
+    })) as { default: Config };
+
+    assert.equal(module.default.SERVICE_PHASE, "Beta");
+  });
+});

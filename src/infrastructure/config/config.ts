@@ -117,7 +117,7 @@ const config: Config = {
   ),
   SENTRY_DSN: process.env.SENTRY_DSN ?? "",
   SERVICE_NAME: serviceName,
-  SERVICE_PHASE: process.env.SERVICE_PHASE,
+  SERVICE_PHASE: "Beta",
   SERVICE_URL: process.env.SERVICE_URL,
   SILAS_HOMEPAGE: process.env.SILAS_HOMEPAGE,
   LOG_LEVEL: process.env.LOG_LEVEL,
