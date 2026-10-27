@@ -267,17 +267,6 @@ export function validateNoFixedAbodeConflict(
   values: AddressValues,
   conflictMessage: string,
 ): Partial<ClientHomeAddressError> {
-  const fieldErrorKeys: Record<
-    keyof AddressValues,
-    keyof ClientHomeAddressError
-  > = {
-    addressLine1: "addressLine1InputError",
-    addressLine2: "addressLine2InputError",
-    townOrCity: "townOrCityInputError",
-    county: "countyInputError",
-    postcode: "postcodeInputError",
-  };
-
   const enteredFields = (
     Object.keys(values) as Array<keyof AddressValues>
   ).filter((field) => hasValue(values[field]));
@@ -286,14 +275,7 @@ export function validateNoFixedAbodeConflict(
     return {};
   }
 
-  const conflictError = { text: conflictMessage };
-  const errorSummaries: Partial<ClientHomeAddressError> = {
-    noFixedAbodeInputError: conflictError,
+  return {
+    noFixedAbodeInputError: { text: conflictMessage },
   };
-
-  for (const field of enteredFields) {
-    errorSummaries[fieldErrorKeys[field]] = conflictError;
-  }
-
-  return errorSummaries;
 }

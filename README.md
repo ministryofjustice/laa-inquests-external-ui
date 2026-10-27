@@ -159,6 +159,13 @@ The endpoint sets `req.session.userId = 'test-user-id'` and saves the session.
 After calling it, browser pages will have the session cookie and can access
 protected routes.
 
+### Client home address validation
+
+Selecting no fixed abode while entering any home address field, including an
+optional field, prevents continuing. The conflict appears once in the error
+summary and once beside the no-fixed-abode checkbox. Entered values are retained;
+individual address fields do not receive duplicate conflict errors.
+
 ### Role-based access control (RBAC)
 
 Authenticated access is enforced centrally and default-deny at the page level.

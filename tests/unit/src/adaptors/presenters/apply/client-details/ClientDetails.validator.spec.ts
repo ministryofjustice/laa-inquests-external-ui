@@ -702,7 +702,7 @@ describe("ClientDetailsValidator", () => {
         assert.deepEqual(errorSummaries, {});
       });
 
-      it("adds conflict error when no fixed abode is selected and address line 1 is entered", () => {
+      it("adds a single checkbox conflict error when no fixed abode is selected and address line 1 is entered", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
@@ -717,13 +717,10 @@ describe("ClientDetailsValidator", () => {
           noFixedAbodeInputError: {
             text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
           },
-          addressLine1InputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
         });
       });
 
-      it("adds conflict error when no fixed abode is selected and only an optional field is entered", () => {
+      it("adds a single checkbox conflict error when no fixed abode is selected and only an optional field is entered", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
@@ -738,13 +735,10 @@ describe("ClientDetailsValidator", () => {
           noFixedAbodeInputError: {
             text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
           },
-          countyInputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
         });
       });
 
-      it("adds conflict error only to the fields that are entered when no fixed abode is selected", () => {
+      it("adds a single checkbox conflict error when town or city and postcode are entered and no fixed abode is selected", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
@@ -760,16 +754,10 @@ describe("ClientDetailsValidator", () => {
           noFixedAbodeInputError: {
             text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
           },
-          townOrCityInputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
-          postcodeInputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
         });
       });
 
-      it("adds conflict error to every address field when all are entered and no fixed abode is selected", () => {
+      it("adds a single checkbox conflict error when all address fields are entered and no fixed abode is selected", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
@@ -786,21 +774,6 @@ describe("ClientDetailsValidator", () => {
         );
         assert.deepEqual(errorSummaries, {
           noFixedAbodeInputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
-          addressLine1InputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
-          addressLine2InputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
-          townOrCityInputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
-          countyInputError: {
-            text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
-          },
-          postcodeInputError: {
             text: CLIENT_DETAILS_ERROR.CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS,
           },
         });
