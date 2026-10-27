@@ -93,6 +93,17 @@ describe("Cookies adaptor", () => {
   });
 
   describe("saveCookiesPreferences", () => {
+    it("closes the cookie banner after saving either cookie preference", () => {
+      for (const acceptCookies of ["yes", "no"]) {
+        requestStub.body = { acceptCookies };
+        requestStub.session.cookieBannerState = "initial";
+
+        cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
+
+        assert.equal(requestStub.session.cookieBannerState, "closed");
+      }
+    });
+
     it("on success renders the cookies page with success banner", () => {
       cookiesAdaptor.saveCookiesPreferences(requestStub, responseStub);
 
