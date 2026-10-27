@@ -20,28 +20,21 @@ on:
 
 jobs:
   playwright:
-    name: Playwright Tests
+    name: Playwright shard ${{ matrix.shard }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    # Chromium and its system libraries are preinstalled. Keep the tag and digest in sync with @playwright/test.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     permissions:
       contents: read
       packages: read
-    # Mark this job as required for PR checks
-    outputs:
-      status: ${{ job.status }}
 
-    services:
-      api-db:
-        image: postgres:18
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: api
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d api" --health-interval 5s
-          --health-timeout 3s --health-retries 5
+    # NOTE: The api-db Postgres service is not needed while the API is mocked via MSW.
 
     steps:
       - name: Checkout code
@@ -52,24 +45,14 @@ jobs:
       - name: Setup Node and Dependencies
         uses: ./.github/actions/setup-node
 
-      - name: Build application
-        run: yarn build
+      # yarn test:e2e builds the app itself, so no separate build step is needed
 
-      - name: Install Playwright Chromium
-        run: yarn playwright install chromium --with-deps
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/yarn.lock')}}
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
 
       # NOTE: The live Inquests API is not currently required for the E2E tests to run as all requests are mocked
       # via MSW. The steps below are kept (commented out) so the
@@ -199,8 +182,10 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          yarn test:e2e
+          yarn test:e2e --shard="$SHARD_INDEX/$SHARD_TOTAL"
         env:
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_TOTAL: ${{ strategy.job-total }}
           CI: true
           PLAYWRIGHT_TRACING: "on" # Enable tracing for all tests
           # Add session-related environment variables
@@ -238,7 +223,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: playwright-traces
+          name: playwright-traces-${{ matrix.shard }}
           path: |
             test-results/**/trace*.zip
             test-results/**/*.webm
@@ -248,3 +233,19 @@ jobs:
         if: failure()
         run: echo "::error::Playwright tests failed! Check the test report for
           details."
+
+  # Single check that passes only when every shard passes. Mark this job as required for PR checks.
+  playwright-result:
+    name: Playwright Tests
+    needs: playwright
+    if: always()
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      status: ${{ needs.playwright.result }}
+    steps:
+      - name: Fail if any shard failed
+        if: needs.playwright.result != 'success'
+        run: |
+          echo "::error::Playwright tests failed. Check the shard logs and trace artifacts."
+          exit 1

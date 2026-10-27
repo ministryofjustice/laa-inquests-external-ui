@@ -9,10 +9,14 @@ interface TestFixtures {
 }
 
 export const test = base.extend<TestFixtures>({
-  // Reset per-test journey state while staying authenticated to prevent tests conflicting
-  // Visiting "/" calls clearFormData
+  // Parallel jobs failed before due to shared session issues, so clearing that by clearing session cookie
   freshSession: [
-    async ({ page }, use): Promise<void> => {
+    async ({ page, context }, use): Promise<void> => {
+      const cookies = await context.cookies();
+      if (cookies.length > 0) {
+        await context.clearCookies();
+        await page.goto("/auth/test-login");
+      }
       await page.goto("/");
 
       await use();
