@@ -74,6 +74,38 @@ test.describe("View cookies page", () => {
     ).toBeVisible();
   });
 
+  for (const preference of ["Yes", "No"]) {
+    test(`should close the cookie banner after saving ${preference} on the cookies page`, async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.goto(cookiesUrl);
+
+      const banner = page.getByRole("region", {
+        name: "Cookies on legal aid at inquests",
+        exact: true,
+      });
+      await expect(banner).toBeVisible();
+
+      await page.getByRole("radio", { name: preference, exact: true }).check();
+      await page.getByRole("button", { name: "Save cookie settings" }).click();
+
+      await expect(
+        page.locator("div.govuk-notification-banner", {
+          hasText: "You’ve set your cookie preferences.",
+        }),
+      ).toBeVisible();
+      await expect(banner).toBeHidden();
+      await checkAccessibility();
+
+      await page.reload();
+      await expect(banner).toBeHidden();
+
+      await page.goto("/apply");
+      await expect(banner).toBeHidden();
+    });
+  }
+
   test("should have success banner link to previous page", async ({ page }) => {
     await page.goto("/apply");
     await page.getByRole("link", { name: "Cookies", exact: true }).click();
