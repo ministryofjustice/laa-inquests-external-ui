@@ -31,7 +31,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI ?? false),
   retries: process.env.CI === "true" ? 1 : 0,
-  workers: process.env.CI === "true" ? 2 : "75%", // CI runners have 2 vCPUs, so 2 workers; locally use 50% of cores
+  workers: process.env.CI === "true" ? 2 : 1,
   reporter: "html",
   use: {
     baseURL: TEST_CONFIG.BASE_URL,

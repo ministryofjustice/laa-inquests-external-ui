@@ -79,8 +79,8 @@ deploy_main() {
                           --set env.AWS_SECRETS_REDIS_SECRET="inquests-external-ui-$ENVIRONMENT-redis-ec-cluster" \
                           --set env.AWS_SECRETS_SESSION_SECRET="session-secret-$ENVIRONMENT" \
                           --set env.SERVICE_NAME="$SERVICE_NAME" \
-                          --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_NAME="$DEPARTMENT_NAME" \
+                          --set env.SERVICE_PHASE="$SERVICE_PHASE" \
                           --set env.DEPARTMENT_URL="$DEPARTMENT_URL" \
                           --set env.CONTACT_EMAIL="$CONTACT_EMAIL" \
                           --set env.CONTACT_PHONE="$CONTACT_PHONE" \
