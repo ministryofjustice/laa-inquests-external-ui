@@ -220,6 +220,16 @@ export const apiHandlers = [
       const claimEvidenceFileName =
         uploaded instanceof File ? uploaded.name : evidenceFileName;
 
+      if (
+        uploaded instanceof File &&
+        (uploaded.name === VIRUS_FILE_NAME || uploaded.name === "virus.xlsx")
+      ) {
+        return HttpResponse.json(
+          { errorCode: "FILE_SCAN_FOUND_VIRUS" },
+          { status: 422 },
+        );
+      }
+
       return HttpResponse.json(
         {
           claimEvidenceId: evidenceFileId,

@@ -1,5 +1,6 @@
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "playwright-core";
+import { testFilenameUploadErrors } from "../../utils/upload-validation.js";
 import {
   validateHeader,
   validateBackButton,
@@ -33,6 +34,12 @@ test.describe("Apply - upload correspondence from the coroner", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/apply/upload-coroners-letter");
   });
+
+  testFilenameUploadErrors(
+    "coroners-letter.pdf",
+    "application/pdf",
+    "a JPG, PNG, BMP or PDF",
+  );
 
   test("renders the page heading, back link and continue button", async ({
     page,
@@ -230,11 +237,12 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     await expect(errorSummary).toBeVisible();
     await expect(errorSummary).toContainText(INVALID_FILE_NAME);
   });
-  test("renders file too large message if file exceeds 12.5MB", async ({
+  test("identifies the filename when the file exceeds 10MB", async ({
     page,
+    checkAccessibility,
   }) => {
     await page.goto("/apply/upload-coroners-letter");
-    const largeBuffer = Buffer.alloc(13000000);
+    const largeBuffer = Buffer.alloc(10485761);
 
     await page.setInputFiles("#documents", {
       name: "coroners-letter.pdf",
@@ -244,8 +252,9 @@ test.describe("Apply - upload correspondence from the coroner", () => {
 
     const errorSummary = page.locator(".moj-multi-file-upload__error");
     await expect(errorSummary).toBeVisible();
-    await expect(errorSummary).toContainText(
-      CORONERS_LETTER_ERROR.FILE_TOO_LARGE,
+    await expect(errorSummary).toHaveText(
+      "coroners-letter.pdf must be smaller than 10MB",
     );
+    await checkAccessibility();
   });
 });
