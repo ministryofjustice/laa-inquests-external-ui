@@ -44,6 +44,7 @@ describe("UploadCoronersLetterValidator", () => {
         const undersizedFile = {
           size: 0,
           mimetype: validMimeType,
+          originalname: "coroners-letter.pdf",
         } as Express.Multer.File;
 
         const errorSummaries =
@@ -51,7 +52,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "The selected file is empty",
+            text: "coroners-letter.pdf is empty",
           },
         });
       });
