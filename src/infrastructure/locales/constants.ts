@@ -547,9 +547,9 @@ export const PUBLIC_AUTHORITY_ERROR = {
 
 export const CORONERS_LETTER_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
-  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
+  FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
   FILE_IS_EMPTY: "The selected file is empty",
-  INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
+  INVALID_FILE_TYPE: "{filename} must be a JPG, PNG, BMP or PDF",
   FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
   ONLY_ONE_FILE_ALLOWED:
     "You can only upload one file. Delete the existing file before uploading a new one",

@@ -15,6 +15,7 @@ import {
   INVALID_FILE_NAME,
   INVALID_FILE_NAME_REGEX,
 } from "#src/infrastructure/locales/constants.js";
+import { escapeHtml } from "#src/utils/html.js";
 
 const COPY_RESET_DELAY_MS = 4000;
 
@@ -33,7 +34,7 @@ function renderClientSideUploadError(
   const $row = upload.getFileRow(file);
   const $message = $row.querySelector(".moj-multi-file-upload__message");
   if ($message !== null) {
-    $message.innerHTML = upload.getErrorHtml(new Error(message));
+    $message.innerHTML = upload.getErrorHtml(new Error(escapeHtml(message)));
   }
 
   upload.$feedbackContainer.classList.remove("moj-hidden");
@@ -138,7 +139,10 @@ class SizeValidatedMultiFileUpload extends MultiFileUpload {
       renderClientSideUploadError(
         this,
         file,
-        this.#sizeLimit.fileTooLargeMessage,
+        this.#sizeLimit.fileTooLargeMessage.replace(
+          "{filename}",
+          () => file.name,
+        ),
       );
       // Rejected in the browser, so no XHR completion hook will fire.
       this.#onUploadComplete();

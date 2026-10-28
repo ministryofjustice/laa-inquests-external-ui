@@ -40,9 +40,9 @@ export function testFilenameUploadErrors(
         buffer: upload.buffer,
       });
 
-      await expect(
-        page.locator(".moj-multi-file-upload__error"),
-      ).toHaveText(upload.message);
+      await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+        upload.message,
+      );
       await checkAccessibility();
     });
   }
