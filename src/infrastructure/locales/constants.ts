@@ -571,10 +571,10 @@ export const CORONERS_LETTER_ALLOWED_FILE_TYPES = [
 export const CLAIM_EVIDENCE_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
   MINIMUM_ONE_FILE_REQUIRED: "Minimum of one evidence file required",
-  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
-  FILE_IS_EMPTY: "The selected file is empty",
-  INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
-  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
+  FILE_IS_EMPTY: "{filename} is empty",
+  INVALID_FILE_TYPE: "{filename} must be a JPG, PNG, BMP or PDF",
+  FILE_SCAN_FOUND_VIRUS: "{filename} contains a virus",
 };
 
 export const CLAIM_EVIDENCE_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)

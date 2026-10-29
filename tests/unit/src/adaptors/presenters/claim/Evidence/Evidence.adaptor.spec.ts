@@ -473,7 +473,7 @@ describe("Evidence adaptor", () => {
       assert.deepEqual(viewModel, {
         csrfToken: "csrf-token",
         errorSummaries: {
-          evidenceError: { text: CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS },
+          evidenceError: { text: "test-evidence.pdf contains a virus" },
         },
         uploadedFiles: [],
       });

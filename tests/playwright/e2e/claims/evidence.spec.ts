@@ -232,7 +232,7 @@ test.describe("Claim - evidence", () => {
     page,
     checkAccessibility,
   }) => {
-    const largeBuffer = Buffer.alloc(10485761);
+    const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
 
     await page.setInputFiles("#documents", {
       name: "test-evidence.pdf",

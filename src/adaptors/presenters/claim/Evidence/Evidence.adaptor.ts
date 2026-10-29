@@ -150,7 +150,13 @@ export class EvidenceAdaptor {
             no_js_upload: isNoJs,
           },
         });
-        this.#handleUploadFailure({ req, res, result, isNoJsUpload: isNoJs });
+        this.#handleUploadFailure({
+          req,
+          res,
+          result,
+          isNoJsUpload: isNoJs,
+          originalname: file!.originalname,
+        });
       }
     }
   }
@@ -356,11 +362,15 @@ export class EvidenceAdaptor {
     res: Response;
     result: UploadEvidenceResponse;
     isNoJsUpload: boolean;
+    originalname: string;
   }): void {
-    const { req, res, result, isNoJsUpload } = options;
+    const { req, res, result, isNoJsUpload, originalname } = options;
     const message = resolveUploadFailureMessage(
       result,
-      CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS,
+      CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
+        "{filename}",
+        () => originalname,
+      ),
       SERVICE_UNAVAILABLE_MESSAGE,
     );
 
