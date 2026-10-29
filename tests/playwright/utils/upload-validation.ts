@@ -7,6 +7,13 @@ export function testFilenameUploadErrors(
 ): void {
   const cases = [
     {
+      condition: "invalid filename",
+      name: `invalid'name.${validFileName.split(".").at(-1)}`,
+      mimeType: validMimeType,
+      buffer: Buffer.from("file content"),
+      message: `invalid'name.${validFileName.split(".").at(-1)} has an invalid filename. Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-`,
+    },
+    {
       condition: "invalid file type",
       name: "file1.exe",
       mimeType: "application/octet-stream",

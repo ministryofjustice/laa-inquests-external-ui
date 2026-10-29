@@ -557,7 +557,7 @@ export const CORONERS_LETTER_ERROR = {
 
 export const INVALID_FILE_NAME_REGEX = /^[A-Za-z0-9.!\(\)_ \-]+$/iv;
 export const INVALID_FILE_NAME =
-  "Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-";
+  "{filename} has an invalid filename. Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-";
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
 export const CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES = 0;
 

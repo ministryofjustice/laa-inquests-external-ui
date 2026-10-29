@@ -220,8 +220,12 @@ function initialiseMultiFileUpload(): void {
             /* eslint-disable-next-line require-unicode-regexp -- not expected to have unicode in filenames */
             const filepathRegex = new RegExp(INVALID_FILE_NAME_REGEX);
             if (!filepathRegex.test(file.name)) {
-              renderClientSideUploadError(upload, file, INVALID_FILE_NAME);
-              throw new Error(INVALID_FILE_NAME);
+              const message = INVALID_FILE_NAME.replace(
+                "{filename}",
+                () => file.name,
+              );
+              renderClientSideUploadError(upload, file, message);
+              throw new Error(message);
             }
           },
         },

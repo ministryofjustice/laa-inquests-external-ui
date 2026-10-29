@@ -7,10 +7,7 @@ import {
   validateCSRFToken,
   validateContinueButton,
 } from "../../utils/govuk-validators.js";
-import {
-  CORONERS_LETTER_ERROR,
-  INVALID_FILE_NAME,
-} from "#src/infrastructure/locales/constants.js";
+import { CORONERS_LETTER_ERROR } from "#src/infrastructure/locales/constants.js";
 
 // The mock upload handler returns this fixed file name for any non-virus file.
 const MOCK_UPLOADED_FILE_NAME = "test_coroners_letter.pdf";
@@ -221,21 +218,6 @@ test.describe("Apply - upload correspondence from the coroner", () => {
         .locator(".moj-multi-file-upload__message")
         .filter({ hasText: MOCK_UPLOADED_FILE_NAME }),
     ).toHaveCount(0);
-  });
-  test("renders a file name error when file name contains unaccepted punctuation", async ({
-    page,
-  }) => {
-    await page.goto("/apply/upload-coroners-letter");
-
-    await page.setInputFiles("#documents", {
-      name: "coroner's-letter.pdf",
-      mimeType: "application/pdf",
-      buffer: Buffer.from("letter content"),
-    });
-
-    const errorSummary = page.locator(".moj-multi-file-upload__error");
-    await expect(errorSummary).toBeVisible();
-    await expect(errorSummary).toContainText(INVALID_FILE_NAME);
   });
   test("identifies the filename when the file exceeds 10MB", async ({
     page,
