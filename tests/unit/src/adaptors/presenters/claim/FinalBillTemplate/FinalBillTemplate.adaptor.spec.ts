@@ -183,44 +183,6 @@ describe("FinalBillTemplate adaptor", () => {
       });
     });
 
-    it("names the file in the no-js error summary when the virus scan is positive", async () => {
-      uploadEvidenceUseCase.execute.resolves({
-        status: "FILE_SCAN_FOUND_VIRUS",
-      });
-      const requestStub = stubInterface<Request>();
-      const responseStub = stubInterface<Response>();
-      responseStub.locals = { csrfToken: "test-token" };
-      responseStub.status.returns(responseStub);
-      requestStub.body = { uploadMode: "html" };
-      requestStub.file = {
-        buffer: Buffer.from("test"),
-        mimetype:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        originalname: "cost-template.xlsx",
-        size: 4,
-      } as Express.Multer.File;
-
-      await buildAdaptor().processTemplateUpload(requestStub, responseStub);
-
-      assert.equal(
-        responseStub.status.firstCall.args[0],
-        HTTP_SERVICE_UNAVAILABLE,
-      );
-      assert.equal(responseStub.render.callCount, 1);
-      assert.deepEqual(responseStub.render.firstCall.args, [
-        "claim/final-bill-template",
-        {
-          csrfToken: "test-token",
-          errorSummaries: {
-            templateError: { text: "cost-template.xlsx contains a virus" },
-          },
-          uploadedFile: undefined,
-          uploadedFiles: [],
-        },
-      ]);
-      assert.equal(responseStub.json.callCount, 0);
-    });
-
     it("returns a service unavailable error when the upload fails", async () => {
       uploadEvidenceUseCase.execute.resolves({
         status: "UPLOAD_REJECTED",

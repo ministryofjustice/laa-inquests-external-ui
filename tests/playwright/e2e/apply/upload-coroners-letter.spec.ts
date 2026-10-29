@@ -242,7 +242,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     checkAccessibility,
   }) => {
     await page.goto("/apply/upload-coroners-letter");
-    const largeBuffer = Buffer.alloc(10485761);
+    const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
 
     await page.setInputFiles("#documents", {
       name: "coroners-letter.pdf",
