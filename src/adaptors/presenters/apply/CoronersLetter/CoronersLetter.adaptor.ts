@@ -136,13 +136,7 @@ export class CoronersLetterAdaptor {
             no_js_upload: isNoJs,
           },
         });
-        this.#handleUploadFailure({
-          req,
-          res,
-          result,
-          isNoJsUpload: isNoJs,
-          originalname: file!.originalname,
-        });
+        this.#handleUploadFailure({ req, res, result, isNoJsUpload: isNoJs });
       }
     }
   }
@@ -324,14 +318,13 @@ export class CoronersLetterAdaptor {
     res: Response;
     result: UploadCoronersLetterResponse;
     isNoJsUpload: boolean;
-    originalname: string;
   }): void {
-    const { req, res, result, isNoJsUpload, originalname } = options;
+    const { req, res, result, isNoJsUpload } = options;
     const message = resolveUploadFailureMessage(
       result,
       CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
         "{filename}",
-        () => originalname,
+        () => req.file!.originalname,
       ),
       SERVICE_UNAVAILABLE_MESSAGE,
     );
