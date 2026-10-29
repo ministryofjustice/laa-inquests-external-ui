@@ -590,10 +590,10 @@ export const CLAIM_EVIDENCE_ALLOWED_FILE_TYPES = [
 export const CLAIM_FINAL_BILL_TEMPLATE_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
   FILE_REQUIRED: "Upload the LAA cost claim evidence template",
-  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
-  FILE_IS_EMPTY: "The selected file is empty",
-  INVALID_FILE_TYPE: "The selected file must be an Excel spreadsheet",
-  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
+  FILE_IS_EMPTY: "{filename} is empty",
+  INVALID_FILE_TYPE: "{filename} must be an Excel spreadsheet",
+  FILE_SCAN_FOUND_VIRUS: "{filename} contains a virus",
   ONLY_ONE_FILE_ALLOWED:
     "You can only upload one file. Delete the existing file before uploading a new one",
 };
