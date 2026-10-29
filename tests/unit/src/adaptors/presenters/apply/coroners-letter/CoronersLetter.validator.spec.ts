@@ -44,6 +44,7 @@ describe("UploadCoronersLetterValidator", () => {
         const undersizedFile = {
           size: 0,
           mimetype: validMimeType,
+          originalname: "coroners-letter.pdf",
         } as Express.Multer.File;
 
         const errorSummaries =
@@ -51,7 +52,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "The selected file is empty",
+            text: "coroners-letter.pdf is empty",
           },
         });
       });
@@ -61,6 +62,7 @@ describe("UploadCoronersLetterValidator", () => {
         const oversizedFile = {
           size: 11 * 1024 * 1024,
           mimetype: validMimeType,
+          originalname: "coroners-letter.pdf",
         } as Express.Multer.File;
 
         const errorSummaries =
@@ -68,7 +70,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "The selected file must be smaller than 10MB",
+            text: "coroners-letter.pdf must be smaller than 10MB",
           },
         });
       });
@@ -102,11 +104,12 @@ describe("UploadCoronersLetterValidator", () => {
     });
 
     describe("when file has an invalid type", () => {
-      it("returns file type error first when file exceeds 10MB", () => {
+      it("names the invalid file and returns the type error before the size error", () => {
         const validator = new UploadCoronersLetterValidator();
         const oversizedFile = {
           size: 11 * 1024 * 1024,
           mimetype: invalidMimeType,
+          originalname: "file1.exe",
         } as Express.Multer.File;
 
         const errorSummaries =
@@ -114,7 +117,7 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {
           coronersLetterError: {
-            text: "The selected file must be a JPG, PNG, BMP or PDF",
+            text: "file1.exe must be a JPG, PNG, BMP or PDF",
           },
         });
       });

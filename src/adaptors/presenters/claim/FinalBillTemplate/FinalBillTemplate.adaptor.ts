@@ -321,7 +321,10 @@ export class FinalBillTemplateAdaptor {
     const { req, res, result, isNoJsUpload } = options;
     const message = resolveUploadFailureMessage(
       result,
-      CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_SCAN_FOUND_VIRUS,
+      CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
+        "{filename}",
+        () => req.file!.originalname,
+      ),
       SERVICE_UNAVAILABLE_MESSAGE,
     );
 

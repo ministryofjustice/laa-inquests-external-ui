@@ -1,5 +1,6 @@
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
+import { testFilenameUploadErrors } from "../../utils/upload-validation.js";
 import { CLAIM_FINAL_BILL_TEMPLATE_ERROR } from "#src/infrastructure/locales/constants.js";
 
 const xlsxMimeType =
@@ -19,6 +20,12 @@ test.describe("Claim - final bill template", () => {
   test.beforeEach(async ({ page }) => {
     await goToFinalBillTemplate(page);
   });
+
+  testFilenameUploadErrors(
+    "cost-template.xlsx",
+    xlsxMimeType,
+    "an Excel spreadsheet",
+  );
 
   test("renders back link to total cost", async ({
     page,
@@ -350,10 +357,11 @@ test.describe("Claim - final bill template", () => {
       page.locator(".moj-multi-file-upload__error").last(),
     ).toContainText(CLAIM_FINAL_BILL_TEMPLATE_ERROR.ONLY_ONE_FILE_ALLOWED);
   });
-  test("renders file too large message if file exceeds 12.5MB", async ({
+  test("identifies the filename when the file exceeds 10MB", async ({
     page,
+    checkAccessibility,
   }) => {
-    const largeBuffer = Buffer.alloc(13000000);
+    const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
 
     await page.setInputFiles("#documents", {
       name: "cost-template.xlsx",
@@ -363,8 +371,9 @@ test.describe("Claim - final bill template", () => {
 
     const errorSummary = page.locator(".moj-multi-file-upload__error");
     await expect(errorSummary).toBeVisible();
-    await expect(errorSummary).toContainText(
-      CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_TOO_LARGE,
+    await expect(errorSummary).toHaveText(
+      "cost-template.xlsx must be smaller than 10MB",
     );
+    await checkAccessibility();
   });
 });

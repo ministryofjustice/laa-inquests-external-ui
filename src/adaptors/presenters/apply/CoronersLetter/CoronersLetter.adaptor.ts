@@ -322,7 +322,10 @@ export class CoronersLetterAdaptor {
     const { req, res, result, isNoJsUpload } = options;
     const message = resolveUploadFailureMessage(
       result,
-      CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
+      CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
+        "{filename}",
+        () => req.file!.originalname,
+      ),
       SERVICE_UNAVAILABLE_MESSAGE,
     );
 

@@ -1,10 +1,17 @@
 import { CLAIM_EVIDENCE_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../fixtures/index.js";
+import { testFilenameUploadErrors } from "../../utils/upload-validation.js";
 
 test.describe("Claim - evidence", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/claim/evidence");
   });
+
+  testFilenameUploadErrors(
+    "test-evidence.pdf",
+    "application/pdf",
+    "a JPG, PNG, BMP or PDF",
+  );
 
   test("renders back link to total cost", async ({
     page,
@@ -221,10 +228,11 @@ test.describe("Claim - evidence", () => {
         .filter({ hasText: "test-evidence.pdf" }),
     ).toHaveCount(0);
   });
-  test("renders file too large message if file exceeds 12.5MB", async ({
+  test("identifies the filename when the file exceeds 10MB", async ({
     page,
+    checkAccessibility,
   }) => {
-    const largeBuffer = Buffer.alloc(13000000);
+    const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
 
     await page.setInputFiles("#documents", {
       name: "test-evidence.pdf",
@@ -234,8 +242,9 @@ test.describe("Claim - evidence", () => {
 
     const errorSummary = page.locator(".moj-multi-file-upload__error");
     await expect(errorSummary).toBeVisible();
-    await expect(errorSummary).toContainText(
-      CLAIM_EVIDENCE_ERROR.FILE_TOO_LARGE,
+    await expect(errorSummary).toHaveText(
+      "test-evidence.pdf must be smaller than 10MB",
     );
+    await checkAccessibility();
   });
 });

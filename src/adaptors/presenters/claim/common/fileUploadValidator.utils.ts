@@ -9,6 +9,7 @@ export interface FileValidationOptions {
 
 export interface UploadedFileLike {
   mimetype: string;
+  originalname: string;
   size: number;
 }
 
@@ -17,14 +18,23 @@ export function validateUploadedFile(
   options: FileValidationOptions,
 ): string | undefined {
   if (!options.allowedFileTypes.includes(fileInput.mimetype)) {
-    return options.invalidFileTypeMessage;
+    return options.invalidFileTypeMessage.replace(
+      "{filename}",
+      () => fileInput.originalname,
+    );
   }
 
   if (fileInput.size > options.maxFileSizeBytes) {
-    return options.fileTooLargeMessage;
+    return options.fileTooLargeMessage.replace(
+      "{filename}",
+      () => fileInput.originalname,
+    );
   }
 
   if (fileInput.size === options.emptyFileSizeBytes) {
-    return options.fileIsEmptyMessage;
+    return options.fileIsEmptyMessage.replace(
+      "{filename}",
+      () => fileInput.originalname,
+    );
   }
 }

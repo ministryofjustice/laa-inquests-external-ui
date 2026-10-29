@@ -547,17 +547,17 @@ export const PUBLIC_AUTHORITY_ERROR = {
 
 export const CORONERS_LETTER_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
-  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
-  FILE_IS_EMPTY: "The selected file is empty",
-  INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
-  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
+  FILE_IS_EMPTY: "{filename} is empty",
+  INVALID_FILE_TYPE: "{filename} must be a JPG, PNG, BMP or PDF",
+  FILE_SCAN_FOUND_VIRUS: "{filename} contains a virus",
   ONLY_ONE_FILE_ALLOWED:
     "You can only upload one file. Delete the existing file before uploading a new one",
 };
 
 export const INVALID_FILE_NAME_REGEX = /^[A-Za-z0-9.!\(\)_ \-]+$/iv;
 export const INVALID_FILE_NAME =
-  "Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-";
+  "{filename} has an invalid filename. Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-";
 export const CORONERS_LETTER_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
 export const CORONERS_LETTER_TOO_SMALL_FILE_SIZE_BYTES = 0;
 
@@ -571,10 +571,10 @@ export const CORONERS_LETTER_ALLOWED_FILE_TYPES = [
 export const CLAIM_EVIDENCE_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
   MINIMUM_ONE_FILE_REQUIRED: "Minimum of one evidence file required",
-  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
-  FILE_IS_EMPTY: "The selected file is empty",
-  INVALID_FILE_TYPE: "The selected file must be a JPG, PNG, BMP or PDF",
-  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
+  FILE_IS_EMPTY: "{filename} is empty",
+  INVALID_FILE_TYPE: "{filename} must be a JPG, PNG, BMP or PDF",
+  FILE_SCAN_FOUND_VIRUS: "{filename} contains a virus",
 };
 
 export const CLAIM_EVIDENCE_MAX_FILE_SIZE_BYTES = 10485760; // 10 * 1024 * 1024 (10MB)
@@ -590,10 +590,10 @@ export const CLAIM_EVIDENCE_ALLOWED_FILE_TYPES = [
 export const CLAIM_FINAL_BILL_TEMPLATE_ERROR = {
   NO_FILE_CHOSEN: "Select a file",
   FILE_REQUIRED: "Upload the LAA cost claim evidence template",
-  FILE_TOO_LARGE: "The selected file must be smaller than 10MB",
-  FILE_IS_EMPTY: "The selected file is empty",
-  INVALID_FILE_TYPE: "The selected file must be an Excel spreadsheet",
-  FILE_SCAN_FOUND_VIRUS: "The selected file contains a virus",
+  FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
+  FILE_IS_EMPTY: "{filename} is empty",
+  INVALID_FILE_TYPE: "{filename} must be an Excel spreadsheet",
+  FILE_SCAN_FOUND_VIRUS: "{filename} contains a virus",
   ONLY_ONE_FILE_ALLOWED:
     "You can only upload one file. Delete the existing file before uploading a new one",
 };

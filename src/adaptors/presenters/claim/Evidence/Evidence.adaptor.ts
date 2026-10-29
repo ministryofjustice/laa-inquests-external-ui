@@ -360,7 +360,10 @@ export class EvidenceAdaptor {
     const { req, res, result, isNoJsUpload } = options;
     const message = resolveUploadFailureMessage(
       result,
-      CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS,
+      CLAIM_EVIDENCE_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
+        "{filename}",
+        () => req.file!.originalname,
+      ),
       SERVICE_UNAVAILABLE_MESSAGE,
     );
 

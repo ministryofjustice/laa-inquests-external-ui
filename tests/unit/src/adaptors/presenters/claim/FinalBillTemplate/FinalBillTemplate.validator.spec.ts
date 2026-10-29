@@ -44,12 +44,13 @@ describe("FinalBillTemplateValidator", () => {
 
       const result = validator.validateTemplateUploadFile({
         mimetype: "application/pdf",
+        originalname: "file1.pdf",
         size: 100,
       } as Express.Multer.File);
 
       assert.deepEqual(result, {
         templateError: {
-          text: CLAIM_FINAL_BILL_TEMPLATE_ERROR.INVALID_FILE_TYPE,
+          text: "file1.pdf must be an Excel spreadsheet",
         },
       });
     });
@@ -60,12 +61,13 @@ describe("FinalBillTemplateValidator", () => {
       const result = validator.validateTemplateUploadFile({
         mimetype:
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        size: 10485761,
+        originalname: "cost-template.xlsx",
+        size: 11 * 1024 * 1024,
       } as Express.Multer.File);
 
       assert.deepEqual(result, {
         templateError: {
-          text: CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_TOO_LARGE,
+          text: "cost-template.xlsx must be smaller than 10MB",
         },
       });
     });
@@ -77,10 +79,11 @@ describe("FinalBillTemplateValidator", () => {
         mimetype:
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         size: 0,
+        originalname: "cost-template.xlsx",
       } as Express.Multer.File);
 
       assert.deepEqual(result, {
-        templateError: { text: CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_IS_EMPTY },
+        templateError: { text: "cost-template.xlsx is empty" },
       });
     });
 

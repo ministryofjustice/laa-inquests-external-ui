@@ -296,7 +296,7 @@ describe("Coroners Letter adaptor", () => {
       assert.equal(
         (responseStub.json.getCall(0).args[0] as { error: { message: string } })
           .error.message,
-        CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS,
+        "test-coroners-letter.pdf contains a virus",
       );
     });
   });
