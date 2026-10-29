@@ -361,7 +361,7 @@ test.describe("Claim - final bill template", () => {
     page,
     checkAccessibility,
   }) => {
-    const largeBuffer = Buffer.alloc(11 * 1024 *1024);
+    const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
 
     await page.setInputFiles("#documents", {
       name: "cost-template.xlsx",
