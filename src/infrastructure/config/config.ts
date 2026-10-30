@@ -1,158 +1,226 @@
 import dotenv from "dotenv";
+import { z } from "zod";
 import type { Config } from "#src/infrastructure/config/config.types.js";
-dotenv.config({ path: "../.env.external" });
 
-const serviceName = process.env.SERVICE_NAME ?? "Legal aid at inquests";
 const DEFAULT_RATE_LIMIT_MAX = 10000;
 const DEFAULT_RATE_WINDOW_MS_MINUTE = 15;
 const MILLISECONDS_IN_A_MINUTE = 60000;
 const DEFAULT_PORT = 3000;
-const useRedis = process.env.USE_REDIS !== "false";
-const isSkipAuthInDevelopment =
-  process.env.NODE_ENV === "development" &&
-  process.env.DEV_SKIP_AUTH === "true";
-const isAuthTokenDebugEnabled = process.env.AUTH_TOKEN_DEBUG_ENABLED === "true";
-const isSubmitPayloadDebugEnabled =
-  process.env.SUBMIT_PAYLOAD_DEBUG_ENABLED === "true";
 
-// Validate required session env vars
-/* eslint-disable eqeqeq -- need looser assertion against null */
-if (
-  process.env.SESSION_SECRET == null ||
-  process.env.SESSION_SECRET === "" ||
-  process.env.SESSION_NAME == null ||
-  process.env.SESSION_NAME === ""
-) {
-  throw new Error(
-    "SESSION_SECRET and SESSION_NAME must be defined in environment variables.",
-  );
+const configSchema = z
+  .object({
+    SESSION_SECRET: z.string().optional(),
+    SESSION_NAME: z.string().optional(),
+    SESSION_LOG_SECRET: z.string().optional(),
+    USE_REDIS: z.string().optional().default("true"),
+    NODE_ENV: z.string().optional(),
+    REDIS_HOST_NAME: z.string().optional(),
+    REDIS_AUTH_TOKEN: z.string().optional(),
+    DEV_SKIP_AUTH: z.string().optional(),
+    AUTH_DIRECTORY_URL: z.string().optional(),
+    AUTH_CLIENT_ID: z.string().optional(),
+    AUTH_CLIENT_SECRET: z.string().optional(),
+    AUTH_REDIRECT_URI: z.string().optional(),
+    AUTH_POST_LOGOUT_URI: z.string().optional(),
+    SENTRY_DSN: z.string().optional(),
+    AUTH_TOKEN_DEBUG_ENABLED: z.string().optional(),
+    SUBMIT_PAYLOAD_DEBUG_ENABLED: z.string().optional(),
+    INQUESTS_API_CLIENT_ID: z.string().optional(),
+    CONTACT_EMAIL: z.string().optional(),
+    CONTACT_PHONE: z.string().optional(),
+    DEPARTMENT_NAME: z.string().optional(),
+    DEPARTMENT_URL: z.string().optional(),
+    ENVIRONMENT: z.string().optional(),
+    INQUESTS_API_URL: z.string().optional(),
+    RATE_LIMIT_GLOBAL_MAX: z.string().optional(),
+    RATE_LIMIT_IP_MAX: z.string().optional(),
+    RATE_WINDOW_MS: z.string().optional(),
+    SERVICE_NAME: z.string().optional(),
+    SERVICE_URL: z.string().optional(),
+    SILAS_HOMEPAGE: z.string().optional(),
+    LOG_LEVEL: z.string().optional(),
+    PORT: z.string().optional(),
+    GA_MEASUREMENT_ID: z.string().optional(),
+  })
+  .superRefine((env, ctx) => {
+    const nodeEnv = env.NODE_ENV ?? "development";
+    const isSkipAuthInDevelopment =
+      nodeEnv === "development" && env.DEV_SKIP_AUTH === "true";
+
+    if (isMissing(env.SESSION_SECRET) || isMissing(env.SESSION_NAME)) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "SESSION_SECRET and SESSION_NAME must be defined in environment variables.",
+      });
+    }
+
+    if (
+      nodeEnv !== "test" &&
+      (isMissing(env.SESSION_LOG_SECRET) ||
+        env.SESSION_LOG_SECRET === "undefined")
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "SESSION_LOG_SECRET must be defined in environment variables.",
+      });
+    }
+
+    const authVars = [
+      "AUTH_DIRECTORY_URL",
+      "AUTH_CLIENT_ID",
+      "AUTH_CLIENT_SECRET",
+      "AUTH_REDIRECT_URI",
+      "AUTH_POST_LOGOUT_URI",
+    ] as const;
+    const hasMissingAuthVars = authVars.some((key) => isMissing(env[key]));
+
+    if (!isSkipAuthInDevelopment && hasMissingAuthVars) {
+      ctx.addIssue({
+        code: "custom",
+        message:
+          "AUTH_DIRECTORY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
+      });
+    }
+
+    validateRedisConfig(env, ctx);
+    validateSentryConfig(env, ctx);
+  });
+
+type Environment = z.infer<typeof configSchema>;
+
+function isMissing(value: string | undefined): boolean {
+  return value === undefined || value === "";
 }
 
-if (
-  process.env.NODE_ENV !== "test" &&
-  (process.env.SESSION_LOG_SECRET == null ||
-    process.env.SESSION_LOG_SECRET === "" ||
-    process.env.SESSION_LOG_SECRET === "undefined")
-) {
-  throw new Error(
-    "SESSION_LOG_SECRET must be defined in environment variables.",
-  );
-}
+function validateRedisConfig(env: Environment, ctx: z.RefinementCtx): void {
+  const nodeEnv = env.NODE_ENV ?? "development";
+  const useRedis = env.USE_REDIS !== "false";
 
-if (
-  useRedis &&
-  process.env.NODE_ENV !== "test" &&
-  (process.env.REDIS_HOST_NAME == null || process.env.REDIS_HOST_NAME === "")
-) {
-  throw new Error("REDIS_HOST_NAME must be defined in environment variables.");
-}
+  if (useRedis && nodeEnv !== "test" && isMissing(env.REDIS_HOST_NAME)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "REDIS_HOST_NAME must be defined in environment variables.",
+    });
+  }
 
-if (
-  useRedis &&
-  process.env.NODE_ENV === "production" &&
-  (process.env.REDIS_AUTH_TOKEN == null || process.env.REDIS_AUTH_TOKEN === "")
-) {
-  throw new Error("REDIS_AUTH_TOKEN must be defined in environment variables.");
-}
-
-if (!isSkipAuthInDevelopment) {
-  if (
-    process.env.AUTH_DIRECTORY_URL == null ||
-    process.env.AUTH_DIRECTORY_URL === "" ||
-    process.env.AUTH_CLIENT_ID == null ||
-    process.env.AUTH_CLIENT_ID === "" ||
-    process.env.AUTH_CLIENT_SECRET == null ||
-    process.env.AUTH_CLIENT_SECRET === "" ||
-    process.env.AUTH_REDIRECT_URI == null ||
-    process.env.AUTH_REDIRECT_URI === "" ||
-    process.env.AUTH_POST_LOGOUT_URI == null ||
-    process.env.AUTH_POST_LOGOUT_URI === ""
-  ) {
-    throw new Error(
-      "AUTH_DIRECTORY_URL, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET, AUTH_REDIRECT_URI and AUTH_POST_LOGOUT_URI must be defined in environment variables.",
-    );
+  if (useRedis && nodeEnv === "production" && isMissing(env.REDIS_AUTH_TOKEN)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "REDIS_AUTH_TOKEN must be defined in environment variables.",
+    });
   }
 }
 
-if (
-  process.env.NODE_ENV === "production" &&
-  (process.env.SENTRY_DSN == null || process.env.SENTRY_DSN === "")
-) {
-  throw new Error("SENTRY_DSN must be defined in environment variables.");
+function validateSentryConfig(env: Environment, ctx: z.RefinementCtx): void {
+  if (env.NODE_ENV === "production" && isMissing(env.SENTRY_DSN)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "SENTRY_DSN must be defined in environment variables.",
+    });
+  }
 }
-/* eslint-enable eqeqeq */
 
-// Get environment variables
-const config: Config = {
-  AUTH_DIRECTORY_URL: process.env.AUTH_DIRECTORY_URL ?? "",
-  AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID ?? "",
-  AUTH_CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET ?? "",
-  AUTH_REDIRECT_URI: process.env.AUTH_REDIRECT_URI ?? "",
-  AUTH_POST_LOGOUT_URI: process.env.AUTH_POST_LOGOUT_URI ?? "",
-  AUTH_SCOPES: [
-    "openid",
-    "profile",
-    "offline_access",
-    `api://${process.env.INQUESTS_API_CLIENT_ID ?? ""}/User.Provider`,
-  ],
-  AUTH_TOKEN_DEBUG_ENABLED: isAuthTokenDebugEnabled,
-  SUBMIT_PAYLOAD_DEBUG_ENABLED: isSubmitPayloadDebugEnabled,
-  CONTACT_EMAIL: process.env.CONTACT_EMAIL,
-  CONTACT_PHONE: process.env.CONTACT_PHONE,
-  DEPARTMENT_NAME: process.env.DEPARTMENT_NAME,
-  DEPARTMENT_URL: process.env.DEPARTMENT_URL,
-  ENVIRONMENT: process.env.ENVIRONMENT ?? "unknown",
-  INQUESTS_API_CLIENT_ID: process.env.INQUESTS_API_CLIENT_ID,
-  INQUESTS_API_URL: process.env.INQUESTS_API_URL ?? "",
-  RATE_LIMIT_GLOBAL_MAX: Number(
-    process.env.RATE_LIMIT_GLOBAL_MAX ?? DEFAULT_RATE_LIMIT_MAX,
-  ),
-  RATE_LIMIT_IP_MAX: Number(
-    process.env.RATE_LIMIT_IP_MAX ?? DEFAULT_RATE_LIMIT_MAX,
-  ),
-  // Default rate window: 15 minutes in milliseconds
-  RATE_WINDOW_MS: Number(
-    process.env.RATE_WINDOW_MS ??
-      DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE,
-  ),
-  SENTRY_DSN: process.env.SENTRY_DSN ?? "",
-  SERVICE_NAME: serviceName,
-  SERVICE_PHASE: "Beta",
-  SERVICE_URL: process.env.SERVICE_URL,
-  SILAS_HOMEPAGE: process.env.SILAS_HOMEPAGE,
-  LOG_LEVEL: process.env.LOG_LEVEL,
-  USE_REDIS: useRedis,
-  REDIS_HOST_NAME: process.env.REDIS_HOST_NAME ?? "",
-  REDIS_AUTH_TOKEN: process.env.REDIS_AUTH_TOKEN ?? "",
-  SESSION_LOG_SECRET: process.env.SESSION_LOG_SECRET ?? "",
-  session: {
-    secret: process.env.SESSION_SECRET,
-    name: process.env.SESSION_NAME,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "lax",
+function handleZodError(error: unknown): never {
+  if (error instanceof z.ZodError) {
+    const { issues } = error;
+    const issue = issues.find((item) => item.code === "custom");
+    const [firstIssue] = issues;
+    throw new Error(issue?.message ?? firstIssue.message, { cause: error });
+  }
+  // eslint-disable-next-line @typescript-eslint/only-throw-error -- Preserve unexpected non-Zod failures.
+  throw error;
+}
+
+// eslint-disable-next-line complexity -- Config has many independent environment-derived properties.
+export function createConfig(env: Record<string, string | undefined>): Config {
+  const validated: Environment = (() => {
+    try {
+      return configSchema.parse(env);
+    } catch (error) {
+      handleZodError(error);
+    }
+  })();
+  const nodeEnv = validated.NODE_ENV ?? "development";
+  const serviceName = validated.SERVICE_NAME ?? "Legal aid at inquests";
+  const useRedis = validated.USE_REDIS !== "false";
+  const isSkipAuthInDevelopment =
+    nodeEnv === "development" && validated.DEV_SKIP_AUTH === "true";
+
+  return {
+    AUTH_DIRECTORY_URL: validated.AUTH_DIRECTORY_URL ?? "",
+    AUTH_CLIENT_ID: validated.AUTH_CLIENT_ID ?? "",
+    AUTH_CLIENT_SECRET: validated.AUTH_CLIENT_SECRET ?? "",
+    AUTH_REDIRECT_URI: validated.AUTH_REDIRECT_URI ?? "",
+    AUTH_POST_LOGOUT_URI: validated.AUTH_POST_LOGOUT_URI ?? "",
+    AUTH_SCOPES: [
+      "openid",
+      "profile",
+      "offline_access",
+      `api://${validated.INQUESTS_API_CLIENT_ID ?? ""}/User.Provider`,
+    ],
+    AUTH_TOKEN_DEBUG_ENABLED: validated.AUTH_TOKEN_DEBUG_ENABLED === "true",
+    SUBMIT_PAYLOAD_DEBUG_ENABLED:
+      validated.SUBMIT_PAYLOAD_DEBUG_ENABLED === "true",
+    CONTACT_EMAIL: validated.CONTACT_EMAIL,
+    CONTACT_PHONE: validated.CONTACT_PHONE,
+    DEPARTMENT_NAME: validated.DEPARTMENT_NAME,
+    DEPARTMENT_URL: validated.DEPARTMENT_URL,
+    ENVIRONMENT: validated.ENVIRONMENT ?? "unknown",
+    INQUESTS_API_CLIENT_ID: validated.INQUESTS_API_CLIENT_ID,
+    INQUESTS_API_URL: validated.INQUESTS_API_URL ?? "",
+    RATE_LIMIT_GLOBAL_MAX: Number(
+      validated.RATE_LIMIT_GLOBAL_MAX ?? DEFAULT_RATE_LIMIT_MAX,
+    ),
+    RATE_LIMIT_IP_MAX: Number(
+      validated.RATE_LIMIT_IP_MAX ?? DEFAULT_RATE_LIMIT_MAX,
+    ),
+    RATE_WINDOW_MS: Number(
+      validated.RATE_WINDOW_MS ??
+        DEFAULT_RATE_WINDOW_MS_MINUTE * MILLISECONDS_IN_A_MINUTE,
+    ),
+    SENTRY_DSN: validated.SENTRY_DSN ?? "",
+    SERVICE_NAME: serviceName,
+    SERVICE_PHASE: "Beta",
+    SERVICE_URL: validated.SERVICE_URL,
+    SILAS_HOMEPAGE: validated.SILAS_HOMEPAGE,
+    LOG_LEVEL: validated.LOG_LEVEL,
+    USE_REDIS: useRedis,
+    REDIS_HOST_NAME: validated.REDIS_HOST_NAME ?? "",
+    REDIS_AUTH_TOKEN: validated.REDIS_AUTH_TOKEN ?? "",
+    SESSION_LOG_SECRET: validated.SESSION_LOG_SECRET ?? "",
+    session: {
+      secret: validated.SESSION_SECRET ?? "",
+      name: validated.SESSION_NAME ?? "",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: nodeEnv === "production",
+        httpOnly: true,
+        sameSite: "lax",
+      },
     },
-  },
-  app: {
-    port: Number(process.env.PORT ?? DEFAULT_PORT),
-    environment: process.env.NODE_ENV ?? "development",
-    appName: serviceName,
-    useHttps: process.env.NODE_ENV === "production", // Use HTTPS in production
-    skipAuthInDev: isSkipAuthInDevelopment,
-  },
-  csrf: {
-    cookieName: "_csrf",
-    secure: process.env.NODE_ENV === "production", // Only secure in production
-    httpOnly: true, // Restrict client-side access
-  },
-  paths: {
-    static: "public", // Path for serving static files
-    views: "src/views", // Path for Nunjucks views
-  },
-  GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID ?? "",
-};
+    app: {
+      port: Number(validated.PORT ?? DEFAULT_PORT),
+      environment: nodeEnv,
+      appName: serviceName,
+      useHttps: nodeEnv === "production",
+      skipAuthInDev: isSkipAuthInDevelopment,
+    },
+    csrf: {
+      cookieName: "_csrf",
+      secure: nodeEnv === "production",
+      httpOnly: true,
+    },
+    paths: {
+      static: "public",
+      views: "src/views",
+    },
+    GA_MEASUREMENT_ID: validated.GA_MEASUREMENT_ID ?? "",
+  };
+}
+
+dotenv.config({ path: "../.env.external" });
+const config = createConfig(process.env);
 
 export default config;

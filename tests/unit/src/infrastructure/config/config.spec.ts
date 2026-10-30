@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { strict as assert } from "assert";
+import { createConfig } from "#src/infrastructure/config/config.js";
 import type { Config } from "#src/infrastructure/config/config.types.js";
 
 const REQUIRED_ENV = {
@@ -14,30 +15,10 @@ const REQUIRED_ENV = {
   AUTH_POST_LOGOUT_URI: "http://localhost",
 };
 
-let importCounter = 0;
-
 const importConfig = async (
   env: Record<string, string | undefined>,
 ): Promise<unknown> => {
-  const originalEnv = { ...process.env };
-  Object.assign(process.env, REQUIRED_ENV);
-  for (const [key, value] of Object.entries(env)) {
-    if (value === undefined) {
-      delete process.env[key];
-    } else {
-      process.env[key] = value;
-    }
-  }
-
-  try {
-    // The query string forces a fresh evaluation of the module on every call.
-    importCounter += 1;
-    return await import(
-      `../../../../../src/infrastructure/config/config.ts?case=${importCounter}`
-    );
-  } finally {
-    process.env = originalEnv;
-  }
+  return { default: createConfig({ ...REQUIRED_ENV, ...env }) };
 };
 
 describe("config SESSION_LOG_SECRET", () => {
