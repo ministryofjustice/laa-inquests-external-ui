@@ -63,6 +63,12 @@ export class ClaimTypeAdaptor {
     } else {
       const isPoa = claimType === CLAIM_TYPE_VALUE.PAYMENT_ON_ACCOUNT;
       const isFinalBill = claimType === CLAIM_TYPE_VALUE.FINAL_BILL;
+      if (
+        req.session.claim?.type !== undefined &&
+        req.session.claim.type !== claimType
+      ) {
+        this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
+      }
       const returnToCheckYourAnswers =
         this.navigationHelper.isReturningToCheckYourAnswers(req);
       req.session.claim = {

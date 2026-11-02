@@ -192,6 +192,34 @@ describe("ClaimType adaptor", () => {
       );
     });
 
+    it("clears the return flag when changing from POA to final bill at check your answers", () => {
+      const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.body = { "claim-type": "FINAL_BILL" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+        returnToCheckYourAnswers: true,
+      };
+
+      adaptor.processForm(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim?.subtype, undefined);
+      assert.equal(
+        requestStub.session.claim?.returnToCheckYourAnswers,
+        undefined,
+      );
+      assert.equal(
+        responseStub.redirect.getCall(0).args[0],
+        "/claim/total-cost",
+      );
+    });
+
     it("redirects to /claim/total-cost and preserves the flag when Final bill is selected and flag is set", () => {
       const adaptor = new ClaimTypeAdaptor(new ClaimTypeValidator());
 
