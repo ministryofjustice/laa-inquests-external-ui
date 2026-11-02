@@ -31,7 +31,7 @@
     "node": "26.12.1"
   },
   "dependencies": {
-    "@ministryofjustice/frontend": "^11.1.0",
+    "@ministryofjustice/frontend": "^12.0.0",
     "@redis/client": "^6.3.0",
     "@sentry/node": "^11.9.0",
     "@sentry/profiling-node": "^11.9.0",
