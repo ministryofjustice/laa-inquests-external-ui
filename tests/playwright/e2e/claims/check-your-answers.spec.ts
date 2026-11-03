@@ -476,6 +476,102 @@ test.describe("Claim - confirm and submit", () => {
     await expect(claimDetails).not.toContainText("Type of POA");
   });
 
+  test("continues the nil final bill questions after changing from POA at check your answers", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.getByRole("link", { name: "Change type of claim" }).click();
+    await page.getByLabel("Final bill").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/claim/total-cost");
+    await page.getByLabel("Enter the total gross amount").fill("0");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/claim/inquest-outcome");
+    await page.getByLabel("Accident or misadventure").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/funding-post-inquest");
+    await checkAccessibility();
+  });
+
+  test("continues the non-zero final bill journey after changing from POA at check your answers", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.getByRole("link", { name: "Change type of claim" }).click();
+    await page.getByLabel("Final bill").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/claim/total-cost");
+    await page.getByLabel("Enter the total gross amount").fill("1250.50");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/claim/final-bill-template");
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/claim/final-bill-template/upload") &&
+          response.request().method() === "POST" &&
+          response.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await expect(page).toHaveURL("/claim/evidence");
+    await checkAccessibility();
+  });
+
+  test("hides the final bill cost file after changing to POA at check your answers", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/claim/type");
+    await page.getByLabel("Final bill").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Enter the total gross amount").fill("1250.50");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/claim/final-bill-template");
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/claim/final-bill-template/upload") &&
+          response.request().method() === "POST" &&
+          response.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+    await page.goto("/claim/check-your-answers");
+    await expect(page.getByTestId("cost-template-summary-list")).toBeVisible();
+    await page.getByRole("link", { name: "Change type of claim" }).click();
+    await page.getByLabel("Payment on account (POA)").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Expert cost").check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.goto("/claim/check-your-answers");
+
+    await expect(page.getByTestId("claim-details-summary-list")).toContainText(
+      "Payment on account (POA)",
+    );
+    await expect(page.getByTestId("cost-template-summary-list")).toHaveCount(0);
+    await expect(page.getByTestId("counsel-summary-list")).toHaveCount(0);
+    await expect(page.getByTestId("inquest-details-summary-list")).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByRole("link", { name: "Change claim cost file" }),
+    ).toHaveCount(0);
+    await checkAccessibility();
+  });
+
   test("hides final-bill-only details and change links for a POA profit cost claim", async ({
     page,
   }) => {

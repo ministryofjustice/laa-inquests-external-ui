@@ -299,6 +299,31 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(viewModel.costTemplateFile, undefined);
     });
 
+    it("omits the final bill cost template from the POA summary", () => {
+      const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      responseStub.locals = { csrfToken: "test-token" };
+      requestStub.session.claim = {
+        type: "PAYMENT_ON_ACCOUNT",
+        subtype: "EXPERT_COST",
+        finalBillCostTemplate: {
+          costTemplateId: "template-id-1",
+          costTemplateFilename: "cost-template.xlsx",
+          costTemplateFileSize: 4096,
+        },
+      };
+
+      adaptor.renderForm(requestStub, responseStub);
+
+      const viewModel = responseStub.render.getCall(0)
+        .args[1] as unknown as Record<string, Record<string, unknown>>;
+
+      assert.equal(viewModel.costTemplateFile, undefined);
+    });
+
     it("maps the uploaded final bill template from session to a view model row", () => {
       const adaptor = new ConfirmAndSubmitAdaptor(formatter, claimSubmitPort);
 
@@ -307,6 +332,7 @@ describe("ConfirmAndSubmit adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.session.claim = {
+        type: "FINAL_BILL",
         finalBillCostTemplate: {
           costTemplateId: "template-id-1",
           costTemplateFilename: "cost-template.xlsx",
