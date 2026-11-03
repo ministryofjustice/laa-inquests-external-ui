@@ -348,7 +348,7 @@ export class ConfirmAndSubmitAdaptor {
     claim?: ClaimSession,
   ): { id: string; name: string; type: string; fileSize: string } | undefined {
     const template = claim?.finalBillCostTemplate;
-    if (template === undefined) {
+    if (claim?.type !== CLAIM_TYPE_VALUE.FINAL_BILL || template === undefined) {
       return undefined;
     }
 

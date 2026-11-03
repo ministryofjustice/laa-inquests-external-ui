@@ -194,6 +194,13 @@ Authenticated access is enforced centrally and default-deny at the page level.
   entry to the central route policy matrix in `accessControl.ts`. Authenticated
   requests to routes missing from the policy return `403 Forbidden` by design.
 
+### Claim type changes
+
+Changing the claim type from Check your answers resumes the selected claim journey
+rather than returning immediately to the summary. Final-bill cost templates are
+shown in the summary only for final bills. Switching to a POA does not delete the
+uploaded template.
+
 ### GitHub Actions
 
 - These have been disabled in this GitHub template repo. Make sure you enable them when setting up your project.
