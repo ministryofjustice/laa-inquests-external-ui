@@ -480,63 +480,182 @@ export const UK_POSTCODE_REGEX =
 
 export const PROCEEDING_OPTIONS = [
   {
-    proceedingId: "IQPC",
-    proceedingName: "Death in police custody",
+    proceedingId: "IQ011",
+    proceedingName: "An individual has died in police custody",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQPO",
-    proceedingName: "Death in prison",
+    proceedingId: "IQ012",
+    proceedingName: "An individual has died during police pursuit",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQMT",
-    proceedingName: "Death during medical treatment",
+    proceedingId: "IQ013",
+    proceedingName: "An individual has died following a police shooting",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQMH",
-    proceedingName: "Death in mental health detention",
+    proceedingId: "IQ014",
+    proceedingName: "An individual has died in prison",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQMC",
-    proceedingName: "Death relating to mental health care in the community",
+    proceedingId: "IQ015",
+    proceedingName:
+      "An individual has died following release from custody / prison",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQCC",
-    proceedingName: "Death relating to other care in the community",
+    proceedingId: "IQ016",
+    proceedingName: "An individual has died in a young offender’s institution",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQHO",
-    proceedingName: "Death relating to issues with condition/safety of housing",
+    proceedingId: "IQ017",
+    proceedingName:
+      "An individual has died in detention under the Mental Health Act 1983",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQCA",
-    proceedingName: "Death relating to a child’s care arrangements",
+    proceedingId: "IQ018",
+    proceedingName:
+      "An individual has died during or following medical care or treatment",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQDV",
-    proceedingName: "Death relating to failure to prevent domestic violence",
+    proceedingId: "IQ019",
+    proceedingName:
+      "An individual has died following failure, or alleged failure, to provide medical treatment",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQED",
-    proceedingName: "Death relating to issues in an educational setting",
+    proceedingId: "IQ020",
+    proceedingName:
+      "An individual has died while receiving mental health care in the community",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQTR",
-    proceedingName: "Death relating to issues relating to transport",
+    proceedingId: "IQ021",
+    proceedingName:
+      "An individual has died while receiving care in the community (non-mental health)",
     matterType: "INQUEST",
   },
   {
-    proceedingId: "IQOT",
-    proceedingName: "Other",
+    proceedingId: "IQ022",
+    proceedingName: "An individual has died while in supported living",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ023",
+    proceedingName:
+      "An individual has died following failure, or alleged failure, to provide care services",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ024",
+    proceedingName: "An individual has died from alleged safeguarding failures",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ025",
+    proceedingName:
+      "A child has died that was subject to a care or interim care order",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ026",
+    proceedingName:
+      "A child has died following from failure, or alleged failure, to take a child into care",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ027",
+    proceedingName:
+      "A child has died from alleged deliberate abuse of a child in care",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ028",
+    proceedingName: "A child has died by alleged suicide",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ029",
+    proceedingName:
+      "A child has died that was subject to safeguarding concerns",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ030",
+    proceedingName: "A child has died that was referred to social services",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ031",
+    proceedingName:
+      "A child has died with Special Educational Needs and Disabilities (SEND)",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ032",
+    proceedingName: "An individual has died in an educational setting",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ033",
+    proceedingName:
+      "An individual has died from failures, or alleged failures, of an educational institution",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ034",
+    proceedingName: "An individual has died in immigration detention",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ035",
+    proceedingName:
+      "An individual has died that was seeking asylum in the country",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ036",
+    proceedingName:
+      "An individual has died from alleged issues with the condition of housing",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ037",
+    proceedingName:
+      "An individual has died in connection with their lack of housing",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ038",
+    proceedingName:
+      "An individual has died following the termination of disability benefits",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ039",
+    proceedingName:
+      "An individual has died following alleged mental health issues while in the military",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ040",
+    proceedingName: "An individual has died from a road traffic collision",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ041",
+    proceedingName:
+      "An individual has died in an incident involving public transport",
+    matterType: "INQUEST",
+  },
+  {
+    proceedingId: "IQ042",
+    proceedingName: "A family member has died (Other)",
     matterType: "INQUEST",
   },
 ];

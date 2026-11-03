@@ -182,7 +182,10 @@ test.describe("Provider can", () => {
 
     await expect(page.url()).toContain("/apply/proceeding");
     await page
-      .getByLabel("IQMH - Death in mental health detention", { exact: true })
+      .getByLabel(
+        "IQ017 - An individual has died in detention under the Mental Health Act 1983",
+        { exact: true },
+      )
       .click();
     await continueNextPage("add-proceeding-form");
 

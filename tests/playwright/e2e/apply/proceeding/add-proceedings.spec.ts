@@ -83,7 +83,7 @@ test.describe("Add proceedings", () => {
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
 
     const deathInPoliceCustodyRadio = await page.getByLabel(
-      "IQPC - Death in police custody",
+      "IQ011 - An individual has died in police custody",
       { exact: true },
     );
     await deathInPoliceCustodyRadio.click();
@@ -104,7 +104,7 @@ test.describe("Add proceedings", () => {
     await expect(page.url()).toContain("/apply/proceeding");
 
     const radioInput = await page.locator(
-      'input[name="proceeding-option"][value="IQPC"]',
+      'input[name="proceeding-option"][value="IQ011"]',
     );
     await expect(radioInput).toBeChecked();
   });
