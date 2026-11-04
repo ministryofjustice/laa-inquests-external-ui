@@ -3,6 +3,7 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { ProceedingsAdaptor } from "#src/adaptors/presenters/apply/Proceeding/Proceedings.adaptor.js";
 import { ProceedingValidator } from "#src/adaptors/presenters/apply/Proceeding/Proceeding.validator.js";
+import { PROCEEDING_OPTIONS } from "#src/infrastructure/locales/constants.js";
 import { Formatter } from "#src/utils/Formatter.js";
 
 describe("Proceedings adaptor", () => {
@@ -23,56 +24,12 @@ describe("Proceedings adaptor", () => {
       };
       const expectedRenderOptions = {
         csrfToken: "abcdefg",
-        proceedingOptions: [
-          {
-            text: "IQPC - Death in police custody",
-            value: "IQPC",
-          },
-          {
-            text: "IQPO - Death in prison",
-            value: "IQPO",
-          },
-          {
-            text: "IQMT - Death during medical treatment",
-            value: "IQMT",
-          },
-          {
-            text: "IQMH - Death in mental health detention",
-            value: "IQMH",
-          },
-          {
-            text: "IQMC - Death relating to mental health care in the community",
-            value: "IQMC",
-          },
-          {
-            text: "IQCC - Death relating to other care in the community",
-            value: "IQCC",
-          },
-          {
-            text: "IQHO - Death relating to issues with condition/safety of housing",
-            value: "IQHO",
-          },
-          {
-            text: "IQCA - Death relating to a child’s care arrangements",
-            value: "IQCA",
-          },
-          {
-            text: "IQDV - Death relating to failure to prevent domestic violence",
-            value: "IQDV",
-          },
-          {
-            text: "IQED - Death relating to issues in an educational setting",
-            value: "IQED",
-          },
-          {
-            text: "IQTR - Death relating to issues relating to transport",
-            value: "IQTR",
-          },
-          {
-            text: "IQOT - Other",
-            value: "IQOT",
-          },
-        ],
+        proceedingOptions: PROCEEDING_OPTIONS.map(
+          ({ proceedingId, proceedingName }) => ({
+            text: `${proceedingId} - ${proceedingName}`,
+            value: proceedingId,
+          }),
+        ),
         proceedingOption: "",
       };
       proceedingsAdaptor.renderProceedingSelectForm(requestStub, responseStub);
@@ -94,8 +51,8 @@ describe("Proceedings adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       requestStub.session.proceedingOption = {
-        proceedingId: "IQPC",
-        proceedingName: "Death in police custody",
+        proceedingId: "IQ011",
+        proceedingName: "An individual has died in police custody",
         matterType: "INQUEST",
       };
 
@@ -109,7 +66,7 @@ describe("Proceedings adaptor", () => {
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "apply/proceeding/add-proceedings");
 
-      assert.propertyVal(renderArgs[1], "proceedingOption", "IQPC");
+      assert.propertyVal(renderArgs[1], "proceedingOption", "IQ011");
       assert.propertyVal(renderArgs[1], "csrfToken", "abcdefg");
     });
 
@@ -176,13 +133,13 @@ describe("Proceedings adaptor", () => {
       const requestStub = stubInterface<Request>();
 
       const expectedSelectedProceeding = {
-        proceedingId: "IQPC",
-        proceedingName: "Death in police custody",
+        proceedingId: "IQ011",
+        proceedingName: "An individual has died in police custody",
         matterType: "INQUEST",
       };
 
       requestStub.body = {
-        "proceeding-option": "IQPC",
+        "proceeding-option": "IQ011",
       };
 
       responseStub.locals = {
@@ -252,7 +209,7 @@ describe("Proceedings adaptor", () => {
       const requestStub = stubInterface<Request>();
       requestStub.session.returnToApplyCheckYourAnswers = true;
       requestStub.body = {
-        "proceeding-option": "IQPC",
+        "proceeding-option": "IQ011",
       };
 
       proceedingsAdaptor.processProceedingsForm(requestStub, responseStub);

@@ -26,31 +26,31 @@ describe("Formatter", () => {
       const selectedProceedings: [] = [];
 
       const allProceedings = PROCEEDING_OPTIONS;
-      expect(allProceedings.length).to.equal(12);
+      expect(allProceedings.length).to.equal(32);
       const filteredList = formatter.filterAvailableOptions(
         selectedProceedings,
         allProceedings,
       );
-      expect(filteredList.length).to.equal(12);
+      expect(filteredList.length).to.equal(32);
       expect(filteredList).to.deep.equal(allProceedings);
     });
     it("returns a filtered list of proceedings when one proceeding selected", () => {
       const formatter = new Formatter();
       const selectedProceedings = [
         {
-          proceedingId: "IQPC",
-          proceedingName: "Death in police custody",
+          proceedingId: "IQ011",
+          proceedingName: "An individual has died in police custody",
           matterType: "INQUEST",
         },
       ];
 
       const allProceedings = PROCEEDING_OPTIONS;
-      expect(allProceedings.length).to.equal(12);
+      expect(allProceedings.length).to.equal(32);
       const filteredList = formatter.filterAvailableOptions(
         selectedProceedings,
         allProceedings,
       );
-      expect(filteredList.length).to.equal(11);
+      expect(filteredList.length).to.equal(31);
       filteredList.forEach((proceeding) => {
         expect(proceeding.proceedingId).not.to.equal(
           selectedProceedings[0].proceedingId,
@@ -61,24 +61,24 @@ describe("Formatter", () => {
       const formatter = new Formatter();
       const selectedProceedings = [
         {
-          proceedingId: "IQPC",
-          proceedingName: "Death in police custody",
+          proceedingId: "IQ011",
+          proceedingName: "An individual has died in police custody",
           matterType: "INQUEST",
         },
         {
-          proceedingId: "IQPO",
-          proceedingName: "Death in prison",
+          proceedingId: "IQ014",
+          proceedingName: "An individual has died in prison",
           matterType: "INQUEST",
         },
       ];
 
       const allProceedings = PROCEEDING_OPTIONS;
-      expect(allProceedings.length).to.equal(12);
+      expect(allProceedings.length).to.equal(32);
       const filteredList = formatter.filterAvailableOptions(
         selectedProceedings,
         allProceedings,
       );
-      expect(filteredList.length).to.equal(10);
+      expect(filteredList.length).to.equal(30);
       filteredList.forEach((proceeding) => {
         expect(proceeding.proceedingId).not.to.equal(
           selectedProceedings[0].proceedingId,
@@ -92,24 +92,24 @@ describe("Formatter", () => {
       const formatter = new Formatter();
       const selectedProceedings = [
         {
-          proceedingId: "IQPC",
-          proceedingName: "Death in police custody",
+          proceedingId: "IQ011",
+          proceedingName: "An individual has died in police custody",
           matterType: "INQUEST",
         },
         {
-          proceedingId: "IQPC",
-          proceedingName: "Death in police custody",
+          proceedingId: "IQ011",
+          proceedingName: "An individual has died in police custody",
           matterType: "INQUEST",
         },
       ];
 
       const allProceedings = PROCEEDING_OPTIONS;
-      expect(allProceedings.length).to.equal(12);
+      expect(allProceedings.length).to.equal(32);
       const filteredList = formatter.filterAvailableOptions(
         selectedProceedings,
         allProceedings,
       );
-      expect(filteredList.length).to.equal(11);
+      expect(filteredList.length).to.equal(31);
       filteredList.forEach((proceeding) => {
         expect(proceeding.proceedingId).not.to.equal(
           selectedProceedings[0].proceedingId,
@@ -121,8 +121,8 @@ describe("Formatter", () => {
     it("returns the proceeding description text in the key property of the returned row object", () => {
       const formatter = new Formatter();
       const selectedProceeding = {
-        proceedingId: "IQPC",
-        proceedingName: "Death in police custody",
+        proceedingId: "IQ011",
+        proceedingName: "An individual has died in police custody",
         matterType: "INQUEST",
       };
 
@@ -130,15 +130,15 @@ describe("Formatter", () => {
         formatter.formatSelectedIntoTableRows(selectedProceeding);
 
       expect(tableRow.key).to.deep.equal({
-        text: "Death in police custody",
+        text: "An individual has died in police custody",
       });
       expect(tableRow.value).to.equal(undefined);
     });
     it("does not include an actions property (no remove link)", () => {
       const formatter = new Formatter();
       const selectedProceeding = {
-        proceedingId: "IQPC",
-        proceedingName: "Death in police custody",
+        proceedingId: "IQ011",
+        proceedingName: "An individual has died in police custody",
         matterType: "INQUEST",
       };
 
@@ -153,8 +153,8 @@ describe("Formatter", () => {
       const formatter = new Formatter();
       const proceedinglist = [
         {
-          proceedingId: "IQPC",
-          proceedingName: "Death in police custody",
+          proceedingId: "IQ011",
+          proceedingName: "An individual has died in police custody",
           matterType: "INQUEST",
         },
       ];
@@ -163,8 +163,10 @@ describe("Formatter", () => {
 
       expect(options.length).to.equal(1);
       const [selectedOption] = options;
-      expect(selectedOption.text).to.equal("IQPC - Death in police custody");
-      expect(selectedOption.value).to.equal("IQPC");
+      expect(selectedOption.text).to.equal(
+        "IQ011 - An individual has died in police custody",
+      );
+      expect(selectedOption.value).to.equal("IQ011");
     });
     it("returns multiple option objects with text equal to the proceedingName and value equal to proceedingIds", () => {
       const formatter = new Formatter();
@@ -173,7 +175,7 @@ describe("Formatter", () => {
 
       const options = formatter.formatOptionsIntoList(allProceedings);
 
-      expect(options.length).to.equal(12);
+      expect(options.length).to.equal(32);
       options.forEach((option, i) => {
         expect(option.text).to.equal(
           `${allProceedings[i].proceedingId} - ${allProceedings[i].proceedingName}`,
