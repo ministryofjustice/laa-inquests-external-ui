@@ -6,6 +6,7 @@
  */
 
 export const APPLY_JOURNEY_SEQUENCE = [
+  "/apply",
   "/apply/office-accounts",
   "/apply/client-details/name-and-dob",
   "/apply/client-details/nino",

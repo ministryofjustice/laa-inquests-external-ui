@@ -23,7 +23,7 @@ describe("journeyStepHelper", () => {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 0);
+      assert.equal(applyState.lastCompletedStepIndex, 1);
     });
 
     it("records the correct index for each journey step", () => {
@@ -35,7 +35,7 @@ describe("journeyStepHelper", () => {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 1);
+      assert.equal(applyState.lastCompletedStepIndex, 2);
     });
 
     it("ignores invalid URLs not in the journey sequence", () => {
@@ -65,7 +65,7 @@ describe("journeyStepHelper", () => {
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.clientFirstName, "John");
       assert.equal(applyState.clientLastName, "Doe");
-      assert.equal(applyState.lastCompletedStepIndex, 0);
+      assert.equal(applyState.lastCompletedStepIndex, 1);
     });
 
     it("overwrites existing lastCompletedStepIndex", () => {
@@ -81,7 +81,7 @@ describe("journeyStepHelper", () => {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 2);
+      assert.equal(applyState.lastCompletedStepIndex, 3);
     });
 
     it("handles undefined initial session gracefully", () => {
@@ -101,7 +101,7 @@ describe("journeyStepHelper", () => {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 19);
+      assert.equal(applyState.lastCompletedStepIndex, 20);
     });
   });
 });
