@@ -58,6 +58,9 @@ describe("Client details adaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     const renderArgs = responseStub.redirect.getCall(0).args;
     assert.equal(renderArgs[0], "/apply/client-details/nino");
+    const apply = (requestStub.session as Record<string, unknown>)
+      .apply as Record<string, unknown>;
+    assert.equal(apply?.lastCompletedStepIndex, 2);
   });
 
   it("process name and dob form redirects to check-your-answers when return flag is set", () => {
@@ -143,6 +146,9 @@ describe("Client details adaptor", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     const renderArgs = responseStub.redirect.getCall(0).args;
     assert.equal(renderArgs[0], "/apply/client-details/has-prev-application");
+    const apply = (requestStub.session as Record<string, unknown>)
+      .apply as Record<string, unknown>;
+    assert.equal(apply?.lastCompletedStepIndex, 3);
   });
 
   it("render home address form", () => {
@@ -180,6 +186,9 @@ describe("Client details adaptor", () => {
       redirectArgs[0],
       "/apply/client-details/correspondence-address-source",
     );
+    const apply = (requestStub.session as Record<string, unknown>)
+      .apply as Record<string, unknown>;
+    assert.equal(apply?.lastCompletedStepIndex, 5);
   });
 
   it("process home address form stores a structured object in session", () => {

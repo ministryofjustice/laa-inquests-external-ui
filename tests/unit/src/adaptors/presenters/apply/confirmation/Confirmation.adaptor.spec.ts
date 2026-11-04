@@ -482,6 +482,9 @@ describe("Confirmation adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
       assert.equal(redirectArgs[0], "/apply/confirmation/success");
+      const apply = (requestStub.session as Record<string, unknown>)
+        .apply as Record<string, unknown>;
+      assert.equal(apply?.lastCompletedStepIndex, 19);
     });
 
     it("omits optional nullable client fields when not in session", async () => {

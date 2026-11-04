@@ -63,6 +63,9 @@ describe("Deceased details adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const renderArgs = responseStub.redirect.getCall(0).args;
       assert.equal(renderArgs[0], "/apply/deceased-details/dod");
+      const apply = (requestStub.session as Record<string, unknown>)
+        .apply as Record<string, unknown>;
+      assert.equal(apply?.lastCompletedStepIndex, 9);
     });
     it("re-renders name on bad input with errors", () => {
       requestStub.body = {

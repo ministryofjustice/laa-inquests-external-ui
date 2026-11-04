@@ -161,6 +161,9 @@ describe("Proceedings adaptor", () => {
         redirectArgs[0] as unknown as string,
         "/apply/deceased-details/name",
       );
+      const apply = (requestStub.session as Record<string, unknown>)
+        .apply as Record<string, unknown>;
+      assert.equal(apply?.lastCompletedStepIndex, 15);
     });
     it("renders error message if no proceeding option is selected", async () => {
       const formValidator = new ProceedingValidator();

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import type { ApplicationDeclarationFormData } from "#src/adaptors/presenters/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
 
@@ -51,6 +52,7 @@ export class ApplicationDeclarationAdaptor {
         event: "application_declaration_submitted",
       },
     });
+    markStepComplete(req, "/apply");
     res.redirect("/apply/office-accounts");
   }
 }

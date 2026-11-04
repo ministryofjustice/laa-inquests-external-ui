@@ -10,6 +10,7 @@ import type { GetPublicAuthoritiesPort } from "#src/ports/source/inquests-api/Ge
 import { GetPublicAuthoritiesUseCase } from "#src/use-cases/apply/publicAuthority/GetPublicAuthorities.useCase.js";
 import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
 import type { GetPublicAuthoritiesResponse } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/models/GetPublicAuthorities.types.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface PublicAuthorityUseCases {
   getPublicAuthorities: GetPublicAuthoritiesUseCase;
@@ -105,6 +106,7 @@ export class PublicAuthorityAdaptor {
         )
         .filter((a): a is PublicAuthority => a !== undefined);
 
+      markStepComplete(req, "/apply/public-authority");
       if (session.returnToApplyCheckYourAnswers === true) {
         session.returnToApplyCheckYourAnswers = undefined;
         res.redirect("/apply/check-your-answers");
