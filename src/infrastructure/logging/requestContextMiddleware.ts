@@ -10,11 +10,11 @@ import {
 // request inward.
 export const requestContextMiddleware = (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ): void => {
   const context = buildRequestContext(req.headers);
-  runWithRequestContext(context, () => {
-    next();
-  });
+  res.setHeader("x-request-id", context.requestId);
+  res.setHeader("x-correlation-id", context.correlationId);
+  runWithRequestContext(context, next);
 };

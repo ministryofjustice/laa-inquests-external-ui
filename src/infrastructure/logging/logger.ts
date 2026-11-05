@@ -80,6 +80,11 @@ export function shouldLog(
 }
 
 function extractContext(request: Request | undefined): LogContext {
+  const storedContext = getRequestContext();
+  if (storedContext !== undefined) {
+    return storedContext;
+  }
+
   if (request !== undefined) {
     const requestId =
       headerValueToString(request.headers["x-request-id"]) ?? randomUUID();
@@ -87,11 +92,6 @@ function extractContext(request: Request | undefined): LogContext {
       headerValueToString(request.headers["x-correlation-id"]) ?? requestId;
 
     return { requestId, correlationId };
-  }
-
-  const storedContext = getRequestContext();
-  if (storedContext !== undefined) {
-    return storedContext;
   }
 
   const requestId = randomUUID();

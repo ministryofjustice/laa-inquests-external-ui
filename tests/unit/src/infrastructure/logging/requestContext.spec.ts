@@ -132,7 +132,7 @@ describe("logger correlation via async context", () => {
     assert.equal(output.correlation_id, "ctx-cor");
   });
 
-  it("prefers an explicit request over the async context", () => {
+  it("prefers the async context when an explicit request is passed", () => {
     const subject = new Logger("debug");
 
     runWithRequestContext(
@@ -153,7 +153,27 @@ describe("logger correlation via async context", () => {
 
     const [rawOutput] = logSpy.firstCall.args as [string];
     const output = JSON.parse(rawOutput) as Record<string, unknown>;
-    assert.equal(output.request_id, "header-req");
-    assert.equal(output.correlation_id, "header-cor");
+    assert.equal(output.request_id, "ctx-req");
+    assert.equal(output.correlation_id, "ctx-cor");
+  });
+
+  it("uses async context ids for a request without ID headers", () => {
+    const subject = new Logger("debug");
+
+    runWithRequestContext(
+      { requestId: "ctx-req", correlationId: "ctx-cor" },
+      () => {
+        subject.logInfo({
+          functionName: "fn",
+          message: "m",
+          request: { headers: {} } as never,
+        });
+      },
+    );
+
+    const [rawOutput] = logSpy.firstCall.args as [string];
+    const output = JSON.parse(rawOutput) as Record<string, unknown>;
+    assert.equal(output.request_id, "ctx-req");
+    assert.equal(output.correlation_id, "ctx-cor");
   });
 });
