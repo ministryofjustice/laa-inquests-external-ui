@@ -59,7 +59,7 @@ test.describe("Client details - name and dob", () => {
     await expect(yesNameChangedLabel).toBeVisible();
     await expect(noNameChangedLabel).toBeVisible();
     await expect(yesNameChangedInputLabel).toBeHidden();
-    yesNameChangedLabel.click();
+    await yesNameChangedLabel.click();
     await expect(yesNameChangedInputLabel).toBeVisible();
     await expect(errorSummary).not.toBeVisible();
 
@@ -92,7 +92,7 @@ test.describe("Client details - name and dob", () => {
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
 
-      continueButton.click();
+      await continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#first-name-error");
@@ -108,7 +108,7 @@ test.describe("Client details - name and dob", () => {
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
-      getAndUpdateFormFields(page, { "First name": "a".repeat(101) });
+      await getAndUpdateFormFields(page, { "First name": "a".repeat(101) });
 
       const characterLengthHint = basicDetailsForm.locator("#first-name-hint");
       const characterLimitHintMessage = "Character limit: 100";
@@ -116,7 +116,7 @@ test.describe("Client details - name and dob", () => {
         characterLimitHintMessage,
       );
 
-      continueButton.click();
+      await continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#first-name-error");
@@ -130,9 +130,9 @@ test.describe("Client details - name and dob", () => {
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
-      getAndUpdateFormFields(page, { "First name": "test name" });
+      await getAndUpdateFormFields(page, { "First name": "test name" });
 
-      continueButton.click();
+      await continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#last-name-error");
@@ -160,7 +160,7 @@ test.describe("Client details - name and dob", () => {
         characterLimitHintMessage,
       );
 
-      continueButton.click();
+      await continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement = basicDetailsForm.locator("#last-name-error");
@@ -176,13 +176,13 @@ test.describe("Client details - name and dob", () => {
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
-      getAndUpdateFormFields(
+      await getAndUpdateFormFields(
         page,
         { "First name": "testname", "Last name": "testington" },
         ["Last name"],
       );
 
-      continueButton.click();
+      await continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
       const errorMessageElement =
@@ -206,7 +206,7 @@ test.describe("Client details - name and dob", () => {
         ["Last name"],
       );
 
-      continueButton.click();
+      await continueButton.click();
       await page.waitForLoadState("domcontentloaded");
 
       await expect(yesNameChangedRadio).toBeChecked();
