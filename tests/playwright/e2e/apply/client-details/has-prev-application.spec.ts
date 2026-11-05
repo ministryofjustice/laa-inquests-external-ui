@@ -5,8 +5,11 @@ test.describe("Previous application", () => {
   test("renders basic heading, back link, and expected copy text", async ({
     page,
     checkAccessibility,
+    withApplyStep,
   }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await withApplyStep("/apply/client-details/has-prev-application");
+
+    await page.goto("/apply/client-details/has-prev-application");
     const clientDetailsHeading = await page.getByRole("heading", {
       level: 1,
       name: "Has your client applied for legal aid for an inquest before",
@@ -30,8 +33,13 @@ test.describe("Previous application", () => {
 
     await checkAccessibility();
   });
-  test("renders expected input fields and labels in form", async ({ page }) => {
-    page.goto("/apply/client-details/has-prev-application");
+  test("renders expected input fields and labels in form", async ({
+    page,
+    withApplyStep,
+  }) => {
+    await withApplyStep("/apply/client-details/has-prev-application");
+
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
@@ -55,8 +63,13 @@ test.describe("Previous application", () => {
     yesRadioLabel.click();
     await expect(yesInputLabel).toBeVisible();
   });
-  test("continue button posts to expected URL", async ({ page }) => {
-    page.goto("/apply/client-details/has-prev-application");
+  test("continue button posts to expected URL", async ({
+    page,
+    withApplyStep,
+  }) => {
+    await withApplyStep("/apply/client-details/has-prev-application");
+
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
@@ -79,7 +92,12 @@ test.describe("Previous application", () => {
     await expect(errorSummary).not.toBeVisible();
     await expect(page.url()).toContain("apply/client-details/home-address");
   });
-  test("Don't know continues to the home address page", async ({ page }) => {
+  test("Don't know continues to the home address page", async ({
+    page,
+    withApplyStep,
+  }) => {
+    await withApplyStep("/apply/client-details/has-prev-application");
+
     await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = page.getByTestId(
       "has-prev-application-form",
@@ -94,8 +112,11 @@ test.describe("Previous application", () => {
   });
   test("renders error message and summary when no input selected", async ({
     page,
+    withApplyStep,
   }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await withApplyStep("/apply/client-details/has-prev-application");
+
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
@@ -123,7 +144,10 @@ test.describe("Previous application", () => {
   });
   test("renders error message and summary when input selected but no reference provided", async ({
     page,
+    withApplyStep,
   }) => {
+    await withApplyStep("/apply/client-details/has-prev-application");
+
     await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = page.getByTestId(
       "has-prev-application-form",
@@ -154,8 +178,11 @@ test.describe("Previous application", () => {
   });
   test("renders error message and summary when reference provided exceeds max character length", async ({
     page,
+    withApplyStep,
   }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await withApplyStep("/apply/client-details/has-prev-application");
+
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );

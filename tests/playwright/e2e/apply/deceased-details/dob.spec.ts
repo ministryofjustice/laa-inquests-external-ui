@@ -12,7 +12,9 @@ import {
 
 test.describe("Provider can", () => {
   let form: Locator;
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, withApplyStep }) => {
+    await withApplyStep("/apply/deceased-details/dob");
+
     await page.goto("/apply/deceased-details/dob");
     form = await page.getByTestId("deceased-date-of-birth-form");
   });
@@ -34,7 +36,6 @@ test.describe("Provider can", () => {
   });
 
   test("continue to client relationship on valid input", async ({ page }) => {
-    page.goto("/apply/deceased-details/dob");
     const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
 
     const dayInput = deceasedForm.getByLabel("Day");
@@ -73,7 +74,7 @@ test.describe("Provider can", () => {
       );
     });
 
-    test("date of birth is invalid", async ({ page }) => {
+    test("date of birth is invalid", async ({ page, withApplyStep }) => {
       const dayInput = form.getByLabel("Day");
       const monthInput = form.getByLabel("Month");
       const yearInput = form.getByLabel("Year");
@@ -92,7 +93,7 @@ test.describe("Provider can", () => {
       );
     });
 
-    test("date of birth is in the future", async ({ page }) => {
+    test("date of birth is in the future", async ({ page, withApplyStep }) => {
       const dayInput = form.getByLabel("Day");
       const monthInput = form.getByLabel("Month");
       const yearInput = form.getByLabel("Year");
@@ -110,7 +111,11 @@ test.describe("Provider can", () => {
       );
     });
 
-    test("date of birth is after date of death", async ({ page }) => {
+    test("date of birth is after date of death", async ({
+      page,
+      withApplyStep,
+    }) => {
+      await withApplyStep("/apply/deceased-details/dod");
       await page.goto("/apply/deceased-details/dod");
       const dateOfDeathForm = await page.getByTestId(
         "deceased-date-of-death-form",
@@ -143,7 +148,6 @@ test.describe("Provider can", () => {
   test("view auto-populated fields given they've filled in the date, continued and navigated back", async ({
     page,
   }) => {
-    page.goto("/apply/deceased-details/dob");
     const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
 
     const dayInput = deceasedForm.getByLabel("Day");
@@ -160,7 +164,7 @@ test.describe("Provider can", () => {
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
 
-    page.goto("/apply/deceased-details/dob");
+    await page.goto("/apply/deceased-details/dob");
     await expect(dayInput).toHaveValue(day);
     await expect(monthInput).toHaveValue(month);
     await expect(yearInput).toHaveValue(year);

@@ -1,11 +1,13 @@
 import { test as base, expect } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import { PageFactory } from "#tests/playwright/fixtures/pages/PageFactory.js";
+import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
 interface TestFixtures {
   checkAccessibility: () => Promise<void>;
   pages: PageFactory;
   freshSession: void;
+  withApplyStep: (pageUrl: string) => Promise<void>;
 }
 
 export const test = base.extend<TestFixtures>({
@@ -15,14 +17,26 @@ export const test = base.extend<TestFixtures>({
       const cookies = await context.cookies();
       if (cookies.length > 0) {
         await context.clearCookies();
-        await page.goto("/auth/test-login");
       }
-      await page.goto("/");
+      await page.goto("/auth/test-login?applyStep=0");
 
       await use();
     },
     { auto: true },
   ],
+
+  withApplyStep: async ({ page }, use): Promise<void> => {
+    const setApplyStepForUrl = async (pageUrl: string): Promise<void> => {
+      const stepIndex = APPLY_JOURNEY_SEQUENCE.indexOf(pageUrl);
+      const lastCompletedIndex = stepIndex > 0 ? stepIndex - 1 : -1;
+      await page.request.get(
+        `/auth/test-login?applyStep=${lastCompletedIndex}`,
+        { maxRedirects: 0 },
+      );
+    };
+
+    await use(setApplyStepForUrl);
+  },
 
   checkAccessibility: async ({ page }, use): Promise<void> => {
     // Checks current page

@@ -4,7 +4,9 @@ test.describe("Apply - confirm success", () => {
   test("renders confirm success page header", async ({
     page,
     checkAccessibility,
+    withApplyStep,
   }) => {
+    await withApplyStep("/apply/confirmation/success");
     await page.goto("/apply/confirmation/success");
 
     const confirmSuccessHeading = await page.getByRole("heading", {
@@ -19,7 +21,11 @@ test.describe("Apply - confirm success", () => {
     await checkAccessibility();
   });
 
-  test("sets the browser tab title from the page heading", async ({ page }) => {
+  test("sets the browser tab title from the page heading", async ({
+    page,
+    withApplyStep,
+  }) => {
+    await withApplyStep("/apply/confirmation/success");
     await page.goto("/apply/confirmation/success");
 
     await expect(page).toHaveTitle(
@@ -27,7 +33,11 @@ test.describe("Apply - confirm success", () => {
     );
   });
 
-  test("renders confirm success page content", async ({ page }) => {
+  test("renders confirm success page content", async ({
+    page,
+    withApplyStep,
+  }) => {
+    await withApplyStep("/apply/confirmation/success");
     await page.goto("/apply/confirmation/success");
 
     const whatHappensNext = await page.getByRole("heading", {

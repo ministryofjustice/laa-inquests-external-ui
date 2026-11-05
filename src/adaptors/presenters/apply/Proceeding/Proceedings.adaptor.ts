@@ -66,7 +66,7 @@ export class ProceedingsAdaptor {
     } else {
       req.session.proceedingOption = { ...selectedProceeding };
       req.session.selectedProceeding = selectedProceeding;
-      markStepComplete(req, "/apply/proceedings");
+      markStepComplete(req, "/apply/proceeding");
       if (req.session.returnToApplyCheckYourAnswers === true) {
         req.session.returnToApplyCheckYourAnswers = undefined;
         res.redirect("/apply/check-your-answers");

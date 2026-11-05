@@ -15,7 +15,8 @@ import {
 
 test.describe("Provider can", () => {
   let form: Locator;
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, withApplyStep }) => {
+    await withApplyStep("/apply/deceased-details/name");
     await page.goto(DECEASED_NAME_PAGE.FORM_PATH);
     form = await page.getByTestId("deceased-details-form");
   });

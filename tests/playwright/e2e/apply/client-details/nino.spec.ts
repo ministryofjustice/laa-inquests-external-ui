@@ -5,8 +5,11 @@ test.describe("Client details - NINO page", () => {
   test("renders NINO page header and back link", async ({
     page,
     checkAccessibility,
+    withApplyStep,
   }) => {
-    page.goto("/apply/client-details/nino");
+    await withApplyStep("/apply/client-details/nino");
+
+    await page.goto("/apply/client-details/nino");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
     const ninoHeading = await page.getByRole("heading", {
@@ -52,8 +55,13 @@ test.describe("Client details - NINO page", () => {
     await checkAccessibility();
   });
   test.describe("render validation errors", () => {
-    test("if no radio selected for nino input", async ({ page }) => {
-      page.goto("/apply/client-details/nino");
+    test("if no radio selected for nino input", async ({
+      page,
+      withApplyStep,
+    }) => {
+      await withApplyStep("/apply/client-details/nino");
+
+      await page.goto("/apply/client-details/nino");
       const ninoForm = await page.getByTestId("nino-form");
       const continueButton = ninoForm.getByRole("button");
 
@@ -67,8 +75,13 @@ test.describe("Client details - NINO page", () => {
         CLIENT_DETAILS_ERROR.HAS_NINO_NOT_SELECTED,
       );
     });
-    test("if radio is selected but nino is not provided", async ({ page }) => {
-      page.goto("/apply/client-details/nino");
+    test("if radio is selected but nino is not provided", async ({
+      page,
+      withApplyStep,
+    }) => {
+      await withApplyStep("/apply/client-details/nino");
+
+      await page.goto("/apply/client-details/nino");
       const ninoForm = await page.getByTestId("nino-form");
       const continueButton = ninoForm.getByRole("button");
       const yesNinoChangedRadio = ninoForm.getByLabel("Yes");
@@ -87,8 +100,11 @@ test.describe("Client details - NINO page", () => {
     });
     test("if radio is selected and invalid nino is provided", async ({
       page,
+      withApplyStep,
     }) => {
-      page.goto("/apply/client-details/nino");
+      await withApplyStep("/apply/client-details/nino");
+
+      await page.goto("/apply/client-details/nino");
       const ninoForm = await page.getByTestId("nino-form");
       const continueButton = ninoForm.getByRole("button");
       const yesNinoChangedRadio = ninoForm.getByLabel("Yes");
@@ -111,8 +127,11 @@ test.describe("Client details - NINO page", () => {
     });
     test("renders error summary component summarising errors", async ({
       page,
+      withApplyStep,
     }) => {
-      page.goto("/apply/client-details/nino");
+      await withApplyStep("/apply/client-details/nino");
+
+      await page.goto("/apply/client-details/nino");
       const ninoForm = await page.getByTestId("nino-form");
       const errorSummary = await page.getByRole("alert");
       const continueButton = await ninoForm.getByRole("button");

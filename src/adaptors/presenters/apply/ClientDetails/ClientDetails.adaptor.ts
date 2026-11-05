@@ -459,10 +459,8 @@ export class ClientDetailsAdaptor {
       req.session.clientCorrespondenceAddress = undefined;
       req.session.clientCorrespondenceAddressSource =
         correspondenceAddressSource;
-      markStepComplete(
-        req,
-        "/apply/client-details/correspondence-address-source",
-      );
+      // Skips to this page
+      markStepComplete(req, "/apply/client-details/correspondence-address");
       this.#redirectAfterSuccess(
         req,
         res,

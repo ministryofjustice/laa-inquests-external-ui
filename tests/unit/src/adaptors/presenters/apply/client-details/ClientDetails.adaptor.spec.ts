@@ -6,6 +6,7 @@ import { ClientDetailsValidator } from "#src/adaptors/presenters/apply/ClientDet
 import { Address } from "#src/domain/Client/Address.js";
 import { CorrespondenceRecipient } from "#src/domain/Client/CorrespondenceRecipient.js";
 import { CLIENT_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
+import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
 describe("Client details adaptor", () => {
   it("render name and dob form", () => {
@@ -338,6 +339,12 @@ describe("Client details adaptor", () => {
     assert.equal(
       redirectArgs[0],
       "/apply/client-details/correspondence-address",
+    );
+    assert.equal(
+      requestStub.session.apply?.lastCompletedStepIndex,
+      APPLY_JOURNEY_SEQUENCE.indexOf(
+        "/apply/client-details/correspondence-address-source",
+      ),
     );
   });
 

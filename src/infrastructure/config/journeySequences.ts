@@ -15,19 +15,19 @@ export const APPLY_JOURNEY_SEQUENCE = [
   "/apply/client-details/correspondence-address-source",
   "/apply/client-details/correspondence-address",
   "/apply/client-details/correspondence-recipient",
+  "/apply/proceeding",
   "/apply/deceased-details/name",
-  "/apply/deceased-details/dob",
   "/apply/deceased-details/dod",
+  "/apply/deceased-details/dob",
   "/apply/deceased-details/client-relationship",
   "/apply/deceased-details/coroner-reference",
   "/apply/deceased-details/further-information",
-  "/apply/proceedings",
   "/apply/public-authority",
   "/apply/upload-coroners-letter",
   "/apply/check-your-answers",
   "/apply/confirmation/client-declaration",
   "/apply/confirmation/success",
-] as const;
+];
 
 // Journey sequences temporarily disabled for investigation
 export const CLAIM_JOURNEY_SEQUENCE: string[] = [];

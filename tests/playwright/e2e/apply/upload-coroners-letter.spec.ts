@@ -28,7 +28,9 @@ const uploadViaWidget = async (
 };
 
 test.describe("Apply - upload correspondence from the coroner", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, withApplyStep }) => {
+    await withApplyStep("/apply/upload-coroners-letter");
+
     await page.goto("/apply/upload-coroners-letter");
   });
 
@@ -41,6 +43,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
   test("renders the page heading, back link and continue button", async ({
     page,
     checkAccessibility,
+    withApplyStep,
   }) => {
     await validateHeader(page, "Upload correspondence from the coroner", 1);
     await validateBackButton(page, "/apply/public-authority");
@@ -64,7 +67,10 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     await checkAccessibility();
   });
 
-  test("renders the MOJ multi file upload widget", async ({ page }) => {
+  test("renders the MOJ multi file upload widget", async ({
+    page,
+    withApplyStep,
+  }) => {
     const multiFileUpload = page.locator(
       "[data-module='moj-multi-file-upload']",
     );
@@ -84,6 +90,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
 
   test("renders the file guidance before the uploaded files and the upload input", async ({
     page,
+    withApplyStep,
   }) => {
     await uploadViaWidget(page, {
       name: "test-coroners-letter.pdf",
@@ -110,6 +117,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
 
   test("stays on the page and shows an error when continue is clicked without an upload", async ({
     page,
+    withApplyStep,
   }) => {
     const errorSummary = page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
@@ -129,6 +137,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
 
   test("clears the no-file-chosen error after a successful JS upload", async ({
     page,
+    withApplyStep,
   }) => {
     const errorSummary = page.getByRole("alert");
 
@@ -158,6 +167,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
 
   test("uploads a coroner's letter using the multifile uploader", async ({
     page,
+    withApplyStep,
   }) => {
     await uploadViaWidget(page, {
       name: "test-coroners-letter.pdf",
@@ -175,6 +185,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
 
   test("redirects to check your answers when continue is clicked with an uploaded file", async ({
     page,
+    withApplyStep,
   }) => {
     await uploadViaWidget(page, {
       name: "test-coroners-letter.pdf",
@@ -192,6 +203,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
 
   test("deletes an uploaded coroner's letter using the javascript uploader", async ({
     page,
+    withApplyStep,
   }) => {
     await uploadViaWidget(page, {
       name: "test-coroners-letter.pdf",
@@ -222,7 +234,10 @@ test.describe("Apply - upload correspondence from the coroner", () => {
   test("identifies the filename when the file exceeds 10MB", async ({
     page,
     checkAccessibility,
+    withApplyStep,
   }) => {
+    await withApplyStep("/apply/upload-coroners-letter");
+
     await page.goto("/apply/upload-coroners-letter");
     const largeBuffer = Buffer.alloc(11 * 1024 * 1024);
 

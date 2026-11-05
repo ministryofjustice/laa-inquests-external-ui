@@ -4,6 +4,7 @@ import { type Request, type Response, type Locals, response } from "express";
 import { DeceasedDetailsValidator } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.validator.js";
 import { DeceasedDetailsAdaptor } from "#src/adaptors/presenters/apply/DeceasedDetails/DeceasedDetails.adaptor.js";
 import { DECEASED_DETAILS_ERROR } from "#src/infrastructure/locales/constants.js";
+import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
 describe("Deceased details adaptor", () => {
   const formValidator = new DeceasedDetailsValidator();
@@ -65,7 +66,10 @@ describe("Deceased details adaptor", () => {
       assert.equal(renderArgs[0], "/apply/deceased-details/dod");
       const apply = (requestStub.session as Record<string, unknown>)
         .apply as Record<string, unknown>;
-      assert.equal(apply?.lastCompletedStepIndex, 9);
+      assert.equal(
+        apply?.lastCompletedStepIndex,
+        APPLY_JOURNEY_SEQUENCE.indexOf("/apply/deceased-details/name"),
+      );
     });
     it("re-renders name on bad input with errors", () => {
       requestStub.body = {

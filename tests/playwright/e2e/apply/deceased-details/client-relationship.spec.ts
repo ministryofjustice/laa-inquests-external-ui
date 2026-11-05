@@ -12,7 +12,9 @@ import {
 
 test.describe("Provider can", () => {
   let form: Locator;
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, withApplyStep }) => {
+    await withApplyStep("/apply/deceased-details/client-relationship");
+
     await page.goto("/apply/deceased-details/client-relationship");
     form = await page.getByTestId("deceased-client-relationship-form");
   });
@@ -193,6 +195,7 @@ test.describe("Provider can", () => {
   }) => {
     await fillClientRelationshipInput(form);
     await continueToNextPage(form, page);
+
     await page.goto("/apply/deceased-details/client-relationship");
     const yesRadioLabel = form.getByLabel("Yes, my client is a family member");
     await expect(yesRadioLabel).toBeChecked();

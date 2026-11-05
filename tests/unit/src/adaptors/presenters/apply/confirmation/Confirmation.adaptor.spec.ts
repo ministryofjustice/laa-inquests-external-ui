@@ -7,6 +7,7 @@ import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitAppli
 import { SubmitApplicationRequest } from "#src/adaptors/source/inquests-api/apply/SubmitApplication/models/SubmitApplication.types.js";
 import { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 import { v4 as uuidv4 } from "uuid";
+import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
 describe("Confirmation adaptor", () => {
   let confirmationFormatter: Formatter;
@@ -41,6 +42,14 @@ describe("Confirmation adaptor", () => {
     assert.equal(responseStub.render.callCount, 1);
     const renderArgs = responseStub.render.getCall(0).args;
     assert.equal(renderArgs[0], "apply/check-your-answers");
+  });
+
+  it("marks step complete", () => {
+    confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
+    assert.equal(
+      requestStub.session.apply?.lastCompletedStepIndex,
+      APPLY_JOURNEY_SEQUENCE.indexOf("/apply/check-your-answers"),
+    );
   });
 
   it("render check your answers page", () => {

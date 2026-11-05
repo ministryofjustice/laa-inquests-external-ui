@@ -91,6 +91,8 @@ export class ConfirmationAdaptor {
     const formattedCheckYourAnswersData =
       this.#toCheckYourAnswersViewModel(checkYourAnswersData);
 
+    markStepComplete(req, "/apply/check-your-answers"); // TODO: Should be in process
+
     res.render("apply/check-your-answers", {
       csrfToken,
       ...formattedCheckYourAnswersData,

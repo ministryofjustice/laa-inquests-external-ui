@@ -7,7 +7,10 @@ test.describe("Client details - name and dob", () => {
   test("renders basic details header and back link", async ({
     page,
     checkAccessibility,
+    withApplyStep,
   }) => {
+    await withApplyStep("/apply/client-details/name-and-dob");
+
     await page.goto("/apply/client-details/name-and-dob");
     const clientDetailsHeading = await page.getByRole("heading", {
       level: 1,
@@ -23,7 +26,12 @@ test.describe("Client details - name and dob", () => {
     await checkAccessibility();
   });
 
-  test("sets the browser tab title from the page heading", async ({ page }) => {
+  test("sets the browser tab title from the page heading", async ({
+    page,
+    withApplyStep,
+  }) => {
+    await withApplyStep("/apply/client-details/name-and-dob");
+
     await page.goto("/apply/client-details/name-and-dob");
 
     await expect(page).toHaveTitle(
@@ -31,7 +39,9 @@ test.describe("Client details - name and dob", () => {
     );
   });
 
-  test("renders basic client details form", async ({ page }) => {
+  test("renders basic client details form", async ({ page, withApplyStep }) => {
+    await withApplyStep("/apply/client-details/name-and-dob");
+
     await page.goto("/apply/client-details/name-and-dob");
 
     const basicDetailsForm = await page.getByTestId("client-details-form");
@@ -87,7 +97,9 @@ test.describe("Client details - name and dob", () => {
   });
 
   test.describe("render validation errors", () => {
-    test("if first name input is missing", async ({ page }) => {
+    test("if first name input is missing", async ({ page, withApplyStep }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -104,7 +116,10 @@ test.describe("Client details - name and dob", () => {
 
     test("if first name input is more than 100 characters", async ({
       page,
+      withApplyStep,
     }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -126,7 +141,9 @@ test.describe("Client details - name and dob", () => {
         CLIENT_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       );
     });
-    test("if last name input is missing", async ({ page }) => {
+    test("if last name input is missing", async ({ page, withApplyStep }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -143,7 +160,12 @@ test.describe("Client details - name and dob", () => {
       );
     });
 
-    test("if last name input is more than 100 characters", async ({ page }) => {
+    test("if last name input is more than 100 characters", async ({
+      page,
+      withApplyStep,
+    }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -172,7 +194,10 @@ test.describe("Client details - name and dob", () => {
     });
     test("if no radio selected for last name changed input", async ({
       page,
+      withApplyStep,
     }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -195,7 +220,10 @@ test.describe("Client details - name and dob", () => {
     });
     test("if radio is selected but birth name is not provided", async ({
       page,
+      withApplyStep,
     }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = basicDetailsForm.getByRole("button");
@@ -221,7 +249,10 @@ test.describe("Client details - name and dob", () => {
     });
     test("renders partially filled in form entries from session on error", async ({
       page,
+      withApplyStep,
     }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
@@ -238,7 +269,12 @@ test.describe("Client details - name and dob", () => {
       await expect(firstNameInput).toHaveValue("testname");
       await expect(lastNameInput).toHaveValue("testington");
     });
-    test("shows dob error when not provided", async ({ page }) => {
+    test("shows dob error when not provided", async ({
+      page,
+      withApplyStep,
+    }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
@@ -252,7 +288,12 @@ test.describe("Client details - name and dob", () => {
         CLIENT_DETAILS_ERROR.MISSING_DOB_INPUT,
       );
     });
-    test("shows dob error when non-numeric", async ({ page }) => {
+    test("shows dob error when non-numeric", async ({
+      page,
+      withApplyStep,
+    }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
@@ -272,7 +313,12 @@ test.describe("Client details - name and dob", () => {
         CLIENT_DETAILS_ERROR.NON_NUMERIC_DATE,
       );
     });
-    test("shows dob error when date is in the future", async ({ page }) => {
+    test("shows dob error when date is in the future", async ({
+      page,
+      withApplyStep,
+    }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const continueButton = await basicDetailsForm.getByRole("button");
@@ -294,7 +340,10 @@ test.describe("Client details - name and dob", () => {
     });
     test("renders error summary component summarising all errors", async ({
       page,
+      withApplyStep,
     }) => {
+      await withApplyStep("/apply/client-details/name-and-dob");
+
       await page.goto("/apply/client-details/name-and-dob");
       const basicDetailsForm = await page.getByTestId("client-details-form");
       const errorSummary = await page.getByRole("alert");
