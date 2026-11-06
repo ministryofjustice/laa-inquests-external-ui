@@ -1,4 +1,5 @@
 import { strict as assert } from "assert";
+import { CLAIM_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import { CaseSearchAdaptor } from "#src/adaptors/presenters/claim/CaseSearch/CaseSearch.adaptor.js";
@@ -101,6 +102,10 @@ describe("CaseSearch adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.caseReference, "ABC-12345");
+      assert.equal(
+        requestStub.session.claim?.lastCompletedStepIndex,
+        CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/search"),
+      );
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/results");
@@ -401,6 +406,10 @@ describe("CaseSearch adaptor", () => {
       await adaptor.selectCase(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.caseReference, "12345");
+      assert.equal(
+        requestStub.session.claim?.lastCompletedStepIndex,
+        CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/results"),
+      );
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/type");

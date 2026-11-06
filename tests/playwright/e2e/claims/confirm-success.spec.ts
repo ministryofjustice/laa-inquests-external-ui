@@ -1,5 +1,8 @@
 import { test, expect } from "../../fixtures/index.js";
-import { searchAndSelectCase } from "../../utils/claim-journey.js";
+import {
+  gotoClaimStep,
+  searchAndSelectCase,
+} from "../../utils/claim-journey.js";
 
 test.describe("Claim - confirm success", () => {
   test.beforeEach(async ({ page }) => {
@@ -10,7 +13,7 @@ test.describe("Claim - confirm success", () => {
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
-    await page.goto("/claim/evidence");
+    await gotoClaimStep(page, "/claim/evidence");
     await Promise.all([
       page.waitForResponse(
         (response) =>
@@ -24,7 +27,7 @@ test.describe("Claim - confirm success", () => {
         buffer: Buffer.from("evidence content"),
       }),
     ]);
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
     await page
       .getByTestId("confirm-and-submit-form")
       .getByRole("button", { name: "Finish and submit claim" })

@@ -2,12 +2,14 @@ import { test as base, expect } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import { PageFactory } from "#tests/playwright/fixtures/pages/PageFactory.js";
 import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
+import { setClaimStepForUrl } from "#tests/playwright/utils/claim-journey.js";
 
 interface TestFixtures {
   checkAccessibility: () => Promise<void>;
   pages: PageFactory;
   freshSession: void;
   withApplyStep: (pageUrl: string) => Promise<void>;
+  withClaimStep: (pageUrl: string) => Promise<void>;
 }
 
 export const test = base.extend<TestFixtures>({
@@ -36,6 +38,12 @@ export const test = base.extend<TestFixtures>({
     };
 
     await use(setApplyStepForUrl);
+  },
+
+  withClaimStep: async ({ page }, use): Promise<void> => {
+    await use(async (pageUrl: string): Promise<void> => {
+      await setClaimStepForUrl(page, pageUrl);
+    });
   },
 
   checkAccessibility: async ({ page }, use): Promise<void> => {

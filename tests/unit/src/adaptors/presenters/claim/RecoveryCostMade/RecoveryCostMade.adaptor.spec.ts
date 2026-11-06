@@ -5,6 +5,7 @@ import { RecoveryCostMadeAdaptor } from "#src/adaptors/presenters/claim/Recovery
 import { RecoveryCostMadeValidator } from "#src/adaptors/presenters/claim/RecoveryCostMade/RecoveryCostMade.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { RECOVERY_COST_ERROR } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
 describe("RecoveryCostMade adaptor", () => {
   describe("renderForm", () => {
@@ -70,6 +71,10 @@ describe("RecoveryCostMade adaptor", () => {
 
       assert.equal(requestStub.session.claim?.recoveryCostMade, "YES");
       assert.equal(
+        requestStub.session.claim?.lastCompletedStepIndex,
+        CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/inquest-outcome-recovery"),
+      );
+      assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/recovery-costs",
       );
@@ -92,6 +97,10 @@ describe("RecoveryCostMade adaptor", () => {
 
       assert.equal(requestStub.session.claim?.recoveryCostMade, "NO");
       assert.equal(
+        requestStub.session.claim?.lastCompletedStepIndex,
+        CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/pre-cert-costs") - 1,
+      );
+      assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",
       );
@@ -113,6 +122,10 @@ describe("RecoveryCostMade adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.recoveryCostMade, "DONT_KNOW");
+      assert.equal(
+        requestStub.session.claim?.lastCompletedStepIndex,
+        CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/pre-cert-costs") - 1,
+      );
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",

@@ -2,7 +2,11 @@ import { strict as assert } from "assert";
 import { SinonSpy, spy } from "sinon";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
-import { createJourneyGuard } from "#src/infrastructure/express/middleware/accessControl/journeyGuard.js";
+import {
+  createJourneyGuard,
+  claimJourneyGuard,
+} from "#src/infrastructure/express/middleware/accessControl/journeyGuard.js";
+import { CLAIM_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 import { JOURNEY_NOT_STARTED } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 const TEST_JOURNEY_SEQUENCE = [
@@ -58,6 +62,103 @@ describe("journeyGuard middleware", () => {
       });
 
       assert.notStrictEqual(middleware1, middleware2);
+    });
+  });
+
+  describe("claim journey", () => {
+    it("blocks a forged summary edit link before the summary has been unlocked", () => {
+      requestStub.session.claim = { lastCompletedStepIndex: 2 };
+      requestStub.query = { from: "check-your-answers" };
+      Object.defineProperty(requestStub, "path", { value: "/type" });
+
+      claimJourneyGuard(requestStub, responseStub, nextSpy);
+
+      assert.equal(nextSpy.called, false);
+      assert.equal(
+        (responseStub.redirect as SinonSpy).firstCall.args[0],
+        "/claim/results",
+      );
+    });
+
+    it("allows summary edits after the summary has been unlocked", () => {
+      requestStub.session.claim = {
+        lastCompletedStepIndex:
+          CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/check-your-answers") - 1,
+      };
+      requestStub.query = { from: "check-your-answers" };
+      Object.defineProperty(requestStub, "path", { value: "/type" });
+
+      claimJourneyGuard(requestStub, responseStub, nextSpy);
+
+      assert.equal(nextSpy.calledOnce, true);
+    });
+
+    it("uses claim progress rather than apply progress to block skipping ahead", () => {
+      requestStub.session.apply = { lastCompletedStepIndex: 18 };
+      requestStub.session.claim = { lastCompletedStepIndex: 0 };
+      Object.defineProperty(requestStub, "path", { value: "/type" });
+
+      claimJourneyGuard(requestStub, responseStub, nextSpy);
+
+      assert.equal(nextSpy.called, false);
+      assert.equal(
+        (responseStub.redirect as SinonSpy).firstCall.args[0],
+        "/claim",
+      );
+    });
+
+    it("allows case search after the declaration is complete", () => {
+      requestStub.session.claim = { lastCompletedStepIndex: 0 };
+      Object.defineProperty(requestStub, "path", { value: "/search" });
+
+      claimJourneyGuard(requestStub, responseStub, nextSpy);
+
+      assert.equal(nextSpy.calledOnce, true);
+    });
+
+    for (const path of [
+      "/results/select/ABC-123",
+      "/evidence/upload",
+      "/final-bill-template/delete",
+    ]) {
+      it(`blocks the nested claim endpoint ${path} before its parent step is unlocked`, () => {
+        Object.defineProperty(requestStub, "path", { value: path });
+
+        claimJourneyGuard(requestStub, responseStub, nextSpy);
+
+        assert.equal(nextSpy.called, false);
+        assert.equal(
+          (responseStub.redirect as SinonSpy).firstCall.args[0],
+          "/claim",
+        );
+      });
+    }
+
+    it("allows case selection once search has been completed", () => {
+      requestStub.session.claim = {
+        lastCompletedStepIndex: CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/search"),
+      };
+      Object.defineProperty(requestStub, "path", {
+        value: "/results/select/ABC-123",
+      });
+
+      claimJourneyGuard(requestStub, responseStub, nextSpy);
+
+      assert.equal(nextSpy.calledOnce, true);
+    });
+
+    it("blocks rejected confirmation before submitting a claim", () => {
+      Object.defineProperty(requestStub, "path", {
+        value: "/confirmation/reject",
+      });
+
+      claimJourneyGuard(requestStub, responseStub, nextSpy);
+
+      assert.equal(nextSpy.called, false);
+      assert.equal(
+        (responseStub.redirect as SinonSpy).firstCall.args[0],
+        "/claim",
+      );
     });
   });
 

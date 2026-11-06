@@ -1,8 +1,9 @@
+import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - declaration", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim");
+    await gotoClaimStep(page, "/claim");
   });
 
   test("renders back link to start page", async ({
@@ -100,7 +101,7 @@ test.describe("Claim - declaration", () => {
   test("clears claim session data so back link on total cost reverts to /claim/type", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
@@ -108,8 +109,8 @@ test.describe("Claim - declaration", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
-    await page.goto("/claim");
-    await page.goto("/claim/total-cost");
+    await gotoClaimStep(page, "/claim");
+    await gotoClaimStep(page, "/claim/total-cost");
 
     const backLink = page.getByRole("link", { name: "Back", exact: true });
     await expect(backLink).toHaveAttribute("href", "/claim/type");

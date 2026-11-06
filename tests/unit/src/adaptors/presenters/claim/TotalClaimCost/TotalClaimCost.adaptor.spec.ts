@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { stubInterface } from "ts-sinon";
 import { TotalClaimCostAdaptor } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.adaptor.js";
 import { TOTAL_CLAIM_ERROR } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
 describe("TotalClaim adaptor", () => {
   describe("renderForm", () => {
@@ -98,6 +99,10 @@ describe("TotalClaim adaptor", () => {
       assert.equal(viewName, "claim/total-cost");
       assert.equal(viewModel.csrfToken, "test-token");
       assert.equal(viewModel.backHref, "/claim/subtype");
+      assert.equal(
+        requestStub.session.claim?.lastCompletedStepIndex,
+        undefined,
+      );
       assert.deepEqual(viewModel.errorSummaries, {
         grossTotalInputError: {
           text: TOTAL_CLAIM_ERROR.MISSING_GROSS_TOTAL_WHEN_NET_ENTERED,
@@ -161,6 +166,10 @@ describe("TotalClaim adaptor", () => {
       assert.equal(requestStub.session.claim?.zeroVatTotal, "100.00");
       assert.equal(requestStub.session.claim?.netTotal, "250.25");
       assert.equal(requestStub.session.claim?.grossTotal, "400.30");
+      assert.equal(
+        requestStub.session.claim?.lastCompletedStepIndex,
+        CLAIM_JOURNEY_SEQUENCE.indexOf("/claim/evidence") - 1,
+      );
     });
 
     it("redirects to check-your-answers and clears the flag when returnToCheckYourAnswers is set and submission is valid", () => {

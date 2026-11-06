@@ -29,5 +29,24 @@ export const APPLY_JOURNEY_SEQUENCE = [
   "/apply/confirmation/success",
 ];
 
-// Journey sequences temporarily disabled for investigation
-export const CLAIM_JOURNEY_SEQUENCE: string[] = [];
+export const CLAIM_JOURNEY_SEQUENCE = [
+  "/claim",
+  "/claim/search",
+  "/claim/results",
+  "/claim/type",
+  "/claim/subtype",
+  "/claim/total-cost",
+  "/claim/final-bill-template",
+  "/claim/evidence",
+  "/claim/counsel-number",
+  "/claim/counsel-pay-confirmation",
+  "/claim/end-date",
+  "/claim/inquest-outcome",
+  "/claim/funding-post-inquest",
+  "/claim/inquest-outcome-recovery",
+  "/claim/recovery-costs",
+  "/claim/pre-cert-costs",
+  "/claim/paying-party",
+  "/claim/check-your-answers",
+  "/claim/confirmation/success",
+];

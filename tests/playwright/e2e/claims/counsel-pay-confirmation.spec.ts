@@ -1,8 +1,9 @@
+import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - counsel pay confirmation", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/counsel-pay-confirmation");
+    await gotoClaimStep(page, "/claim/counsel-pay-confirmation");
   });
 
   test("renders back link to counsel number", async ({
@@ -79,7 +80,10 @@ test.describe("Claim - counsel pay confirmation", () => {
   test("returns to check your answers when changing the confirmation", async ({
     page,
   }) => {
-    await page.goto("/claim/counsel-pay-confirmation?from=check-your-answers");
+    await gotoClaimStep(
+      page,
+      "/claim/counsel-pay-confirmation?from=check-your-answers",
+    );
 
     const form = page.getByTestId("counsel-pay-confirmation-form");
 

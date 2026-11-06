@@ -1,10 +1,11 @@
+import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { CLAIM_EVIDENCE_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../fixtures/index.js";
 import { testFilenameUploadErrors } from "../../utils/upload-validation.js";
 
 test.describe("Claim - evidence", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/evidence");
+    await gotoClaimStep(page, "/claim/evidence");
   });
 
   testFilenameUploadErrors(

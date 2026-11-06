@@ -1,3 +1,4 @@
+import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
 import en from "#src/infrastructure/locales/en.json" with { type: "json" };
@@ -13,7 +14,7 @@ const missingAmountError = TOTAL_CLAIM_ERROR.MISSING_FINAL_BILL_GROSS_TOTAL;
 const invalidAmountError = TOTAL_CLAIM_ERROR.INVALID_FINAL_BILL_GROSS_TOTAL;
 
 async function goToFinalBillTotalCost(page: Page): Promise<void> {
-  await page.goto("/claim/type");
+  await gotoClaimStep(page, "/claim/type");
   await page.getByLabel("Final bill").check();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.waitForURL("**/claim/total-cost");

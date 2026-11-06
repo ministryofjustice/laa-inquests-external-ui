@@ -1,7 +1,11 @@
 import type { Request } from "express";
-import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
+import {
+  APPLY_JOURNEY_SEQUENCE,
+  CLAIM_JOURNEY_SEQUENCE,
+} from "#src/infrastructure/config/journeySequences.js";
 
 const STEP_NOT_FOUND = -1;
+const PREVIOUS_STEP_OFFSET = 1;
 
 /** Constant representing the initial journey state (no steps completed yet) */
 export const JOURNEY_NOT_STARTED = -1;
@@ -21,10 +25,16 @@ export const JOURNEY_NOT_STARTED = -1;
 export function markStepComplete(
   req: Pick<Request, "session">,
   currentUrl: string,
+  options: {
+    journeyType: "apply" | "claim";
+    journeySequence: readonly string[];
+  } = {
+    journeyType: "apply",
+    journeySequence: APPLY_JOURNEY_SEQUENCE,
+  },
 ): void {
-  const stepIndex = (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(
-    currentUrl,
-  );
+  const { journeyType, journeySequence } = options;
+  const stepIndex = journeySequence.indexOf(currentUrl);
 
   if (stepIndex === STEP_NOT_FOUND) {
     return;
@@ -36,14 +46,37 @@ export function markStepComplete(
   }
 
   const sessionRecord = req.session as Record<string, unknown>;
-  const { apply: currentApply } = sessionRecord;
+  const { [journeyType]: currentJourney } = sessionRecord;
   const mergedState =
-    typeof currentApply === "object" && currentApply !== null
-      ? (currentApply as Record<string, unknown>)
+    typeof currentJourney === "object" && currentJourney !== null
+      ? (currentJourney as Record<string, unknown>)
       : {};
 
-  sessionRecord.apply = {
+  sessionRecord[journeyType] = {
     ...mergedState,
     lastCompletedStepIndex: stepIndex,
   };
+}
+
+export function markClaimStepComplete(
+  req: Pick<Request, "session">,
+  currentUrl: string,
+  nextUrl?: string,
+): void {
+  const currentIndex = CLAIM_JOURNEY_SEQUENCE.indexOf(currentUrl);
+  if (currentIndex === STEP_NOT_FOUND) {
+    return;
+  }
+
+  const nextIndex = CLAIM_JOURNEY_SEQUENCE.indexOf(nextUrl ?? "");
+  const completedIndex = Math.max(
+    currentIndex,
+    nextIndex - PREVIOUS_STEP_OFFSET,
+  );
+  const { [completedIndex]: completedUrl } = CLAIM_JOURNEY_SEQUENCE;
+
+  markStepComplete(req, completedUrl, {
+    journeyType: "claim",
+    journeySequence: CLAIM_JOURNEY_SEQUENCE,
+  });
 }

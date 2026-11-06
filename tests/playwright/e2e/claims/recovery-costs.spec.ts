@@ -1,3 +1,4 @@
+import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import type { Page } from "@playwright/test";
 import { test, expect } from "../../fixtures/index.js";
 import { FINANCIAL_RECOVERY_COSTS_ERROR } from "#src/infrastructure/locales/constants.js";
@@ -5,7 +6,7 @@ import { validateCSRFToken } from "../../utils/govuk-validators.js";
 
 // Recovery costs is only reached when the recovery cost has been made (Yes)
 async function answerRecoveryCostMadeYesAndContinue(page: Page): Promise<void> {
-  await page.goto("/claim/inquest-outcome-recovery");
+  await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
   const form = page.getByTestId("inquest-outcome-recovery-form");
   await form.getByLabel("Yes", { exact: true }).check();
   await form.getByRole("button", { name: "Continue" }).click();
@@ -15,7 +16,7 @@ test.describe("Claim - financial recovery costs", () => {
   test("redirects to inquest outcome recovery when accessed directly without an answer", async ({
     page,
   }) => {
-    await page.goto("/claim/recovery-costs");
+    await gotoClaimStep(page, "/claim/recovery-costs");
 
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
   });
@@ -23,12 +24,12 @@ test.describe("Claim - financial recovery costs", () => {
   test("redirects to inquest outcome recovery when the recovery cost has not been made", async ({
     page,
   }) => {
-    await page.goto("/claim/inquest-outcome-recovery");
+    await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("No", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
 
-    await page.goto("/claim/recovery-costs");
+    await gotoClaimStep(page, "/claim/recovery-costs");
 
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
   });
@@ -133,7 +134,7 @@ test.describe("Claim - financial recovery costs", () => {
 
       await expect(page).toHaveURL("/claim/paying-party");
 
-      await page.goto("/claim/recovery-costs");
+      await gotoClaimStep(page, "/claim/recovery-costs");
       await expect(
         page
           .getByTestId("recovery-costs-form")

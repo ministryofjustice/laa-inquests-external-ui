@@ -1,7 +1,10 @@
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
 import assert from "assert";
-import { searchAndSelectCase } from "../../utils/claim-journey.js";
+import {
+  gotoClaimStep,
+  searchAndSelectCase,
+} from "../../utils/claim-journey.js";
 
 // Mirrors the ids/name returned by the mocked claim evidence endpoints in
 // tests/playwright/factories/handlers/api.ts
@@ -9,7 +12,7 @@ const EVIDENCE_FILE_ID = "2f76cf9d-a90f-4f9c-8f27-bf22312c7138";
 const NOT_FOUND_EVIDENCE_ID = "00000000-0000-0000-0000-000000000404";
 
 async function uploadEvidence(page: Page): Promise<void> {
-  await page.goto("/claim/evidence");
+  await gotoClaimStep(page, "/claim/evidence");
   await Promise.all([
     page.waitForResponse(
       (response) =>
@@ -27,14 +30,14 @@ async function uploadEvidence(page: Page): Promise<void> {
 
 test.describe("Claim - confirm and submit", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
     await page.getByLabel("Expert cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
   });
 
   test("renders back link to the evidence page", async ({
@@ -102,7 +105,7 @@ test.describe("Claim - confirm and submit", () => {
   test("renders the cost card with values entered on the total-cost page", async ({
     page,
   }) => {
-    await page.goto("/claim/total-cost");
+    await gotoClaimStep(page, "/claim/total-cost");
     await page.getByLabel("Total for costs charged at 0% VAT").fill("10");
     await page
       .getByLabel("Net total excluding VAT, for costs where VAT can be charged")
@@ -142,7 +145,7 @@ test.describe("Claim - confirm and submit", () => {
     page,
   }) => {
     await uploadEvidence(page);
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     const card = page.getByTestId("evidence-summary-list");
 
@@ -157,7 +160,7 @@ test.describe("Claim - confirm and submit", () => {
 
   test("View link opens the file inline in a new tab", async ({ page }) => {
     await uploadEvidence(page);
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     const viewLink = page
       .getByTestId("evidence-summary-list")
@@ -174,7 +177,7 @@ test.describe("Claim - confirm and submit", () => {
     page,
   }) => {
     await uploadEvidence(page);
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     const downloadLink = page
       .getByTestId("evidence-summary-list")
@@ -270,7 +273,7 @@ test.describe("Claim - confirm and submit", () => {
   test("displays the claim answers that were saved in the session", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
 
@@ -278,7 +281,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByLabel("Expert cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
 
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(claimDetails).toContainText("Payment on account (POA)");
@@ -288,7 +291,7 @@ test.describe("Claim - confirm and submit", () => {
   test("displays the selected client details that were saved in the session", async ({
     page,
   }) => {
-    await page.goto("/claim");
+    await gotoClaimStep(page, "/claim");
     await page
       .getByLabel("I confirm that I have read and agree to the declaration")
       .check();
@@ -312,7 +315,7 @@ test.describe("Claim - confirm and submit", () => {
       .click();
     await page.waitForURL("**/claim/type");
 
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     const caseDetails = page.getByTestId("case-details-summary-list");
     await expect(
@@ -326,7 +329,7 @@ test.describe("Claim - confirm and submit", () => {
     page,
   }) => {
     await searchAndSelectCase(page, "INQ-YYY-001");
-    await page.goto("/claim/evidence");
+    await gotoClaimStep(page, "/claim/evidence");
     await Promise.all([
       page.waitForResponse(
         (response) =>
@@ -355,7 +358,7 @@ test.describe("Claim - confirm and submit", () => {
     page,
   }) => {
     await uploadEvidence(page);
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     await page
       .getByTestId("confirm-and-submit-form")
@@ -369,7 +372,7 @@ test.describe("Claim - confirm and submit", () => {
     page,
   }) => {
     await searchAndSelectCase(page, "INQ-YYY-001");
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
     await page
       .getByTestId("confirm-and-submit-form")
       .getByRole("button", { name: "Finish and submit claim" })
@@ -385,7 +388,7 @@ test.describe("Claim - confirm and submit", () => {
   test("displays a 'There is a problem' error summary when the API returns a 422", async ({
     page,
   }) => {
-    await page.goto("/claim");
+    await gotoClaimStep(page, "/claim");
     await page
       .getByLabel("I confirm that I have read and agree to the declaration")
       .check();
@@ -408,7 +411,7 @@ test.describe("Claim - confirm and submit", () => {
       .click();
     await page.waitForURL("**/claim/type");
 
-    await page.goto("/claim/evidence");
+    await gotoClaimStep(page, "/claim/evidence");
     await Promise.all([
       page.waitForResponse(
         (response) =>
@@ -442,7 +445,7 @@ test.describe("Claim - confirm and submit", () => {
   test("shows the Type of POA row when POA is the claim type", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
@@ -450,7 +453,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(claimDetails).toContainText("Type of POA");
@@ -460,12 +463,12 @@ test.describe("Claim - confirm and submit", () => {
   test("hides the Type of POA row when the claim type is not POA", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Final bill").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(claimDetails).not.toContainText("Type of POA");
@@ -524,7 +527,7 @@ test.describe("Claim - confirm and submit", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Final bill").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("Enter the total gross amount").fill("1250.50");
@@ -544,14 +547,14 @@ test.describe("Claim - confirm and submit", () => {
         buffer: Buffer.from("fake spreadsheet content"),
       }),
     ]);
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
     await expect(page.getByTestId("cost-template-summary-list")).toBeVisible();
     await page.getByRole("link", { name: "Change type of claim" }).click();
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("Expert cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.goto("/claim/check-your-answers");
+    await gotoClaimStep(page, "/claim/check-your-answers");
 
     await expect(page.getByTestId("claim-details-summary-list")).toContainText(
       "Payment on account (POA)",
@@ -570,12 +573,12 @@ test.describe("Claim - confirm and submit", () => {
   test("hides final-bill-only details and change links for a POA profit cost claim", async ({
     page,
   }) => {
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Final bill").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
-    await page.goto("/claim/inquest-outcome");
+    await gotoClaimStep(page, "/claim/inquest-outcome");
     await page.getByLabel("Accident or misadventure").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("Yes", { exact: true }).check();
@@ -584,13 +587,13 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/recovery-costs");
 
-    await page.goto("/claim/type");
+    await gotoClaimStep(page, "/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
-    const response = await page.goto("/claim/check-your-answers");
+    const response = await gotoClaimStep(page, "/claim/check-your-answers");
 
     expect(response?.status()).toBe(200);
     await expect(
@@ -618,18 +621,18 @@ test.describe("Claim - confirm and submit", () => {
 
   test.describe("Other claim details", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/claim/type");
+      await gotoClaimStep(page, "/claim/type");
       await page.getByLabel("Final bill").check();
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForURL("**/claim/total-cost");
-      await page.goto("/claim/check-your-answers");
+      await gotoClaimStep(page, "/claim/check-your-answers");
     });
 
     async function answerFunding(
       page: Page,
       answer: "Yes" | "No",
     ): Promise<void> {
-      await page.goto("/claim/inquest-outcome");
+      await gotoClaimStep(page, "/claim/inquest-outcome");
       await page.getByLabel("Accident or misadventure").check();
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForURL("**/claim/funding-post-inquest");
@@ -783,7 +786,7 @@ test.describe("Claim - confirm and submit", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForURL("**/claim/check-your-answers");
 
-      await page.goto("/claim/inquest-outcome-recovery");
+      await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
       await page.getByLabel("Yes", { exact: true }).check();
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForURL("**/claim/recovery-costs");

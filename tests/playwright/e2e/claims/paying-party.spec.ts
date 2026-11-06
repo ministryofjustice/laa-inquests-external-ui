@@ -1,20 +1,21 @@
+import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 import { validateCSRFToken } from "../../utils/govuk-validators.js";
 
 test.describe("Claim - paying party", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/claim/paying-party");
+    await gotoClaimStep(page, "/claim/paying-party");
   });
 
   test("renders back link to recovery costs when the recovery cost was made", async ({
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/claim/inquest-outcome-recovery");
+    await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("Yes", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
-    await page.goto("/claim/paying-party");
+    await gotoClaimStep(page, "/claim/paying-party");
 
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
@@ -27,11 +28,11 @@ test.describe("Claim - paying party", () => {
   test("renders back link to pre-certificate costs when the recovery cost was not made", async ({
     page,
   }) => {
-    await page.goto("/claim/inquest-outcome-recovery");
+    await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("No", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
-    await page.goto("/claim/paying-party");
+    await gotoClaimStep(page, "/claim/paying-party");
 
     const backLink = page.getByRole("link", { name: "Back", exact: true });
 
@@ -93,7 +94,7 @@ test.describe("Claim - paying party", () => {
 
     await expect(page).toHaveURL("/claim/check-your-answers");
 
-    await page.goto("/claim/paying-party");
+    await gotoClaimStep(page, "/claim/paying-party");
     await expect(
       page.getByTestId("paying-party-form").locator("#paying-party"),
     ).toHaveValue("Acme Ltd");

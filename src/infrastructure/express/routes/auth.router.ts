@@ -116,6 +116,16 @@ export function createAuthRouter(
         }
       }
 
+      if (typeof req.query.claimStep === "string") {
+        const stepIndex = Number(req.query.claimStep);
+        if (!Number.isNaN(stepIndex)) {
+          req.session.claim = {
+            ...req.session.claim,
+            lastCompletedStepIndex: stepIndex,
+          };
+        }
+      }
+
       // Optional overrides to exercise session-expiry behaviour in E2E tests.
       const now = Date.now();
       const absoluteTimeoutMs = secondsParamToMs(
