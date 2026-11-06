@@ -22,4 +22,23 @@ export const APPLY_JOURNEY_SEQUENCE = [
   "/apply/confirmation/success",
 ];
 
-export const CLAIM_JOURNEY_SEQUENCE: string[] = [];
+export const CLAIM_JOURNEY_SEQUENCE = [
+  "/claim/search",
+  "/claim/results",
+  "/claim",
+  "/claim/type",
+  "/claim/subtype",
+  "/claim/total-cost",
+  "/claim/evidence",
+  "/claim/funding-post-inquest",
+  "/claim/inquest-outcome-recovery",
+  "/claim/paying-party",
+  "/claim/pre-cert-costs",
+  "/claim/recovery-costs",
+  "/claim/counsel-number",
+  "/claim/counsel-pay-confirmation",
+  "/claim/final-bill-template",
+  "/claim/check-your-answers",
+  "/claim/declaration",
+  "/claim/success",
+];
