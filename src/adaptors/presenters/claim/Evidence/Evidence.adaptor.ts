@@ -16,7 +16,6 @@ import type { DeleteEvidenceUseCase } from "#src/use-cases/claim/DeleteEvidence.
 import type { UploadEvidenceResponse } from "#src/adaptors/source/inquests-api/claim/UploadEvidence/models/UploadEvidence.types.js";
 import type { UploadEvidenceValidator } from "./Evidence.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
 import {
@@ -87,14 +86,8 @@ export class EvidenceAdaptor {
         uploadedFiles: this.#buildUploadedFiles(req),
       });
     } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
-      markClaimStepComplete(req, "/claim/evidence", "/claim/counsel-number");
       res.redirect("/claim/counsel-number");
     } else {
-      markClaimStepComplete(
-        req,
-        "/claim/evidence",
-        "/claim/check-your-answers",
-      );
       res.redirect("/claim/check-your-answers");
     }
   }

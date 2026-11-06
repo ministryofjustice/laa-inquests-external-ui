@@ -1,11 +1,10 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 import { FUNDING_POST_INQUEST_ERROR } from "#src/infrastructure/locales/constants.js";
 import { validateCSRFToken } from "../../utils/govuk-validators.js";
 
 test.describe("Claim - funding post-inquest", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoClaimStep(page, "/claim/funding-post-inquest");
+    await page.goto("/claim/funding-post-inquest");
   });
 
   test("renders back link to inquest outcome", async ({
@@ -105,7 +104,7 @@ test.describe("Claim - funding post-inquest", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
 
-    await gotoClaimStep(page, "/claim/funding-post-inquest");
+    await page.goto("/claim/funding-post-inquest");
 
     await expect(
       page

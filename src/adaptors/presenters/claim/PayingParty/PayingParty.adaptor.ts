@@ -11,7 +11,6 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class PayingPartyAdaptor {
   formValidator: PayingPartyValidator;
@@ -70,11 +69,6 @@ export class PayingPartyAdaptor {
       payingParty,
     };
 
-    markClaimStepComplete(
-      req,
-      "/claim/paying-party",
-      CLAIM_PATHS.CHECK_YOUR_ANSWERS,
-    );
     this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
     res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
   }

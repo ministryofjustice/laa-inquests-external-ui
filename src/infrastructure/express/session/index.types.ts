@@ -56,7 +56,6 @@ interface FormError {
 }
 
 export interface ClaimSession {
-  lastCompletedStepIndex?: number;
   caseReference?: string;
   client?: ClaimClientDetails;
   searchResults?: ClaimClientDetails[];

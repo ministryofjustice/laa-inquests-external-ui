@@ -1,4 +1,3 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
 import { testFilenameUploadErrors } from "../../utils/upload-validation.js";
@@ -8,7 +7,7 @@ const xlsxMimeType =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 async function goToFinalBillTemplate(page: Page): Promise<void> {
-  await gotoClaimStep(page, "/claim/type");
+  await page.goto("/claim/type");
   await page.getByLabel("Final bill").check();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.waitForURL("**/claim/total-cost");

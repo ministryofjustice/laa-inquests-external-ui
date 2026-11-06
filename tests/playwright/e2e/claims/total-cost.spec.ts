@@ -1,9 +1,8 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - total cost", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoClaimStep(page, "/claim/total-cost");
+    await page.goto("/claim/total-cost");
   });
 
   test("renders page heading", async ({ page, checkAccessibility }) => {
@@ -44,7 +43,7 @@ test.describe("Claim - total cost", () => {
   test("back link points to /claim/subtype when POA was selected", async ({
     page,
   }) => {
-    await gotoClaimStep(page, "/claim/type");
+    await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
@@ -66,7 +65,7 @@ test.describe("Claim - total cost", () => {
   test("shows validation error and does not progress when no values are entered for non-profit POA", async ({
     page,
   }) => {
-    await gotoClaimStep(page, "/claim/type");
+    await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
@@ -139,7 +138,7 @@ test.describe("Claim - total cost", () => {
   test("shows validation error when profit cost claim has both 0% and 20% VAT entered", async ({
     page,
   }) => {
-    await gotoClaimStep(page, "/claim/type");
+    await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
@@ -171,7 +170,7 @@ test.describe("Claim - total cost", () => {
   });
 
   test("allows all three fields for non-profit POA", async ({ page }) => {
-    await gotoClaimStep(page, "/claim/type");
+    await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");
@@ -195,7 +194,7 @@ test.describe("Claim - total cost", () => {
   });
 
   test("allows 0% VAT field only for non-profit POA", async ({ page }) => {
-    await gotoClaimStep(page, "/claim/type");
+    await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/subtype");

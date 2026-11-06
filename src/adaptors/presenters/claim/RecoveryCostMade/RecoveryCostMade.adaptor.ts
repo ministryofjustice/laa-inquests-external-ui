@@ -11,7 +11,6 @@ import {
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class RecoveryCostMadeAdaptor {
   formValidator: RecoveryCostMadeValidator;
@@ -74,11 +73,6 @@ export class RecoveryCostMadeAdaptor {
         preCertificateCosts: undefined,
       };
       this.#markEditWhenReturning(req);
-      markClaimStepComplete(
-        req,
-        "/claim/inquest-outcome-recovery",
-        "/claim/recovery-costs",
-      );
       res.redirect("/claim/recovery-costs");
       return;
     }
@@ -92,11 +86,6 @@ export class RecoveryCostMadeAdaptor {
       recoveryPreCertificateCosts: undefined,
     };
     this.#markEditWhenReturning(req);
-    markClaimStepComplete(
-      req,
-      "/claim/inquest-outcome-recovery",
-      "/claim/pre-cert-costs",
-    );
     res.redirect("/claim/pre-cert-costs");
   }
 

@@ -1,9 +1,8 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - claim type", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoClaimStep(page, "/claim/type");
+    await page.goto("/claim/type");
   });
 
   test("renders back link to case search results", async ({
@@ -99,7 +98,7 @@ test.describe("Claim - claim type", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL("/claim/total-cost");
 
-    await gotoClaimStep(page, "/claim/type");
+    await page.goto("/claim/type");
 
     await expect(
       page.getByTestId("claim-type-form").getByLabel("Final bill"),

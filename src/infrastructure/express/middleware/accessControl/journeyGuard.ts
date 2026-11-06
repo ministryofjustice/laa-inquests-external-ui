@@ -1,12 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-import {
-  APPLY_JOURNEY_SEQUENCE,
-  CLAIM_JOURNEY_SEQUENCE,
-} from "#src/infrastructure/config/journeySequences.js";
+import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 import { JOURNEY_NOT_STARTED } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
-import { CHECK_YOUR_ANSWERS_ORIGIN } from "#src/infrastructure/locales/constants.js";
-import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 
 const STEP_NOT_IN_SEQUENCE = -1;
 const FIRST_STEP_INDEX = 0;
@@ -16,7 +11,6 @@ interface JourneyGuardOptions {
   journeyType: "apply" | "claim";
   journeyPrefix: string;
   journeySequence: readonly string[];
-  stepAliases?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -45,47 +39,6 @@ function getValidatedLastCompletedStep(
   return JOURNEY_NOT_STARTED;
 }
 
-function getJourneyStepIndex(
-  options: JourneyGuardOptions,
-  currentPath: string,
-): number {
-  const { journeyType, journeyPrefix, journeySequence } = options;
-  const relativePath = currentPath.startsWith(journeyPrefix)
-    ? currentPath.slice(journeyPrefix.length)
-    : currentPath;
-  const currentStepUrl =
-    relativePath === "/" ? journeyPrefix : `${journeyPrefix}${relativePath}`;
-  const canonicalStepUrl =
-    options.stepAliases?.[currentStepUrl] ?? currentStepUrl;
-  const currentIndex = journeySequence.indexOf(canonicalStepUrl);
-
-  if (currentIndex === STEP_NOT_IN_SEQUENCE && journeyType === "claim") {
-    return journeySequence.findIndex(
-      (stepUrl) =>
-        stepUrl !== journeyPrefix && canonicalStepUrl.startsWith(`${stepUrl}/`),
-    );
-  }
-  return currentIndex;
-}
-
-function hasAllowedSummaryOrigin(
-  req: Pick<Request, "query">,
-  options: JourneyGuardOptions,
-  lastCompletedStepIndex: number,
-): boolean {
-  if (
-    options.journeyType !== "claim" ||
-    req.query.from !== CHECK_YOUR_ANSWERS_ORIGIN
-  ) {
-    return true;
-  }
-
-  const summaryIndex = options.journeySequence.indexOf(
-    CLAIM_PATHS.CHECK_YOUR_ANSWERS,
-  );
-  return lastCompletedStepIndex >= summaryIndex - NEXT_STEP_OFFSET;
-}
-
 /**
  * Middleware factory that creates a journey guard for a specific journey.
  *
@@ -100,9 +53,17 @@ function hasAllowedSummaryOrigin(
  */
 export function createJourneyGuard(options: JourneyGuardOptions) {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const { journeyType, journeySequence } = options;
+    const { journeyType, journeyPrefix, journeySequence } = options;
     const { path: currentPath } = req;
-    const currentIndex = getJourneyStepIndex(options, currentPath);
+
+    // Extract the relative path by removing the journey prefix
+    const relativePath = currentPath.startsWith(journeyPrefix)
+      ? currentPath.slice(journeyPrefix.length)
+      : currentPath;
+
+    // Find step index in sequence
+    const currentStepUrl = `${journeyPrefix}${relativePath}`;
+    const currentIndex = journeySequence.indexOf(currentStepUrl);
 
     // Path not in sequence - allow it (it might be a utility endpoint)
     if (currentIndex === STEP_NOT_IN_SEQUENCE) {
@@ -120,9 +81,8 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
 
     // Allow access to first step (index 0) or any step up to lastCompleted + 1
     const isAllowedStep =
-      (currentIndex === FIRST_STEP_INDEX ||
-        currentIndex <= lastCompletedStepIndex + NEXT_STEP_OFFSET) &&
-      hasAllowedSummaryOrigin(req, options, lastCompletedStepIndex);
+      currentIndex === FIRST_STEP_INDEX ||
+      currentIndex <= lastCompletedStepIndex + NEXT_STEP_OFFSET;
 
     if (isAllowedStep) {
       next();
@@ -166,13 +126,4 @@ export const applyJourneyGuard = createJourneyGuard({
   journeyType: "apply",
   journeyPrefix: "/apply",
   journeySequence: APPLY_JOURNEY_SEQUENCE,
-});
-
-export const claimJourneyGuard = createJourneyGuard({
-  journeyType: "claim",
-  journeyPrefix: "/claim",
-  journeySequence: CLAIM_JOURNEY_SEQUENCE,
-  stepAliases: {
-    "/claim/confirmation/reject": "/claim/confirmation/success",
-  },
 });

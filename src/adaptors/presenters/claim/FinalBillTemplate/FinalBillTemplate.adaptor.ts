@@ -15,7 +15,6 @@ import type { UploadEvidenceResponse } from "#src/adaptors/source/inquests-api/c
 import type { FinalBillTemplateValidator } from "./FinalBillTemplate.validator.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,
@@ -76,18 +75,8 @@ export class FinalBillTemplateAdaptor {
         uploadedFiles: this.#buildUploadedFiles(req),
       });
     } else if (req.session.claim?.returnToCheckYourAnswers === true) {
-      markClaimStepComplete(
-        req,
-        "/claim/final-bill-template",
-        "/claim/check-your-answers",
-      );
       res.redirect("/claim/check-your-answers");
     } else {
-      markClaimStepComplete(
-        req,
-        "/claim/final-bill-template",
-        "/claim/evidence",
-      );
       res.redirect("/claim/evidence");
     }
   }

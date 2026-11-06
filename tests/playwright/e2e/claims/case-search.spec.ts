@@ -1,9 +1,8 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - case search", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoClaimStep(page, "/claim/search");
+    await page.goto("/claim/search");
   });
 
   test("renders back link to claim declaration", async ({

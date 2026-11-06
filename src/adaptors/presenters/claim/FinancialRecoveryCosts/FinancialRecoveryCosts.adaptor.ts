@@ -11,7 +11,6 @@ import {
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 const RECOVERY_COST_MADE_ANSWER_HREF = "/claim/inquest-outcome-recovery";
 
@@ -102,17 +101,11 @@ export class FinancialRecoveryCostsAdaptor {
     };
 
     if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
-      markClaimStepComplete(
-        req,
-        "/claim/recovery-costs",
-        CLAIM_PATHS.CHECK_YOUR_ANSWERS,
-      );
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
       res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       return;
     }
 
-    markClaimStepComplete(req, "/claim/recovery-costs", "/claim/paying-party");
     res.redirect("/claim/paying-party");
   }
 

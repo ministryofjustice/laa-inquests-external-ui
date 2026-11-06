@@ -1,11 +1,10 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 import { RECOVERY_COST_ERROR } from "#src/infrastructure/locales/constants.js";
 import { validateCSRFToken } from "../../utils/govuk-validators.js";
 
 test.describe("Claim - inquest outcome recovery", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
+    await page.goto("/claim/inquest-outcome-recovery");
   });
 
   test("renders back link to funding post-inquest", async ({

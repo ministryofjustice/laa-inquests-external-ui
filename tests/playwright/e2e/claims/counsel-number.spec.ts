@@ -1,9 +1,8 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - counsel number", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoClaimStep(page, "/claim/counsel-number");
+    await page.goto("/claim/counsel-number");
   });
 
   test("renders back link to evidence", async ({
@@ -103,7 +102,7 @@ test.describe("Claim - counsel number", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL("/claim/counsel-pay-confirmation");
 
-    await gotoClaimStep(page, "/claim/counsel-number");
+    await page.goto("/claim/counsel-number");
 
     await expect(
       page.getByTestId("counsel-number-form").getByLabel("2", { exact: true }),
@@ -119,7 +118,7 @@ test.describe("Claim - counsel number", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL("/claim/end-date");
 
-    await gotoClaimStep(page, "/claim/counsel-number?from=check-your-answers");
+    await page.goto("/claim/counsel-number?from=check-your-answers");
 
     const changeForm = page.getByTestId("counsel-number-form");
     await changeForm.getByLabel("2", { exact: true }).check();
@@ -137,7 +136,7 @@ test.describe("Claim - counsel number", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL("/claim/counsel-pay-confirmation");
 
-    await gotoClaimStep(page, "/claim/counsel-number?from=check-your-answers");
+    await page.goto("/claim/counsel-number?from=check-your-answers");
 
     const changeForm = page.getByTestId("counsel-number-form");
     await changeForm.getByLabel("0", { exact: true }).check();

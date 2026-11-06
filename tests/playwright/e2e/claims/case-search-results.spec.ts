@@ -1,10 +1,9 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - case search results", () => {
   test.beforeEach(async ({ page }) => {
     console.log("Starting case-search result");
-    await gotoClaimStep(page, "/claim/search");
+    await page.goto("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
@@ -91,7 +90,7 @@ test.describe("Claim - case search results", () => {
     page,
     checkAccessibility,
   }) => {
-    await gotoClaimStep(page, "/claim/results/select/INQ-NOT-IN-RESULTS");
+    await page.goto("/claim/results/select/INQ-NOT-IN-RESULTS");
 
     await expect(page).toHaveURL(/\/claim\/results\?selectionError=true$/);
     await expect(
@@ -110,7 +109,7 @@ test.describe("Claim - case search results", () => {
   test("allows the case to be selected again after a failed selection", async ({
     page,
   }) => {
-    await gotoClaimStep(page, "/claim/results/select/INQ-NOT-IN-RESULTS");
+    await page.goto("/claim/results/select/INQ-NOT-IN-RESULTS");
     await page
       .getByRole("table")
       .getByRole("row")

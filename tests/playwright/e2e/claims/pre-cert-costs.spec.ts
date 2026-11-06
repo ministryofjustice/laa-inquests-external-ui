@@ -1,4 +1,3 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import type { Page } from "@playwright/test";
 import { test, expect } from "../../fixtures/index.js";
 import { PRE_CERTIFICATE_COSTS_ERROR } from "#src/infrastructure/locales/constants.js";
@@ -9,7 +8,7 @@ async function answerRecoveryCostMadeAndContinue(
   page: Page,
   answer: "No" | "Don't know",
 ): Promise<void> {
-  await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
+  await page.goto("/claim/inquest-outcome-recovery");
   const form = page.getByTestId("inquest-outcome-recovery-form");
   await form.getByLabel(answer, { exact: true }).check();
   await form.getByRole("button", { name: "Continue" }).click();
@@ -19,7 +18,7 @@ test.describe("Claim - pre-certificate costs", () => {
   test("redirects to inquest outcome recovery when accessed directly without an answer", async ({
     page,
   }) => {
-    await gotoClaimStep(page, "/claim/pre-cert-costs");
+    await page.goto("/claim/pre-cert-costs");
 
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
   });
@@ -27,12 +26,12 @@ test.describe("Claim - pre-certificate costs", () => {
   test("redirects to inquest outcome recovery when the recovery cost has been made", async ({
     page,
   }) => {
-    await gotoClaimStep(page, "/claim/inquest-outcome-recovery");
+    await page.goto("/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("Yes", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
 
-    await gotoClaimStep(page, "/claim/pre-cert-costs");
+    await page.goto("/claim/pre-cert-costs");
 
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
   });
@@ -130,7 +129,7 @@ test.describe("Claim - pre-certificate costs", () => {
 
         await expect(page).toHaveURL("/claim/paying-party");
 
-        await gotoClaimStep(page, "/claim/pre-cert-costs");
+        await page.goto("/claim/pre-cert-costs");
         await expect(
           page
             .getByTestId("pre-certificate-costs-form")

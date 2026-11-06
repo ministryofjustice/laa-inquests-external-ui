@@ -10,7 +10,6 @@ import type {
   InquestOutcomeValidator,
 } from "./InquestOutcome.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class InquestOutcomeAdaptor {
   formValidator: InquestOutcomeValidator;
@@ -82,19 +81,9 @@ export class InquestOutcomeAdaptor {
     };
 
     if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
-      markClaimStepComplete(
-        req,
-        "/claim/inquest-outcome",
-        "/claim/check-your-answers",
-      );
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
       res.redirect("/claim/check-your-answers");
     } else {
-      markClaimStepComplete(
-        req,
-        "/claim/inquest-outcome",
-        "/claim/funding-post-inquest",
-      );
       res.redirect("/claim/funding-post-inquest");
     }
   }

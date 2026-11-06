@@ -16,7 +16,6 @@ import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js"
 import { SelectCaseUseCase } from "#src/use-cases/claim/SelectCase.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { saveSession } from "#src/infrastructure/express/session/sessionConcurrency.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
@@ -83,7 +82,6 @@ export class CaseSearchAdaptor {
       });
     } else {
       req.session.claim = { ...req.session.claim, caseReference };
-      markClaimStepComplete(req, "/claim/search");
       res.redirect("/claim/results");
     }
   }
@@ -169,7 +167,6 @@ export class CaseSearchAdaptor {
         caseReference: selectedReference,
         client: result.client,
       };
-      markClaimStepComplete(req, "/claim/results");
       await saveSession(req);
       res.redirect("/claim/type");
     }

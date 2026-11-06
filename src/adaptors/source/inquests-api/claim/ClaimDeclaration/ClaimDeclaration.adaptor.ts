@@ -3,7 +3,6 @@ import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import type { ClaimDeclarationFormData } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/models/ClaimDeclaration.types.js";
-import { markClaimStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class ClaimDeclarationAdaptor {
   validateBeforeYouStartDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
@@ -45,7 +44,6 @@ export class ClaimDeclarationAdaptor {
       return;
     }
     req.session.claimDeclaration = true;
-    markClaimStepComplete(req, "/claim");
     logger.logInfo({
       functionName: "claim_declaration",
       message: "Claim declaration submitted",

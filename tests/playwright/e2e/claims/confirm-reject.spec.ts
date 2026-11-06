@@ -1,9 +1,8 @@
-import { gotoClaimStep } from "#tests/playwright/utils/claim-journey.js";
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - confirm reject", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoClaimStep(page, "/claim/search");
+    await page.goto("/claim/search");
     await page
       .getByTestId("case-search-form")
       .getByLabel("Enter the case reference number")
@@ -27,7 +26,7 @@ test.describe("Claim - confirm reject", () => {
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
-    await gotoClaimStep(page, "/claim/evidence");
+    await page.goto("/claim/evidence");
     await Promise.all([
       page.waitForResponse(
         (response) =>
@@ -41,7 +40,7 @@ test.describe("Claim - confirm reject", () => {
         buffer: Buffer.from("evidence content"),
       }),
     ]);
-    await gotoClaimStep(page, "/claim/check-your-answers");
+    await page.goto("/claim/check-your-answers");
 
     await page
       .getByTestId("confirm-and-submit-form")
