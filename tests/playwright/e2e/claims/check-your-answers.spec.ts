@@ -228,11 +228,6 @@ test.describe("Claim - confirm and submit", () => {
   test("renders Change links pointing to the correct pages", async ({
     page,
   }) => {
-    const caseDetails = page.getByTestId("case-details-summary-list");
-    await expect(
-      caseDetails.getByRole("link", { name: "Change case reference number" }),
-    ).toHaveAttribute("href", "/claim");
-
     const claimDetails = page.getByTestId("claim-details-summary-list");
     await expect(
       claimDetails.getByRole("link", { name: "Change type of claim" }),
@@ -324,7 +319,7 @@ test.describe("Claim - confirm and submit", () => {
       caseDetails.getByText("INQ-YYY-001", { exact: true }),
     ).toBeVisible();
     const texts = await caseDetails.getByRole("definition").allInnerTexts();
-    assert.equal(texts.length, 5);
+    assert.equal(texts.length, 4);
   });
 
   test("redirects to the claim confirmation success page when the claim is submitted", async ({
