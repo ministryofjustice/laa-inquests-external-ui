@@ -56,7 +56,7 @@ export class PublicAuthorityAdaptor {
       csrfToken,
       publicAuthorityOptions:
         this.formatter.formatPublicAuthorityOptionsIntoList(
-          availablePublicAuthorities,
+          this.#sortPublicAuthoritiesByDescription(availablePublicAuthorities),
         ),
       selectedPublicAuthorityIds,
       backHref: this.#resolveBackHref(req),
@@ -92,7 +92,9 @@ export class PublicAuthorityAdaptor {
         csrfToken,
         publicAuthorityOptions:
           this.formatter.formatPublicAuthorityOptionsIntoList(
-            availablePublicAuthorities,
+            this.#sortPublicAuthoritiesByDescription(
+              availablePublicAuthorities,
+            ),
           ),
         selectedPublicAuthorityIds,
         backHref: this.#resolveBackHref(req),
@@ -135,7 +137,9 @@ export class PublicAuthorityAdaptor {
     session: Request["session"],
   ): Promise<PublicAuthority[]> {
     if (session.availablePublicAuthorities !== undefined) {
-      return session.availablePublicAuthorities;
+      return this.#normalizePublicAuthorities(
+        session.availablePublicAuthorities,
+      );
     }
 
     const publicBodies = await this.getPublicAuthoritiesUseCase.execute(
@@ -154,7 +158,35 @@ export class PublicAuthorityAdaptor {
   ): PublicAuthority[] {
     return publicBodies.map((publicBody) => ({
       publicAuthorityId: publicBody.publicBodyId,
-      publicAuthorityDescription: publicBody.publicBodyDescription,
+      publicAuthorityDescription: this.#normalizePublicAuthorityName(
+        publicBody.publicBodyDescription,
+      ),
     }));
+  }
+
+  #normalizePublicAuthorityName(description: string): string {
+    if (description === "Department Devolved to Wales") {
+      return "Power devolved to Wales";
+    }
+    return description;
+  }
+
+  #normalizePublicAuthorities(
+    authorities: PublicAuthority[],
+  ): PublicAuthority[] {
+    return authorities.map((auth) => ({
+      ...auth,
+      publicAuthorityDescription: this.#normalizePublicAuthorityName(
+        auth.publicAuthorityDescription,
+      ),
+    }));
+  }
+
+  #sortPublicAuthoritiesByDescription(
+    authorities: PublicAuthority[],
+  ): PublicAuthority[] {
+    return [...authorities].sort((a, b) =>
+      a.publicAuthorityDescription.localeCompare(b.publicAuthorityDescription),
+    );
   }
 }
