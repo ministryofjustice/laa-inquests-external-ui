@@ -5,9 +5,9 @@ test.describe("Client details - correspondence recipient", () => {
   test("renders recipient form with expected title, options and hint", async ({
     page,
     checkAccessibility,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
 
@@ -38,9 +38,9 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when no option is selected", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
@@ -61,9 +61,9 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when person is selected and name is empty", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
@@ -88,9 +88,9 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when person name exceeds 100 characters", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
@@ -124,9 +124,9 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when person name contains invalid characters", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
@@ -159,9 +159,9 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("continues when person name contains unicode characters", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
 
@@ -177,9 +177,9 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("continues to proceedings page when no is selected", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
 
@@ -192,9 +192,9 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("clears no organisation specified error when switching from organisation to person option", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
@@ -225,9 +225,9 @@ test.describe("Client details - correspondence recipient", () => {
   });
   test("clears no person specified error when switching from person to organisation option", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-recipient");
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
 
     await page.goto("/apply/client-details/correspondence-recipient");
 

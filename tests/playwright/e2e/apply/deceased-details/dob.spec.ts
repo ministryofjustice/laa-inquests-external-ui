@@ -12,9 +12,7 @@ import {
 
 test.describe("Provider can", () => {
   let form: Locator;
-  test.beforeEach(async ({ page, withApplyStep }) => {
-    await withApplyStep("/apply/deceased-details/dob");
-
+  test.beforeEach(async ({ page }) => {
     await page.goto("/apply/deceased-details/dob");
     form = await page.getByTestId("deceased-date-of-birth-form");
   });
@@ -74,7 +72,7 @@ test.describe("Provider can", () => {
       );
     });
 
-    test("date of birth is invalid", async ({ page, withApplyStep }) => {
+    test("date of birth is invalid", async ({ page }) => {
       const dayInput = form.getByLabel("Day");
       const monthInput = form.getByLabel("Month");
       const yearInput = form.getByLabel("Year");
@@ -93,7 +91,7 @@ test.describe("Provider can", () => {
       );
     });
 
-    test("date of birth is in the future", async ({ page, withApplyStep }) => {
+    test("date of birth is in the future", async ({ page }) => {
       const dayInput = form.getByLabel("Day");
       const monthInput = form.getByLabel("Month");
       const yearInput = form.getByLabel("Year");
@@ -111,11 +109,7 @@ test.describe("Provider can", () => {
       );
     });
 
-    test("date of birth is after date of death", async ({
-      page,
-      withApplyStep,
-    }) => {
-      await withApplyStep("/apply/deceased-details/dod");
+    test("date of birth is after date of death", async ({ page }) => {
       await page.goto("/apply/deceased-details/dod");
       const dateOfDeathForm = await page.getByTestId(
         "deceased-date-of-death-form",

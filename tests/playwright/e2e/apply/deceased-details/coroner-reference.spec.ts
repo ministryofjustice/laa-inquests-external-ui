@@ -12,9 +12,7 @@ import {
 
 test.describe("Provider can", () => {
   let form: Locator;
-  test.beforeEach(async ({ page, withApplyStep }) => {
-    await withApplyStep("/apply/deceased-details/coroner-reference");
-
+  test.beforeEach(async ({ page }) => {
     await page.goto("/apply/deceased-details/coroner-reference");
     form = await page.getByTestId("deceased-coroner-reference-form");
   });

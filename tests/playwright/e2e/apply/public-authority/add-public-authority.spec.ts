@@ -5,9 +5,9 @@ test.describe("Add interested party (public authority)", () => {
   test("renders interested party (public authority) page with checkboxes and continue button", async ({
     page,
     checkAccessibility,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/public-authority");
+    await authorizeApplyStep("/apply/public-authority");
 
     await page.goto("/apply/public-authority");
     await validateBackButton(
@@ -39,9 +39,9 @@ test.describe("Add interested party (public authority)", () => {
 
   test("redirects to upload coroner's letter after selecting a single interested party (public authority)", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/public-authority");
+    await authorizeApplyStep("/apply/public-authority");
 
     await page.goto("/apply/public-authority");
 
@@ -54,9 +54,9 @@ test.describe("Add interested party (public authority)", () => {
 
   test("redirects to upload coroner's letter after selecting multiple interested parties (public authority)", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/public-authority");
+    await authorizeApplyStep("/apply/public-authority");
 
     await page.goto("/apply/public-authority");
 
@@ -70,9 +70,9 @@ test.describe("Add interested party (public authority)", () => {
 
   test("renders validation error when no interested party (public authority) is selected", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/public-authority");
+    await authorizeApplyStep("/apply/public-authority");
 
     await page.goto("/apply/public-authority");
 

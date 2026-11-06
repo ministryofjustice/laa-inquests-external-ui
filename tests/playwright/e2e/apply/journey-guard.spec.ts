@@ -4,9 +4,11 @@ import { getAndUpdateFormFields } from "#tests/playwright/fixtures/pages/Apply.j
 test.describe("Apply - journey guard", () => {
   test("redirects to the last completed step when the recipient page is accessed before selecting an address source", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-address-source");
+    await authorizeApplyStep(
+      "/apply/client-details/correspondence-address-source",
+    );
 
     await page.goto("/apply/client-details/correspondence-recipient");
 
@@ -16,9 +18,11 @@ test.describe("Apply - journey guard", () => {
 
   test("allows returning to the address source and preserves the office address selection", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-address-source");
+    await authorizeApplyStep(
+      "/apply/client-details/correspondence-address-source",
+    );
     await page.goto("/apply/client-details/correspondence-address-source");
 
     await page.getByLabel("My office address").check();
@@ -37,9 +41,9 @@ test.describe("Apply - journey guard", () => {
 
   test("continues to the recipient page when the client has a home address and selects it for correspondence", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/home-address");
+    await authorizeApplyStep("/apply/client-details/home-address");
     await page.goto("/apply/client-details/home-address");
 
     await getAndUpdateFormFields(page, {
@@ -65,9 +69,11 @@ test.describe("Apply - journey guard", () => {
 
   test("requires a valid correspondence address after changing from office address to another UK address", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-address-source");
+    await authorizeApplyStep(
+      "/apply/client-details/correspondence-address-source",
+    );
     await page.goto("/apply/client-details/correspondence-address-source");
 
     await page.getByLabel("My office address").check();

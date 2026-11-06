@@ -9,9 +9,9 @@ test.describe("Add proceedings", () => {
   test("renders expected proceeding page heading, proceeding options and continue button", async ({
     page,
     checkAccessibility,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/proceeding");
+    await authorizeApplyStep("/apply/proceeding");
 
     await page.goto("/apply/proceeding");
     await validateBackButton(
@@ -47,9 +47,9 @@ test.describe("Add proceedings", () => {
 
   test("sets the browser tab title from the translated page heading", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/proceeding");
+    await authorizeApplyStep("/apply/proceeding");
 
     await page.goto("/apply/proceeding");
 
@@ -60,9 +60,9 @@ test.describe("Add proceedings", () => {
 
   test("renders error message on clicking continue without selecting a proceeding", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/proceeding");
+    await authorizeApplyStep("/apply/proceeding");
 
     await page.goto("/apply/proceeding");
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
@@ -87,9 +87,9 @@ test.describe("Add proceedings", () => {
   });
   test("pre-selects proceeding radio when navigating back from check-your-answers", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/proceeding");
+    await authorizeApplyStep("/apply/proceeding");
 
     await page.goto("/apply/proceeding");
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
@@ -104,7 +104,7 @@ test.describe("Add proceedings", () => {
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
 
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
     await page.goto("/apply/check-your-answers");
 
     const proceedingsSummaryList = page.getByTestId("proceedings-summary-list");

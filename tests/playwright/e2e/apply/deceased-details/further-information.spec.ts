@@ -12,9 +12,7 @@ import {
 
 test.describe("Provider can", () => {
   let form: Locator;
-  test.beforeEach(async ({ page, withApplyStep }) => {
-    await withApplyStep("/apply/deceased-details/further-information");
-
+  test.beforeEach(async ({ page }) => {
     await page.goto("/apply/deceased-details/further-information");
     form = await page.getByTestId("deceased-further-information-form");
   });
@@ -54,7 +52,7 @@ test.describe("Provider can", () => {
     await checkAccessibility();
   });
 
-  test("continue to confirmation page", async ({ page, withApplyStep }) => {
+  test("continue to confirmation page", async ({ page }) => {
     const noRadio = form.getByRole("radio", { name: "No", exact: true });
     await noRadio.click();
 

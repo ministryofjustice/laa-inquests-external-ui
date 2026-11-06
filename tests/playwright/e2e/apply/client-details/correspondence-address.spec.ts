@@ -34,9 +34,9 @@ test.describe("Client details - correspondence address", () => {
   test("renders correspondence address form with expected title and fields", async ({
     page,
     checkAccessibility,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-address");
+    await authorizeApplyStep("/apply/client-details/correspondence-address");
 
     await page.goto("/apply/client-details/correspondence-address");
 
@@ -70,9 +70,9 @@ test.describe("Client details - correspondence address", () => {
 
   test("continues to correspondence recipient page with valid correspondence address", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-address");
+    await authorizeApplyStep("/apply/client-details/correspondence-address");
 
     await page.goto("/apply/client-details/correspondence-address");
 
@@ -88,9 +88,9 @@ test.describe("Client details - correspondence address", () => {
 
   test("continues when valid minimum length correspondence values are entered", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-address");
+    await authorizeApplyStep("/apply/client-details/correspondence-address");
 
     await page.goto("/apply/client-details/correspondence-address");
 
@@ -111,9 +111,9 @@ test.describe("Client details - correspondence address", () => {
 
   test("continues when postcode is entered in lowercase and stores it in uppercase", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/client-details/correspondence-address");
+    await authorizeApplyStep("/apply/client-details/correspondence-address");
 
     await page.goto("/apply/client-details/correspondence-address");
 
@@ -134,8 +134,11 @@ test.describe("Client details - correspondence address", () => {
   });
 
   test.describe("render validation errors", () => {
-    test("if address line 1 is missing", async ({ page, withApplyStep }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+    test("if address line 1 is missing", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -167,9 +170,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if address line 1 is less than 2 characters", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -201,9 +204,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if address line 1 does not contain an alphanumeric character", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -235,9 +238,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if address line 1 contains invalid characters", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -269,9 +272,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if address line 2 is less than 2 characters when populated", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -303,9 +306,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if address line 2 contains invalid characters", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -335,8 +338,8 @@ test.describe("Client details - correspondence address", () => {
       );
     });
 
-    test("if town or city is missing", async ({ page, withApplyStep }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+    test("if town or city is missing", async ({ page, authorizeApplyStep }) => {
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -368,9 +371,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if town or city contains invalid characters", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -402,9 +405,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if town or city exceeds max character length", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -436,9 +439,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if county is less than 3 characters when populated", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -468,9 +471,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if county contains invalid characters", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -492,8 +495,8 @@ test.describe("Client details - correspondence address", () => {
       );
     });
 
-    test("if postcode is missing", async ({ page, withApplyStep }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+    test("if postcode is missing", async ({ page, authorizeApplyStep }) => {
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
@@ -525,9 +528,9 @@ test.describe("Client details - correspondence address", () => {
 
     test("if postcode contains invalid characters", async ({
       page,
-      withApplyStep,
+      authorizeApplyStep,
     }) => {
-      await withApplyStep("/apply/client-details/correspondence-address");
+      await authorizeApplyStep("/apply/client-details/correspondence-address");
 
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");

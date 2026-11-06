@@ -4,9 +4,9 @@ test.describe("Apply - check your answers", () => {
   test("renders linked case details summary list when details are provided", async ({
     page,
     checkAccessibility,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/deceased-details/further-information");
+    await authorizeApplyStep("/apply/deceased-details/further-information");
 
     await page.goto("/apply/deceased-details/further-information");
 
@@ -18,7 +18,7 @@ test.describe("Apply - check your answers", () => {
       .fill("Linked case details provided");
     await page.getByRole("button", { name: "Continue" }).click();
 
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -48,16 +48,16 @@ test.describe("Apply - check your answers", () => {
 
   test("does not render linked case details summary list when no is selected", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/deceased-details/further-information");
+    await authorizeApplyStep("/apply/deceased-details/further-information");
 
     await page.goto("/apply/deceased-details/further-information");
 
     await page.getByRole("radio", { name: "No", exact: true }).click();
     await page.getByRole("button", { name: "Continue" }).click();
 
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -68,9 +68,9 @@ test.describe("Apply - check your answers", () => {
 
   test("renders check your answers page header and back link", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -108,9 +108,9 @@ test.describe("Apply - check your answers", () => {
 
   test("renders provider details summary list", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -165,9 +165,9 @@ test.describe("Apply - check your answers", () => {
 
   test("renders client details summary list", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -271,9 +271,9 @@ test.describe("Apply - check your answers", () => {
   });
   test("renders deceased details summary list", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -381,8 +381,11 @@ test.describe("Apply - check your answers", () => {
     await expect(clientRelationshipTitle).toBeVisible();
     await expect(inquestIdTitle).toBeVisible();
   });
-  test("renders proceedings summary list", async ({ page, withApplyStep }) => {
-    await withApplyStep("/apply/check-your-answers");
+  test("renders proceedings summary list", async ({
+    page,
+    authorizeApplyStep,
+  }) => {
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -403,9 +406,9 @@ test.describe("Apply - check your answers", () => {
 
   test("renders interested parties summary list", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -426,9 +429,9 @@ test.describe("Apply - check your answers", () => {
 
   test("renders coroner's letter summary list", async ({
     page,
-    withApplyStep,
+    authorizeApplyStep,
   }) => {
-    await withApplyStep("/apply/check-your-answers");
+    await authorizeApplyStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
