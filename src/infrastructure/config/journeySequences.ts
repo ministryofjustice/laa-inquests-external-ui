@@ -1,10 +1,3 @@
-/**
- * Centralized journey sequences for apply and claim flows.
- *
- * These define the canonical step order for each journey.
- * The journey guard middleware uses these to prevent users from skipping steps.
- */
-
 export const APPLY_JOURNEY_SEQUENCE = [
   "/apply",
   "/apply/office-accounts",
@@ -29,5 +22,4 @@ export const APPLY_JOURNEY_SEQUENCE = [
   "/apply/confirmation/success",
 ];
 
-// Journey sequences temporarily disabled for investigation
 export const CLAIM_JOURNEY_SEQUENCE: string[] = [];

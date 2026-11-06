@@ -13,10 +13,6 @@ interface JourneyGuardOptions {
   journeySequence: readonly string[];
 }
 
-/**
- * Extract and validate the lastCompletedStepIndex from session state.
- * Returns JOURNEY_NOT_STARTED if the value is missing or out of bounds.
- */
 function getValidatedLastCompletedStep(
   journeyState: unknown,
   sequenceLength: number,
@@ -28,7 +24,6 @@ function getValidatedLastCompletedStep(
       ? journeyState.lastCompletedStepIndex
       : JOURNEY_NOT_STARTED;
 
-  // If the index is out of bounds, treat as JOURNEY_NOT_STARTED
   if (
     rawLastCompleted >= JOURNEY_NOT_STARTED &&
     rawLastCompleted < sequenceLength
@@ -39,39 +34,23 @@ function getValidatedLastCompletedStep(
   return JOURNEY_NOT_STARTED;
 }
 
-/**
- * Middleware factory that creates a journey guard for a specific journey.
- *
- * The journey guard ensures users progress through steps sequentially:
- * - Allows access to the first step (index 0)
- * - Allows access to any step up to and including the last completed step + 1
- * - Redirects to the last completed step if attempting to skip ahead
- * - Allows access to steps not in the journey sequence (they bypass the guard)
- *
- * @param options Configuration for the journey guard
- * @returns Express middleware function
- */
 export function createJourneyGuard(options: JourneyGuardOptions) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const { journeyType, journeyPrefix, journeySequence } = options;
     const { path: currentPath } = req;
 
-    // Extract the relative path by removing the journey prefix
     const relativePath = currentPath.startsWith(journeyPrefix)
       ? currentPath.slice(journeyPrefix.length)
       : currentPath;
 
-    // Find step index in sequence
     const currentStepUrl = `${journeyPrefix}${relativePath}`;
     const currentIndex = journeySequence.indexOf(currentStepUrl);
 
-    // Path not in sequence - allow it (it might be a utility endpoint)
     if (currentIndex === STEP_NOT_IN_SEQUENCE) {
       next();
       return;
     }
 
-    // Get the last completed step from session
     const sessionRecord = req.session as Record<string, unknown>;
     const { [journeyType]: journeyState } = sessionRecord;
     const lastCompletedStepIndex: number = getValidatedLastCompletedStep(
@@ -79,7 +58,6 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
       journeySequence.length,
     );
 
-    // Allow access to first step (index 0) or any step up to lastCompleted + 1
     const isAllowedStep =
       currentIndex === FIRST_STEP_INDEX ||
       currentIndex <= lastCompletedStepIndex + NEXT_STEP_OFFSET;
@@ -89,7 +67,6 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
       return;
     }
 
-    // User is trying to skip ahead - redirect to last completed step
     const redirectToIndex =
       lastCompletedStepIndex >= FIRST_STEP_INDEX &&
       lastCompletedStepIndex < journeySequence.length
@@ -117,11 +94,6 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
   };
 }
 
-/**
- * Pre-configured journey guard middleware for the apply journey.
- *
- * Usage: app.use("/apply", applyJourneyGuard);
- */
 export const applyJourneyGuard = createJourneyGuard({
   journeyType: "apply",
   journeyPrefix: "/apply",

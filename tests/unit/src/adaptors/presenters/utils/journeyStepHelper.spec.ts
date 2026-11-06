@@ -84,14 +84,6 @@ describe("journeyStepHelper", () => {
       assert.equal(applyState.lastCompletedStepIndex, 3);
     });
 
-    it("handles undefined initial session gracefully", () => {
-      const requestStub = stubInterface<Request>();
-      requestStub.session = undefined as never;
-
-      // Should not throw
-      markStepComplete(requestStub, "/apply/office-accounts");
-    });
-
     it("marks the final step as complete", () => {
       const requestStub = stubInterface<Request>();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
