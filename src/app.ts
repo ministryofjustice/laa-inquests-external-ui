@@ -30,6 +30,7 @@ import { setupRateLimiter } from "./infrastructure/express/middleware/security/s
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import { globalAccessGuard } from "./infrastructure/express/middleware/accessControl/globalAccessGuard.js";
 import { viewContext } from "./infrastructure/express/middleware/accessControl/viewContext.js";
+import { AsyncLocalStorage } from "node:async_hooks";
 import crypto from "node:crypto";
 import multer from "multer";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -79,20 +80,24 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use((req: Request, res: Response, next: NextFunction): void => {
   const startedAt = Date.now();
-  res.on("finish", () => {
-    logger.logInfo({
-      functionName: "app",
-      message: "Request completed",
-      request: req,
-      extraContext: {
-        event: "http_request_completed",
-        route: getRequestRoutePath(req),
-        method: req.method,
-        status_code: res.statusCode,
-        duration_ms: Date.now() - startedAt,
-      },
-    });
-  });
+  // Keep the completion log on this request's correlation ID.
+  res.on(
+    "finish",
+    AsyncLocalStorage.bind(() => {
+      logger.logInfo({
+        functionName: "app",
+        message: "Request completed",
+        request: req,
+        extraContext: {
+          event: "http_request_completed",
+          route: getRequestRoutePath(req),
+          method: req.method,
+          status_code: res.statusCode,
+          duration_ms: Date.now() - startedAt,
+        },
+      });
+    }),
+  );
 
   next();
 });

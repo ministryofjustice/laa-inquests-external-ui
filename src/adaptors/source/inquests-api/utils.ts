@@ -1,5 +1,6 @@
 import type { AxiosInstance, AxiosResponse, ResponseType } from "axios";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { getRequestContext } from "#src/infrastructure/logging/requestContext.js";
 
 interface PostToInquestsApiParams<TBody> {
   http: AxiosInstance;
@@ -9,6 +10,21 @@ interface PostToInquestsApiParams<TBody> {
   accessToken: string | undefined;
   headers?: Record<string, string>;
   validateStatus?: (status: number) => boolean;
+}
+
+export function buildInquestsApiHeaders(
+  accessToken: string,
+): Record<string, string> {
+  const context = getRequestContext();
+  if (context === undefined) {
+    return { Authorization: `Bearer ${accessToken}` };
+  }
+
+  const { correlationId } = context;
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    "x-correlation-id": correlationId,
+  };
 }
 
 export async function postToInquestsApi<TResponse, TBody>(
@@ -35,7 +51,7 @@ export async function postToInquestsApi<TResponse, TBody>(
     ...(validateStatus === undefined ? {} : { validateStatus }),
     headers: {
       ...headers,
-      Authorization: `Bearer ${accessToken}`,
+      ...buildInquestsApiHeaders(accessToken),
     },
   });
 }
@@ -81,9 +97,7 @@ export async function getFromInquestsApi<TResponse>(
     params,
     ...(responseType === undefined ? {} : { responseType }),
     ...(validateStatus === undefined ? {} : { validateStatus }),
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers: buildInquestsApiHeaders(accessToken),
   });
 }
 
@@ -114,8 +128,6 @@ export async function deleteFromInquestsApi(
   }
 
   return await http.delete(`${baseUrl}${path}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers: buildInquestsApiHeaders(accessToken),
   });
 }
