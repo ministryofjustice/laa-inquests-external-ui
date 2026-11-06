@@ -24,9 +24,7 @@ describe("journeyGuard middleware", () => {
     nextSpy = spy();
 
     // Mock session with apply property
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-    (requestStub as any).session = {};
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+    requestStub.session = {} as any;
     (requestStub as any).path = "/apply/step-1";
 
     // Setup redirect spy
@@ -69,7 +67,6 @@ describe("journeyGuard middleware", () => {
         journeySequence: TEST_JOURNEY_SEQUENCE,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
       (requestStub as any).path = "/apply/step-1";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -85,11 +82,9 @@ describe("journeyGuard middleware", () => {
       });
 
       // User completed step 1 (index 0), trying to access step 2 (index 1)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 0 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-2";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -105,11 +100,9 @@ describe("journeyGuard middleware", () => {
       });
 
       // User completed step 3 (index 2), accessing step 2 (index 1)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 2 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-2";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -125,20 +118,16 @@ describe("journeyGuard middleware", () => {
       });
 
       // User completed step 1 (index 0), trying to skip to step 3 (index 2)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 0 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-3";
 
       middleware(requestStub, responseStub, nextSpy);
 
       assert(!nextSpy.called);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert((responseStub.redirect as any).calledOnce);
       // Redirect to last completed step
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
         "/apply/step-1",
@@ -153,19 +142,15 @@ describe("journeyGuard middleware", () => {
       });
 
       // User completed step 1 (index 0), trying to skip to confirmation (index 4)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 0 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/confirmation";
 
       middleware(requestStub, responseStub, nextSpy);
 
       assert(!nextSpy.called);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert((responseStub.redirect as any).calledOnce);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
         "/apply/step-1",
@@ -182,9 +167,7 @@ describe("journeyGuard middleware", () => {
       });
 
       // Session has no lastCompletedStepIndex
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = { apply: {} };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      requestStub.session = { apply: {} } as any;
       (requestStub as any).path = "/apply/step-1";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -201,9 +184,7 @@ describe("journeyGuard middleware", () => {
       });
 
       // Session has no apply property at all
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {};
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      requestStub.session = {} as any;
       (requestStub as any).path = "/apply/step-1";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -220,11 +201,9 @@ describe("journeyGuard middleware", () => {
       });
 
       // Session has invalid lastCompletedStepIndex
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: "invalid" },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-1";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -241,11 +220,9 @@ describe("journeyGuard middleware", () => {
       });
 
       // User completed step 4 (index 3), now trying step 3 (index 2)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 3 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-3";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -263,7 +240,6 @@ describe("journeyGuard middleware", () => {
         journeySequence: TEST_JOURNEY_SEQUENCE,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
       (requestStub as any).path = "/apply/some-utility-endpoint";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -279,9 +255,7 @@ describe("journeyGuard middleware", () => {
         journeySequence: ["/claim/step-1", "/claim/step-2"] as const,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = { claim: {} };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      requestStub.session = { claim: {} } as any;
       (requestStub as any).path = "/claim/step-1";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -296,10 +270,8 @@ describe("journeyGuard middleware", () => {
         journeySequence: TEST_JOURNEY_SEQUENCE,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = { apply: {} };
+      requestStub.session = { apply: {} } as any;
       // Path has trailing slash but not in sequence
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
       (requestStub as any).path = "/apply/step-1/";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -318,12 +290,10 @@ describe("journeyGuard middleware", () => {
       });
 
       // Session has claim state but not apply state
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         claim: { lastCompletedStepIndex: 3 },
         apply: {},
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-1";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -340,12 +310,10 @@ describe("journeyGuard middleware", () => {
       });
 
       // Session has apply state but not claim state
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 3 },
         claim: {},
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/claim/step-1";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -362,19 +330,15 @@ describe("journeyGuard middleware", () => {
       });
 
       // User trying to skip in apply journey
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 0 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-3";
 
       middleware(requestStub, responseStub, nextSpy);
 
       // Redirect should use apply journey's step 1
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert((responseStub.redirect as any).calledOnce);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
         "/apply/step-1",
@@ -391,11 +355,9 @@ describe("journeyGuard middleware", () => {
       });
 
       // User completed step 4 (index 3), trying to access confirmation (index 4)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 3 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/confirmation";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -411,11 +373,9 @@ describe("journeyGuard middleware", () => {
       });
 
       // User completed confirmation step (index 4)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 4 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/confirmation";
 
       middleware(requestStub, responseStub, nextSpy);
@@ -431,19 +391,15 @@ describe("journeyGuard middleware", () => {
       });
 
       // lastCompletedStepIndex beyond sequence length
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: 999 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-3";
 
       middleware(requestStub, responseStub, nextSpy);
 
       // Should redirect to first step when index is out of bounds
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert((responseStub.redirect as any).calledOnce);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
         "/apply/step-1",
@@ -458,19 +414,15 @@ describe("journeyGuard middleware", () => {
       });
 
       // lastCompletedStepIndex is negative
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: -999 },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-2";
 
       middleware(requestStub, responseStub, nextSpy);
 
       // Should redirect to first step
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert((responseStub.redirect as any).calledOnce);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test spy
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
         "/apply/step-1",
@@ -491,11 +443,9 @@ describe("journeyGuard middleware", () => {
       });
 
       // Explicitly set lastCompletedStepIndex to JOURNEY_NOT_STARTED
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: { lastCompletedStepIndex: JOURNEY_NOT_STARTED },
-      };
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
+      } as any;
       (requestStub as any).path = "/apply/step-1";
 
       middleware(requestStub, responseStub, nextSpy);

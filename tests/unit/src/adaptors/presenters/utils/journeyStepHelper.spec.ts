@@ -16,52 +16,44 @@ describe("journeyStepHelper", () => {
   describe("markStepComplete", () => {
     it("marks a valid journey step as complete", () => {
       const requestStub = stubInterface<Request>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {};
+      requestStub.session = {} as any;
 
       markStepComplete(requestStub, "/apply/office-accounts");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 1);
     });
 
     it("records the correct index for each journey step", () => {
       const requestStub = stubInterface<Request>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {};
+      requestStub.session = {} as any;
 
       markStepComplete(requestStub, "/apply/client-details/name-and-dob");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 2);
     });
 
     it("ignores invalid URLs not in the journey sequence", () => {
       const requestStub = stubInterface<Request>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = { existingData: "test" };
+      requestStub.session = { existingData: "test" } as any;
 
       markStepComplete(requestStub, "/invalid/path");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       assert.deepEqual(requestStub.session as any, { existingData: "test" });
     });
 
     it("updates existing apply session state without losing other fields", () => {
       const requestStub = stubInterface<Request>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: {
           clientFirstName: "John",
           clientLastName: "Doe",
         },
-      };
+      } as any;
 
       markStepComplete(requestStub, "/apply/office-accounts");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.clientFirstName, "John");
       assert.equal(applyState.clientLastName, "Doe");
@@ -70,28 +62,24 @@ describe("journeyStepHelper", () => {
 
     it("overwrites existing lastCompletedStepIndex", () => {
       const requestStub = stubInterface<Request>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {
+      requestStub.session = {
         apply: {
           lastCompletedStepIndex: 2,
         },
-      };
+      } as any;
 
       markStepComplete(requestStub, "/apply/client-details/nino");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 3);
     });
 
     it("marks the final step as complete", () => {
       const requestStub = stubInterface<Request>();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test stub
-      (requestStub as any).session = {};
+      requestStub.session = {} as any;
 
       markStepComplete(requestStub, "/apply/confirmation/success");
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test verification
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 20);
     });
