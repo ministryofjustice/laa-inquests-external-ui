@@ -78,7 +78,7 @@ test.describe("Provider can", () => {
       page: Page,
       inputs: Record<string, string>,
     ) => {
-      page.goto("/apply/deceased-details/dod");
+      await page.goto("/apply/deceased-details/dod");
 
       const deceasedForm = await page.getByTestId(
         "deceased-date-of-death-form",
@@ -182,6 +182,7 @@ test.describe("Provider can", () => {
     await yearField.fill(year);
 
     await continueToNextPage(form, page);
+
     await page.goto("/apply/deceased-details/dod");
 
     await expect(dayField).toHaveValue(day);

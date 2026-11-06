@@ -18,7 +18,9 @@ test.describe("Provider can", () => {
   test("view the client declaration page", async ({
     page,
     checkAccessibility,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/name-and-dob");
     await page.goto("/apply/client-details/name-and-dob");
     const nameForm = page.getByTestId("client-details-form");
 
@@ -37,6 +39,7 @@ test.describe("Provider can", () => {
     );
     await continueToNextPage(nameForm, page);
 
+    await authorizeApplyStep(currentPage);
     await page.goto(currentPage);
     const form = await page.getByTestId("client-declaration-form");
 
@@ -100,6 +103,7 @@ test.describe("Provider can", () => {
 
   test("submitting the declaration redirects to confirmation success", async ({
     page,
+    authorizeApplyStep,
   }) => {
     const continueNextPage = async (formTestId: string): Promise<void> => {
       const form = await page.getByTestId(formTestId);
@@ -122,6 +126,7 @@ test.describe("Provider can", () => {
       ]);
     };
 
+    await authorizeApplyStep("/apply/office-accounts");
     await page.goto("/apply/office-accounts");
     await page.getByRole("radio").first().check();
     await page.getByRole("button", { name: "Continue" }).click();
@@ -273,7 +278,10 @@ test.describe("Provider can", () => {
   test("sees validation error when declaration is not confirmed", async ({
     page,
     checkAccessibility,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep(currentPage);
+
     await page.goto(currentPage);
     const form = await page.getByTestId("client-declaration-form");
     await form.getByRole("button", { name: "Submit" }).click();

@@ -34,7 +34,6 @@ test.describe("Provider can", () => {
   });
 
   test("continue to client relationship on valid input", async ({ page }) => {
-    page.goto("/apply/deceased-details/dob");
     const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
 
     const dayInput = deceasedForm.getByLabel("Day");
@@ -143,7 +142,6 @@ test.describe("Provider can", () => {
   test("view auto-populated fields given they've filled in the date, continued and navigated back", async ({
     page,
   }) => {
-    page.goto("/apply/deceased-details/dob");
     const deceasedForm = await page.getByTestId("deceased-date-of-birth-form");
 
     const dayInput = deceasedForm.getByLabel("Day");
@@ -160,7 +158,7 @@ test.describe("Provider can", () => {
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
 
-    page.goto("/apply/deceased-details/dob");
+    await page.goto("/apply/deceased-details/dob");
     await expect(dayInput).toHaveValue(day);
     await expect(monthInput).toHaveValue(month);
     await expect(yearInput).toHaveValue(year);

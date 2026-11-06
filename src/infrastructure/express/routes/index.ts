@@ -78,6 +78,7 @@ import { UploadCoronersLetterAdaptor } from "#src/adaptors/source/inquests-api/a
 import { GetPublicAuthoritiesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/GetPublicAuthorities.adaptor.js";
 import { GetProviderOfficesAdaptor } from "#src/adaptors/source/inquests-api/apply/GetProviderOffices/GetProviderOffices.adaptor.js";
 import { OfficeAccountsAdaptor } from "#src/adaptors/presenters/apply/OfficeAccounts/OfficeAccounts.adaptor.js";
+import { applyJourneyGuard } from "#src/infrastructure/express/middleware/accessControl/journeyGuard.js";
 import { createOfficeAccountsRouter } from "#src/infrastructure/express/routes/apply/officeAccounts.router.js";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import { createAccessibilityStatementRouter } from "#src/infrastructure/express/routes/accessibilityStatement.router.js";
@@ -449,6 +450,7 @@ const officeAccountsAdaptor = new OfficeAccountsAdaptor(
 
 indexRouter.use(
   "/apply",
+  applyJourneyGuard,
   createApplicationDeclarationRouter(
     applicationDeclarationRouter,
     applicationDeclarationAdaptor,

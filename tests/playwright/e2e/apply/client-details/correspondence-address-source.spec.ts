@@ -6,7 +6,12 @@ test.describe("Client details - correspondence address source", () => {
   test("renders source page with title, guidance, options and hint", async ({
     page,
     checkAccessibility,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep(
+      "/apply/client-details/correspondence-address-source",
+    );
+
     await page.goto("/apply/client-details/correspondence-address-source");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -42,7 +47,12 @@ test.describe("Client details - correspondence address source", () => {
 
   test("shows validation error when no option is selected", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep(
+      "/apply/client-details/correspondence-address-source",
+    );
+
     await page.goto("/apply/client-details/correspondence-address-source");
     const errorSummary = await page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
@@ -62,7 +72,12 @@ test.describe("Client details - correspondence address source", () => {
 
   test("continues to correspondence address form when another UK address is selected", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep(
+      "/apply/client-details/correspondence-address-source",
+    );
+
     await page.goto("/apply/client-details/correspondence-address-source");
 
     await page.getByLabel("Another UK address").check();
@@ -76,7 +91,12 @@ test.describe("Client details - correspondence address source", () => {
 
   test("continues to correspondence recipient page when office address is selected", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep(
+      "/apply/client-details/correspondence-address-source",
+    );
+
     await page.goto("/apply/client-details/correspondence-address-source");
 
     await page.getByLabel("My office address").check();
@@ -90,7 +110,9 @@ test.describe("Client details - correspondence address source", () => {
 
   test("shows an error when home address is selected after no fixed abode was chosen", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/home-address");
     await page.goto("/apply/client-details/home-address");
     const errorSummary = await page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
@@ -124,5 +146,4 @@ test.describe("Client details - correspondence address source", () => {
       CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE,
     );
   });
-  // TODO: add test that when client home address is selected and client has a home address, navigate to proceedings page
 });

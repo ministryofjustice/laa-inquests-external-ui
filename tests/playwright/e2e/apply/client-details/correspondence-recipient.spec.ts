@@ -5,7 +5,10 @@ test.describe("Client details - correspondence recipient", () => {
   test("renders recipient form with expected title, options and hint", async ({
     page,
     checkAccessibility,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -35,7 +38,10 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when no option is selected", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
@@ -55,7 +61,10 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when person is selected and name is empty", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
@@ -79,7 +88,10 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when person name exceeds 100 characters", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
@@ -112,7 +124,10 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("shows validation error when person name contains invalid characters", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
     await expect(errorSummary).not.toBeVisible();
@@ -144,7 +159,10 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("continues when person name contains unicode characters", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
 
     await page.getByLabel("Yes, a person").check();
@@ -159,7 +177,10 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("continues to proceedings page when no is selected", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
 
     await page.getByLabel("No").check();
@@ -171,7 +192,10 @@ test.describe("Client details - correspondence recipient", () => {
 
   test("clears no organisation specified error when switching from organisation to person option", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
     const errorSummary = await page.getByRole("alert");
 
@@ -201,7 +225,10 @@ test.describe("Client details - correspondence recipient", () => {
   });
   test("clears no person specified error when switching from person to organisation option", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/correspondence-recipient");
+
     await page.goto("/apply/client-details/correspondence-recipient");
 
     const form = page.getByTestId("correspondence-recipient-form");

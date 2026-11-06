@@ -21,6 +21,7 @@ import {
 } from "#src/use-cases/apply/clientDetails/ProcessClientDetailsJourney.useCase.js";
 import { getStringValue } from "#src/utils/sessionValue.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface ClientDetailsUseCases {
   updateCorrespondenceRecipient: UpdateCorrespondenceRecipientUseCase;
@@ -212,6 +213,7 @@ export class ClientDetailsAdaptor {
         backHref: this.#resolveBackHref(req, "/apply/office-accounts"),
       });
     } else {
+      markStepComplete(req, "/apply/client-details/name-and-dob");
       this.#redirectAfterSuccess(req, res, "/apply/client-details/nino");
     }
   }
@@ -268,6 +270,7 @@ export class ClientDetailsAdaptor {
         ),
       });
     } else {
+      markStepComplete(req, "/apply/client-details/nino");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -366,6 +369,7 @@ export class ClientDetailsAdaptor {
     } else if (hasNoFixedAbode) {
       req.session.clientHasNoFixedAbode = true;
       req.session.clientHomeAddress = undefined;
+      markStepComplete(req, "/apply/client-details/home-address");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -374,6 +378,7 @@ export class ClientDetailsAdaptor {
     } else {
       req.session.clientHasNoFixedAbode = false;
       req.session.clientHomeAddress = homeAddress;
+      markStepComplete(req, "/apply/client-details/home-address");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -442,6 +447,10 @@ export class ClientDetailsAdaptor {
     } else if (correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
       req.session.clientCorrespondenceAddressSource =
         correspondenceAddressSource;
+      markStepComplete(
+        req,
+        "/apply/client-details/correspondence-address-source",
+      );
       res.redirect("/apply/client-details/correspondence-address");
     } else if (
       correspondenceAddressSource === "USE_CLIENT_HOME_ADDRESS" ||
@@ -450,6 +459,8 @@ export class ClientDetailsAdaptor {
       req.session.clientCorrespondenceAddress = undefined;
       req.session.clientCorrespondenceAddressSource =
         correspondenceAddressSource;
+      // Skips to this page
+      markStepComplete(req, "/apply/client-details/correspondence-address");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -528,6 +539,7 @@ export class ClientDetailsAdaptor {
         ),
       });
     } else {
+      markStepComplete(req, "/apply/client-details/correspondence-address");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -646,6 +658,7 @@ export class ClientDetailsAdaptor {
     const { clientCorrespondenceRecipient } = updatedRecipient;
     this.#logCorrespondenceRecipientUpdated(clientCorrespondenceRecipient);
     req.session.clientCorrespondenceRecipient = clientCorrespondenceRecipient;
+    markStepComplete(req, "/apply/client-details/correspondence-recipient");
     this.#redirectAfterSuccess(req, res, "/apply/proceeding");
   }
 
@@ -706,6 +719,7 @@ export class ClientDetailsAdaptor {
         backHref: this.#resolveBackHref(req, "/apply/client-details/nino"),
       });
     } else {
+      markStepComplete(req, "/apply/client-details/has-prev-application");
       this.#redirectAfterSuccess(
         req,
         res,

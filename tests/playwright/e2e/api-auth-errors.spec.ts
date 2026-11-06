@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { APPLY_PATHS } from "#src/infrastructure/express/routes/paths.js";
+import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
 async function loginWithAccessToken(
   page: Page,
@@ -11,7 +12,14 @@ async function loginWithAccessToken(
   // case destroys the session, and reusing the shared seeded session would
   // wipe it for other specs.
   await page.context().clearCookies();
-  await page.goto(`/auth/test-login?accessToken=${accessToken}`);
+
+  const applyIndex = APPLY_JOURNEY_SEQUENCE.indexOf(
+    APPLY_PATHS.PUBLIC_AUTHORITY,
+  );
+
+  await page.goto(
+    `/auth/test-login?accessToken=${accessToken}&applyStep=${applyIndex}`,
+  );
   await page.waitForURL("/");
 }
 

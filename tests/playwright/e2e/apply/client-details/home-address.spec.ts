@@ -34,7 +34,10 @@ test.describe("Client details - home address", () => {
   test("renders home address page header and back link", async ({
     page,
     checkAccessibility,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/home-address");
+
     await page.goto("/apply/client-details/home-address");
 
     const backButton = page.getByRole("link", { name: "Back", exact: true });
@@ -77,7 +80,12 @@ test.describe("Client details - home address", () => {
     await checkAccessibility();
   });
 
-  test("continues when no fixed abode is selected", async ({ page }) => {
+  test("continues when no fixed abode is selected", async ({
+    page,
+    authorizeApplyStep,
+  }) => {
+    await authorizeApplyStep("/apply/client-details/home-address");
+
     await page.goto("/apply/client-details/home-address");
 
     await page.getByLabel("My client has no fixed abode").check();
@@ -91,7 +99,10 @@ test.describe("Client details - home address", () => {
 
   test("continues to previous applications page when valid details are entered", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/home-address");
+
     await page.goto("/apply/client-details/home-address");
 
     await getAndUpdateFormFields(page, validHomeAddress);
@@ -106,7 +117,10 @@ test.describe("Client details - home address", () => {
 
   test("continues when valid minimum length address values are entered", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/home-address");
+
     await page.goto("/apply/client-details/home-address");
 
     await getAndUpdateFormFields(page, {
@@ -126,7 +140,10 @@ test.describe("Client details - home address", () => {
 
   test("continues when postcode is entered in lowercase and stores it in uppercase", async ({
     page,
+    authorizeApplyStep,
   }) => {
+    await authorizeApplyStep("/apply/client-details/home-address");
+
     await page.goto("/apply/client-details/home-address");
 
     await getAndUpdateFormFields(page, {
@@ -146,7 +163,12 @@ test.describe("Client details - home address", () => {
   });
 
   test.describe("render validation errors", () => {
-    test("if address line 1 is missing", async ({ page }) => {
+    test("if address line 1 is missing", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -175,7 +197,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if address line 1 is less than 2 characters", async ({ page }) => {
+    test("if address line 1 is less than 2 characters", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -204,7 +231,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if address line 1 exceeds max character length", async ({ page }) => {
+    test("if address line 1 exceeds max character length", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -235,7 +267,10 @@ test.describe("Client details - home address", () => {
 
     test("if address line 1 does not contain an alphanumeric character", async ({
       page,
+      authorizeApplyStep,
     }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -264,7 +299,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if address line 1 contains invalid characters", async ({ page }) => {
+    test("if address line 1 contains invalid characters", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -295,7 +335,10 @@ test.describe("Client details - home address", () => {
 
     test("if address line 2 is less than 2 characters when populated", async ({
       page,
+      authorizeApplyStep,
     }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -324,7 +367,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if address line 2 exceeds max character length", async ({ page }) => {
+    test("if address line 2 exceeds max character length", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -353,7 +401,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if address line 2 contains invalid characters", async ({ page }) => {
+    test("if address line 2 contains invalid characters", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -382,7 +435,9 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if town or city is missing", async ({ page }) => {
+    test("if town or city is missing", async ({ page, authorizeApplyStep }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -411,7 +466,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if town or city is less than 2 characters", async ({ page }) => {
+    test("if town or city is less than 2 characters", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -440,7 +500,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if town or city exceeds max character length", async ({ page }) => {
+    test("if town or city exceeds max character length", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -469,7 +534,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if town or city contains numbers", async ({ page }) => {
+    test("if town or city contains numbers", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -498,7 +568,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if town or city contains invalid characters", async ({ page }) => {
+    test("if town or city contains invalid characters", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -529,7 +604,10 @@ test.describe("Client details - home address", () => {
 
     test("if county is less than 3 characters when populated", async ({
       page,
+      authorizeApplyStep,
     }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -556,7 +634,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if county exceeds max character length", async ({ page }) => {
+    test("if county exceeds max character length", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -583,7 +666,9 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if county contains numbers", async ({ page }) => {
+    test("if county contains numbers", async ({ page, authorizeApplyStep }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -610,7 +695,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if county contains invalid characters", async ({ page }) => {
+    test("if county contains invalid characters", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -637,7 +727,9 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if postcode is missing", async ({ page }) => {
+    test("if postcode is missing", async ({ page, authorizeApplyStep }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -664,7 +756,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if postcode is less than 5 characters", async ({ page }) => {
+    test("if postcode is less than 5 characters", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -691,7 +788,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if postcode exceeds max character length", async ({ page }) => {
+    test("if postcode exceeds max character length", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -718,7 +820,12 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if postcode contains punctuation", async ({ page }) => {
+    test("if postcode contains punctuation", async ({
+      page,
+      authorizeApplyStep,
+    }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -750,7 +857,10 @@ test.describe("Client details - home address", () => {
     test("shows a single conflict error when no fixed abode is checked and address line 1 is entered", async ({
       page,
       checkAccessibility,
+      authorizeApplyStep,
     }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -798,7 +908,10 @@ test.describe("Client details - home address", () => {
 
     test("shows a single conflict error when no fixed abode is checked and an optional field is entered", async ({
       page,
+      authorizeApplyStep,
     }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -838,7 +951,10 @@ test.describe("Client details - home address", () => {
 
     test("shows a single conflict error when town or city and postcode are entered and no fixed abode is checked", async ({
       page,
+      authorizeApplyStep,
     }) => {
+      await authorizeApplyStep("/apply/client-details/home-address");
+
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
