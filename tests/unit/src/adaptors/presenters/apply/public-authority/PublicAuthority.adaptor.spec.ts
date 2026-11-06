@@ -19,6 +19,10 @@ const PUBLIC_BODIES = [
     publicBodyId: "Department for Transport",
     publicBodyDescription: "Department for Transport",
   },
+  {
+    publicBodyId: "Department Devolved to Wales",
+    publicBodyDescription: "Department Devolved to Wales",
+  },
 ];
 
 describe("PublicAuthority adaptor", () => {
@@ -58,6 +62,10 @@ describe("PublicAuthority adaptor", () => {
           {
             text: "Department for Transport",
             value: "Department for Transport",
+          },
+          {
+            text: "Power devolved to Wales",
+            value: "Department Devolved to Wales",
           },
         ],
         selectedPublicAuthorityIds: [],
@@ -136,6 +144,10 @@ describe("PublicAuthority adaptor", () => {
         {
           text: "Department for Transport",
           value: "Department for Transport",
+        },
+        {
+          text: "Power devolved to Wales",
+          value: "Department Devolved to Wales",
         },
       ];
 
@@ -261,7 +273,10 @@ describe("PublicAuthority adaptor", () => {
       requestStub.session.availablePublicAuthorities = PUBLIC_BODIES.map(
         (body) => ({
           publicAuthorityId: body.publicBodyId,
-          publicAuthorityDescription: body.publicBodyDescription,
+          publicAuthorityDescription:
+            body.publicBodyDescription === "Department Devolved to Wales"
+              ? "Power devolved to Wales"
+              : body.publicBodyDescription,
         }),
       );
 
@@ -290,6 +305,10 @@ describe("PublicAuthority adaptor", () => {
           {
             text: "Department for Transport",
             value: "Department for Transport",
+          },
+          {
+            text: "Power devolved to Wales",
+            value: "Department Devolved to Wales",
           },
         ],
         selectedPublicAuthorityIds: [],
@@ -348,6 +367,79 @@ describe("PublicAuthority adaptor", () => {
       assert.equal(
         requestStub.session.returnToApplyCheckYourAnswers,
         undefined,
+      );
+    });
+  });
+
+  describe("public authority name normalization", () => {
+    it("transforms 'Department Devolved to Wales' to 'Power devolved to Wales'", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.accessToken = "access-token-123";
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      const options = renderModel.publicAuthorityOptions as Array<{
+        text: string;
+        value: string;
+      }>;
+
+      const departmentDevolvedOption = options.find(
+        (opt) => opt.value === "Department Devolved to Wales",
+      );
+
+      assert.ok(
+        departmentDevolvedOption,
+        "Should find option with value 'Department Devolved to Wales'",
+      );
+      assert.equal(
+        departmentDevolvedOption.text,
+        "Power devolved to Wales",
+        "Should display 'Power devolved to Wales' as the text",
+      );
+    });
+
+    it("maintains alphabetical ordering after renaming 'Department Devolved to Wales' to 'Power devolved to Wales'", async () => {
+      const getPublicAuthoritiesPort =
+        stubInterface<GetPublicAuthoritiesPort>();
+      getPublicAuthoritiesPort.getPublicAuthorities.resolves(PUBLIC_BODIES);
+      const adaptor = buildAdaptor(getPublicAuthoritiesPort);
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      requestStub.session.accessToken = "access-token-123";
+
+      responseStub.locals = {
+        csrfToken: "abcdefg",
+      };
+
+      await adaptor.renderPublicAuthoritySelectForm(requestStub, responseStub);
+
+      const renderArgs = responseStub.render.getCall(0).args;
+      const renderModel = renderArgs[1] as unknown as Record<string, unknown>;
+      const options = renderModel.publicAuthorityOptions as Array<{
+        text: string;
+        value: string;
+      }>;
+
+      const optionTexts = options.map((opt) => opt.text);
+      const sortedTexts = [...optionTexts].sort();
+
+      assert.deepEqual(
+        optionTexts,
+        sortedTexts,
+        "Options should be in alphabetical order",
       );
     });
   });
