@@ -1,5 +1,5 @@
 import { strict as assert } from "assert";
-import { SinonSpy, spy } from "sinon";
+import sinon from "sinon";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { createJourneyGuard } from "#src/infrastructure/express/middleware/accessControl/journeyGuard.js";
@@ -16,19 +16,19 @@ const TEST_JOURNEY_SEQUENCE = [
 describe("journeyGuard middleware", () => {
   let requestStub: Request;
   let responseStub: Response;
-  let nextSpy: SinonSpy;
+  let nextSpy: sinon.SinonSpy;
 
   beforeEach(() => {
     requestStub = stubInterface<Request>();
     responseStub = stubInterface<Response>();
-    nextSpy = spy();
+    nextSpy = sinon.spy();
 
     // Mock session with apply property
     requestStub.session = {} as any;
     (requestStub as any).path = "/apply/step-1";
 
     // Setup redirect spy
-    responseStub.redirect = spy();
+    responseStub.redirect = sinon.spy();
   });
 
   describe("createJourneyGuard factory", () => {
