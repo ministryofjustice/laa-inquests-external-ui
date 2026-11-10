@@ -204,7 +204,7 @@ indexRouter.use(
 
 indexRouter.use(requireAuth);
 
-const homeAdaptor = new HomeAdaptor(new SessionHelper());
+const homeAdaptor = new HomeAdaptor();
 
 /* GET home page. */
 indexRouter.get("/", (req: Request, res: Response): void => {
