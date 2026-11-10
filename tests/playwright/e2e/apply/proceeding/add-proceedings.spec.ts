@@ -9,10 +9,7 @@ test.describe("Add proceedings", () => {
   test("renders expected proceeding page heading, proceeding options and continue button", async ({
     page,
     checkAccessibility,
-    authorizeApplyStep,
   }) => {
-    await authorizeApplyStep("/apply/proceeding");
-
     await page.goto("/apply/proceeding");
     await validateBackButton(
       page,
@@ -47,10 +44,7 @@ test.describe("Add proceedings", () => {
 
   test("sets the browser tab title from the translated page heading", async ({
     page,
-    authorizeApplyStep,
   }) => {
-    await authorizeApplyStep("/apply/proceeding");
-
     await page.goto("/apply/proceeding");
 
     await expect(page).toHaveTitle(
@@ -60,10 +54,7 @@ test.describe("Add proceedings", () => {
 
   test("renders error message on clicking continue without selecting a proceeding", async ({
     page,
-    authorizeApplyStep,
   }) => {
-    await authorizeApplyStep("/apply/proceeding");
-
     await page.goto("/apply/proceeding");
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
     const errorSummary = await page.getByRole("alert");
@@ -89,8 +80,6 @@ test.describe("Add proceedings", () => {
     page,
     authorizeApplyStep,
   }) => {
-    await authorizeApplyStep("/apply/proceeding");
-
     await page.goto("/apply/proceeding");
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
 

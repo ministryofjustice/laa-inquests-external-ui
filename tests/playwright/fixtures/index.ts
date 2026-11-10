@@ -52,7 +52,9 @@ export const test = base.extend<TestFixtures>({
         await context.clearCookies();
       }
 
-      await page.goto("/auth/test-login?applyStep=0");
+      await page.goto("/auth/test-login?applyStep=0", {
+        waitUntil: "domcontentloaded",
+      });
 
       const originalGoto = page.goto.bind(page);
       page.goto = async (url: string | URL, options?: any) => {
@@ -74,8 +76,13 @@ export const test = base.extend<TestFixtures>({
   ],
 
   authorizeApplyStep: async ({ page }, use): Promise<void> => {
-    authorizedPages.set(page, true);
-    await use((pageUrl: string) => authorizeTestForApplyStep(page, pageUrl));
+    const authorizeApplyStepForTest = async (
+      pageUrl: string,
+    ): Promise<void> => {
+      authorizedPages.set(page, true);
+      await authorizeTestForApplyStep(page, pageUrl);
+    };
+    await use(authorizeApplyStepForTest);
   },
 
   authorizeClaimStep: async ({ page }, use): Promise<void> => {
