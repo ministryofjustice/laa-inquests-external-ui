@@ -11,17 +11,22 @@ export function completeStepAndRedirect(
   res: Response,
   redirectToUrl: string,
 ): void {
-  markStepComplete(req, redirectToUrl);
+  const stepIndex =
+    (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(redirectToUrl) -
+    OFFSET;
+
+  const { [stepIndex]: pageToMark } = APPLY_JOURNEY_SEQUENCE;
+  markStepComplete(req, pageToMark);
   res.redirect(redirectToUrl);
 }
 
 export function markStepComplete(
   req: Pick<Request, "session">,
-  redirectToUrl: string,
+  pageToMark: string,
 ): void {
-  const stepIndex =
-    (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(redirectToUrl) -
-    OFFSET;
+  const stepIndex = (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(
+    pageToMark,
+  );
 
   if (stepIndex < ZERO) {
     return;

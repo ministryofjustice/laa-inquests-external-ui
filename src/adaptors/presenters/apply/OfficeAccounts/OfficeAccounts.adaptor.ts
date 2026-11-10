@@ -6,7 +6,7 @@ import type { GetProviderOffice } from "#src/adaptors/source/inquests-api/apply/
 import type { OfficeAccountsFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { escapeHtml } from "#src/utils/html.js";
-import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface OfficeAccountsUseCases {
   getProviderOffices: GetProviderOfficesUseCase;
@@ -94,12 +94,12 @@ export class OfficeAccountsAdaptor {
       session.selectedOfficeAddress = this.#formatAddress(
         selectedOfficeDetails!,
       );
-      markStepComplete(req, "/apply/office-accounts");
-      if (req.session.returnToApplyCheckYourAnswers === true) {
-        res.redirect("/apply/check-your-answers");
-      } else {
-        res.redirect("/apply/client-details/name-and-dob");
-      }
+
+      const redirectUrl =
+        req.session.returnToApplyCheckYourAnswers === true
+          ? "/apply/check-your-answers"
+          : "/apply/client-details/name-and-dob";
+      completeStepAndRedirect(req, res, redirectUrl);
     }
   }
 

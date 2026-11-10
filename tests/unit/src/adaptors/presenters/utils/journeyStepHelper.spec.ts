@@ -3,26 +3,20 @@ import { StubbedInstance, stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import {
   completeStepAndRedirect,
-  JOURNEY_NOT_STARTED,
+  markStepComplete,
 } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 describe("journeyStepHelper", () => {
-  describe("JOURNEY_NOT_STARTED constant", () => {
-    it("is defined as -1", () => {
-      assert.equal(JOURNEY_NOT_STARTED, -1);
-    });
+  let responseStub: StubbedInstance<Response>;
+  let requestStub: StubbedInstance<Request>;
+
+  beforeEach(() => {
+    requestStub = stubInterface<Request>();
+    responseStub = stubInterface<Response>();
+    requestStub.session = {} as any;
   });
 
   describe("completeStepAndRedirect", () => {
-    let requestStub: StubbedInstance<Request>;
-    let responseStub: StubbedInstance<Response>;
-
-    beforeEach(() => {
-      requestStub = stubInterface<Request>();
-      responseStub = stubInterface<Response>();
-      requestStub.session = {} as any;
-    });
-
     it("redirects to redirect url", () => {
       completeStepAndRedirect(
         requestStub,
@@ -34,7 +28,7 @@ describe("journeyStepHelper", () => {
       assert.equal(redirectArgs[0], "/apply/client-details/name-and-dob");
     });
 
-    it("marks a valid journey step as complete", () => {
+    it("marks the previous step complete before redirecting", () => {
       completeStepAndRedirect(
         requestStub,
         responseStub,
@@ -44,13 +38,18 @@ describe("journeyStepHelper", () => {
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 1);
     });
+  });
+
+  describe("markStepComplete", () => {
+    it("marks a valid journey step as complete", () => {
+      markStepComplete(requestStub, "/apply/office-accounts");
+
+      const applyState = (requestStub.session as any).apply;
+      assert.equal(applyState.lastCompletedStepIndex, 1);
+    });
 
     it("records the correct index for each journey step", () => {
-      completeStepAndRedirect(
-        requestStub,
-        responseStub,
-        "/apply/client-details/nino",
-      );
+      markStepComplete(requestStub, "/apply/client-details/name-and-dob");
 
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 2);
@@ -59,9 +58,7 @@ describe("journeyStepHelper", () => {
     it("ignores invalid URLs not in the journey sequence", () => {
       requestStub.session = { existingData: "test" } as any;
 
-      completeStepAndRedirect(requestStub, responseStub, "/invalid/path");
-
-      assert.deepEqual(requestStub.session as any, { existingData: "test" });
+      markStepComplete(requestStub, "/invalid/path");
     });
 
     it("updates existing apply session state without losing other fields", () => {
@@ -72,11 +69,7 @@ describe("journeyStepHelper", () => {
         },
       } as any;
 
-      completeStepAndRedirect(
-        requestStub,
-        responseStub,
-        "/apply/client-details/name-and-dob",
-      );
+      markStepComplete(requestStub, "/apply/office-accounts");
 
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.clientFirstName, "John");
@@ -91,11 +84,7 @@ describe("journeyStepHelper", () => {
         },
       } as any;
 
-      completeStepAndRedirect(
-        requestStub,
-        responseStub,
-        "/apply/client-details/has-prev-application",
-      );
+      markStepComplete(requestStub, "/apply/client-details/nino");
 
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 3);

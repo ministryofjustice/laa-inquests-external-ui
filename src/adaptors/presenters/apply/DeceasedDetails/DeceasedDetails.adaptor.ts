@@ -6,7 +6,7 @@ import type { DeceasedDetailsFormData } from "../models/form.types.js";
 import type { DeceasedDetailsValidator } from "./DeceasedDetails.validator.js";
 import type { Request, Response } from "express";
 import { getStringValue } from "#src/utils/sessionValue.js";
-import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 type DeceasedDetailsStep =
   | "name"
@@ -85,7 +85,6 @@ export class DeceasedDetailsAdaptor {
         deceasedDetails: nameView.deceasedDetails,
       });
     } else {
-      markStepComplete(req, "/apply/deceased-details/name");
       this.#redirectAfterSuccess(req, res, "/apply/deceased-details/dod");
     }
   }
@@ -158,7 +157,6 @@ export class DeceasedDetailsAdaptor {
         deceasedDetails: dateOfDeathView.deceasedDetails,
       });
     } else {
-      markStepComplete(req, "/apply/deceased-details/dod");
       this.#redirectAfterSuccess(req, res, "/apply/deceased-details/dob");
     }
   }
@@ -232,7 +230,6 @@ export class DeceasedDetailsAdaptor {
         deceasedDetails: dateOfBirthView.deceasedDetails,
       });
     } else {
-      markStepComplete(req, "/apply/deceased-details/dob");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -307,7 +304,6 @@ export class DeceasedDetailsAdaptor {
     } else if (deceasedHasClientRelationship === "false") {
       res.render("apply/deceased-details/not-eligible");
     } else {
-      markStepComplete(req, "/apply/deceased-details/client-relationship");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -378,7 +374,6 @@ export class DeceasedDetailsAdaptor {
         deceasedDetails: coronerReferenceView.deceasedDetails,
       });
     } else {
-      markStepComplete(req, "/apply/deceased-details/coroner-reference");
       this.#redirectAfterSuccess(
         req,
         res,
@@ -460,7 +455,6 @@ export class DeceasedDetailsAdaptor {
         deceasedDetails: furtherInformationView.deceasedDetails,
       });
     } else {
-      markStepComplete(req, "/apply/deceased-details/further-information");
       this.#redirectAfterSuccess(req, res, "/apply/public-authority");
     }
   }
@@ -492,9 +486,9 @@ export class DeceasedDetailsAdaptor {
   ): void {
     if (req.session.returnToApplyCheckYourAnswers === true) {
       req.session.returnToApplyCheckYourAnswers = undefined;
-      res.redirect("/apply/check-your-answers");
+      completeStepAndRedirect(req as Request, res, "/apply/check-your-answers");
     } else {
-      res.redirect(defaultHref);
+      completeStepAndRedirect(req as Request, res, defaultHref);
     }
   }
 
