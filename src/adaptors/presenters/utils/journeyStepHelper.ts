@@ -1,19 +1,29 @@
-import type { Request } from "express";
+import type { Request, Response } from "express";
 import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
 
-const STEP_NOT_FOUND = -1;
+const ZERO = 0;
+const OFFSET = 1;
 
 export const JOURNEY_NOT_STARTED = -1;
 
+export function completeStepAndRedirect(
+  req: Request,
+  res: Response,
+  redirectToUrl: string,
+): void {
+  markStepComplete(req, redirectToUrl);
+  res.redirect(redirectToUrl);
+}
+
 export function markStepComplete(
   req: Pick<Request, "session">,
-  currentUrl: string,
+  redirectToUrl: string,
 ): void {
-  const stepIndex = (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(
-    currentUrl,
-  );
+  const stepIndex =
+    (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(redirectToUrl) -
+    OFFSET;
 
-  if (stepIndex === STEP_NOT_FOUND) {
+  if (stepIndex < ZERO) {
     return;
   }
 
