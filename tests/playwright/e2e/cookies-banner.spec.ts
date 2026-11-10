@@ -64,6 +64,128 @@ test.describe("Cookies banner", () => {
   ]) {
     const outcome = hasTrackingConsent ? "accepted" : "rejected";
 
+    test(`should remember the ${outcome} preference in a new browser session`, async ({
+      page,
+      context,
+      browser,
+      baseURL,
+    }) => {
+      await page.getByRole("button", { name: buttonName }).click();
+      const cookies = await context.cookies();
+      const policy = cookies.find((cookie) => cookie.name === "cookies_policy");
+      const previousSession = cookies.find(
+        (cookie) => cookie.name === "test-session",
+      );
+      assert.ok(policy);
+      assert.ok(previousSession);
+
+      const newContext = await browser.newContext({
+        baseURL,
+        storageState: { cookies: [policy], origins: [] },
+      });
+      try {
+        expect(await newContext.cookies()).toEqual([policy]);
+        const newPage = await newContext.newPage();
+        await newPage.goto("/auth/test-login");
+        await expect(newPage).toHaveURL("/");
+        await expect(
+          newPage.getByRole("heading", { name: "What do you want to do?" }),
+        ).toBeVisible();
+        const banner = newPage.getByRole("region", {
+          name: "Cookies on legal aid at inquests",
+          exact: true,
+        });
+        await expect(banner).toBeHidden();
+        expect(
+          await newPage.evaluate(() =>
+            Object.entries(window)
+              .filter(([key]) => key.startsWith("ga-disable-"))
+              .map(([, value]) => value),
+          ),
+        ).toEqual([!hasTrackingConsent]);
+
+        const newCookies = await newContext.cookies();
+        const newSession = newCookies.find(
+          (cookie) => cookie.name === "test-session",
+        );
+        assert.ok(newSession);
+        expect(newSession.value).not.toBe(previousSession.value);
+        expect(
+          newCookies.find((cookie) => cookie.name === "cookies_policy"),
+        ).toEqual(policy);
+        await newPage.goto("/apply");
+        await expect(banner).toBeHidden();
+        await newPage.reload();
+        await expect(banner).toBeHidden();
+      } finally {
+        await newContext.close();
+      }
+    });
+
+    test(`should remember the ${outcome} preference after signing out and back in`, async ({
+      page,
+      context,
+      baseURL,
+      checkAccessibility,
+    }) => {
+      assert.ok(baseURL);
+      await page.getByRole("button", { name: buttonName }).click();
+      const policy = (await context.cookies()).find(
+        (cookie) => cookie.name === "cookies_policy",
+      );
+      assert.ok(policy);
+
+      await page.route(
+        (url) =>
+          url.hostname === "login.microsoftonline.com" &&
+          url.pathname.startsWith("/common/oauth2/v2.0/logout"),
+        async (route) => {
+          await route.fulfill({
+            contentType: "text/html",
+            body: `<!doctype html><a href="${new URL("/auth/test-login", baseURL).href}">Sign in again</a>`,
+          });
+        },
+      );
+      const logoutResponse = await page.request.get("/auth/logout", {
+        maxRedirects: 0,
+      });
+      expect(logoutResponse.status()).toBe(302);
+      const logoutUrl = logoutResponse.headers().location;
+      assert.ok(logoutUrl);
+      await page.goto(logoutUrl);
+      await expect(
+        page.getByRole("link", { name: "Sign in again" }),
+      ).toBeVisible();
+      const signedOutCookies = await context.cookies(baseURL);
+      expect(
+        signedOutCookies.find((cookie) => cookie.name === "test-session"),
+      ).toBeUndefined();
+      expect(
+        signedOutCookies.find((cookie) => cookie.name === "cookies_policy"),
+      ).toEqual(policy);
+
+      await page.getByRole("link", { name: "Sign in again" }).click();
+      await expect(page).toHaveURL("/");
+      await expect(
+        page.getByRole("heading", { name: "What do you want to do?" }),
+      ).toBeVisible();
+      const banner = page.getByRole("region", {
+        name: "Cookies on legal aid at inquests",
+        exact: true,
+      });
+      await expect(banner).toBeHidden();
+      expect(
+        await page.evaluate(() =>
+          Object.entries(window)
+            .filter(([key]) => key.startsWith("ga-disable-"))
+            .map(([, value]) => value),
+        ),
+      ).toEqual([!hasTrackingConsent]);
+      await checkAccessibility();
+      await page.reload();
+      await expect(banner).toBeHidden();
+    });
+
     test(`should keep the banner visible when the ${outcome} preference was not stored`, async ({
       page,
       context,

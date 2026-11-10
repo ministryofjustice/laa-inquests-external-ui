@@ -112,8 +112,14 @@ describe("processCookies", () => {
     assert.equal(res.locals.cookieBannerState, "initial");
   });
 
-  for (const state of ["accepted", "rejected", "closed", "failed", undefined]) {
-    it("sets res.locals.cookieBannerState to the current session state when consent is defined", () => {
+  for (const { state, expectedState } of [
+    { state: "accepted", expectedState: "accepted" },
+    { state: "rejected", expectedState: "rejected" },
+    { state: "closed", expectedState: "closed" },
+    { state: "failed", expectedState: "closed" },
+    { state: undefined, expectedState: "closed" },
+  ]) {
+    it(`renders ${expectedState} for session state ${state} when a valid cookie preference is saved`, () => {
       req.cookies = {
         cookies_policy: encodeURIComponent(
           JSON.stringify({ has_tracking_consent: state === "accepted" }),
@@ -121,7 +127,7 @@ describe("processCookies", () => {
       };
       req.session.cookieBannerState = state;
       processCookies(req, res, next);
-      assert.equal(res.locals.cookieBannerState, state);
+      assert.equal(res.locals.cookieBannerState, expectedState);
     });
   }
 
@@ -189,7 +195,7 @@ describe("setCookies", () => {
     assert.deepEqual(res.cookie.firstCall.args, [
       "cookies_policy",
       JSON.stringify({ has_tracking_consent: true }),
-      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "lax" },
     ]);
   });
 
@@ -200,7 +206,7 @@ describe("setCookies", () => {
     assert.deepEqual(res.cookie.firstCall.args, [
       "cookies_policy",
       JSON.stringify({ has_tracking_consent: false }),
-      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "strict" },
+      { maxAge: ONE_YEAR_MS, httpOnly: true, sameSite: "lax" },
     ]);
   });
 });
