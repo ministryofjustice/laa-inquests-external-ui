@@ -4,11 +4,9 @@ import { getAndUpdateFormFields } from "#tests/playwright/fixtures/pages/Apply.j
 test.describe("Apply - journey guard", () => {
   test("redirects to the last completed step when the recipient page is accessed before selecting an address source", async ({
     page,
-    authorizeApplyStep,
+    authorizeStep,
   }) => {
-    await authorizeApplyStep(
-      "/apply/client-details/correspondence-address-source",
-    );
+    await authorizeStep("/apply/client-details/correspondence-address-source");
 
     await page.goto("/apply/client-details/correspondence-recipient");
 

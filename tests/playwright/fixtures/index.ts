@@ -10,38 +10,37 @@ interface TestFixtures {
   checkAccessibility: () => Promise<void>;
   pages: PageFactory;
   freshSession: void;
-  authorizeApplyStep: (pageUrl: string) => Promise<void>;
-  authorizeClaimStep: (pageUrl: string) => Promise<void>;
+  authorizeStep: (pageUrl: string) => Promise<void>;
 }
 
 const authorizedPages = new WeakMap<Page, boolean>();
 
-const authorizeTestForApplyStep = async (
+const authorizeTestForJourneyStep = async (
   page: Page,
   pageUrl: string,
 ): Promise<void> => {
   const path = pageUrl.split("?")[0];
-  const stepIndex = APPLY_JOURNEY_SEQUENCE.indexOf(path);
-  if (stepIndex >= 0) {
-    const lastCompletedIndex = stepIndex > 0 ? stepIndex - 1 : -1;
-    await page.request.get(`/auth/test-login?applyStep=${lastCompletedIndex}`, {
-      maxRedirects: 0,
-    });
-  }
-};
+  let journeyType: "apply" | "claim";
+  let stepIndex: number;
 
-const authorizeTestForClaimStep = async (
-  page: Page,
-  pageUrl: string,
-): Promise<void> => {
-  const path = pageUrl.split("?")[0];
-  const stepIndex = CLAIM_JOURNEY_SEQUENCE.indexOf(path);
-  if (stepIndex >= 0) {
-    const lastCompletedIndex = stepIndex > 0 ? stepIndex - 1 : -1;
-    await page.request.get(`/auth/test-login?claimStep=${lastCompletedIndex}`, {
-      maxRedirects: 0,
-    });
+  const applyStepIndex = APPLY_JOURNEY_SEQUENCE.indexOf(path);
+  if (applyStepIndex >= 0) {
+    journeyType = "apply";
+    stepIndex = applyStepIndex;
+  } else {
+    const claimStepIndex = CLAIM_JOURNEY_SEQUENCE.indexOf(path);
+    if (claimStepIndex < 0) {
+      return;
+    }
+    journeyType = "claim";
+    stepIndex = claimStepIndex;
   }
+
+  const lastCompletedIndex = stepIndex > 0 ? stepIndex - 1 : -1;
+  await page.request.get(
+    `/auth/test-login?${journeyType}Step=${lastCompletedIndex}`,
+    { maxRedirects: 0 },
+  );
 };
 
 export const test = base.extend<TestFixtures>({
@@ -60,11 +59,7 @@ export const test = base.extend<TestFixtures>({
       page.goto = async (url: string | URL, options?: any) => {
         const urlString = url.toString();
         if (!authorizedPages.has(page)) {
-          if (urlString.startsWith("/apply")) {
-            await authorizeTestForApplyStep(page, urlString);
-          } else if (urlString.startsWith("/claim")) {
-            await authorizeTestForClaimStep(page, urlString);
-          }
+          await authorizeTestForJourneyStep(page, urlString);
           authorizedPages.set(page, true);
         }
         return originalGoto(urlString, options);
@@ -75,19 +70,12 @@ export const test = base.extend<TestFixtures>({
     { auto: true },
   ],
 
-  authorizeApplyStep: async ({ page }, use): Promise<void> => {
-    const authorizeApplyStepForTest = async (
-      pageUrl: string,
-    ): Promise<void> => {
+  // Called manually if jumps to un-authed page in middle of E2E test
+  authorizeStep: async ({ page }, use): Promise<void> => {
+    await use(async (pageUrl: string): Promise<void> => {
       authorizedPages.set(page, true);
-      await authorizeTestForApplyStep(page, pageUrl);
-    };
-    await use(authorizeApplyStepForTest);
-  },
-
-  authorizeClaimStep: async ({ page }, use): Promise<void> => {
-    authorizedPages.set(page, true);
-    await use((pageUrl: string) => authorizeTestForClaimStep(page, pageUrl));
+      await authorizeTestForJourneyStep(page, pageUrl);
+    });
   },
 
   checkAccessibility: async ({ page }, use): Promise<void> => {

@@ -300,7 +300,7 @@ test.describe("Client details - correspondence address", () => {
       );
     });
 
-    test("if town or city is missing", async ({ page, authorizeApplyStep }) => {
+    test("if town or city is missing", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -437,7 +437,7 @@ test.describe("Client details - correspondence address", () => {
       );
     });
 
-    test("if postcode is missing", async ({ page, authorizeApplyStep }) => {
+    test("if postcode is missing", async ({ page }) => {
       await page.goto("/apply/client-details/correspondence-address");
       const form = page.getByTestId("correspondence-address-form");
       const errorSummary = await page.getByRole("alert");

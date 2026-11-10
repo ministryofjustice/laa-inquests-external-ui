@@ -382,7 +382,7 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if town or city is missing", async ({ page, authorizeApplyStep }) => {
+    test("if town or city is missing", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -583,7 +583,7 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if county contains numbers", async ({ page, authorizeApplyStep }) => {
+    test("if county contains numbers", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
@@ -637,7 +637,7 @@ test.describe("Client details - home address", () => {
       );
     });
 
-    test("if postcode is missing", async ({ page, authorizeApplyStep }) => {
+    test("if postcode is missing", async ({ page }) => {
       await page.goto("/apply/client-details/home-address");
       const addressForm = await page.getByTestId("home-address-form");
       const errorSummary = await page.getByRole("alert");
