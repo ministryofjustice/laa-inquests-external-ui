@@ -64,10 +64,11 @@ test.describe("Cookies banner", () => {
   ]) {
     const outcome = hasTrackingConsent ? "accepted" : "rejected";
 
-    test(`should remember the ${outcome} preference in a new session`, async ({
+    test(`should remember the ${outcome} preference in a new browser session`, async ({
       page,
       context,
-      checkAccessibility,
+      browser,
+      baseURL,
     }) => {
       await page.getByRole("button", { name: buttonName }).click();
       const cookies = await context.cookies();
@@ -78,41 +79,47 @@ test.describe("Cookies banner", () => {
       assert.ok(policy);
       assert.ok(previousSession);
 
-      await context.clearCookies();
-      await context.addCookies([policy]);
-      expect(await context.cookies()).toEqual([policy]);
-      await page.goto("/auth/test-login");
-      await expect(page).toHaveURL("/");
-      await expect(
-        page.getByRole("heading", { name: "What do you want to do?" }),
-      ).toBeVisible();
-      const banner = page.getByRole("region", {
-        name: "Cookies on legal aid at inquests",
-        exact: true,
+      const newContext = await browser.newContext({
+        baseURL,
+        storageState: { cookies: [policy], origins: [] },
       });
-      await expect(banner).toBeHidden();
-      expect(
-        await page.evaluate(() =>
-          Object.entries(window)
-            .filter(([key]) => key.startsWith("ga-disable-"))
-            .map(([, value]) => value),
-        ),
-      ).toEqual([!hasTrackingConsent]);
-      await checkAccessibility();
+      try {
+        expect(await newContext.cookies()).toEqual([policy]);
+        const newPage = await newContext.newPage();
+        await newPage.goto("/auth/test-login");
+        await expect(newPage).toHaveURL("/");
+        await expect(
+          newPage.getByRole("heading", { name: "What do you want to do?" }),
+        ).toBeVisible();
+        const banner = newPage.getByRole("region", {
+          name: "Cookies on legal aid at inquests",
+          exact: true,
+        });
+        await expect(banner).toBeHidden();
+        expect(
+          await newPage.evaluate(() =>
+            Object.entries(window)
+              .filter(([key]) => key.startsWith("ga-disable-"))
+              .map(([, value]) => value),
+          ),
+        ).toEqual([!hasTrackingConsent]);
 
-      const newCookies = await context.cookies();
-      const newSession = newCookies.find(
-        (cookie) => cookie.name === "test-session",
-      );
-      assert.ok(newSession);
-      expect(newSession.value).not.toBe(previousSession.value);
-      expect(
-        newCookies.find((cookie) => cookie.name === "cookies_policy"),
-      ).toEqual(policy);
-      await page.goto("/apply");
-      await expect(banner).toBeHidden();
-      await page.reload();
-      await expect(banner).toBeHidden();
+        const newCookies = await newContext.cookies();
+        const newSession = newCookies.find(
+          (cookie) => cookie.name === "test-session",
+        );
+        assert.ok(newSession);
+        expect(newSession.value).not.toBe(previousSession.value);
+        expect(
+          newCookies.find((cookie) => cookie.name === "cookies_policy"),
+        ).toEqual(policy);
+        await newPage.goto("/apply");
+        await expect(banner).toBeHidden();
+        await newPage.reload();
+        await expect(banner).toBeHidden();
+      } finally {
+        await newContext.close();
+      }
     });
 
     test(`should remember the ${outcome} preference after signing out and back in`, async ({
