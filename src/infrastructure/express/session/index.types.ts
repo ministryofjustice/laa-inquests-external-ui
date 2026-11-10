@@ -87,22 +87,6 @@ export interface ClaimSession {
 }
 
 export interface ApplySession {
-  clientFirstName?: string;
-  clientLastName?: string;
-  clientLastNameAtBirth?: string;
-  hasNameChanged?: string;
-  clientDobDay?: string;
-  clientDobMonth?: string;
-  clientDobYear?: string;
-  clientHasNino?: string;
-  clientNino?: string;
-  clientHasPrevApplicationRef?: boolean;
-  clientPrevApplicationRef?: string;
-  clientHomeAddress?: ClientHomeAddress;
-  clientHasNoFixedAbode?: boolean;
-  clientCorrespondenceAddressSource?: CorrespondenceAddressSource;
-  clientCorrespondenceAddress?: ClientHomeAddress;
-  clientCorrespondenceRecipient?: CorrespondenceRecipient | null;
   lastCompletedStepIndex?: number;
 }
 
