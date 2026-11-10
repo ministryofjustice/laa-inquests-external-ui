@@ -161,6 +161,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         requestStub.session.claim?.recoveryPreCertificateCosts,
         "400",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 15);
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],

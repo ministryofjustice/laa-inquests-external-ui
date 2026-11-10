@@ -10,6 +10,7 @@ import type {
   InquestOutcomeValidator,
 } from "./InquestOutcome.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class InquestOutcomeAdaptor {
   formValidator: InquestOutcomeValidator;
@@ -75,12 +76,22 @@ export class InquestOutcomeAdaptor {
     } = req;
     const inquestOutcomes = Array.isArray(selection) ? selection : [selection!];
 
+    const returnToCheckYourAnswers =
+      this.navigationHelper.isReturningToCheckYourAnswers(req);
     req.session.claim = {
       ...req.session.claim,
       inquestOutcomes,
     };
+    markStepComplete(
+      req,
+      "/claim/inquest-outcome",
+      "claim",
+      returnToCheckYourAnswers
+        ? "/claim/check-your-answers"
+        : "/claim/inquest-outcome",
+    );
 
-    if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+    if (returnToCheckYourAnswers) {
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
       res.redirect("/claim/check-your-answers");
     } else {

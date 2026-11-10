@@ -60,7 +60,7 @@ describe("journeyStepHelper", () => {
       assert.equal(applyState.lastCompletedStepIndex, 1);
     });
 
-    it("overwrites existing lastCompletedStepIndex", () => {
+    it("advances existing lastCompletedStepIndex", () => {
       const requestStub = stubInterface<Request>();
       requestStub.session = {
         apply: {
@@ -72,6 +72,38 @@ describe("journeyStepHelper", () => {
 
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 3);
+    });
+
+    it("marks a Claim journey step in the Claim session", () => {
+      const requestStub = stubInterface<Request>();
+      requestStub.session = {} as any;
+
+      markStepComplete(requestStub, "/claim/search", "claim");
+
+      const claimState = (requestStub.session as any).claim;
+      assert.equal(claimState.lastCompletedStepIndex, 1);
+    });
+
+    it("advances through pages skipped by a Claim branch", () => {
+      const requestStub = stubInterface<Request>();
+      requestStub.session = {} as any;
+
+      markStepComplete(requestStub, "/claim/type", "claim", "/claim/subtype");
+
+      const claimState = (requestStub.session as any).claim;
+      assert.equal(claimState.lastCompletedStepIndex, 4);
+    });
+
+    it("rewinds Claim progress when an earlier step is edited", () => {
+      const requestStub = stubInterface<Request>();
+      requestStub.session = {
+        claim: { lastCompletedStepIndex: 18 },
+      } as any;
+
+      markStepComplete(requestStub, "/claim/type", "claim");
+
+      const claimState = (requestStub.session as any).claim;
+      assert.equal(claimState.lastCompletedStepIndex, 3);
     });
 
     it("marks the final step as complete", () => {

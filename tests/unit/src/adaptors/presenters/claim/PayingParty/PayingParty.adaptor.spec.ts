@@ -121,6 +121,7 @@ describe("PayingParty adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.payingParty, "Acme Ltd");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
       assert.equal(
         requestStub.session.claim?.returnToCheckYourAnswers,
         undefined,

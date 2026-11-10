@@ -88,6 +88,7 @@ describe("ClaimDeclaration adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claimDeclaration, true);
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 0);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/search");

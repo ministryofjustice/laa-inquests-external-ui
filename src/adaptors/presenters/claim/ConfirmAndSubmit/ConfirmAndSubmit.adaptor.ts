@@ -25,6 +25,7 @@ import {
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import { logger as appLogger } from "#src/infrastructure/logging/logger.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
@@ -109,6 +110,17 @@ export class ConfirmAndSubmitAdaptor {
     session.claimRejectionReasons = data?.rejectionReasons;
     const hasRejectionReasons =
       (data?.rejectionReasons?.length ?? EMPTY_ARR_LENGTH) > EMPTY_ARR_LENGTH;
+
+    if (hasRejectionReasons) {
+      markStepComplete(
+        req,
+        "/claim/check-your-answers",
+        "claim",
+        "/claim/confirmation/reject",
+      );
+    } else {
+      markStepComplete(req, "/claim/check-your-answers", "claim");
+    }
 
     if (hasRejectionReasons) {
       res.redirect("/claim/confirmation/reject");

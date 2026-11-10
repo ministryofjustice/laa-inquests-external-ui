@@ -8,6 +8,7 @@ import type {
 import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class CounselPayConfirmationAdaptor {
   formValidator: CounselPayConfirmationValidator;
@@ -56,11 +57,21 @@ export class CounselPayConfirmationAdaptor {
         errorSummaries,
       });
     } else {
+      const returnToCheckYourAnswers =
+        this.navigationHelper.isReturningToCheckYourAnswers(req);
       req.session.claim = {
         ...req.session.claim,
         counselBillsPaid: true,
       };
-      if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+      markStepComplete(
+        req,
+        "/claim/counsel-pay-confirmation",
+        "claim",
+        returnToCheckYourAnswers
+          ? CLAIM_PATHS.CHECK_YOUR_ANSWERS
+          : "/claim/counsel-pay-confirmation",
+      );
+      if (returnToCheckYourAnswers) {
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
         res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       } else {

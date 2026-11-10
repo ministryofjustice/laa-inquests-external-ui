@@ -2,7 +2,7 @@ import { test, expect } from "../../fixtures/index.js";
 import { searchAndSelectCase } from "../../utils/claim-journey.js";
 
 test.describe("Claim - confirm success", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, authorizeStep }) => {
     await searchAndSelectCase(page, "INQ-YYY-001");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
@@ -10,6 +10,7 @@ test.describe("Claim - confirm success", () => {
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
+    await authorizeStep("/claim/evidence");
     await page.goto("/claim/evidence");
     await Promise.all([
       page.waitForResponse(
@@ -24,6 +25,7 @@ test.describe("Claim - confirm success", () => {
         buffer: Buffer.from("evidence content"),
       }),
     ]);
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
     await page
       .getByTestId("confirm-and-submit-form")

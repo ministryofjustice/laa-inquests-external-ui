@@ -89,6 +89,7 @@ describe("FundingPostInquest adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.fundingPostInquest, "NO");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
@@ -112,6 +113,7 @@ describe("FundingPostInquest adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.fundingPostInquest, "YES");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 12);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
@@ -134,6 +136,7 @@ describe("FundingPostInquest adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.fundingPostInquest, "DONT_KNOW");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 12);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",

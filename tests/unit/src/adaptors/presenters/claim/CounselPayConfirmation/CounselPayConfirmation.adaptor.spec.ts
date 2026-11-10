@@ -92,6 +92,7 @@ describe("CounselPayConfirmation adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.counselBillsPaid, true);
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 9);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/end-date");

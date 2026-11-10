@@ -225,6 +225,7 @@ describe("Evidence adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -247,6 +248,7 @@ describe("Evidence adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/counsel-number");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 7);
       assert.equal(responseStub.render.callCount, 0);
     });
   });

@@ -11,6 +11,7 @@ import {
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 const RECOVERY_COST_MADE_ANSWER_HREF = "/claim/inquest-outcome-recovery";
 
@@ -99,8 +100,18 @@ export class FinancialRecoveryCostsAdaptor {
       recoveryInterest: interest,
       recoveryPreCertificateCosts: previousPreCertificateCosts,
     };
+    const returnToCheckYourAnswers =
+      this.navigationHelper.isReturningToCheckYourAnswers(req);
+    markStepComplete(
+      req,
+      "/claim/recovery-costs",
+      "claim",
+      returnToCheckYourAnswers
+        ? CLAIM_PATHS.CHECK_YOUR_ANSWERS
+        : "/claim/pre-cert-costs",
+    );
 
-    if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+    if (returnToCheckYourAnswers) {
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
       res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       return;

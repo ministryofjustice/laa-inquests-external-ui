@@ -2,7 +2,10 @@ import { strict as assert } from "assert";
 import sinon from "sinon";
 import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
-import { createJourneyGuard } from "#src/infrastructure/express/middleware/accessControl/journeyGuard.js";
+import {
+  claimJourneyGuard,
+  createJourneyGuard,
+} from "#src/infrastructure/express/middleware/accessControl/journeyGuard.js";
 import { JOURNEY_NOT_STARTED } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 const TEST_JOURNEY_SEQUENCE = [
@@ -58,6 +61,30 @@ describe("journeyGuard middleware", () => {
   });
 
   describe("step access control", () => {
+    it("redirects a Claim user to the declaration when they skip ahead", () => {
+      requestStub.session = {
+        claim: { lastCompletedStepIndex: 0 },
+      };
+      requestStub.path = "/claim/total-cost";
+
+      claimJourneyGuard(requestStub as any, responseStub, nextSpy);
+
+      assert(!nextSpy.called);
+      assert.equal((responseStub.redirect as any).firstCall.args[0], "/claim");
+    });
+
+    it("guards a nested Claim action using its owning journey step", () => {
+      requestStub.session = {
+        claim: { lastCompletedStepIndex: 0 },
+      };
+      requestStub.path = "/claim/results/select/INQ-123";
+
+      claimJourneyGuard(requestStub as any, responseStub, nextSpy);
+
+      assert(!nextSpy.called);
+      assert.equal((responseStub.redirect as any).firstCall.args[0], "/claim");
+    });
+
     it("allows access to the first step", () => {
       const middleware = createJourneyGuard({
         journeyType: "apply",

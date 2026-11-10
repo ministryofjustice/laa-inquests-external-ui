@@ -119,7 +119,10 @@ export function createAuthRouter(
       if (typeof req.query.claimStep === "string") {
         const stepIndex = Number(req.query.claimStep);
         if (!Number.isNaN(stepIndex)) {
-          req.session.claim = { lastCompletedStepIndex: stepIndex };
+          req.session.claim = {
+            ...req.session.claim,
+            lastCompletedStepIndex: stepIndex,
+          };
         }
       }
 

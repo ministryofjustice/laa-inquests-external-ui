@@ -129,6 +129,7 @@ test.describe("Claim - counsel number", () => {
 
   test("returns to check your answers when changing to 0 counsel via check your answers", async ({
     page,
+    authorizeStep,
   }) => {
     const form = page.getByTestId("counsel-number-form");
 
@@ -136,6 +137,7 @@ test.describe("Claim - counsel number", () => {
     await form.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL("/claim/counsel-pay-confirmation");
 
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/counsel-number?from=check-your-answers");
 
     const changeForm = page.getByTestId("counsel-number-form");

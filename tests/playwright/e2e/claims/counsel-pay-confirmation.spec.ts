@@ -78,7 +78,9 @@ test.describe("Claim - counsel pay confirmation", () => {
 
   test("returns to check your answers when changing the confirmation", async ({
     page,
+    authorizeStep,
   }) => {
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/counsel-pay-confirmation?from=check-your-answers");
 
     const form = page.getByTestId("counsel-pay-confirmation-form");

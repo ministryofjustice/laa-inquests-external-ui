@@ -107,6 +107,7 @@ describe("FinalBillTemplate adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 6);
       assert.equal(responseStub.redirect.getCall(0).args[0], "/claim/evidence");
     });
 
@@ -118,6 +119,7 @@ describe("FinalBillTemplate adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",

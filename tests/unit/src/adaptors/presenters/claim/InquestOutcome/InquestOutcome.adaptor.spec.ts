@@ -119,6 +119,7 @@ describe("InquestOutcome adaptor", () => {
       assert.deepEqual(requestStub.session.claim?.inquestOutcomes, [
         "ACCIDENT_OR_MISADVENTURE",
       ]);
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/funding-post-inquest");

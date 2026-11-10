@@ -15,6 +15,7 @@ import type { UploadEvidenceResponse } from "#src/adaptors/source/inquests-api/c
 import type { FinalBillTemplateValidator } from "./FinalBillTemplate.validator.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import {
   buildJsonUploadErrorResponse,
   isNonEmptyString,
@@ -74,10 +75,22 @@ export class FinalBillTemplateAdaptor {
         uploadedFile: req.session.claim?.finalBillCostTemplate,
         uploadedFiles: this.#buildUploadedFiles(req),
       });
-    } else if (req.session.claim?.returnToCheckYourAnswers === true) {
-      res.redirect("/claim/check-your-answers");
     } else {
-      res.redirect("/claim/evidence");
+      const returnToCheckYourAnswers =
+        req.session.claim?.returnToCheckYourAnswers === true;
+      markStepComplete(
+        req,
+        "/claim/final-bill-template",
+        "claim",
+        returnToCheckYourAnswers
+          ? "/claim/check-your-answers"
+          : "/claim/final-bill-template",
+      );
+      if (returnToCheckYourAnswers) {
+        res.redirect("/claim/check-your-answers");
+      } else {
+        res.redirect("/claim/evidence");
+      }
     }
   }
 

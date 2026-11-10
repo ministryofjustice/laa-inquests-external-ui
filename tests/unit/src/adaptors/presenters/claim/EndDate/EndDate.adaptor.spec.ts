@@ -121,6 +121,7 @@ describe("EndDate adaptor", () => {
       assert.equal(requestStub.session.claim?.endDateDay, "21");
       assert.equal(requestStub.session.claim?.endDateMonth, "3");
       assert.equal(requestStub.session.claim?.endDateYear, "2026");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 10);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/inquest-outcome");

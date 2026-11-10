@@ -161,6 +161,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(requestStub.session.claim?.zeroVatTotal, "100.00");
       assert.equal(requestStub.session.claim?.netTotal, "250.25");
       assert.equal(requestStub.session.claim?.grossTotal, "400.30");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 6);
     });
 
     it("redirects to check-your-answers and clears the flag when returnToCheckYourAnswers is set and submission is valid", () => {
@@ -232,6 +233,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
       assert.equal(requestStub.session.claim?.subtype, undefined);
       assert.equal(requestStub.session.claim?.grossTotal, "0");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 10);
     });
 
     it("treats 0.00 as a nil bill and redirects to /claim/inquest-outcome", () => {
@@ -272,6 +274,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(redirectPath, "/claim/final-bill-template");
       assert.equal(requestStub.session.claim?.grossTotal, "1250.50");
       assert.equal(requestStub.session.claim?.subtype, undefined);
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 5);
     });
 
     it("re-renders with an error and does not redirect when the gross amount is invalid", () => {

@@ -9,7 +9,9 @@ import {
   EMPTY_ARR_LENGTH,
   NIL_BILL_GROSS_TOTAL,
 } from "#src/infrastructure/locales/constants.js";
+import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { TotalClaimCostValidator } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.validator.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class TotalClaimCostAdaptor {
   formValidator: TotalClaimCostValidator;
@@ -90,6 +92,14 @@ export class TotalClaimCostAdaptor {
           grossTotal,
           returnToCheckYourAnswers: undefined,
         };
+        markStepComplete(
+          req,
+          "/claim/total-cost",
+          "claim",
+          returnToCheckYourAnswers === true
+            ? CLAIM_PATHS.CHECK_YOUR_ANSWERS
+            : "/claim/final-bill-template",
+        );
 
         res.redirect(
           returnToCheckYourAnswers === true
@@ -129,6 +139,12 @@ export class TotalClaimCostAdaptor {
       ...req.session.claim,
       grossTotal,
     };
+
+    if (isNilBill) {
+      markStepComplete(req, "/claim/total-cost", "claim", "/claim/end-date");
+    } else {
+      markStepComplete(req, "/claim/total-cost", "claim");
+    }
 
     if (isNilBill) {
       res.redirect("/claim/inquest-outcome");

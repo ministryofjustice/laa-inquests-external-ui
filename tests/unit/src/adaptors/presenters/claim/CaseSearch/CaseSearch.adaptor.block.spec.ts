@@ -84,6 +84,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
 
     assert.equal(requestStub.session.claim?.caseReference, "12345");
     assert.equal(requestStub.session.claim?.claimBlocked, true);
+    assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 2);
     assert.equal(responseStub.redirect.callCount, 1);
     const [redirectUrl] = responseStub.redirect.getCall(0).args;
     assert.equal(redirectUrl, "/claim/cannot-claim");

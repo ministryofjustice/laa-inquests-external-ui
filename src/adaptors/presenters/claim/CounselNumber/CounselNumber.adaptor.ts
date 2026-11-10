@@ -12,6 +12,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class CounselNumberAdaptor {
   formValidator: CounselNumberValidator;
@@ -72,6 +73,14 @@ export class CounselNumberAdaptor {
           counselNumber,
           counselBillsPaid: undefined,
         };
+        markStepComplete(
+          req,
+          "/claim/counsel-number",
+          "claim",
+          returnToCheckYourAnswers
+            ? CLAIM_PATHS.CHECK_YOUR_ANSWERS
+            : "/claim/counsel-pay-confirmation",
+        );
         if (returnToCheckYourAnswers) {
           this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
           res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
@@ -83,6 +92,12 @@ export class CounselNumberAdaptor {
           ...req.session.claim,
           counselNumber,
         };
+        markStepComplete(
+          req,
+          "/claim/counsel-number",
+          "claim",
+          CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+        );
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
         res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       } else {
@@ -90,6 +105,7 @@ export class CounselNumberAdaptor {
           ...req.session.claim,
           counselNumber,
         };
+        markStepComplete(req, "/claim/counsel-number", "claim");
         res.redirect("/claim/counsel-pay-confirmation");
       }
     }

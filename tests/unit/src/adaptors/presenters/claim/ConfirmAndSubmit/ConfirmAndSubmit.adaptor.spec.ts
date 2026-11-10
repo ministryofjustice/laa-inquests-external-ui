@@ -777,6 +777,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       await adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claimReferenceNumber, "INQC-TEST-0042");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/confirmation/success");
@@ -809,6 +810,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.deepEqual(requestStub.session.claimRejectionReasons, [
         "MAX_POA_CLAIMS_EXCEEDED",
       ]);
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 19);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/confirmation/reject");

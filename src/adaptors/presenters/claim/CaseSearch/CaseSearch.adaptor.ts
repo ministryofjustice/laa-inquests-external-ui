@@ -16,6 +16,7 @@ import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js"
 import { SelectCaseUseCase } from "#src/use-cases/claim/SelectCase.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { saveSession } from "#src/infrastructure/express/session/sessionConcurrency.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
@@ -82,6 +83,7 @@ export class CaseSearchAdaptor {
       });
     } else {
       req.session.claim = { ...req.session.claim, caseReference };
+      markStepComplete(req, "/claim/search", "claim");
       res.redirect("/claim/results");
     }
   }
@@ -150,6 +152,7 @@ export class CaseSearchAdaptor {
         client: result.client,
         claimBlocked: true,
       };
+      markStepComplete(req, "/claim/results", "claim");
       logger.logInfo({
         functionName: "caseSearchAdaptor_selectCase",
         message: "Claim submission blocked by an active final or nil bill",
@@ -167,6 +170,7 @@ export class CaseSearchAdaptor {
         caseReference: selectedReference,
         client: result.client,
       };
+      markStepComplete(req, "/claim/results", "claim");
       await saveSession(req);
       res.redirect("/claim/type");
     }

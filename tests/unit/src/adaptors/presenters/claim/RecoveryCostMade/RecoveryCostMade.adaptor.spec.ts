@@ -69,6 +69,7 @@ describe("RecoveryCostMade adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.recoveryCostMade, "YES");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/recovery-costs",
@@ -91,6 +92,7 @@ describe("RecoveryCostMade adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.recoveryCostMade, "NO");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 14);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",
@@ -113,6 +115,7 @@ describe("RecoveryCostMade adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.recoveryCostMade, "DONT_KNOW");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 14);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",

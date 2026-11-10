@@ -101,6 +101,7 @@ describe("CaseSearch adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.caseReference, "ABC-12345");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 1);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/results");
@@ -401,6 +402,7 @@ describe("CaseSearch adaptor", () => {
       await adaptor.selectCase(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.caseReference, "12345");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 2);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/type");

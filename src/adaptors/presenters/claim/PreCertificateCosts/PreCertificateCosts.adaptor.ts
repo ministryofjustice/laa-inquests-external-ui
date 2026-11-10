@@ -11,6 +11,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { markStepComplete } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 const RECOVERY_COST_MADE_ANSWER_HREF = "/claim/inquest-outcome-recovery";
 
@@ -84,8 +85,18 @@ export class PreCertificateCostsAdaptor {
       ...req.session.claim,
       preCertificateCosts,
     };
+    const returnToCheckYourAnswers =
+      this.navigationHelper.isReturningToCheckYourAnswers(req);
+    markStepComplete(
+      req,
+      "/claim/pre-cert-costs",
+      "claim",
+      returnToCheckYourAnswers
+        ? CLAIM_PATHS.CHECK_YOUR_ANSWERS
+        : "/claim/pre-cert-costs",
+    );
 
-    if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
+    if (returnToCheckYourAnswers) {
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
       res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
       return;

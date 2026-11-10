@@ -144,6 +144,7 @@ describe("PreCertificateCosts adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.preCertificateCosts, "400");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 15);
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],

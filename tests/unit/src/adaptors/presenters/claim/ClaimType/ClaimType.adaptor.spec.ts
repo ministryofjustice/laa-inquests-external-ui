@@ -112,6 +112,7 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.type, "PAYMENT_ON_ACCOUNT");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 3);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
@@ -130,6 +131,7 @@ describe("ClaimType adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 4);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
@@ -361,6 +363,7 @@ describe("ClaimType adaptor", () => {
       adaptor.processSubtypeForm(requestStub, responseStub);
 
       assert.equal(requestStub.session.claim?.subtype, "PROFIT_COST");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 4);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");

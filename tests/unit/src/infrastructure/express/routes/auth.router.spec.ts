@@ -136,6 +136,28 @@ describe("createAuthRouter", () => {
       assert.deepEqual(req.session.roles, []);
     });
 
+    it("preserves Claim form data when setting the Claim journey step", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
+      req.session = {
+        cookie: {},
+        claim: { type: "FINAL_BILL", grossTotal: "1250.50" },
+      } as never;
+      req.query = { claimStep: "7" } as never;
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.claim, {
+        type: "FINAL_BILL",
+        grossTotal: "1250.50",
+        lastCompletedStepIndex: 7,
+      });
+    });
+
     it("falls back to both roles for an unrecognised role query param", () => {
       process.env.NODE_ENV = "test";
       const router = createAuthRouter(express.Router(), authAdaptor);
