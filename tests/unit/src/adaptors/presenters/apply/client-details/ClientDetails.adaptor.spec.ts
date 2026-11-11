@@ -340,12 +340,7 @@ describe("Client details adaptor", () => {
       redirectArgs[0],
       "/apply/client-details/correspondence-address",
     );
-    assert.equal(
-      requestStub.session.apply?.lastCompletedStepIndex,
-      APPLY_JOURNEY_SEQUENCE.indexOf(
-        "/apply/client-details/correspondence-address-source",
-      ),
-    );
+    assert.equal(requestStub.session.apply?.lastCompletedStepIndex, 6);
   });
 
   it("process correspondence source redirects to correspondence recipient when provider address is selected", () => {

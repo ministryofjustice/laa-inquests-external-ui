@@ -46,10 +46,7 @@ describe("Confirmation adaptor", () => {
 
   it("marks step complete", () => {
     confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
-    assert.equal(
-      requestStub.session.apply?.lastCompletedStepIndex,
-      APPLY_JOURNEY_SEQUENCE.indexOf("/apply/check-your-answers"),
-    );
+    assert.equal(requestStub.session.apply?.lastCompletedStepIndex, 18);
   });
 
   it("render check your answers page", () => {

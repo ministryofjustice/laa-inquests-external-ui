@@ -29,18 +29,12 @@ export function markStepComplete(
   );
 
   if (stepIndex < ZERO) {
-    return;
+    throw new Error(`Invalid page to mark: ${pageToMark}`);
   }
 
   const sessionRecord = req.session as Record<string, unknown>;
-  const { apply: currentApply } = sessionRecord;
-  const mergedState =
-    typeof currentApply === "object" && currentApply !== null
-      ? (currentApply as Record<string, unknown>)
-      : {};
 
   sessionRecord.apply = {
-    ...mergedState,
     lastCompletedStepIndex: stepIndex,
   };
 }

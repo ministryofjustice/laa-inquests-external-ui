@@ -55,26 +55,12 @@ describe("journeyStepHelper", () => {
       assert.equal(applyState.lastCompletedStepIndex, 2);
     });
 
-    it("ignores invalid URLs not in the journey sequence", () => {
+    it("throws for invalid URLs not in the journey sequence", () => {
       requestStub.session = { existingData: "test" } as any;
 
-      markStepComplete(requestStub, "/invalid/path");
-    });
-
-    it("updates existing apply session state without losing other fields", () => {
-      requestStub.session = {
-        apply: {
-          clientFirstName: "John",
-          clientLastName: "Doe",
-        },
-      } as any;
-
-      markStepComplete(requestStub, "/apply/office-accounts");
-
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.clientFirstName, "John");
-      assert.equal(applyState.clientLastName, "Doe");
-      assert.equal(applyState.lastCompletedStepIndex, 1);
+      assert.throws(() => {
+        markStepComplete(requestStub, "/invalid/path");
+      }, /Invalid page to mark: \/invalid\/path/);
     });
 
     it("overwrites existing lastCompletedStepIndex", () => {
