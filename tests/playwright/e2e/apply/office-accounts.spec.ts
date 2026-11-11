@@ -125,8 +125,9 @@ test.describe("Office accounts", () => {
       page,
       checkAccessibility,
     }) => {
-      await page.goto("/auth/test-login?officeAccounts=");
-      await page.waitForURL("/");
+      await page.request.get("/auth/test-login?officeAccounts=", {
+        maxRedirects: 0,
+      });
 
       await page.goto("/apply/office-accounts");
       await checkAccessibility();
@@ -165,8 +166,9 @@ test.describe("Office accounts", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/auth/test-login?officeAccounts=");
-    await page.waitForURL("/");
+    await page.request.get("/auth/test-login?officeAccounts=", {
+      maxRedirects: 0,
+    });
 
     await page.goto("/apply/office-accounts");
     await checkAccessibility();
@@ -187,8 +189,10 @@ test.describe("Office accounts", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/auth/test-login?role=application&officeAccounts=");
-    await page.waitForURL("/");
+    await page.request.get(
+      "/auth/test-login?role=application&officeAccounts=",
+      { maxRedirects: 0 },
+    );
 
     await page.goto("/apply/office-accounts");
     await checkAccessibility();

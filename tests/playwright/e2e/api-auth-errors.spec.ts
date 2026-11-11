@@ -17,10 +17,10 @@ async function loginWithAccessToken(
     APPLY_PATHS.PUBLIC_AUTHORITY,
   );
 
-  await page.goto(
+  await page.request.get(
     `/auth/test-login?accessToken=${accessToken}&applyStep=${applyIndex}`,
+    { maxRedirects: 0 },
   );
-  await page.waitForURL("/");
 }
 
 async function expectNoAccessibilityViolations(page: Page): Promise<void> {
