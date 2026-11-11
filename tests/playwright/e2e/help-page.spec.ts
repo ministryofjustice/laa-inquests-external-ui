@@ -4,6 +4,7 @@ test("opens the blank help page from the footer", async ({
   page,
   checkAccessibility,
 }) => {
+  await page.goto("/");
   const [response] = await Promise.all([
     page.waitForResponse(
       (response) =>
