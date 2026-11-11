@@ -6,14 +6,25 @@ import { SessionHelper } from "#src/infrastructure/express/session/sessionHelper
 
 describe("Home adaptor", () => {
   describe("renderHome", () => {
-    it("renders the home page", () => {
-      const adaptor = new HomeAdaptor();
+    it("clears form data and renders the home page", () => {
+      const sessionHelper = stubInterface<SessionHelper>();
+      const adaptor = new HomeAdaptor(sessionHelper);
 
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
 
       adaptor.renderHome(requestStub, responseStub);
 
+      assert.equal(
+        sessionHelper.clearFormData.callCount,
+        1,
+        "clearFormData should be called once",
+      );
+      assert.equal(
+        sessionHelper.clearFormData.getCall(0).args[0],
+        requestStub,
+        "clearFormData should be called with req",
+      );
       assert.equal(responseStub.render.callCount, 1);
       assert.equal(responseStub.render.getCall(0).args[0], "main/index");
     });
@@ -23,7 +34,8 @@ describe("Home adaptor", () => {
     it("redirects to /apply if Apply selected", () => {
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
-      const adaptor = new HomeAdaptor();
+      const sessionHelper = stubInterface<SessionHelper>();
+      const adaptor = new HomeAdaptor(sessionHelper);
 
       requestStub.body = { "what-do-you-want-to-do-option": "Apply" };
       adaptor.processForm(requestStub, responseStub);
@@ -36,7 +48,8 @@ describe("Home adaptor", () => {
     it("redirects to /claim if Claim selected", () => {
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
-      const adaptor = new HomeAdaptor();
+      const sessionHelper = stubInterface<SessionHelper>();
+      const adaptor = new HomeAdaptor(sessionHelper);
 
       requestStub.body = { "what-do-you-want-to-do-option": "Claim" };
       adaptor.processForm(requestStub, responseStub);
@@ -49,7 +62,8 @@ describe("Home adaptor", () => {
     it("renders error message if nothing selected", () => {
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
-      const adaptor = new HomeAdaptor();
+      const sessionHelper = stubInterface<SessionHelper>();
+      const adaptor = new HomeAdaptor(sessionHelper);
 
       requestStub.body = { "what-do-you-want-to-do-option": undefined };
       adaptor.processForm(requestStub, responseStub);
