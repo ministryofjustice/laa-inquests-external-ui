@@ -338,7 +338,10 @@ describe("OfficeAccounts adaptor", () => {
     });
 
     it("stores the selected office in session when an office is selected", async () => {
-      const { adaptor, requestStub, responseStub } = createRenderFixtures();
+      const { adaptor, requestStub, responseStub } = createRenderFixtures({
+        firmName: "Test Firm",
+      });
+
       requestStub.body = { "office-accounts": "0A456A" };
 
       await adaptor.processOfficeAccountsSelectForm(requestStub, responseStub);
@@ -346,7 +349,7 @@ describe("OfficeAccounts adaptor", () => {
       assert.equal(requestStub.session.selectedOfficeId, "0A456A");
       assert.equal(
         requestStub.session.selectedOfficeAddress,
-        "2 Test Street, Manchester, M1A 1AA",
+        "Test Firm, 2 Test Street, Manchester, M1A 1AA",
       );
     });
 
