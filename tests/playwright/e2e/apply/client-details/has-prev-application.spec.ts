@@ -9,7 +9,7 @@ test.describe("Previous application", () => {
     page.goto("/apply/client-details/has-prev-application");
     const clientDetailsHeading = await page.getByRole("heading", {
       level: 1,
-      name: "Has your client applied for legal aid for an inquest before",
+      name: "Has your client applied for legal aid for an inquest before?",
     });
     await expect(clientDetailsHeading).toBeVisible();
 
