@@ -63,11 +63,11 @@ describe("Coroners Letter adaptor", () => {
         .args as unknown as [string, Record<string, unknown>];
       assert.equal(view, "apply/upload-coroners-letter");
       assert.equal(viewModel.csrfToken, "test-token");
-      assert.deepEqual(viewModel.uploadedFiles, []);
+      assert.equal(viewModel.uploadedFile, undefined);
       assert.equal(viewModel.backHref, "/apply/public-authority");
     });
 
-    it("renders the uploaded file from session for the multi file upload widget", () => {
+    it("renders a single uploaded file from session", () => {
       const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();
       const requestStub = stubInterface<Request>();
@@ -81,14 +81,12 @@ describe("Coroners Letter adaptor", () => {
         string,
         Record<string, unknown>,
       ];
-      assert.deepEqual(viewModel.uploadedFiles, [
-        {
-          message: { text: testCoronersLetterFileName },
-          fileName: testCoronersLetterId,
-          originalFileName: testCoronersLetterFileName,
-          deleteButton: { text: "Delete" },
-        },
-      ]);
+      assert.deepEqual(viewModel.uploadedFile, {
+        message: { text: testCoronersLetterFileName },
+        fileName: testCoronersLetterId,
+        originalFileName: testCoronersLetterFileName,
+        deleteButton: { text: "Delete" },
+      });
     });
 
     it("captures check-your-answers origin and sets the check-your-answers back link", () => {
@@ -233,6 +231,31 @@ describe("Coroners Letter adaptor", () => {
         (capturedEvents[0].tags as Record<string, unknown>).no_js_upload,
         true,
       );
+    });
+
+    it("preserves a CSRF token when re-rendering an invalid HTML upload", async () => {
+      formValidator.validateCoronersLetterUploadFile.returns({
+        coronersLetterError: { text: CORONERS_LETTER_ERROR.NO_FILE_CHOSEN },
+      });
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = {};
+      responseStub.status.returns(responseStub);
+      requestStub.body = { uploadMode: "html" };
+      const request: Request = requestStub;
+      request.csrfToken = () => "request-csrf-token";
+
+      await buildAdaptor().processCoronersLetterUpload(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.render.callCount, 1);
+      const [, viewModel] = responseStub.render.firstCall.args as unknown as [
+        string,
+        Record<string, unknown>,
+      ];
+      assert.equal(viewModel.csrfToken, "request-csrf-token");
     });
 
     it("stores the uploaded letter in session and returns 201 on success", async () => {

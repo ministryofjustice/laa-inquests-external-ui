@@ -49,7 +49,7 @@ export class CoronersLetterAdaptor {
 
     res.render("apply/upload-coroners-letter", {
       csrfToken,
-      uploadedFiles: this.#buildUploadedFiles(req),
+      uploadedFile: this.#buildUploadedFile(req),
       backHref: this.#resolveBackHref(req),
     });
   }
@@ -63,7 +63,7 @@ export class CoronersLetterAdaptor {
       res.render("apply/upload-coroners-letter", {
         csrfToken: res.locals.csrfToken,
         errorSummaries: errors,
-        uploadedFiles: this.#buildUploadedFiles(req),
+        uploadedFile: this.#buildUploadedFile(req),
         backHref: this.#resolveBackHref(req),
       });
       return;
@@ -242,35 +242,39 @@ export class CoronersLetterAdaptor {
     statusCode: number,
   ): void {
     res.status(statusCode).render("apply/upload-coroners-letter", {
-      csrfToken: res.locals.csrfToken,
+      csrfToken: res.locals.csrfToken ?? req.csrfToken?.(),
       errorSummaries: {
         coronersLetterError: { text: errorText },
       },
-      uploadedFiles: this.#buildUploadedFiles(req),
+      uploadedFile: this.#buildUploadedFile(req),
       backHref: this.#resolveBackHref(req),
     });
   }
 
-  #buildUploadedFiles(req: Request): Array<{
-    message: { text: string };
-    fileName: string;
-    originalFileName: string;
-    deleteButton: { text: string };
-  }> {
+  #buildUploadedFile(req: Request):
+    | {
+        message: { text: string };
+        fileName: string;
+        originalFileName: string;
+        deleteButton: { text: string };
+      }
+    | undefined {
     const { session } = req;
     const { coronersLetterId, coronersLetterFileName } = session;
 
-    return coronersLetterId === undefined ||
+    if (
+      coronersLetterId === undefined ||
       coronersLetterFileName === undefined
-      ? []
-      : [
-          {
-            message: { text: coronersLetterFileName },
-            fileName: coronersLetterId,
-            originalFileName: coronersLetterFileName,
-            deleteButton: { text: "Delete" },
-          },
-        ];
+    ) {
+      return undefined;
+    } else {
+      return {
+        message: { text: coronersLetterFileName },
+        fileName: coronersLetterId,
+        originalFileName: coronersLetterFileName,
+        deleteButton: { text: "Delete" },
+      };
+    }
   }
 
   #renderJsonUploadError(

@@ -54,6 +54,14 @@
       "defaultTemplate": "This is a default page template."
     },
     "apply": {
+      "coronersLetter": {
+        "uploadNewFile": "Upload new file",
+        "uploadFile": "Upload file",
+        "deleteFile": "Delete",
+        "uploading": "Uploading file",
+        "uploaded": "File uploaded",
+        "uploadFailed": "The selected file could not be uploaded – try again"
+      },
       "proceedings": {
         "title": "What does your client want legal aid for?",
         "search": {

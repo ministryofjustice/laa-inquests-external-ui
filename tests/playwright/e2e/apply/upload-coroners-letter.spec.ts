@@ -64,22 +64,309 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     await checkAccessibility();
   });
 
-  test("renders the MOJ multi file upload widget", async ({ page }) => {
-    const multiFileUpload = page.locator(
-      "[data-module='moj-multi-file-upload']",
-    );
-
-    await expect(multiFileUpload).toBeVisible();
-    await expect(multiFileUpload).toHaveAttribute(
-      "data-moj-multi-file-upload-init",
-      "",
-    );
+  test("renders the GOV.UK single file upload component", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const fileInput = page.locator('input[type="file"][name="documents"]');
+    await expect(fileInput).toHaveCount(1);
 
     await expect(
-      page
-        .locator("label[for='documents']")
-        .filter({ hasText: "Upload new files" }),
+      page.locator('[data-module="govuk-file-upload"]'),
+    ).toHaveAttribute("data-govuk-file-upload-init", "");
+    await expect(
+      page.getByRole("button", { name: /Upload new file.*Choose file/ }),
     ).toBeVisible();
+    await expect(
+      page.locator('[data-module="moj-multi-file-upload"]'),
+    ).toHaveCount(0);
+    await checkAccessibility();
+  });
+
+  test("hides the explicit Upload file button when JavaScript is active", async ({
+    page,
+  }) => {
+    await expect(
+      page.getByRole("button", { name: "Upload file", exact: true }),
+    ).toBeHidden();
+    await expect(
+      page.getByRole("button", { name: "Continue", exact: true }),
+    ).toBeVisible();
+  });
+
+  test("uploads on file selection and only proceeds when Continue is clicked", async ({
+    page,
+  }) => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/apply/upload-coroners-letter/upload") &&
+          response.request().method() === "POST",
+      ),
+      page.locator('input[type="file"][name="documents"]').setInputFiles({
+        name: "test-coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("coroners letter content"),
+      }),
+    ]);
+
+    expect(response.status()).toBe(201);
+    await expect(page).toHaveURL("/apply/upload-coroners-letter");
+    await expect(page.getByRole("status")).toHaveText("File uploaded");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await expect(page).toHaveURL("/apply/check-your-answers");
+    await expect(
+      page.getByTestId("coroners-letter-summary-list"),
+    ).toContainText(MOCK_UPLOADED_FILE_NAME);
+  });
+
+  test("blocks Continue while an automatic upload is pending", async ({
+    page,
+  }) => {
+    let releaseUpload = (): void => {};
+    const uploadGate = new Promise<void>((resolve) => {
+      releaseUpload = resolve;
+    });
+    await page.route(
+      "**/apply/upload-coroners-letter/upload*",
+      async (route) => {
+        await uploadGate;
+        await route.continue();
+      },
+    );
+    const request = page.waitForRequest(
+      (request) =>
+        request.method() === "POST" &&
+        request.url().includes("/apply/upload-coroners-letter/upload"),
+    );
+    const continueButton = page.getByRole("button", {
+      name: "Continue",
+      exact: true,
+    });
+    try {
+      await page.locator('input[type="file"][name="documents"]').setInputFiles({
+        name: "test-coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("coroners letter content"),
+      });
+      await request;
+      await expect(continueButton).toBeDisabled();
+      await expect(page).toHaveURL("/apply/upload-coroners-letter");
+    } finally {
+      releaseUpload();
+    }
+    await expect(page.getByRole("status")).toHaveText("File uploaded");
+    await expect(continueButton).toBeEnabled();
+    await continueButton.click();
+    await expect(page).toHaveURL("/apply/check-your-answers");
+  });
+
+  test("preserves the uploaded filename and allows deletion after returning to the page", async ({
+    page,
+  }) => {
+    const file = {
+      name: "test-coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("coroners letter content"),
+    };
+    const fileInput = page.locator('input[type="file"][name="documents"]');
+    await fileInput.setInputFiles(file);
+    await expect(page.getByRole("status")).toHaveText("File uploaded");
+    const uploadedFile = page.getByTestId("uploaded-coroners-letter");
+    await expect(uploadedFile).toContainText(MOCK_UPLOADED_FILE_NAME);
+    await expect(fileInput).toBeDisabled();
+    await page.goto("/apply/public-authority");
+    await page.goto("/apply/upload-coroners-letter");
+    await expect(uploadedFile).toContainText(MOCK_UPLOADED_FILE_NAME);
+    await expect(fileInput).toBeDisabled();
+    await uploadedFile
+      .getByRole("button", {
+        name: `Delete ${MOCK_UPLOADED_FILE_NAME}`,
+        exact: true,
+      })
+      .click();
+    await expect(uploadedFile).toBeHidden();
+    await expect(fileInput).toBeEnabled();
+    await fileInput.setInputFiles(file);
+    await expect(page.getByRole("status")).toHaveText("File uploaded");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    await expect(page).toHaveURL("/apply/check-your-answers");
+    await expect(
+      page.getByTestId("coroners-letter-summary-list"),
+    ).toContainText(MOCK_UPLOADED_FILE_NAME);
+  });
+
+  test.describe("Apply - single coroner's letter upload without JavaScript", () => {
+    test.use({ javaScriptEnabled: false });
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto("/apply/upload-coroners-letter");
+    });
+
+    test("renders separate CSRF-protected upload and Continue forms", async ({
+      page,
+    }) => {
+      const uploadForm = page.locator(
+        'form[data-module="coroners-letter-upload"]',
+      );
+      await expect(uploadForm).toHaveAttribute("method", "post");
+      await expect(uploadForm).toHaveAttribute(
+        "enctype",
+        "multipart/form-data",
+      );
+      await expect(uploadForm.locator('input[name="_csrf"]')).toHaveCount(1);
+      await expect(uploadForm.locator('input[name="_csrf"]')).toHaveValue(/.+/);
+      await expect(uploadForm.locator('input[name="uploadMode"]')).toHaveValue(
+        "html",
+      );
+      await expect(
+        uploadForm.getByLabel("Upload new file", { exact: true }),
+      ).toHaveAttribute("name", "documents");
+      await expect(
+        uploadForm.getByRole("button", { name: "Upload file", exact: true }),
+      ).toBeVisible();
+      await expect(
+        uploadForm.getByRole("button", { name: "Continue", exact: true }),
+      ).toHaveCount(0);
+
+      const continueForm = page.getByTestId("upload-coroners-letter-form");
+      await expect(continueForm).toHaveAttribute(
+        "action",
+        "/apply/upload-coroners-letter",
+      );
+      await expect(continueForm).toHaveAttribute("method", "post");
+      await expect(continueForm.locator('input[name="_csrf"]')).toHaveCount(1);
+      await expect(continueForm.locator('input[name="_csrf"]')).toHaveValue(
+        /.+/,
+      );
+      await validateContinueButton(continueForm);
+    });
+
+    test("renders a linked validation error when Continue is clicked without an upload", async ({
+      page,
+    }) => {
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await expect(page).toHaveURL("/apply/upload-coroners-letter");
+      const errorSummary = page.getByRole("alert");
+      await expect(errorSummary).toContainText(
+        CORONERS_LETTER_ERROR.NO_FILE_CHOSEN,
+      );
+      await expect(errorSummary.getByRole("link")).toHaveAttribute(
+        "href",
+        "#documents",
+      );
+      await expect(page.locator("#documents")).toHaveAttribute(
+        "aria-describedby",
+        /documents-error/,
+      );
+      await expect(page.locator("#documents-error")).toContainText(
+        CORONERS_LETTER_ERROR.NO_FILE_CHOSEN,
+      );
+    });
+
+    test("uploads a file before Continue proceeds to check your answers", async ({
+      page,
+    }) => {
+      await page.locator('input[type="file"]').setInputFiles({
+        name: "test-coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("coroners letter content"),
+      });
+      await page
+        .getByRole("button", { name: "Upload file", exact: true })
+        .click();
+      await expect(page).toHaveURL("/apply/upload-coroners-letter");
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await expect(page).toHaveURL("/apply/check-your-answers");
+      await expect(
+        page.getByTestId("coroners-letter-summary-list"),
+      ).toContainText(MOCK_UPLOADED_FILE_NAME);
+    });
+
+    test("shows the uploaded filename on the upload page", async ({
+      page,
+      checkAccessibility,
+    }) => {
+      await page.getByLabel("Upload new file", { exact: true }).setInputFiles({
+        name: "test-coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("coroners letter content"),
+      });
+      await page
+        .getByRole("button", { name: "Upload file", exact: true })
+        .click();
+
+      await expect(page).toHaveURL("/apply/upload-coroners-letter");
+      await expect(
+        page.getByText(MOCK_UPLOADED_FILE_NAME, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", {
+          name: `Delete ${MOCK_UPLOADED_FILE_NAME}`,
+          exact: true,
+        }),
+      ).toBeVisible();
+      await checkAccessibility();
+    });
+
+    test("deletes the uploaded file and allows another upload", async ({
+      page,
+    }) => {
+      const file = {
+        name: "test-coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("coroners letter content"),
+      };
+      const input = page.locator('input[type="file"][name="documents"]');
+      await input.setInputFiles(file);
+      await page
+        .getByRole("button", { name: "Upload file", exact: true })
+        .click();
+      await page
+        .getByRole("button", {
+          name: `Delete ${MOCK_UPLOADED_FILE_NAME}`,
+          exact: true,
+        })
+        .click();
+      await expect(page.getByTestId("uploaded-coroners-letter")).toBeHidden();
+      await expect(input).toBeEnabled();
+      await input.setInputFiles(file);
+      await page
+        .getByRole("button", { name: "Upload file", exact: true })
+        .click();
+      await expect(page.getByTestId("uploaded-coroners-letter")).toContainText(
+        MOCK_UPLOADED_FILE_NAME,
+      );
+    });
+
+    test("can upload after an upload validation error without losing its CSRF token", async ({
+      page,
+    }) => {
+      await page
+        .getByRole("button", { name: "Upload file", exact: true })
+        .click();
+      await expect(page.getByRole("alert")).toContainText(
+        CORONERS_LETTER_ERROR.NO_FILE_CHOSEN,
+      );
+      const uploadForm = page.locator(
+        'form[data-module="coroners-letter-upload"]',
+      );
+      await expect(uploadForm.locator('input[name="_csrf"]')).toHaveValue(/.+/);
+      await uploadForm.locator('input[type="file"]').setInputFiles({
+        name: "test-coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("coroners letter content"),
+      });
+      await page
+        .getByRole("button", { name: "Upload file", exact: true })
+        .click();
+      await expect(page).toHaveURL("/apply/upload-coroners-letter");
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await expect(page).toHaveURL("/apply/check-your-answers");
+      await expect(
+        page.getByTestId("coroners-letter-summary-list"),
+      ).toContainText(MOCK_UPLOADED_FILE_NAME);
+    });
   });
 
   test("renders the file guidance before the uploaded files and the upload input", async ({
