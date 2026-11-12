@@ -6,6 +6,7 @@ import type { DeceasedDetailsFormData } from "../models/form.types.js";
 import type { DeceasedDetailsValidator } from "./DeceasedDetails.validator.js";
 import type { Request, Response } from "express";
 import { getStringValue } from "#src/utils/sessionValue.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 type DeceasedDetailsStep =
   | "name"
@@ -485,9 +486,9 @@ export class DeceasedDetailsAdaptor {
   ): void {
     if (req.session.returnToApplyCheckYourAnswers === true) {
       req.session.returnToApplyCheckYourAnswers = undefined;
-      res.redirect("/apply/check-your-answers");
+      completeStepAndRedirect(req as Request, res, "/apply/check-your-answers");
     } else {
-      res.redirect(defaultHref);
+      completeStepAndRedirect(req as Request, res, defaultHref);
     }
   }
 

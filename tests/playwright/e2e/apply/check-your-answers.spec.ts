@@ -4,6 +4,7 @@ test.describe("Apply - check your answers", () => {
   test("renders linked case details summary list when details are provided", async ({
     page,
     checkAccessibility,
+    authorizeStep,
   }) => {
     await page.goto("/apply/deceased-details/further-information");
 
@@ -14,6 +15,8 @@ test.describe("Apply - check your answers", () => {
       )
       .fill("Linked case details provided");
     await page.getByRole("button", { name: "Continue" }).click();
+
+    await authorizeStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 
@@ -43,11 +46,14 @@ test.describe("Apply - check your answers", () => {
 
   test("does not render linked case details summary list when no is selected", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/apply/deceased-details/further-information");
 
     await page.getByRole("radio", { name: "No", exact: true }).click();
     await page.getByRole("button", { name: "Continue" }).click();
+
+    await authorizeStep("/apply/check-your-answers");
 
     await page.goto("/apply/check-your-answers");
 

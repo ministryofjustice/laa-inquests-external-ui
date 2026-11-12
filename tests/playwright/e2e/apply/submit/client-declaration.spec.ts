@@ -18,6 +18,7 @@ test.describe("Provider can", () => {
   test("view the client declaration page", async ({
     page,
     checkAccessibility,
+    authorizeStep,
   }) => {
     await page.goto("/apply/client-details/name-and-dob");
     const nameForm = page.getByTestId("client-details-form");
@@ -37,6 +38,7 @@ test.describe("Provider can", () => {
     );
     await continueToNextPage(nameForm, page);
 
+    await authorizeStep(currentPage);
     await page.goto(currentPage);
     const form = await page.getByTestId("client-declaration-form");
 

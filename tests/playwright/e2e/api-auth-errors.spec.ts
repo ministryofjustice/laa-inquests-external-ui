@@ -2,18 +2,7 @@ import { expect, test } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { APPLY_PATHS } from "#src/infrastructure/express/routes/paths.js";
-
-async function loginWithAccessToken(
-  page: Page,
-  accessToken: string,
-): Promise<void> {
-  // Start from a clean cookie jar so this spec gets its own session. The 401
-  // case destroys the session, and reusing the shared seeded session would
-  // wipe it for other specs.
-  await page.context().clearCookies();
-  await page.goto(`/auth/test-login?accessToken=${accessToken}`);
-  await page.waitForURL("/");
-}
+import { loginAtStepWithParams } from "#tests/playwright/fixtures/index.js";
 
 async function expectNoAccessibilityViolations(page: Page): Promise<void> {
   const results = await new AxeBuilder({ page })
@@ -42,7 +31,11 @@ test.describe("Inquests API auth and failure handling", () => {
       }),
     );
 
-    await loginWithAccessToken(page, "FORCE_401");
+    await loginAtStepWithParams(
+      page,
+      APPLY_PATHS.PUBLIC_AUTHORITY,
+      "accessToken=FORCE_401",
+    );
 
     await page.goto(APPLY_PATHS.PUBLIC_AUTHORITY);
 
@@ -50,7 +43,11 @@ test.describe("Inquests API auth and failure handling", () => {
   });
 
   test("renders a 403 page on an upstream 403", async ({ page }) => {
-    await loginWithAccessToken(page, "FORCE_403");
+    await loginAtStepWithParams(
+      page,
+      APPLY_PATHS.PUBLIC_AUTHORITY,
+      "accessToken=FORCE_403",
+    );
 
     const response = await page.goto(APPLY_PATHS.PUBLIC_AUTHORITY);
 
@@ -59,7 +56,11 @@ test.describe("Inquests API auth and failure handling", () => {
   });
 
   test("returns a real 500 page on an upstream 5xx", async ({ page }) => {
-    await loginWithAccessToken(page, "FORCE_500");
+    await loginAtStepWithParams(
+      page,
+      APPLY_PATHS.PUBLIC_AUTHORITY,
+      "accessToken=FORCE_500",
+    );
 
     const response = await page.goto(APPLY_PATHS.PUBLIC_AUTHORITY);
 
@@ -82,7 +83,11 @@ test.describe("Provider offices auth and failure handling", () => {
       }),
     );
 
-    await loginWithAccessToken(page, "FORCE_401");
+    await loginAtStepWithParams(
+      page,
+      APPLY_PATHS.OFFICE_ACCOUNTS,
+      "accessToken=FORCE_401",
+    );
 
     await page.goto(APPLY_PATHS.OFFICE_ACCOUNTS);
 
@@ -90,7 +95,11 @@ test.describe("Provider offices auth and failure handling", () => {
   });
 
   test("renders a 403 page on an upstream 403", async ({ page }) => {
-    await loginWithAccessToken(page, "FORCE_403");
+    await loginAtStepWithParams(
+      page,
+      APPLY_PATHS.OFFICE_ACCOUNTS,
+      "accessToken=FORCE_403",
+    );
 
     const response = await page.goto(APPLY_PATHS.OFFICE_ACCOUNTS);
 
@@ -99,7 +108,11 @@ test.describe("Provider offices auth and failure handling", () => {
   });
 
   test("returns a real 500 page on an upstream 5xx", async ({ page }) => {
-    await loginWithAccessToken(page, "FORCE_500");
+    await loginAtStepWithParams(
+      page,
+      APPLY_PATHS.OFFICE_ACCOUNTS,
+      "accessToken=FORCE_500",
+    );
 
     const response = await page.goto(APPLY_PATHS.OFFICE_ACCOUNTS);
 

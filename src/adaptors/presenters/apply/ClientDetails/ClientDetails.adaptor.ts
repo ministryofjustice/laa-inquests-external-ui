@@ -21,6 +21,7 @@ import {
 } from "#src/use-cases/apply/clientDetails/ProcessClientDetailsJourney.useCase.js";
 import { getStringValue } from "#src/utils/sessionValue.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface ClientDetailsUseCases {
   updateCorrespondenceRecipient: UpdateCorrespondenceRecipientUseCase;
@@ -442,7 +443,11 @@ export class ClientDetailsAdaptor {
     } else if (correspondenceAddressSource === "USE_SPECIFIED_ADDRESS") {
       req.session.clientCorrespondenceAddressSource =
         correspondenceAddressSource;
-      res.redirect("/apply/client-details/correspondence-address");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/apply/client-details/correspondence-address",
+      );
     } else if (
       correspondenceAddressSource === "USE_CLIENT_HOME_ADDRESS" ||
       correspondenceAddressSource === "USE_PROVIDER_ADDRESS"
@@ -741,9 +746,9 @@ export class ClientDetailsAdaptor {
   ): void {
     if (req.session.returnToApplyCheckYourAnswers === true) {
       req.session.returnToApplyCheckYourAnswers = undefined;
-      res.redirect("/apply/check-your-answers");
+      completeStepAndRedirect(req as Request, res, "/apply/check-your-answers");
     } else {
-      res.redirect(defaultHref);
+      completeStepAndRedirect(req as Request, res, defaultHref);
     }
   }
 

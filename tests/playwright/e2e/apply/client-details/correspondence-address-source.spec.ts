@@ -124,5 +124,4 @@ test.describe("Client details - correspondence address source", () => {
       CLIENT_DETAILS_ERROR.INVALID_CORRESPONDENCE_SOURCE_FOR_NO_FIXED_ABODE,
     );
   });
-  // TODO: add test that when client home address is selected and client has a home address, navigate to proceedings page
 });

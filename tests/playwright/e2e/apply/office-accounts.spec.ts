@@ -1,9 +1,6 @@
+import { loginAtStepWithParams } from "#tests/playwright/fixtures/index.js";
 import { test, expect } from "../../fixtures/index.js";
-import {
-  validateBackButton,
-  validateCSRFToken,
-  validateFormAttributes,
-} from "../../utils/govuk-validators.js";
+import { validateBackButton } from "../../utils/govuk-validators.js";
 
 test.describe("Office accounts", () => {
   test.beforeEach(async ({ page, checkAccessibility }) => {
@@ -125,10 +122,14 @@ test.describe("Office accounts", () => {
       page,
       checkAccessibility,
     }) => {
-      await page.goto("/auth/test-login?officeAccounts=");
-      await page.waitForURL("/");
+      await loginAtStepWithParams(
+        page,
+        "/apply/office-accounts",
+        "officeAccounts=",
+      );
 
       await page.goto("/apply/office-accounts");
+      await page.waitForURL("/apply/office-accounts");
       await checkAccessibility();
 
       const panel = page.locator(".govuk-panel--interruption");
@@ -165,8 +166,11 @@ test.describe("Office accounts", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/auth/test-login?officeAccounts=");
-    await page.waitForURL("/");
+    await loginAtStepWithParams(
+      page,
+      "/apply/office-accounts",
+      "officeAccounts=",
+    );
 
     await page.goto("/apply/office-accounts");
     await checkAccessibility();
@@ -187,8 +191,11 @@ test.describe("Office accounts", () => {
     page,
     checkAccessibility,
   }) => {
-    await page.goto("/auth/test-login?role=application&officeAccounts=");
-    await page.waitForURL("/");
+    await loginAtStepWithParams(
+      page,
+      "/apply/office-accounts",
+      "role=application&officeAccounts=",
+    );
 
     await page.goto("/apply/office-accounts");
     await checkAccessibility();

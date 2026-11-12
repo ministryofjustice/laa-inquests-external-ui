@@ -193,6 +193,7 @@ test.describe("Provider can", () => {
   }) => {
     await fillClientRelationshipInput(form);
     await continueToNextPage(form, page);
+
     await page.goto("/apply/deceased-details/client-relationship");
     const yesRadioLabel = form.getByLabel("Yes, my client is a family member");
     await expect(yesRadioLabel).toBeChecked();

@@ -148,6 +148,9 @@ describe("Coroners Letter adaptor", () => {
         requestStub.session.returnToApplyCheckYourAnswers,
         undefined,
       );
+      const apply = (requestStub.session as Record<string, unknown>)
+        .apply as Record<string, unknown>;
+      assert.equal(apply?.lastCompletedStepIndex, 17);
     });
   });
 

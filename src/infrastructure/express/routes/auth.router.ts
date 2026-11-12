@@ -109,6 +109,20 @@ export function createAuthRouter(
       req.session.providerEmail = "test@example.com";
       req.session.roles = parseRolesQueryParam(req.query.role);
 
+      if (typeof req.query.applyStep === "string") {
+        const stepIndex = Number(req.query.applyStep);
+        if (!Number.isNaN(stepIndex)) {
+          req.session.apply = { lastCompletedStepIndex: stepIndex };
+        }
+      }
+
+      if (typeof req.query.claimStep === "string") {
+        const stepIndex = Number(req.query.claimStep);
+        if (!Number.isNaN(stepIndex)) {
+          req.session.claim = { lastCompletedStepIndex: stepIndex };
+        }
+      }
+
       // Optional overrides to exercise session-expiry behaviour in E2E tests.
       const now = Date.now();
       const absoluteTimeoutMs = secondsParamToMs(

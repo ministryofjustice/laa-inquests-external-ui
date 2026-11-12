@@ -78,6 +78,7 @@ test.describe("Add proceedings", () => {
   });
   test("pre-selects proceeding radio when navigating back from check-your-answers", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/apply/proceeding");
     const selectProceedingForm = await page.getByTestId("add-proceeding-form");
@@ -92,6 +93,7 @@ test.describe("Add proceedings", () => {
     await continueButton.click();
     await page.waitForLoadState("domcontentloaded");
 
+    await authorizeStep("/apply/check-your-answers");
     await page.goto("/apply/check-your-answers");
 
     const proceedingsSummaryList = page.getByTestId("proceedings-summary-list");

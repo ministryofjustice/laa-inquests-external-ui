@@ -351,6 +351,10 @@ describe("OfficeAccounts adaptor", () => {
         requestStub.session.selectedOfficeAddress,
         "Test Firm, 2 Test Street, Manchester, M1A 1AA",
       );
+      assert.equal(responseStub.redirect.callCount, 1);
+      const apply = (requestStub.session as Record<string, unknown>)
+        .apply as Record<string, unknown>;
+      assert.equal(apply?.lastCompletedStepIndex, 1);
     });
 
     it("does not store an office in session when validation fails", async () => {

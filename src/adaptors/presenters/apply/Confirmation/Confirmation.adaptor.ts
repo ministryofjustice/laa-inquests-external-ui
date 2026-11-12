@@ -13,6 +13,10 @@ import { ConfirmationSessionStateMapper } from "#src/use-cases/apply/confirmatio
 import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import {
+  completeStepAndRedirect,
+  markStepComplete,
+} from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface ConfirmationUseCases {
   buildCheckYourAnswers: BuildCheckYourAnswersUseCase;
@@ -90,6 +94,8 @@ export class ConfirmationAdaptor {
     const formattedCheckYourAnswersData =
       this.#toCheckYourAnswersViewModel(checkYourAnswersData);
 
+    markStepComplete(req, "/apply/check-your-answers");
+
     res.render("apply/check-your-answers", {
       csrfToken,
       ...formattedCheckYourAnswersData,
@@ -153,7 +159,7 @@ export class ConfirmationAdaptor {
     });
     this.sessionHelper.clearFormData(req);
     session.applicationReferenceNumber = laaReference;
-    res.redirect("/apply/confirmation/success");
+    completeStepAndRedirect(req, res, "/apply/confirmation/success");
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {

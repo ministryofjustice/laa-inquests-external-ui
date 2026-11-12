@@ -22,6 +22,7 @@ import {
   isHtmlUploadMode,
   resolveUploadFailureMessage,
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 const HTTP_SUCCESS = 200;
 
@@ -70,7 +71,7 @@ export class CoronersLetterAdaptor {
     }
 
     req.session.returnToApplyCheckYourAnswers = undefined;
-    res.redirect("/apply/check-your-answers");
+    completeStepAndRedirect(req, res, "/apply/check-your-answers");
   }
 
   async processCoronersLetterUpload(
