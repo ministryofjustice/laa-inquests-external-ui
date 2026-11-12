@@ -42,6 +42,7 @@ declare module "express-session" {
     claimReferenceNumber?: string;
     claimRejectionReasons?: ClaimRejectionReasonCode[] | string[];
     claim?: ClaimSession;
+    apply?: ApplySession;
     returnToApplyCheckYourAnswers?: boolean;
     claimDeclaration?: boolean;
     lifetime?: SessionLifetime;
@@ -55,6 +56,7 @@ interface FormError {
 }
 
 export interface ClaimSession {
+  lastCompletedStepIndex?: number;
   caseReference?: string;
   client?: ClaimClientDetails;
   searchResults?: ClaimClientDetails[];
@@ -82,6 +84,10 @@ export interface ClaimSession {
   preCertificateCosts?: string;
   recoveryCostMadeEditInProgress?: boolean;
   payingParty?: string;
+}
+
+export interface ApplySession {
+  lastCompletedStepIndex?: number;
 }
 
 export interface ClaimEvidenceFile {

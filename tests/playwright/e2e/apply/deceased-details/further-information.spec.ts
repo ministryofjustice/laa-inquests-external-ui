@@ -144,6 +144,7 @@ test.describe("Provider can", () => {
     await yesInput.fill("Test");
 
     await continueToNextPage(form, page);
+
     await page.goto("/apply/deceased-details/further-information");
     await expect(yesRadio).toBeChecked();
     await expect(yesInput).toHaveValue("Test");

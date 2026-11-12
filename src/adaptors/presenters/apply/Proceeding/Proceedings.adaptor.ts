@@ -7,6 +7,7 @@ import type { TypedRequestBody } from "#src/infrastructure/express/index.types.j
 import type { ProceedingsFormData } from "../models/form.types.js";
 import type { ProceedingValidator } from "./Proceeding.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class ProceedingsAdaptor {
   formValidator: ProceedingValidator;
@@ -65,12 +66,14 @@ export class ProceedingsAdaptor {
     } else {
       req.session.proceedingOption = { ...selectedProceeding };
       req.session.selectedProceeding = selectedProceeding;
+
+      let redirectUrl = "/apply/deceased-details/name";
       if (req.session.returnToApplyCheckYourAnswers === true) {
         req.session.returnToApplyCheckYourAnswers = undefined;
-        res.redirect("/apply/check-your-answers");
-      } else {
-        res.redirect("/apply/deceased-details/name");
+        redirectUrl = "/apply/check-your-answers";
       }
+
+      completeStepAndRedirect(req as Request, res, redirectUrl);
     }
   }
 

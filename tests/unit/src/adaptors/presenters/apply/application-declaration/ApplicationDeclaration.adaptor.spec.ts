@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import { ApplicationDeclarationAdaptor } from "#src/adaptors/presenters/apply/ApplicationDeclaration/ApplicationDeclaration.adaptor.js";
 import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
+import * as journeyStepHelper from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 function buildAdaptor() {
   const validateApplicationDeclarationUseCase =
@@ -76,6 +77,9 @@ describe("ApplicationDeclaration adaptor", () => {
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/apply/office-accounts");
       assert.equal(responseStub.render.callCount, 0);
+      const apply = (requestStub.session as Record<string, unknown>)
+        .apply as Record<string, unknown>;
+      assert.equal(apply?.lastCompletedStepIndex, 0);
     });
   });
 });

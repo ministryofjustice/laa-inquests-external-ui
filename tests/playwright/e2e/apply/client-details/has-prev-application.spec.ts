@@ -6,7 +6,7 @@ test.describe("Previous application", () => {
     page,
     checkAccessibility,
   }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await page.goto("/apply/client-details/has-prev-application");
     const clientDetailsHeading = await page.getByRole("heading", {
       level: 1,
       name: "Has your client applied for legal aid for an inquest before?",
@@ -31,7 +31,7 @@ test.describe("Previous application", () => {
     await checkAccessibility();
   });
   test("renders expected input fields and labels in form", async ({ page }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
@@ -56,7 +56,7 @@ test.describe("Previous application", () => {
     await expect(yesInputLabel).toBeVisible();
   });
   test("continue button posts to expected URL", async ({ page }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
@@ -95,7 +95,7 @@ test.describe("Previous application", () => {
   test("renders error message and summary when no input selected", async ({
     page,
   }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
@@ -155,7 +155,7 @@ test.describe("Previous application", () => {
   test("renders error message and summary when reference provided exceeds max character length", async ({
     page,
   }) => {
-    page.goto("/apply/client-details/has-prev-application");
+    await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
       "has-prev-application-form",
     );
