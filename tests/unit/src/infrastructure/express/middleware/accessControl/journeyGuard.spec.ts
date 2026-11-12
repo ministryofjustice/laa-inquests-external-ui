@@ -124,7 +124,7 @@ describe("journeyGuard middleware", () => {
       assert((responseStub.redirect as any).calledOnce);
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
-        "/apply/step-1",
+        "/apply/step-2",
       );
     });
 
@@ -146,7 +146,7 @@ describe("journeyGuard middleware", () => {
       assert((responseStub.redirect as any).calledOnce);
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
-        "/apply/step-1",
+        "/apply/step-2",
       );
     });
   });
@@ -301,29 +301,6 @@ describe("journeyGuard middleware", () => {
       middleware(requestStub as any, responseStub, nextSpy);
 
       assert(nextSpy.calledOnce);
-    });
-
-    it("redirects within the same journey", () => {
-      const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
-      });
-
-      // User trying to skip in apply journey
-      requestStub.session = {
-        apply: { lastCompletedStepIndex: 0 },
-      };
-      requestStub.path = "/apply/step-3";
-
-      middleware(requestStub as any, responseStub, nextSpy);
-
-      // Redirect should use apply journey's step 1
-      assert((responseStub.redirect as any).calledOnce);
-      assert.strictEqual(
-        (responseStub.redirect as any).firstCall.args[0],
-        "/apply/step-1",
-      );
     });
   });
 

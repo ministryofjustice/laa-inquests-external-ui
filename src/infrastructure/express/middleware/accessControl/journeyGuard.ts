@@ -69,8 +69,8 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
 
     const redirectToIndex =
       lastCompletedStepIndex >= FIRST_STEP_INDEX &&
-      lastCompletedStepIndex < journeySequence.length
-        ? lastCompletedStepIndex
+      lastCompletedStepIndex < journeySequence.length - NEXT_STEP_OFFSET
+        ? lastCompletedStepIndex + NEXT_STEP_OFFSET
         : FIRST_STEP_INDEX;
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- array access by computed index
