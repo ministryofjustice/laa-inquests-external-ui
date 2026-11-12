@@ -1,18 +1,13 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "macros/meritsDecisionTag.njk" import meritsDecisionTag %}
 {% set pageHeading = t("pages.claim.caseSearch.results.title") %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = "/claim/search" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: "/claim/search"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
       {% if errorSummaries and errorSummaries.selectionError %}
@@ -57,6 +52,5 @@
       {% endif %}
     </div>
   </div>
-</div>
 
 {% endblock %}

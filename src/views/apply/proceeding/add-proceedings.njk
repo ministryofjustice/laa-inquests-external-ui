@@ -1,6 +1,5 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {%- from "moj/components/search/macro.njk" import mojSearch -%}
@@ -9,13 +8,9 @@
 {% set pageHeading = t("pages.apply.proceedings.title") %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/apply/client-details/correspondence-recipient" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/apply/client-details/correspondence-recipient"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if errorSummaries %}
@@ -57,8 +52,4 @@
       </form>
     </div>
   </div>
-</div>
-
-
-
 {% endblock %}

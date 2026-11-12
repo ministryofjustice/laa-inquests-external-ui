@@ -1,16 +1,12 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 
 {% set pageHeading = "Your client does not qualify for inquest legal aid" %}
 {% set pageTitle = pageHeading %}
 
+{% set backLink = "/apply/deceased-details/client-relationship" %}
+
 {% block content %}
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: "/apply/deceased-details/client-relationship"
-  }) }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
@@ -28,5 +24,4 @@
       }) }}
     </div>
   </div>
-</div>
 {% endblock %}

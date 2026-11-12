@@ -1,18 +1,13 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = "What type of claim are you making?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/claim/results" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/claim/results"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if errorSummaries.claimTypeInputError %}
@@ -58,6 +53,5 @@
       </form>
     </div>
   </div>
-</div>
 
 {% endblock %}

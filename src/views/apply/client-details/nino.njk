@@ -1,6 +1,5 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
@@ -9,13 +8,9 @@
 {% set pageHeading = "Does your client have a National Insurance number?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/apply/client-details/name-and-dob" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/apply/client-details/name-and-dob"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if errorSummaries %}
@@ -79,10 +74,4 @@
       </form>
     </div>
   </div>
-</div>
-
-
-
-
-
 {% endblock %}
