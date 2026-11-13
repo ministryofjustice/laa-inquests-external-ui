@@ -3,6 +3,7 @@
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 
 {% set pageHeading = "Upload correspondence from the coroner" %}
 {% set pageTitle = pageHeading %}
@@ -30,15 +31,6 @@
 
       
   <p class="govuk-body">Your file should include details of the inquest, including specific reference to one or more public authorities being named as interested parties. We will use this evidence when assessing your claim.</p>
-
-      <form action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data"
-        data-module="coroners-letter-upload"
-        data-uploading-message="{{ t('pages.apply.coronersLetter.uploading') }}"
-        data-uploaded-message="{{ t('pages.apply.coronersLetter.uploaded') }}"
-        data-failure-message="{{ t('pages.apply.coronersLetter.uploadFailed') }}">
-        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-        <input type="hidden" name="uploadMode" value="html" />
-
         <p class="govuk-body">The maximum file size for each file is 10MB. We can accept these file types:</p>
         <ul class="govuk-list govuk-list--bullet">
             <li>pdf</li>
@@ -47,6 +39,40 @@
             <li>bmp</li>
         </ul>
         <p class="govuk-body">Filenames should only include the letters a-z, numbers 0-9, and the characters .!()_-. Using other characters in your filenames could cause the uploads to fail.</p>
+
+      <form data-testid="uploaded-coroners-letter"
+        action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data"
+        {% if not uploadedFile %}hidden{% endif %}>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <input type="hidden" name="uploadMode" value="html" />
+        <h2 class="govuk-heading-m">{{ t("pages.apply.coronersLetter.uploadedFiles") }}</h2>
+        {% set fileNameHtml %}
+          <span data-uploaded-filename>{{ uploadedFile.originalFileName }}</span>
+        {% endset %}
+        {% set deleteButtonHtml %}
+          {{ govukButton({
+            text: t("pages.apply.coronersLetter.deleteFileButton"),
+            classes: "govuk-button--secondary govuk-!-margin-bottom-0",
+            name: "delete",
+            value: uploadedFile.fileName,
+            type: "submit",
+            attributes: {
+              "aria-label": t("pages.apply.coronersLetter.deleteFileButton") + " " + uploadedFile.originalFileName
+            }
+          }) }}
+        {% endset %}
+        {{ govukSummaryList({
+          rows: [{
+            key: { html: fileNameHtml, classes: "govuk-!-font-weight-regular" },
+            value: { html: deleteButtonHtml, classes: "govuk-!-text-align-right" }
+          }]
+        }) }}
+      </form>
+
+      <form action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data"
+        data-module="coroners-letter-upload">
+        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
+        <input type="hidden" name="uploadMode" value="html" />
 
         {% set errorMessage = errorSummaries.coronersLetterError if errorSummaries and errorSummaries.coronersLetterError %}
 
@@ -64,35 +90,16 @@
           }) }}
 
         {{ govukButton({
-          text: t("pages.apply.coronersLetter.uploadFile"),
+          text: t("pages.apply.coronersLetter.uploadFileButton"),
           classes: "govuk-button--secondary",
           type: "submit"
-        }) }}
-        <p id="coroners-letter-upload-status" class="govuk-body" role="status"></p>
-      </form>
-
-      <form data-testid="uploaded-coroners-letter"
-        action="/apply/upload-coroners-letter/upload" method="post" enctype="multipart/form-data"
-        {% if not uploadedFile %}hidden{% endif %}>
-        <input type="hidden" name="_csrf" value="{{csrfToken}}" />
-        <input type="hidden" name="uploadMode" value="html" />
-        <p class="govuk-body" data-uploaded-filename>{{ uploadedFile.originalFileName }}</p>
-        {{ govukButton({
-          text: t("pages.apply.coronersLetter.deleteFile"),
-          classes: "govuk-button--secondary",
-          name: "delete",
-          value: uploadedFile.fileName,
-          type: "submit",
-          attributes: {
-            "aria-label": t("pages.apply.coronersLetter.deleteFile") + " " + uploadedFile.originalFileName
-          }
         }) }}
       </form>
 
       <form data-testid="upload-coroners-letter-form" action="/apply/upload-coroners-letter" method="post">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{ govukButton({
-          text: "Continue",
+          text: t("common.continue"),
           type: "submit"
         }) }}
       </form>

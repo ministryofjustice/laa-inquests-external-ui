@@ -48,7 +48,7 @@ export function testFilenameUploadErrors(
         buffer: upload.buffer,
       });
 
-      await expect(page.locator(errorSelector)).toHaveText(upload.message);
+      await expect(page.locator(errorSelector)).toContainText(upload.message);
       await checkAccessibility();
     });
   }

@@ -1,4 +1,5 @@
 import { strict as assert } from "assert";
+import sinon from "sinon";
 import { stubInterface, type StubbedInstance } from "ts-sinon";
 import type { Request, Response } from "express";
 import * as Sentry from "@sentry/node";
@@ -301,6 +302,78 @@ describe("Coroners Letter adaptor", () => {
         responseStub.status.getCall(0).args[0],
         HTTP_SERVICE_UNAVAILABLE,
       );
+    });
+
+    it("waits for successful file save into the session before redirecting a successful HTML upload", async () => {
+      uploadCoronersLetterUseCase.execute.resolves({
+        status: "SUCCESS",
+        coronersLetterId: testCoronersLetterId,
+        coronersLetterFileName: testCoronersLetterFileName,
+      });
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+      requestStub.file = buildFile();
+      requestStub.body = { uploadMode: "html" };
+      let saveSession: (err?: Error) => void = () => {};
+      requestStub.session.save = ((callback: (err?: Error) => void): void => {
+        saveSession = callback;
+      }) as Request["session"]["save"];
+
+      const upload = buildAdaptor().processCoronersLetterUpload(
+        requestStub,
+        responseStub,
+      );
+      await Promise.resolve();
+      assert.equal(responseStub.redirect.callCount, 0);
+      saveSession();
+      await upload;
+      assert.equal(
+        responseStub.redirect.firstCall.args[0],
+        "/apply/upload-coroners-letter",
+      );
+    });
+
+    it("does not redirect after an uploaded file cannot be saved to the session", async () => {
+      uploadCoronersLetterUseCase.execute.resolves({
+        status: "SUCCESS",
+        coronersLetterId: testCoronersLetterId,
+        coronersLetterFileName: testCoronersLetterFileName,
+      });
+      const requestStub = stubInterface<Request>();
+      const responseStub = stubInterface<Response>();
+      requestStub.file = buildFile();
+      requestStub.body = { uploadMode: "html" };
+      const sessionError = new Error("Session persistence failed");
+      requestStub.session.save = sinon.stub().callsArgWith(0, sessionError);
+
+      await assert.rejects(
+        buildAdaptor().processCoronersLetterUpload(requestStub, responseStub),
+        (error: unknown) => error === sessionError,
+      );
+      assert.equal(responseStub.redirect.callCount, 0);
+    });
+
+    it("renders the 500 page when an HTML upload is rejected", async () => {
+      uploadCoronersLetterUseCase.execute.resolves({
+        status: "UPLOAD_REJECTED",
+      });
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.status.returns(responseStub);
+      requestStub.file = buildFile();
+      requestStub.body = { uploadMode: "html" };
+
+      await buildAdaptor().processCoronersLetterUpload(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.status.firstCall.args[0], 500);
+      assert.equal(responseStub.render.firstCall.args[0], "main/error");
+      assert.deepEqual(responseStub.render.firstCall.args[1], {
+        status: 500,
+        message: "Internal Server Error",
+      });
     });
 
     it("returns the virus error message as JSON when the scan is positive", async () => {

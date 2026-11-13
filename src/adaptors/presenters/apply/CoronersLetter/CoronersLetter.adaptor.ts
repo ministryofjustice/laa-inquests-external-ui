@@ -6,6 +6,7 @@ import type { UploadCoronersLetterResponse } from "#src/adaptors/source/inquests
 import {
   CORONERS_LETTER_ERROR,
   EMPTY_ARR_LENGTH,
+  ERROR_PAGE_MESSAGE,
   HTTP_BAD_REQUEST,
   HTTP_CREATED,
   HTTP_INTERNAL_SERVER_ERROR,
@@ -14,6 +15,7 @@ import {
   SERVICE_UNAVAILABLE_MESSAGE,
 } from "#src/infrastructure/locales/constants.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
+import { saveSession } from "#src/infrastructure/express/session/sessionConcurrency.js";
 import { reportClientError } from "#src/infrastructure/logging/reportClientError.js";
 import {
   buildJsonUploadErrorResponse,
@@ -117,7 +119,7 @@ export class CoronersLetterAdaptor {
       });
 
       if (result.status === "SUCCESS") {
-        this.#handleUploadSuccess({
+        await this.#handleUploadSuccess({
           req,
           res,
           data: {
@@ -324,6 +326,13 @@ export class CoronersLetterAdaptor {
     isNoJsUpload: boolean;
   }): void {
     const { req, res, result, isNoJsUpload } = options;
+    if (isNoJsUpload && result.status === "UPLOAD_REJECTED") {
+      res.status(HTTP_INTERNAL_SERVER_ERROR).render("main/error", {
+        status: HTTP_INTERNAL_SERVER_ERROR,
+        message: ERROR_PAGE_MESSAGE.INTERNAL_SERVER_ERROR,
+      });
+      return;
+    }
     const message = resolveUploadFailureMessage(
       result,
       CORONERS_LETTER_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
@@ -345,12 +354,12 @@ export class CoronersLetterAdaptor {
     }
   }
 
-  #handleUploadSuccess(options: {
+  async #handleUploadSuccess(options: {
     req: Request;
     res: Response;
     data: { coronersLetterId: string; coronersLetterFileName: string };
     isNoJsUpload: boolean;
-  }): void {
+  }): Promise<void> {
     const { req, res, data, isNoJsUpload } = options;
 
     this.#storeUploadedCoronersLetter(
@@ -360,6 +369,7 @@ export class CoronersLetterAdaptor {
     );
 
     if (isNoJsUpload) {
+      await saveSession(req);
       res.redirect("/apply/upload-coroners-letter");
       this.#logUploadSuccess(req, isNoJsUpload, data.coronersLetterId);
       return;

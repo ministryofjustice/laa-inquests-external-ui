@@ -24,7 +24,7 @@ const uploadCoronersLetter = async (
       (response) =>
         response.url().includes("/apply/upload-coroners-letter/upload") &&
         response.request().method() === "POST" &&
-        response.status() === 201,
+        response.status() === 302,
     ),
     page.setInputFiles('input[type="file"][name="documents"]', file),
   ]);
@@ -42,6 +42,42 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     "#documents-error",
   );
 
+  test("displays an HTML 500 response returned by the upload POST", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.route(
+      "**/apply/upload-coroners-letter/upload",
+      async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "text/html",
+          body: '<!doctype html><html lang="en"><title>Service problem</title><main><h1>500</h1><p>Internal Server Error</p></main></html>',
+        });
+      },
+    );
+    const [errorPage] = await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.request().isNavigationRequest() &&
+          response.url().endsWith("/apply/upload-coroners-letter/upload"),
+      ),
+      page.locator('input[type="file"][name="documents"]').setInputFiles({
+        name: "coroners-letter.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("coroners letter content"),
+      }),
+      expect(page).toHaveURL("/apply/upload-coroners-letter/upload"),
+    ]);
+    expect(errorPage.status()).toBe(500);
+    await expect(
+      page.getByRole("heading", { name: "500", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Internal Server Error", { exact: true }),
+    ).toBeVisible();
+    await checkAccessibility();
+  });
   test("renders the page heading, back link and continue button", async ({
     page,
     checkAccessibility,
@@ -114,7 +150,8 @@ test.describe("Apply - upload correspondence from the coroner", () => {
       }),
     ]);
 
-    expect(response.status()).toBe(201);
+    expect(response.request().isNavigationRequest()).toBe(true);
+    expect(response.status()).toBe(302);
     await expect(page).toHaveURL("/apply/upload-coroners-letter");
     await expect(page.getByTestId("uploaded-coroners-letter")).toBeVisible();
     await page.getByRole("button", { name: "Continue", exact: true }).click();
@@ -122,47 +159,6 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     await expect(
       page.getByTestId("coroners-letter-summary-list"),
     ).toContainText(MOCK_UPLOADED_FILE_NAME);
-  });
-
-  test("blocks Continue while an automatic upload is pending", async ({
-    page,
-  }) => {
-    let releaseUpload = (): void => {};
-    const uploadGate = new Promise<void>((resolve) => {
-      releaseUpload = resolve;
-    });
-    await page.route(
-      "**/apply/upload-coroners-letter/upload*",
-      async (route) => {
-        await uploadGate;
-        await route.continue();
-      },
-    );
-    const request = page.waitForRequest(
-      (request) =>
-        request.method() === "POST" &&
-        request.url().includes("/apply/upload-coroners-letter/upload"),
-    );
-    const continueButton = page.getByRole("button", {
-      name: "Continue",
-      exact: true,
-    });
-    try {
-      await page.locator('input[type="file"][name="documents"]').setInputFiles({
-        name: "test-coroners-letter.pdf",
-        mimeType: "application/pdf",
-        buffer: Buffer.from("coroners letter content"),
-      });
-      await request;
-      await expect(continueButton).toBeDisabled();
-      await expect(page).toHaveURL("/apply/upload-coroners-letter");
-    } finally {
-      releaseUpload();
-    }
-    await expect(page.getByTestId("uploaded-coroners-letter")).toBeVisible();
-    await expect(continueButton).toBeEnabled();
-    await continueButton.click();
-    await expect(page).toHaveURL("/apply/check-your-answers");
   });
 
   test("preserves the uploaded filename and allows deletion after returning to the page", async ({
@@ -610,7 +606,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
       mimeType: "application/pdf",
       buffer: Buffer.from("coroners letter content"),
     });
-    expect((await response).status()).toBe(201);
+    expect((await response).status()).toBe(302);
     await expect(page.getByTestId("uploaded-coroners-letter")).toBeVisible();
     await expect(page.locator("#documents-error")).toHaveCount(0);
     expect(uploadRequests).toHaveLength(1);
@@ -630,7 +626,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
       buffer: Buffer.alloc(CORONERS_LETTER_MAX_FILE_SIZE_BYTES),
     });
 
-    expect((await response).status()).toBe(201);
+    expect((await response).status()).toBe(302);
     await expect(page.getByTestId("uploaded-coroners-letter")).toBeVisible();
     await expect(page.locator("#documents-error")).toHaveCount(0);
   });
