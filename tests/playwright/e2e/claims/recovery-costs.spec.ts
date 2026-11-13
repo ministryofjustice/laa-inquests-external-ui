@@ -22,12 +22,14 @@ test.describe("Claim - financial recovery costs", () => {
 
   test("redirects to inquest outcome recovery when the recovery cost has not been made", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("No", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
 
+    await authorizeStep("/claim/recovery-costs");
     await page.goto("/claim/recovery-costs");
 
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
