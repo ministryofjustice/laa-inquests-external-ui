@@ -87,6 +87,7 @@ describe("CounselNumber adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/end-date");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 10);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -105,6 +106,7 @@ describe("CounselNumber adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/counsel-pay-confirmation");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 9);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -127,6 +129,7 @@ describe("CounselNumber adaptor", () => {
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/counsel-pay-confirmation");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 9);
     });
 
     it("redirects back to /claim/check-your-answers and clears the flag when a non-zero value already has a paid confirmation", () => {
@@ -152,6 +155,7 @@ describe("CounselNumber adaptor", () => {
       );
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
 
     it("clears any paid confirmation and returns to check your answers when changing to zero counsel", () => {
@@ -178,6 +182,7 @@ describe("CounselNumber adaptor", () => {
       );
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
   });
 });

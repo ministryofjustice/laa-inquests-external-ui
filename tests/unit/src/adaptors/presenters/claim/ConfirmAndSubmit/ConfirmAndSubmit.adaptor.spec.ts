@@ -780,6 +780,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/confirmation/success");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 18);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -812,6 +813,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/confirmation/reject");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 19);
     });
 
     it("re-renders the check-your-answers page with error summaries when the use case returns VALIDATION_FAILED", async () => {
@@ -889,6 +891,7 @@ describe("ConfirmAndSubmit adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 0);
       assert.equal(responseStub.render.callCount, 0);
     });
   });

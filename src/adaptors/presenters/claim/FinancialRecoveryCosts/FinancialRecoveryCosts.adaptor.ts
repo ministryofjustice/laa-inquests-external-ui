@@ -11,6 +11,7 @@ import {
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 const RECOVERY_COST_MADE_ANSWER_HREF = "/claim/inquest-outcome-recovery";
 
@@ -28,7 +29,7 @@ export class FinancialRecoveryCostsAdaptor {
 
   renderForm(req: Request, res: Response): void {
     if (!this.#hasAnsweredRecoveryCostMade(req)) {
-      res.redirect(RECOVERY_COST_MADE_ANSWER_HREF);
+      completeStepAndRedirect(req, res, RECOVERY_COST_MADE_ANSWER_HREF);
       return;
     }
 
@@ -57,7 +58,11 @@ export class FinancialRecoveryCostsAdaptor {
     res: Response,
   ): void {
     if (!this.#hasAnsweredRecoveryCostMade(req)) {
-      res.redirect(RECOVERY_COST_MADE_ANSWER_HREF);
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        RECOVERY_COST_MADE_ANSWER_HREF,
+      );
       return;
     }
 
@@ -102,11 +107,15 @@ export class FinancialRecoveryCostsAdaptor {
 
     if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-      res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+      );
       return;
     }
 
-    res.redirect("/claim/paying-party");
+    completeStepAndRedirect(req as Request, res, "/claim/paying-party");
   }
 
   #hasAnsweredRecoveryCostMade(req: Pick<Request, "session">): boolean {

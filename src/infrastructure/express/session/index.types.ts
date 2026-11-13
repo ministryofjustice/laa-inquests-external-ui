@@ -88,6 +88,7 @@ export interface ClaimSession {
 
 export interface ApplySession {
   lastCompletedStepIndex?: number;
+  completedPages?: string[];
 }
 
 export interface ClaimEvidenceFile {

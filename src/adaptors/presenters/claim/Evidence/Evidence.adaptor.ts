@@ -30,6 +30,7 @@ import {
   isHtmlUploadMode,
   resolveUploadFailureMessage,
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 const HTTP_SUCCESS = 200;
 
 export class EvidenceAdaptor {
@@ -86,9 +87,9 @@ export class EvidenceAdaptor {
         uploadedFiles: this.#buildUploadedFiles(req),
       });
     } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
-      res.redirect("/claim/counsel-number");
+      completeStepAndRedirect(req, res, "/claim/counsel-number");
     } else {
-      res.redirect("/claim/check-your-answers");
+      completeStepAndRedirect(req, res, "/claim/check-your-answers");
     }
   }
 
@@ -258,7 +259,7 @@ export class EvidenceAdaptor {
 
     this.#removeEvidenceFileFromSession(req, evidenceFileId);
     this.#logDeleteSuccess(req, evidenceFileId);
-    res.redirect("/claim/evidence");
+    completeStepAndRedirect(req, res, "/claim/evidence");
   }
 
   #logDeleteSuccess(req: Request, evidenceFileId: string): void {
@@ -395,7 +396,7 @@ export class EvidenceAdaptor {
     });
 
     if (isNoJsUpload) {
-      res.redirect("/claim/evidence");
+      completeStepAndRedirect(req, res, "/claim/evidence");
       this.#logUploadSuccess(req, isNoJsUpload, data.evidenceFileId);
       return;
     }

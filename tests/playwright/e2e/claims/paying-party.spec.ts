@@ -9,11 +9,13 @@ test.describe("Claim - paying party", () => {
   test("renders back link to recovery costs when the recovery cost was made", async ({
     page,
     checkAccessibility,
+    authorizeStep,
   }) => {
     await page.goto("/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("Yes", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
+    await authorizeStep("/claim/paying-party");
     await page.goto("/claim/paying-party");
 
     const backLink = page.getByRole("link", { name: "Back", exact: true });
@@ -26,11 +28,13 @@ test.describe("Claim - paying party", () => {
 
   test("renders back link to pre-certificate costs when the recovery cost was not made", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("No", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
+    await authorizeStep("/claim/paying-party");
     await page.goto("/claim/paying-party");
 
     const backLink = page.getByRole("link", { name: "Back", exact: true });

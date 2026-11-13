@@ -25,6 +25,7 @@ import {
   type SubmitClaimInput,
 } from "#src/use-cases/claim/SubmitClaim.useCase.js";
 import { logger as appLogger } from "#src/infrastructure/logging/logger.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 interface ConfirmAndSubmitUseCases {
   submitClaim: SubmitClaimUseCase;
@@ -64,7 +65,7 @@ export class ConfirmAndSubmitAdaptor {
           reason: "INVALID_INPUT_STATE",
         },
       });
-      res.redirect("/claim");
+      completeStepAndRedirect(req, res, "/claim");
     } else {
       const result = await this.submitClaimUseCase.execute(
         this.#buildSubmitClaimInput(req, caseReference),
@@ -111,9 +112,9 @@ export class ConfirmAndSubmitAdaptor {
       (data?.rejectionReasons?.length ?? EMPTY_ARR_LENGTH) > EMPTY_ARR_LENGTH;
 
     if (hasRejectionReasons) {
-      res.redirect("/claim/confirmation/reject");
+      completeStepAndRedirect(req, res, "/claim/confirmation/reject");
     } else {
-      res.redirect("/claim/confirmation/success");
+      completeStepAndRedirect(req, res, "/claim/confirmation/success");
     }
   }
 

@@ -95,6 +95,7 @@ describe("CounselPayConfirmation adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/end-date");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 10);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -118,6 +119,7 @@ describe("CounselPayConfirmation adaptor", () => {
       );
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
   });
 });

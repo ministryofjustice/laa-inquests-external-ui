@@ -122,6 +122,7 @@ describe("InquestOutcome adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/funding-post-inquest");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 12);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -143,6 +144,7 @@ describe("InquestOutcome adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
 
     it("saves multiple selected outcomes to session as an array", () => {
