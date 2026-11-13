@@ -1,6 +1,30 @@
-import { HTTP_CREATED } from "#src/infrastructure/locales/constants.js";
+import {
+  CORONERS_LETTER_ERROR,
+  CORONERS_LETTER_MAX_FILE_SIZE_BYTES,
+  HTTP_CREATED,
+  INVALID_FILE_NAME,
+  INVALID_FILE_NAME_REGEX,
+} from "#src/infrastructure/locales/constants.js";
 
 const FIRST_FILE_INDEX = 0;
+const ERROR_TITLE_PREFIX = "Error: ";
+
+function validateFileSize(file: File): string | undefined {
+  if (file.size > CORONERS_LETTER_MAX_FILE_SIZE_BYTES) {
+    return CORONERS_LETTER_ERROR.FILE_TOO_LARGE.replace(
+      "{filename}",
+      () => file.name,
+    );
+  }
+  return undefined;
+}
+
+function validateFileName(file: File): string | undefined {
+  if (!INVALID_FILE_NAME_REGEX.test(file.name)) {
+    return INVALID_FILE_NAME.replace("{filename}", () => file.name);
+  }
+  return undefined;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
@@ -58,6 +82,13 @@ function getUploadedFileControls():
   return { uploadedFile, fileName, deleteButton };
 }
 
+function separateUploadControlText(control: HTMLButtonElement | null): void {
+  // Match the visible text spacing to the component's accessible name.
+  control
+    ?.querySelector(".govuk-file-upload-button__status")
+    ?.insertAdjacentText("afterend", " ");
+}
+
 export function initialiseCoronersLetterUpload(): void {
   const form = document.querySelector<HTMLFormElement>(
     '[data-module="coroners-letter-upload"]',
@@ -81,7 +112,6 @@ export function initialiseCoronersLetterUpload(): void {
   const continueButton = continueForm.querySelector<HTMLButtonElement>(
     'button[type="submit"]',
   );
-  const status = document.getElementById("coroners-letter-upload-status");
   const uploadedFileControls = getUploadedFileControls();
   if (uploadedFileControls === undefined) {
     return;
@@ -92,8 +122,7 @@ export function initialiseCoronersLetterUpload(): void {
     input === null ||
     token === null ||
     uploadButton === null ||
-    continueButton === null ||
-    status === null
+    continueButton === null
   ) {
     return;
   }
@@ -101,9 +130,8 @@ export function initialiseCoronersLetterUpload(): void {
   const state = { pending: false };
   const group = input.closest(".govuk-form-group");
   const control = form.querySelector<HTMLButtonElement>("#documents");
+  separateUploadControlText(control);
   const failureMessage = form.dataset.failureMessage!;
-  const uploadingMessage = form.dataset.uploadingMessage!;
-  const uploadedMessage = form.dataset.uploadedMessage!;
 
   function setPending(pending: boolean): void {
     state.pending = pending;
@@ -127,7 +155,9 @@ export function initialiseCoronersLetterUpload(): void {
     input!.classList.remove("govuk-file-upload--error");
     input!.removeAttribute("aria-describedby");
     control?.removeAttribute("aria-describedby");
-    status!.textContent = uploadedMessage;
+    if (document.title.startsWith(ERROR_TITLE_PREFIX)) {
+      document.title = document.title.slice(ERROR_TITLE_PREFIX.length);
+    }
   }
 
   function showError(message: string): void {
@@ -142,7 +172,6 @@ export function initialiseCoronersLetterUpload(): void {
     group?.classList.add("govuk-form-group--error");
     input!.setAttribute("aria-describedby", "documents-error");
     control?.setAttribute("aria-describedby", "documents-error");
-    status!.textContent = message;
   }
 
   async function uploadFile(): Promise<void> {
@@ -151,8 +180,13 @@ export function initialiseCoronersLetterUpload(): void {
       return;
     }
 
+    const validationError = validateFileSize(file) ?? validateFileName(file);
+    if (validationError !== undefined) {
+      showError(validationError);
+      return;
+    }
+
     setPending(true);
-    status!.textContent = uploadingMessage;
     const body = new FormData();
     body.append("documents", file);
 
