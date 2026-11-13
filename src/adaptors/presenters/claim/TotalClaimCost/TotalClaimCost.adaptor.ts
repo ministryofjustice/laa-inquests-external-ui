@@ -10,6 +10,7 @@ import {
   NIL_BILL_GROSS_TOTAL,
 } from "#src/infrastructure/locales/constants.js";
 import { TotalClaimCostValidator } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.validator.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class TotalClaimCostAdaptor {
   formValidator: TotalClaimCostValidator;
@@ -91,7 +92,9 @@ export class TotalClaimCostAdaptor {
           returnToCheckYourAnswers: undefined,
         };
 
-        res.redirect(
+        completeStepAndRedirect(
+          req as Request,
+          res,
           returnToCheckYourAnswers === true
             ? "/claim/check-your-answers"
             : "/claim/evidence",
@@ -131,9 +134,13 @@ export class TotalClaimCostAdaptor {
     };
 
     if (isNilBill) {
-      res.redirect("/claim/inquest-outcome");
+      completeStepAndRedirect(req as Request, res, "/claim/inquest-outcome");
     } else {
-      res.redirect("/claim/final-bill-template");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/final-bill-template",
+      );
     }
   }
 

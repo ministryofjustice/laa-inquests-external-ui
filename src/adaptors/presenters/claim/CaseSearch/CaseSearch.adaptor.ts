@@ -16,7 +16,7 @@ import { SearchCasesUseCase } from "#src/use-cases/claim/SearchCases.useCase.js"
 import { SelectCaseUseCase } from "#src/use-cases/claim/SelectCase.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { saveSession } from "#src/infrastructure/express/session/sessionConcurrency.js";
-import { markStepComplete } from "../../utils/journeyStepHelper.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
@@ -83,8 +83,7 @@ export class CaseSearchAdaptor {
       });
     } else {
       req.session.claim = { ...req.session.claim, caseReference };
-      markStepComplete(req, "/claim/search");
-      res.redirect("/claim/results");
+      completeStepAndRedirect(req as Request, res, "/claim/results");
     }
   }
 
@@ -144,7 +143,7 @@ export class CaseSearchAdaptor {
           reason: "INVALID_INPUT_STATE",
         },
       });
-      res.redirect("/claim/results?selectionError=true");
+      completeStepAndRedirect(req, res, "/claim/results?selectionError=true");
     } else if (result.status === "BLOCKED") {
       session.claim = {
         ...claim,
@@ -152,7 +151,6 @@ export class CaseSearchAdaptor {
         client: result.client,
         claimBlocked: true,
       };
-      markStepComplete(req, "/claim/results");
       logger.logInfo({
         functionName: "caseSearchAdaptor_selectCase",
         message: "Claim submission blocked by an active final or nil bill",
@@ -163,16 +161,15 @@ export class CaseSearchAdaptor {
         },
       });
       await saveSession(req);
-      res.redirect("/claim/cannot-claim");
+      completeStepAndRedirect(req, res, "/claim/cannot-claim");
     } else {
       session.claim = {
         ...claim,
         caseReference: selectedReference,
         client: result.client,
       };
-      markStepComplete(req, "/claim/results");
       await saveSession(req);
-      res.redirect("/claim/type");
+      completeStepAndRedirect(req, res, "/claim/type");
     }
   }
 }

@@ -14,11 +14,17 @@ export function completeStepAndRedirect(
   res: Response,
   redirectToUrl: string,
 ): void {
-  const stepIndex =
-    (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(redirectToUrl) -
-    OFFSET;
+  const journey =
+    redirectToUrl.split("/").at(OFFSET) === "apply"
+      ? APPLY_JOURNEY_SEQUENCE
+      : CLAIM_JOURNEY_SEQUENCE;
 
-  const { [stepIndex]: pageToMark } = APPLY_JOURNEY_SEQUENCE;
+  let stepIndex =
+    (journey as readonly string[]).indexOf(redirectToUrl) - OFFSET;
+
+  stepIndex = Math.max(stepIndex, ZERO);
+
+  const { [stepIndex]: pageToMark } = journey;
   markStepComplete(req, pageToMark);
   res.redirect(redirectToUrl);
 }
@@ -58,6 +64,6 @@ export function markStepComplete(
       lastCompletedStepIndex: stepIndex,
     };
   } else {
-    throw new Error(`Unsupported journey type: ${journeyType}`);
+    throw new Error(`Unsupported pageToMark: ${pageToMark}`);
   }
 }
