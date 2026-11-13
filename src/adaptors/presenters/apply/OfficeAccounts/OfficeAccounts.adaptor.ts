@@ -91,9 +91,14 @@ export class OfficeAccountsAdaptor {
         (office) => office.officeCode === selectedOffice,
       );
       session.selectedOfficeId = selectedOffice;
-      session.selectedOfficeAddress = this.#formatAddress(
-        selectedOfficeDetails!,
-      );
+      const { firmName } = session;
+      const officeAddress = this.#formatAddress(selectedOfficeDetails!);
+
+      if (typeof firmName === "string" && firmName !== "") {
+        session.selectedOfficeAddress = `${firmName}, ${officeAddress}`;
+      } else {
+        session.selectedOfficeAddress = officeAddress;
+      }
 
       const redirectUrl =
         req.session.returnToApplyCheckYourAnswers === true
