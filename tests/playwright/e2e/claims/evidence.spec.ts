@@ -11,6 +11,7 @@ test.describe("Claim - evidence", () => {
     "test-evidence.pdf",
     "application/pdf",
     "a JPG, PNG, BMP or PDF",
+    ".moj-multi-file-upload__error",
   );
 
   test("renders back link to total cost", async ({

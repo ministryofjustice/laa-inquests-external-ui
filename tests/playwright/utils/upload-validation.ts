@@ -4,6 +4,7 @@ export function testFilenameUploadErrors(
   validFileName: string,
   validMimeType: string,
   allowedTypeMessage: string,
+  errorSelector: string,
 ): void {
   const cases = [
     {
@@ -41,15 +42,13 @@ export function testFilenameUploadErrors(
       page,
       checkAccessibility,
     }) => {
-      await page.setInputFiles("#documents", {
+      await page.setInputFiles('input[type="file"][name="documents"]', {
         name: upload.name,
         mimeType: upload.mimeType,
         buffer: upload.buffer,
       });
 
-      await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
-        upload.message,
-      );
+      await expect(page.locator(errorSelector)).toContainText(upload.message);
       await checkAccessibility();
     });
   }
