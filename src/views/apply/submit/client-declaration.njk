@@ -1,16 +1,12 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = "Confirm the following" %}
 {% set pageTitle = pageHeading %}
 
+{% set backLink = "/apply/check-your-answers" %}
+
 {% block content %}
-<div class="govuk-width-container">
-    {{ govukBackLink({
-        text: "Back",
-        href: "/apply/check-your-answers"
-    }) }}
     {% if errorSummaries.noDeclarationConfirmation %}
     {{ govukErrorSummary({
         titleText: "There is a problem",
@@ -92,5 +88,4 @@
             </form>
         </div>
     </div>
-</div>
 {% endblock %}

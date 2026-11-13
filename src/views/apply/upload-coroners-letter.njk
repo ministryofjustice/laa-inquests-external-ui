@@ -1,5 +1,4 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
@@ -8,12 +7,9 @@
 {% set pageHeading = "Upload correspondence from the coroner" %}
 {% set pageTitle = pageHeading %}
 
+{% set backLink = backHref or "/apply/public-authority" %}
+
 {% block content %}
-<div class="govuk-width-container">
-  {{ govukBackLink({
-      text: "Back",
-      href: backHref or "/apply/public-authority"
-  }) }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
     {% if errorSummaries and errorSummaries.coronersLetterError %}
@@ -81,5 +77,6 @@
           type: "submit"
         }) }}
       </form>
-</div>
+    </div>
+  </div>
 {% endblock %}

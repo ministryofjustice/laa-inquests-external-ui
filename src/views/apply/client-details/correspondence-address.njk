@@ -1,6 +1,5 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
@@ -8,13 +7,9 @@
 {% set pageHeading = "What is the address you want to send the correspondence to?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/apply/client-details/correspondence-address-source" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/apply/client-details/correspondence-address-source"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if errorSummaries %}
@@ -115,6 +110,5 @@
       </form>
     </div>
   </div>
-</div>
 
 {% endblock %}

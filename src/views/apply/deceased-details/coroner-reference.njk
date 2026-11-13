@@ -1,17 +1,13 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = "Do you have a reference number from the coroner? (optional)" %}
 {% set pageTitle = pageHeading %}
 
+{% set backLink = backHref or "/apply/deceased-details/client-relationship" %}
+
 {% block content %}
-<div class="govuk-width-container">
-    {{ govukBackLink({
-        text: "Back",
-        href: backHref or "/apply/deceased-details/client-relationship"
-    }) }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% if errorSummaries %}
@@ -49,5 +45,4 @@
             </form>
         </div>
     </div>
-<div>
 {% endblock %}

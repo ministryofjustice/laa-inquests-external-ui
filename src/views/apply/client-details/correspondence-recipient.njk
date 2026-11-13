@@ -1,6 +1,5 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
@@ -8,13 +7,9 @@
 {% set pageHeading = "Do you want to add a 'care of' recipient for your client's mail?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/apply/client-details/correspondence-address-source" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/apply/client-details/correspondence-address-source"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if errorSummaries %}
@@ -102,6 +97,5 @@
       </form>
     </div>
   </div>
-</div>
 
 {% endblock %}

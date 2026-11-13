@@ -1,6 +1,5 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
@@ -8,13 +7,9 @@
 {% set pageHeading = "What is the name of the deceased?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backButtonUrl %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backButtonUrl
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
       {% if errorSummaries.firstNameInputError or errorSummaries.lastNameInputError %}
@@ -64,5 +59,4 @@
       </form>
     </div>
   </div>
-</div>
 {% endblock %}

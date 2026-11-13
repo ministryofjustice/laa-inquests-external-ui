@@ -1,16 +1,11 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% set pageHeading = "What is your total claim cost?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref %}
 
-<div class="govuk-width-container">
+{% block content %}
   {% set errors = errorSummaries or {} %}
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref
-  }) }}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if isFinalBill %}
@@ -20,5 +15,4 @@
       {% endif %}
     </div>
   </div>
-</div>
 {% endblock %}

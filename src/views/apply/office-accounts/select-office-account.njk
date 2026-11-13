@@ -1,5 +1,4 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/radios/macro.njk" import govukRadios %}
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
@@ -8,12 +7,9 @@
 {% set pageHeading = t("pages.apply.officeAccounts.selectOffice.title") if officeOptions.length else t("pages.apply.officeAccounts.noOffices.title") %}
 {% set pageTitle = pageHeading %}
 
+{% set backLink = backHref or "/apply" %}
+
 {% block content %}
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/apply"
-  }) }}
 
   {% if errorSummaries.noOfficeSelected %}
     {{ govukErrorSummary({
@@ -74,6 +70,5 @@
       {% endif %}
     </div>
   </div>
-</div>
 {% endblock %}
 
