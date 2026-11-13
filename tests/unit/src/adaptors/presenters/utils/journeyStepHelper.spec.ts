@@ -60,6 +60,16 @@ describe("journeyStepHelper", () => {
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 0);
     });
+
+    it("strips query parameters when completing a step", () => {
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/apply/client-details/name-and-dob?test=1",
+      );
+      const applyState = (requestStub.session as any).apply;
+      assert.equal(applyState.lastCompletedStepIndex, 1);
+    });
   });
 
   describe("markStepComplete", () => {

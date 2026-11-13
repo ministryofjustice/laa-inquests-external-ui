@@ -115,6 +115,7 @@ describe("ClaimType adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 4);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -133,6 +134,7 @@ describe("ClaimType adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 5);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -186,6 +188,7 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
       assert.equal(
         requestStub.session.claim?.returnToCheckYourAnswers,
         undefined,
@@ -234,6 +237,7 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 5);
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
     });
 
@@ -251,6 +255,7 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 4);
       assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
     });
   });
@@ -364,6 +369,7 @@ describe("ClaimType adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 5);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -381,6 +387,7 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
       assert.equal(
         requestStub.session.claim?.returnToCheckYourAnswers,
         undefined,

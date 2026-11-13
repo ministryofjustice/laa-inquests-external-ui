@@ -57,6 +57,7 @@ describe("Home adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
       assert.equal(redirectArgs[0] as unknown as string, "/claim");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 0);
     });
 
     it("renders error message if nothing selected", () => {

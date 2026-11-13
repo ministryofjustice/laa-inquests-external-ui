@@ -44,8 +44,10 @@ export const CLAIM_JOURNEY_SEQUENCE = [
   "/claim/funding-post-inquest",
   "/claim/inquest-outcome-recovery",
   "/claim/pre-cert-costs",
+  "/claim/recovery-costs",
   "/claim/paying-party",
   // All claims
   "/claim/check-your-answers",
   "/claim/confirmation/success",
+  "/claim/confirmation/reject",
 ];

@@ -94,6 +94,7 @@ describe("FundingPostInquest adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
 
     it("saves Yes and redirects to the recovery sub-flow", () => {
@@ -116,6 +117,7 @@ describe("FundingPostInquest adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
     });
 
     it("saves Don't know and redirects to the recovery sub-flow", () => {
@@ -138,6 +140,7 @@ describe("FundingPostInquest adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
     });
 
     it("re-renders the form with an error when no option is selected", () => {
@@ -190,6 +193,7 @@ describe("FundingPostInquest adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
 
     it("continues down the sub-flow when Yes is selected even if the return flag is set", () => {
@@ -212,6 +216,7 @@ describe("FundingPostInquest adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
     });
 
     it("preserves existing claim session data when saving", () => {

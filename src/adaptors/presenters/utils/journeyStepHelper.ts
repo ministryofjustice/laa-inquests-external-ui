@@ -14,18 +14,19 @@ export function completeStepAndRedirect(
   res: Response,
   redirectToUrl: string,
 ): void {
+  const noQueryUrl = redirectToUrl.split("?").at(ZERO)!;
+
   const journey =
     redirectToUrl.split("/").at(OFFSET) === "apply"
       ? APPLY_JOURNEY_SEQUENCE
       : CLAIM_JOURNEY_SEQUENCE;
 
-  let stepIndex =
-    (journey as readonly string[]).indexOf(redirectToUrl) - OFFSET;
+  const stepIndex =
+    journey.indexOf(noQueryUrl) === ZERO
+      ? ZERO
+      : journey.indexOf(noQueryUrl) - OFFSET;
 
-  stepIndex = Math.max(stepIndex, ZERO);
-
-  const { [stepIndex]: pageToMark } = journey;
-  markStepComplete(req, pageToMark);
+  markStepComplete(req, journey[stepIndex]);
   res.redirect(redirectToUrl);
 }
 

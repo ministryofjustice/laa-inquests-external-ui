@@ -29,6 +29,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
     });
 
     it("renders the recovery costs form with csrf token, saved values and default back link", () => {
@@ -132,6 +133,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
     });
 
     it("saves the four recovery values to session and redirects to paying party", () => {
@@ -166,6 +168,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/paying-party",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
     });
 
     it("saves and redirects to check your answers, clearing the flags, when returning to check your answers", () => {
@@ -206,6 +209,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
 
     it("preserves existing claim session data when saving", () => {
@@ -256,6 +260,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/paying-party",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
     });
 
     it("re-renders the form with an error when a value is not a valid amount", () => {
@@ -307,6 +312,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
     });
   });
 });

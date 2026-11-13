@@ -157,6 +157,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/evidence");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 7);
 
       assert.equal(requestStub.session.claim?.zeroVatTotal, "100.00");
       assert.equal(requestStub.session.claim?.netTotal, "250.25");
@@ -183,6 +184,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
       assert.equal(
         requestStub.session.claim?.returnToCheckYourAnswers,
         undefined,
@@ -229,6 +231,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/inquest-outcome");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
       assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
       assert.equal(requestStub.session.claim?.subtype, undefined);
       assert.equal(requestStub.session.claim?.grossTotal, "0");
@@ -250,6 +253,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/inquest-outcome");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
       assert.equal(requestStub.session.claim?.subtype, undefined);
     });
 
@@ -270,6 +274,7 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/final-bill-template");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 6);
       assert.equal(requestStub.session.claim?.grossTotal, "1250.50");
       assert.equal(requestStub.session.claim?.subtype, undefined);
     });
