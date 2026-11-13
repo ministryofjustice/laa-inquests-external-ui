@@ -1,5 +1,8 @@
 import type { Request, Response } from "express";
-import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
+import {
+  APPLY_JOURNEY_SEQUENCE,
+  CLAIM_JOURNEY_SEQUENCE,
+} from "#src/infrastructure/config/journeySequences.js";
 
 const ZERO = 0;
 const OFFSET = 1;
@@ -24,17 +27,37 @@ export function markStepComplete(
   req: Pick<Request, "session">,
   pageToMark: string,
 ): void {
-  const stepIndex = (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(
-    pageToMark,
-  );
-
-  if (stepIndex < ZERO) {
-    throw new Error(`Invalid page to mark: ${pageToMark}`);
-  }
+  const journeyType = pageToMark.split("/").at(OFFSET);
 
   const sessionRecord = req.session as Record<string, unknown>;
 
-  sessionRecord.apply = {
-    lastCompletedStepIndex: stepIndex,
-  };
+  if (journeyType === "apply") {
+    const stepIndex = (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(
+      pageToMark,
+    );
+
+    if (stepIndex < ZERO) {
+      throw new Error(`Invalid page to mark: ${pageToMark}`);
+    }
+
+    sessionRecord.apply = {
+      lastCompletedStepIndex: stepIndex,
+    };
+  } else if (journeyType === "claim") {
+    const stepIndex = (CLAIM_JOURNEY_SEQUENCE as readonly string[]).indexOf(
+      pageToMark,
+    );
+
+    if (stepIndex < ZERO) {
+      throw new Error(`Invalid page to mark: ${pageToMark}`);
+    }
+
+    const existingClaimData = sessionRecord.claim ?? {};
+    sessionRecord.claim = {
+      ...existingClaimData,
+      lastCompletedStepIndex: stepIndex,
+    };
+  } else {
+    throw new Error(`Unsupported journey type: ${journeyType}`);
+  }
 }

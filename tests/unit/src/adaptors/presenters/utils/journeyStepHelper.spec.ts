@@ -60,7 +60,7 @@ describe("journeyStepHelper", () => {
 
       assert.throws(() => {
         markStepComplete(requestStub, "/invalid/path");
-      }, /Invalid page to mark: \/invalid\/path/);
+      }, /Unsupported journey type: invalid/);
     });
 
     it("overwrites existing lastCompletedStepIndex", () => {

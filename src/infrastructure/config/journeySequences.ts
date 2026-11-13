@@ -5,7 +5,7 @@ export const APPLY_JOURNEY_SEQUENCE = [
   "/apply/client-details/nino",
   "/apply/client-details/has-prev-application",
   "/apply/client-details/home-address",
-  "/apply/client-details/correspondence-address-source",
+  "/apply/client-details/correspondence-address-source", //Can jump to either correspondence-address or correspondence-recipient
   "/apply/client-details/correspondence-address",
   "/apply/client-details/correspondence-recipient",
   "/apply/proceeding",
