@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 import type { TypedRequestBody } from "#src/infrastructure/express/index.types.js";
 import type { WhatDoYouWantToDoFormData } from "../apply/models/form.types.js";
-import { completeStepAndRedirect } from "../utils/journeyStepHelper.js";
 
 export class HomeAdaptor {
   readonly #sessionHelper: SessionHelper;
@@ -31,9 +30,9 @@ export class HomeAdaptor {
       body: { "what-do-you-want-to-do-option": selection },
     } = req;
     if (selection === "Apply") {
-      completeStepAndRedirect(req as Request, res, "/apply");
+      res.redirect("/apply");
     } else if (selection === "Claim") {
-      completeStepAndRedirect(req as Request, res, "/claim");
+      res.redirect("/claim");
     } else {
       const renderOptions = {
         csrfToken,
