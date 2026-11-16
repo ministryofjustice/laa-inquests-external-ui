@@ -259,7 +259,7 @@ export class EvidenceAdaptor {
 
     this.#removeEvidenceFileFromSession(req, evidenceFileId);
     this.#logDeleteSuccess(req, evidenceFileId);
-    completeStepAndRedirect(req, res, "/claim/evidence");
+    res.redirect("/claim/evidence");
   }
 
   #logDeleteSuccess(req: Request, evidenceFileId: string): void {
@@ -396,7 +396,7 @@ export class EvidenceAdaptor {
     });
 
     if (isNoJsUpload) {
-      completeStepAndRedirect(req, res, "/claim/evidence");
+      res.redirect("/claim/evidence");
       this.#logUploadSuccess(req, isNoJsUpload, data.evidenceFileId);
       return;
     }
