@@ -185,34 +185,6 @@ describe("FinalBillTemplate adaptor", () => {
       });
     });
 
-    it("marks the template step complete after a successful no-JS upload", async () => {
-      uploadEvidenceUseCase.execute.resolves({
-        status: "SUCCESS",
-        evidenceFileId: "template-id-123",
-        evidenceFileName: "cost-template.xlsx",
-      });
-      const adaptor = buildAdaptor();
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-      responseStub.locals = { csrfToken: "test-token" };
-      requestStub.body = { uploadMode: "html" };
-      requestStub.file = {
-        buffer: Buffer.from("test"),
-        mimetype:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        originalname: "cost-template.xlsx",
-        size: 4,
-      } as Express.Multer.File;
-
-      await adaptor.processTemplateUpload(requestStub, responseStub);
-
-      assert.equal(
-        responseStub.redirect.getCall(0).args[0],
-        "/claim/final-bill-template",
-      );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 6);
-    });
-
     it("returns a service unavailable error when the upload fails", async () => {
       uploadEvidenceUseCase.execute.resolves({
         status: "UPLOAD_REJECTED",
@@ -345,28 +317,6 @@ describe("FinalBillTemplate adaptor", () => {
 
       assert.equal(requestStub.session.claim?.finalBillCostTemplate, undefined);
       assert.equal(responseStub.json.getCall(0).args[0].success, true);
-    });
-
-    it("marks the template step complete after a successful no-JS delete", async () => {
-      deleteEvidenceUseCase.execute.resolves({ status: "SUCCESS" });
-      const adaptor = buildAdaptor();
-      const responseStub = stubInterface<Response>();
-      const requestStub = stubInterface<Request>();
-      requestStub.body = { delete: "template-id-123" };
-      requestStub.session.claim = {
-        finalBillCostTemplate: {
-          costTemplateId: "template-id-123",
-          costTemplateFilename: "cost-template.xlsx",
-        },
-      };
-
-      await adaptor.processTemplateDeleteNoJs(requestStub, responseStub);
-
-      assert.equal(
-        responseStub.redirect.getCall(0).args[0],
-        "/claim/final-bill-template",
-      );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 6);
     });
   });
 });

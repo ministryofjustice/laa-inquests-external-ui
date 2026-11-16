@@ -233,7 +233,7 @@ export class FinalBillTemplateAdaptor {
     }
 
     this.#removeTemplateFromSession(req);
-    completeStepAndRedirect(req, res, "/claim/final-bill-template");
+    res.redirect("/claim/final-bill-template");
   }
 
   #renderNoJsError(
@@ -358,7 +358,7 @@ export class FinalBillTemplateAdaptor {
     );
 
     if (isNoJsUpload) {
-      completeStepAndRedirect(req, res, "/claim/final-bill-template");
+      res.redirect("/claim/final-bill-template");
       this.#logUploadSuccess(req, isNoJsUpload);
       return;
     }
