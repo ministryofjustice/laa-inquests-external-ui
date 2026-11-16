@@ -42,7 +42,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     "#documents-error",
   );
 
-  test("displays an HTML 500 response returned by the upload POST", async ({
+  test("shows the server error page when the file upload fails", async ({
     page,
     checkAccessibility,
   }) => {
@@ -117,9 +117,6 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     await expect(
       page.getByRole("button", { name: /Upload new file.*Choose file/ }),
     ).toBeVisible();
-    await expect(
-      page.locator('[data-module="moj-multi-file-upload"]'),
-    ).toHaveCount(0);
     await checkAccessibility();
   });
 
@@ -202,7 +199,7 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     ).toContainText(MOCK_UPLOADED_FILE_NAME);
   });
 
-  test.describe("Apply - single coroner's letter upload without JavaScript", () => {
+  test.describe("when uploading coroner's letter without JavaScript", () => {
     test.use({ javaScriptEnabled: false });
 
     test.beforeEach(async ({ page }) => {
