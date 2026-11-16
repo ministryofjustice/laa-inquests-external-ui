@@ -25,6 +25,7 @@ test.describe("Claim - final bill template", () => {
     "cost-template.xlsx",
     xlsxMimeType,
     "an Excel spreadsheet",
+    ".moj-multi-file-upload__error",
   );
 
   test("renders back link to total cost", async ({
@@ -77,7 +78,7 @@ test.describe("Claim - final bill template", () => {
     page,
   }) => {
     const multiFileUpload = page.locator(
-      "[data-module='moj-multi-file-upload']",
+      '[data-module="moj-multi-file-upload"]',
     );
 
     await expect(multiFileUpload).toBeVisible();

@@ -16,6 +16,7 @@ import {
   INVALID_FILE_NAME_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { escapeHtml } from "#src/utils/html.js";
+import { initialiseCoronersLetterUpload } from "#src/infrastructure/build/coronersLetterUpload.js";
 
 const COPY_RESET_DELAY_MS = 4000;
 
@@ -274,6 +275,7 @@ const initialiseFrontendPackages = (): void => {
   if (typeof window !== "undefined") {
     try {
       initGOVUK();
+      initialiseCoronersLetterUpload();
       initMOJ();
       initialiseMultiFileUpload();
       copyText(
