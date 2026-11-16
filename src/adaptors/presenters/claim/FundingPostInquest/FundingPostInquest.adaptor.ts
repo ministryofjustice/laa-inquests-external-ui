@@ -12,6 +12,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class FundingPostInquestAdaptor {
   formValidator: FundingPostInquestValidator;
@@ -74,9 +75,17 @@ export class FundingPostInquestAdaptor {
 
     if (fundingPostInquest === FUNDING_POST_INQUEST_VALUE.NO) {
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-      res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+      );
     } else {
-      res.redirect("/claim/inquest-outcome-recovery");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/inquest-outcome-recovery",
+      );
     }
   }
 }

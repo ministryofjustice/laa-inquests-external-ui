@@ -99,7 +99,9 @@ test.describe("Claim - declaration", () => {
 
   test("clears claim session data so back link on total cost reverts to /claim/type", async ({
     page,
+    authorizeStep,
   }) => {
+    await authorizeStep("/claim/type");
     await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
@@ -109,6 +111,7 @@ test.describe("Claim - declaration", () => {
     await page.waitForURL("**/claim/total-cost");
 
     await page.goto("/claim");
+    await authorizeStep("/claim/total-cost");
     await page.goto("/claim/total-cost");
 
     const backLink = page.getByRole("link", { name: "Back", exact: true });

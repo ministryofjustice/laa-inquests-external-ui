@@ -8,6 +8,7 @@ import type {
   EndDateFormData,
   EndDateValidator,
 } from "#src/adaptors/presenters/claim/EndDate/EndDate.validator.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class EndDateAdaptor {
   readonly #formValidator: EndDateValidator;
@@ -79,9 +80,9 @@ export class EndDateAdaptor {
     };
 
     if (req.session.claim.returnToCheckYourAnswers === true) {
-      res.redirect("/claim/check-your-answers");
+      completeStepAndRedirect(req as Request, res, "/claim/check-your-answers");
     } else {
-      res.redirect("/claim/inquest-outcome");
+      completeStepAndRedirect(req as Request, res, "/claim/inquest-outcome");
     }
   }
 

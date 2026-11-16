@@ -26,7 +26,7 @@ async function uploadEvidence(page: Page): Promise<void> {
 }
 
 test.describe("Claim - confirm and submit", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, authorizeStep }) => {
     await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
@@ -34,6 +34,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByLabel("Expert cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
   });
 
@@ -269,6 +270,7 @@ test.describe("Claim - confirm and submit", () => {
 
   test("displays the claim answers that were saved in the session", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
@@ -278,6 +280,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByLabel("Expert cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
 
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
@@ -287,6 +290,7 @@ test.describe("Claim - confirm and submit", () => {
 
   test("displays the selected client details that were saved in the session", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim");
     await page
@@ -312,6 +316,7 @@ test.describe("Claim - confirm and submit", () => {
       .click();
     await page.waitForURL("**/claim/type");
 
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
 
     const caseDetails = page.getByTestId("case-details-summary-list");
@@ -324,8 +329,10 @@ test.describe("Claim - confirm and submit", () => {
 
   test("redirects to the claim confirmation success page when the claim is submitted", async ({
     page,
+    authorizeStep,
   }) => {
     await searchAndSelectCase(page, "INQ-YYY-001");
+    await authorizeStep("/claim/evidence");
     await page.goto("/claim/evidence");
     await Promise.all([
       page.waitForResponse(
@@ -367,8 +374,10 @@ test.describe("Claim - confirm and submit", () => {
 
   test("displays a 'There is a problem' error summary when claim evidence is missing", async ({
     page,
+    authorizeStep,
   }) => {
     await searchAndSelectCase(page, "INQ-YYY-001");
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
     await page
       .getByTestId("confirm-and-submit-form")
@@ -384,6 +393,7 @@ test.describe("Claim - confirm and submit", () => {
 
   test("displays a 'There is a problem' error summary when the API returns a 422", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim");
     await page
@@ -408,6 +418,7 @@ test.describe("Claim - confirm and submit", () => {
       .click();
     await page.waitForURL("**/claim/type");
 
+    await authorizeStep("/claim/evidence");
     await page.goto("/claim/evidence");
     await Promise.all([
       page.waitForResponse(
@@ -441,6 +452,7 @@ test.describe("Claim - confirm and submit", () => {
 
   test("shows the Type of POA row when POA is the claim type", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
@@ -450,6 +462,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
@@ -459,12 +472,14 @@ test.describe("Claim - confirm and submit", () => {
 
   test("hides the Type of POA row when the claim type is not POA", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim/type");
     await page.getByLabel("Final bill").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
 
     const claimDetails = page.getByTestId("claim-details-summary-list");
@@ -523,6 +538,7 @@ test.describe("Claim - confirm and submit", () => {
   test("hides the final bill cost file after changing to POA at check your answers", async ({
     page,
     checkAccessibility,
+    authorizeStep,
   }) => {
     await page.goto("/claim/type");
     await page.getByLabel("Final bill").check();
@@ -544,6 +560,7 @@ test.describe("Claim - confirm and submit", () => {
         buffer: Buffer.from("fake spreadsheet content"),
       }),
     ]);
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
     await expect(page.getByTestId("cost-template-summary-list")).toBeVisible();
     await page.getByRole("link", { name: "Change type of claim" }).click();
@@ -551,6 +568,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("Expert cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
 
     await expect(page.getByTestId("claim-details-summary-list")).toContainText(
@@ -569,12 +587,14 @@ test.describe("Claim - confirm and submit", () => {
 
   test("hides final-bill-only details and change links for a POA profit cost claim", async ({
     page,
+    authorizeStep,
   }) => {
     await page.goto("/claim/type");
     await page.getByLabel("Final bill").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
 
+    await authorizeStep("/claim/inquest-outcome");
     await page.goto("/claim/inquest-outcome");
     await page.getByLabel("Accident or misadventure").check();
     await page.getByRole("button", { name: "Continue" }).click();
@@ -590,6 +610,7 @@ test.describe("Claim - confirm and submit", () => {
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
+    await authorizeStep("/claim/check-your-answers");
     const response = await page.goto("/claim/check-your-answers");
 
     expect(response?.status()).toBe(200);
@@ -617,11 +638,12 @@ test.describe("Claim - confirm and submit", () => {
   });
 
   test.describe("Other claim details", () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, authorizeStep }) => {
       await page.goto("/claim/type");
       await page.getByLabel("Final bill").check();
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForURL("**/claim/total-cost");
+      await authorizeStep("/claim/check-your-answers");
       await page.goto("/claim/check-your-answers");
     });
 

@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import type { ClaimDeclarationFormData } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/models/ClaimDeclaration.types.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 export class ClaimDeclarationAdaptor {
   validateBeforeYouStartDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
@@ -52,6 +53,6 @@ export class ClaimDeclarationAdaptor {
         event: "claim_declaration_submitted",
       },
     });
-    res.redirect("/claim/search");
+    completeStepAndRedirect(req, res, "/claim/search");
   }
 }

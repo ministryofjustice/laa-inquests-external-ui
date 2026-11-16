@@ -11,6 +11,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class PayingPartyAdaptor {
   formValidator: PayingPartyValidator;
@@ -70,7 +71,11 @@ export class PayingPartyAdaptor {
     };
 
     this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-    res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
+    completeStepAndRedirect(
+      req as Request,
+      res,
+      CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+    );
   }
 
   #previousStepHref(req: Pick<Request, "session">): string {

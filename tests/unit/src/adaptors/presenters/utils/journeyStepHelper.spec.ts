@@ -38,6 +38,38 @@ describe("journeyStepHelper", () => {
       const applyState = (requestStub.session as any).apply;
       assert.equal(applyState.lastCompletedStepIndex, 1);
     });
+
+    it("uses apply journey sequence for when redirectUrl starts with /apply", () => {
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/apply/client-details/name-and-dob",
+      );
+      const applyState = (requestStub.session as any).apply;
+      assert.equal(applyState.lastCompletedStepIndex, 1);
+    });
+
+    it("uses claim journey sequence for when redirectUrl starts with /claim", () => {
+      completeStepAndRedirect(requestStub, responseStub, "/claim/type");
+      const claimState = (requestStub.session as any).claim;
+      assert.equal(claimState.lastCompletedStepIndex, 3);
+    });
+
+    it("sets lastStepCompleted as ZERO if res.redirect is first set", () => {
+      completeStepAndRedirect(requestStub, responseStub, "/apply");
+      const applyState = (requestStub.session as any).apply;
+      assert.equal(applyState.lastCompletedStepIndex, 0);
+    });
+
+    it("strips query parameters when completing a step", () => {
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/apply/client-details/name-and-dob?test=1",
+      );
+      const applyState = (requestStub.session as any).apply;
+      assert.equal(applyState.lastCompletedStepIndex, 1);
+    });
   });
 
   describe("markStepComplete", () => {
@@ -60,7 +92,7 @@ describe("journeyStepHelper", () => {
 
       assert.throws(() => {
         markStepComplete(requestStub, "/invalid/path");
-      }, /Invalid page to mark: \/invalid\/path/);
+      }, /Unsupported pageToMark: \/invalid\/path/);
     });
 
     it("overwrites existing lastCompletedStepIndex", () => {
