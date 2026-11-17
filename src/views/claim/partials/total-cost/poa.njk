@@ -35,7 +35,7 @@
 
   {{ govukInput({
     label: {
-      text: "Total for costs charged at 0% VAT",
+      html: (t("pages.claim.totalCost.poa.zeroVatTotalLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     id: "zero-vat-total",
@@ -49,7 +49,7 @@
 
   {{ govukInput({
     label: {
-      text: "Net total excluding VAT, for costs where VAT can be charged",
+      html: (t("pages.claim.totalCost.poa.netTotalLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     id: "net-total",
@@ -63,7 +63,7 @@
 
   {{ govukInput({
     label: {
-      text: "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)",
+      html: (t("pages.claim.totalCost.poa.grossTotalLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     id: "gross-total",

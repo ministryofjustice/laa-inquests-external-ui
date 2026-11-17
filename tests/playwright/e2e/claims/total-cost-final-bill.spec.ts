@@ -35,6 +35,9 @@ test.describe("Claim - total cost (FINAL_BILL)", () => {
 
     const form = page.getByTestId("total-cost-form");
     await expect(form.getByLabel(grossAmountLabel)).toBeVisible();
+    await expect(form.getByRole("textbox")).toHaveAccessibleName(
+      /, in pounds$/,
+    );
     await expect(page.getByText(grossAmountHint)).toBeVisible();
 
     const continueButton = form.getByRole("button", { name: "Continue" });
