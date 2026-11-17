@@ -665,7 +665,7 @@ test.describe("Claim - confirm and submit", () => {
       await page.getByLabel("Yes", { exact: true }).check();
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForURL("**/claim/recovery-costs");
-      await page.getByLabel("Costs", { exact: true }).fill("100");
+      await page.getByLabel("Costs, in pounds", { exact: true }).fill("100");
       await page.getByLabel("Damages").fill("200");
       await page.getByLabel("Interest").fill("300");
       await page.getByLabel("Previous pre-certificate costs").fill("400");
@@ -810,7 +810,9 @@ test.describe("Claim - confirm and submit", () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await page.waitForURL("**/claim/recovery-costs");
 
-      await expect(page.getByLabel("Costs", { exact: true })).toHaveValue("");
+      await expect(
+        page.getByLabel("Costs, in pounds", { exact: true }),
+      ).toHaveValue("");
     });
 
     test("returns straight to check your answers after changing financial recovery costs", async ({
@@ -827,7 +829,7 @@ test.describe("Claim - confirm and submit", () => {
         page.getByRole("link", { name: "Back", exact: true }),
       ).toHaveAttribute("href", "/claim/check-your-answers");
 
-      await page.getByLabel("Costs", { exact: true }).fill("150");
+      await page.getByLabel("Costs, in pounds", { exact: true }).fill("150");
       await page.getByRole("button", { name: "Continue" }).click();
 
       await page.waitForURL("**/claim/check-your-answers");

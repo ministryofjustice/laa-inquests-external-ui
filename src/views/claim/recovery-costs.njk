@@ -50,7 +50,7 @@
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{ govukInput({
           label: {
-            text: "Costs",
+            text: t("pages.claim.recoveryCosts.costsLabel"),
             classes: "govuk-label--s"
           },
           id: "costs",
@@ -63,7 +63,7 @@
         }) }}
         {{ govukInput({
           label: {
-            text: "Damages",
+            text: t("pages.claim.recoveryCosts.damagesLabel"),
             classes: "govuk-label--s"
           },
           id: "damages",
@@ -76,7 +76,7 @@
         }) }}
         {{ govukInput({
           label: {
-            text: "Interest",
+            text: t("pages.claim.recoveryCosts.interestLabel"),
             classes: "govuk-label--s"
           },
           id: "interest",
@@ -89,7 +89,7 @@
         }) }}
         {{ govukInput({
           label: {
-            text: "Previous pre-certificate costs",
+            text: t("pages.claim.recoveryCosts.previousPreCertificateCostsLabel"),
             classes: "govuk-label--s"
           },
           id: "previous-pre-certificate-costs",

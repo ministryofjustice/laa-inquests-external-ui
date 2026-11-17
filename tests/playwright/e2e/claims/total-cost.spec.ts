@@ -40,6 +40,17 @@ test.describe("Claim - total cost", () => {
     ).toBeVisible();
   });
 
+  test("announces the currency in the accessible name of every money input", async ({
+    page,
+  }) => {
+    const inputs = page.getByTestId("total-cost-form").getByRole("textbox");
+
+    await expect(inputs).toHaveCount(3);
+    for (const input of await inputs.all()) {
+      await expect(input).toHaveAccessibleName(/, in pounds$/);
+    }
+  });
+
   test("back link points to /claim/subtype when POA was selected", async ({
     page,
   }) => {

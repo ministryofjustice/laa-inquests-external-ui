@@ -67,12 +67,27 @@ test.describe("Claim - financial recovery costs", () => {
     test("renders the four currency inputs", async ({ page }) => {
       const form = page.getByTestId("recovery-costs-form");
 
-      await expect(form.getByLabel("Costs", { exact: true })).toBeVisible();
-      await expect(form.getByLabel("Damages")).toBeVisible();
-      await expect(form.getByLabel("Interest")).toBeVisible();
       await expect(
-        form.getByLabel("Previous pre-certificate costs"),
+        form.getByLabel("Costs, in pounds", { exact: true }),
       ).toBeVisible();
+      await expect(form.getByLabel("Damages, in pounds")).toBeVisible();
+      await expect(form.getByLabel("Interest, in pounds")).toBeVisible();
+      await expect(
+        form.getByLabel("Previous pre-certificate costs, in pounds"),
+      ).toBeVisible();
+    });
+
+    test("announces the currency in the accessible name of every money input", async ({
+      page,
+    }) => {
+      const inputs = page
+        .getByTestId("recovery-costs-form")
+        .getByRole("textbox");
+
+      await expect(inputs).toHaveCount(4);
+      for (const input of await inputs.all()) {
+        await expect(input).toHaveAccessibleName(/, in pounds$/);
+      }
     });
 
     test("includes a csrf token in the form", async ({ page }) => {
@@ -111,7 +126,7 @@ test.describe("Claim - financial recovery costs", () => {
     }) => {
       const form = page.getByTestId("recovery-costs-form");
 
-      await form.getByLabel("Costs", { exact: true }).fill("abc");
+      await form.getByLabel("Costs, in pounds", { exact: true }).fill("abc");
       await form.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/claim/recovery-costs");
@@ -127,7 +142,7 @@ test.describe("Claim - financial recovery costs", () => {
     }) => {
       const form = page.getByTestId("recovery-costs-form");
 
-      await form.getByLabel("Costs", { exact: true }).fill("100");
+      await form.getByLabel("Costs, in pounds", { exact: true }).fill("100");
       await form.getByLabel("Damages").fill("200");
       await form.getByLabel("Interest").fill("300");
       await form.getByLabel("Previous pre-certificate costs").fill("400");
@@ -139,7 +154,7 @@ test.describe("Claim - financial recovery costs", () => {
       await expect(
         page
           .getByTestId("recovery-costs-form")
-          .getByLabel("Costs", { exact: true }),
+          .getByLabel("Costs, in pounds", { exact: true }),
       ).toHaveValue("100");
     });
   });
