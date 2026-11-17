@@ -250,7 +250,7 @@ test.describe("Claim - confirm and submit", () => {
 
     const evidence = page.getByTestId("evidence-summary-list");
     await expect(
-      evidence.getByRole("link", { name: "Change evidence" }),
+      evidence.getByRole("link", { name: "Change supporting files" }),
     ).toHaveAttribute("href", "/claim/evidence?from=check-your-answers");
   });
 
