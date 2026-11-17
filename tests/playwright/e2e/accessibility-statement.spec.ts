@@ -4,7 +4,8 @@ test("opens the blank accessibility statement from the footer", async ({
   page,
   checkAccessibility,
 }) => {
-  await page.goto("/");
+  await page.goto("/auth/test-login");
+  await page.waitForURL("/");
   const [response] = await Promise.all([
     page.waitForResponse(
       (response) =>
