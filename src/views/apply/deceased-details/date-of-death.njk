@@ -15,15 +15,15 @@
     <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
         {% if errorSummaries.dateOfDeathInputError %}
-        {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [
-                {
-                    text: errorSummaries.dateOfDeathInputError.text,
-                    href: "#deceased-date-of-death"
-                }
-            ]
-        }) }}
+            {{ govukErrorSummary({
+                titleText: "There is a problem",
+                errorList: [
+                    {
+                        text: errorSummaries.dateOfDeathInputError.text,
+                        href: "#deceased-date-of-death"
+                    }
+                ]
+            }) }}
         {% endif %}
         <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
         <form data-testid="deceased-date-of-death-form" action="/apply/deceased-details/dod" method="post">
