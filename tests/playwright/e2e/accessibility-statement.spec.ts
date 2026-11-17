@@ -6,7 +6,7 @@ test("opens the blank accessibility statement from the footer", async ({
 }) => {
   await page.goto("/auth/test-login");
   await page.waitForURL("/");
-  
+
   // Navigate directly to the accessibility statement since it's now protected
   await page.goto("/accessibility-statement");
 
