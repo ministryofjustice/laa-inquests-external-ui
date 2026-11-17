@@ -23,7 +23,7 @@
 
   {{ govukInput({
     label: {
-      text: t("pages.claim.totalCost.finalBill.grossAmountLabel"),
+      html: (t("pages.claim.totalCost.finalBill.grossAmountLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     hint: {

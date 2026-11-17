@@ -32,7 +32,7 @@
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{ govukInput({
           label: {
-            text: t("pages.claim.preCertCosts.amountLabel"),
+            html: (t("pages.claim.preCertCosts.amountLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
             classes: "govuk-label--s"
           },
           id: "pre-certificate-costs",

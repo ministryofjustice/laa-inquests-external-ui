@@ -1,6 +1,7 @@
 {
   "common": {
     "back": "Back",
+    "inPounds": ", in pounds",
     "change": "Change",
     "remove": "Remove",
     "save": "Save",
@@ -116,23 +117,23 @@
         "finalBill": {
           "heading": "What is your total claim cost?",
           "paragraph": "A complete breakdown of your costs will be validated during your claim assessment. This includes disbursement, VAT, and other costs.",
-          "grossAmountLabel": "Enter the total gross amount, in pounds",
+          "grossAmountLabel": "Enter the total gross amount",
           "grossAmountHint": "Enter '0' if there is no claim cost (nil bill)."
         },
         "poa": {
-          "zeroVatTotalLabel": "Total for costs charged at 0% VAT, in pounds",
-          "netTotalLabel": "Net total excluding VAT, for costs where VAT can be charged, in pounds",
-          "grossTotalLabel": "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total), in pounds"
+          "zeroVatTotalLabel": "Total for costs charged at 0% VAT",
+          "netTotalLabel": "Net total excluding VAT, for costs where VAT can be charged",
+          "grossTotalLabel": "Gross total of the claim including VAT (calculated by adding the net total plus 20% vat, with the zero% VAT total)"
         }
       },
       "preCertCosts": {
-        "amountLabel": "Enter the total amount, in pounds"
+        "amountLabel": "Enter the total amount"
       },
       "recoveryCosts": {
-        "costsLabel": "Costs, in pounds",
-        "damagesLabel": "Damages, in pounds",
-        "interestLabel": "Interest, in pounds",
-        "previousPreCertificateCostsLabel": "Previous pre-certificate costs, in pounds"
+        "costsLabel": "Costs",
+        "damagesLabel": "Damages",
+        "interestLabel": "Interest",
+        "previousPreCertificateCostsLabel": "Previous pre-certificate costs"
       }
     },
     "error": {

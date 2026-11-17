@@ -35,7 +35,7 @@
 
   {{ govukInput({
     label: {
-      text: t("pages.claim.totalCost.poa.zeroVatTotalLabel"),
+      html: (t("pages.claim.totalCost.poa.zeroVatTotalLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     id: "zero-vat-total",
@@ -49,7 +49,7 @@
 
   {{ govukInput({
     label: {
-      text: t("pages.claim.totalCost.poa.netTotalLabel"),
+      html: (t("pages.claim.totalCost.poa.netTotalLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     id: "net-total",
@@ -63,7 +63,7 @@
 
   {{ govukInput({
     label: {
-      text: t("pages.claim.totalCost.poa.grossTotalLabel"),
+      html: (t("pages.claim.totalCost.poa.grossTotalLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
       classes: "govuk-label--s"
     },
     id: "gross-total",
