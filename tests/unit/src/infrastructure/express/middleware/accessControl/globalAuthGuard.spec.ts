@@ -48,25 +48,31 @@ describe("globalAuthGuard", () => {
       assert.equal(res.redirect.callCount, 0);
     });
 
-    it("allows unauthenticated access to /error", () => {
+    it("redirects unauthenticated users to /auth/login for /error", () => {
       setPath("/error");
+      setMethod("GET");
       globalAuthGuard(req, res, next as NextFunction);
-      assert.equal(next.callCount, 1);
-      assert.equal(res.redirect.callCount, 0);
+      assert.equal(next.callCount, 0);
+      assert.equal(res.redirect.callCount, 1);
+      assert.deepEqual(res.redirect.firstCall.args, ["/auth/login"]);
     });
 
-    it("allows unauthenticated access to /accessibility-statement", () => {
+    it("redirects unauthenticated users to /auth/login for /accessibility-statement", () => {
       setPath("/accessibility-statement");
+      setMethod("GET");
       globalAuthGuard(req, res, next as NextFunction);
-      assert.equal(next.callCount, 1);
-      assert.equal(res.redirect.callCount, 0);
+      assert.equal(next.callCount, 0);
+      assert.equal(res.redirect.callCount, 1);
+      assert.deepEqual(res.redirect.firstCall.args, ["/auth/login"]);
     });
 
-    it("allows unauthenticated access to /cookies", () => {
+    it("redirects unauthenticated users to /auth/login for /cookies", () => {
       setPath("/cookies");
+      setMethod("GET");
       globalAuthGuard(req, res, next as NextFunction);
-      assert.equal(next.callCount, 1);
-      assert.equal(res.redirect.callCount, 0);
+      assert.equal(next.callCount, 0);
+      assert.equal(res.redirect.callCount, 1);
+      assert.deepEqual(res.redirect.firstCall.args, ["/auth/login"]);
     });
 
     it("allows unauthenticated access to /auth/login", () => {
