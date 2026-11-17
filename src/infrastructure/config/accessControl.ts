@@ -47,10 +47,7 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   },
 ];
 
-const PUBLIC_EXACT_PATHS: readonly string[] = [
-  "/health",
-  "/status",
-];
+const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status"];
 
 const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
 

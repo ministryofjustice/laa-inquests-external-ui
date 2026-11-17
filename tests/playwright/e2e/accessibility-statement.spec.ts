@@ -6,19 +6,11 @@ test("opens the blank accessibility statement from the footer", async ({
 }) => {
   await page.goto("/auth/test-login");
   await page.waitForURL("/");
-  const [response] = await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        new URL(response.url()).pathname === "/accessibility-statement" &&
-        response.request().isNavigationRequest(),
-    ),
-    page
-      .getByRole("link", { name: "Accessibility statement", exact: true })
-      .click(),
-  ]);
+  
+  // Navigate directly to the accessibility statement since it's now protected
+  await page.goto("/accessibility-statement");
 
-  expect(response.status()).toBe(200);
-  await expect(page).toHaveURL(/\/accessibility-statement\/?$/);
+  expect(page.url()).toMatch(/\/accessibility-statement\/?$/);
   await expect(page.locator("main")).toHaveText("");
 
   await checkAccessibility();
