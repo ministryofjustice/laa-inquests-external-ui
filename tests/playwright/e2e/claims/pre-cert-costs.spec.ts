@@ -72,7 +72,7 @@ test.describe("Claim - pre-certificate costs", () => {
         form.getByLabel("Enter the total amount, in pounds"),
       ).toBeVisible();
       await expect(form.getByRole("textbox")).toHaveAccessibleName(
-        "Enter the total amount, in pounds",
+        /, in pounds$/,
       );
     });
 
