@@ -3,15 +3,15 @@
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
 {% if errors.grossTotalInputError %}
-{{ govukErrorSummary({
-  titleText: "There is a problem",
-  errorList: [
-    {
-      text: errors.grossTotalInputError.text,
-      href: "#gross-total"
-    }
-  ]
-}) }}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: [
+        {
+          text: errors.grossTotalInputError.text,
+          href: "#gross-total"
+        }
+      ]
+    }) }}
 {% endif %}
 
 <h1 class="govuk-heading-l">{{ t("pages.claim.totalCost.finalBill.heading") }}</h1>

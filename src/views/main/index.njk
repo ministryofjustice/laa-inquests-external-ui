@@ -7,7 +7,7 @@
 {% set pageTitle = title %}
 
 {% block content %}
-    {% if errorSummaries %}
+    {% if errorSummaries.noJourneySelected %}
         {{ govukErrorSummary({
         titleText: "There is a problem",
         errorList: [
