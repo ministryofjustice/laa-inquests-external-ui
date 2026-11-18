@@ -124,8 +124,8 @@ describe("accessControl config", () => {
       assert.equal(isPublicPath("/status"), true);
     });
 
-    it("treats the error page as public", () => {
-      assert.equal(isPublicPath("/error"), true);
+    it("treats the error page as protected", () => {
+      assert.equal(isPublicPath("/error"), false);
     });
 
     it("treats all auth bootstrap routes as public", () => {

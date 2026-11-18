@@ -183,6 +183,7 @@ const accessibilityStatementAdaptor = new AccessibilityStatementAdaptor();
 
 indexRouter.use(
   "/accessibility-statement",
+  requireAuth,
   createAccessibilityStatementRouter(
     express.Router(),
     accessibilityStatementAdaptor,

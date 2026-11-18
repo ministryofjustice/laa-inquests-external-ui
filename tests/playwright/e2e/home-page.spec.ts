@@ -4,7 +4,8 @@ import { PROVIDER_DISPLAY_NAME } from "#tests/playwright/constants/Provider.js";
 
 test.describe("Home page", () => {
   test.beforeEach(async ({ page, checkAccessibility }) => {
-    await page.goto("/");
+    await page.goto("/auth/test-login");
+    await page.waitForURL("/");
     await checkAccessibility();
   });
 
