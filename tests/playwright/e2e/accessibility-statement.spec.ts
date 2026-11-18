@@ -3,11 +3,10 @@ import { expect, test } from "../fixtures/index.js";
 test("opens the blank accessibility statement from the footer", async ({
   page,
   checkAccessibility,
+  authorizeStep,
 }) => {
-  await page.goto("/auth/test-login");
-  await page.waitForURL("/");
+  await authorizeStep("/accessibility-statement");
 
-  // Navigate directly to the accessibility statement since it's now protected
   await page.goto("/accessibility-statement");
 
   expect(page.url()).toMatch(/\/accessibility-statement\/?$/);
