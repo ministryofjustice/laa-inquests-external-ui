@@ -4,12 +4,23 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import type { ApplicationDeclarationFormData } from "#src/adaptors/presenters/apply/ApplicationDeclaration/models/ApplicationDeclaration.types.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 
 export class ApplicationDeclarationAdaptor {
   validateBeforeYouStartDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
+  readonly #sessionHelper: SessionHelper;
 
-  constructor(useCase: ValidateBeforeYouStartDeclarationUseCase) {
+  constructor(
+    useCase: ValidateBeforeYouStartDeclarationUseCase,
+    sessionHelper: SessionHelper,
+  ) {
     this.validateBeforeYouStartDeclarationUseCase = useCase;
+    this.#sessionHelper = sessionHelper;
+  }
+
+  startNewApplication(req: Request, res: Response): void {
+    this.#sessionHelper.clearFormData(req);
+    res.redirect("/apply");
   }
 
   renderForm(req: Request, res: Response): void {

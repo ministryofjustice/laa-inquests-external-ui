@@ -123,7 +123,7 @@ test.describe("Provider can", () => {
     ]);
     await expect(
       page.getByRole("button", { name: "Make a new application" }),
-    ).toHaveAttribute("href", "/apply");
+    ).toHaveAttribute("href", "/apply/new-application");
 
     await checkAccessibility();
   });
@@ -149,6 +149,36 @@ test.describe("Provider can", () => {
         name: "Is your client a family member of the deceased?",
       }),
     ).toBeVisible();
+  });
+
+  test("starting a new application from the ineligible page clears the application data", async ({
+    page,
+    authorizeStep,
+  }) => {
+    await form.getByLabel("No, my client has a different relationship").click();
+    await continueToNextPage(form, page);
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Your client does not qualify for inquest legal aid",
+      }),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Make a new application" }).click();
+    await expect(page).toHaveURL("/apply");
+
+    // Journey progress is cleared, so later steps are no longer reachable
+    await page.goto("/apply/deceased-details/client-relationship");
+    await expect(page).toHaveURL("/apply");
+
+    // With access restored, the previous answer must no longer be populated
+    await authorizeStep("/apply/deceased-details/client-relationship");
+    await page.goto("/apply/deceased-details/client-relationship");
+    await expect(
+      page
+        .getByTestId("deceased-client-relationship-form")
+        .getByLabel("No, my client has a different relationship"),
+    ).not.toBeChecked();
   });
 
   test("shows an error when yes is selected but relationship is empty", async ({

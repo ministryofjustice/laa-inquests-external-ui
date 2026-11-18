@@ -216,6 +216,7 @@ indexRouter.post("/", (req: Request, res: Response): void => {
 
 const applicationDeclarationAdaptor = new ApplicationDeclarationAdaptor(
   new ValidateBeforeYouStartDeclarationUseCase(),
+  new SessionHelper(),
 );
 
 const clientDetailsFormValidator = new ClientDetailsValidator();

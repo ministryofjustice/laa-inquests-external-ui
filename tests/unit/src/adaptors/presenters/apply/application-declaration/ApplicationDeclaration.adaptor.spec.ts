@@ -5,16 +5,36 @@ import { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/
 import { ApplicationDeclarationAdaptor } from "#src/adaptors/presenters/apply/ApplicationDeclaration/ApplicationDeclaration.adaptor.js";
 import { BEFORE_YOU_START_DECLARATION_ERROR } from "#src/infrastructure/locales/constants.js";
 import * as journeyStepHelper from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 
-function buildAdaptor() {
+function buildAdaptor(
+  sessionHelper: SessionHelper = stubInterface<SessionHelper>(),
+) {
   const validateApplicationDeclarationUseCase =
     new ValidateBeforeYouStartDeclarationUseCase();
   return new ApplicationDeclarationAdaptor(
     validateApplicationDeclarationUseCase,
+    sessionHelper,
   );
 }
 
 describe("ApplicationDeclaration adaptor", () => {
+  describe("startNewApplication", () => {
+    it("clears the application data and redirects to /apply", () => {
+      const sessionHelper = stubInterface<SessionHelper>();
+      const adaptor = buildAdaptor(sessionHelper);
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+
+      adaptor.startNewApplication(requestStub, responseStub);
+
+      assert.equal(sessionHelper.clearFormData.callCount, 1);
+      assert.equal(sessionHelper.clearFormData.getCall(0).args[0], requestStub);
+      assert.equal(responseStub.redirect.callCount, 1);
+      assert.deepEqual(responseStub.redirect.getCall(0).args, ["/apply"]);
+    });
+  });
+
   describe("renderForm", () => {
     it("renders the application declaration form", () => {
       const adaptor = buildAdaptor();
