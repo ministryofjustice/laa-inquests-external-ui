@@ -1,31 +1,26 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = "Who is the paying party?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/claim/recovery-costs" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/claim/recovery-costs"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
       {% if errorSummaries.payingPartyInputError %}
-      {{ govukErrorSummary({
-        titleText: "There is a problem",
-        errorList: [
-          {
-            text: errorSummaries.payingPartyInputError.text,
-            href: "#paying-party"
-          }
-        ]
-      }) }}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.payingPartyInputError.text,
+                href: "#paying-party"
+              }
+            ]
+          }) }}
       {% endif %}
       <form data-testid="paying-party-form" action="/claim/paying-party" method="post">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
@@ -49,6 +44,5 @@
       </form>
     </div>
   </div>
-</div>
 
 {% endblock %}

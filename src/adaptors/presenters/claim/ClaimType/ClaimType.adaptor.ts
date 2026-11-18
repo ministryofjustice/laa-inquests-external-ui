@@ -13,6 +13,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class ClaimTypeAdaptor {
   formValidator: ClaimTypeValidator;
@@ -77,14 +78,18 @@ export class ClaimTypeAdaptor {
         subtype: isPoa ? req.session.claim?.subtype : undefined,
       };
       if (isPoa) {
-        res.redirect("/claim/subtype");
+        completeStepAndRedirect(req as Request, res, "/claim/subtype");
       } else if (isFinalBill) {
-        res.redirect("/claim/total-cost");
+        completeStepAndRedirect(req as Request, res, "/claim/total-cost");
       } else if (returnToCheckYourAnswers) {
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-        res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
+        completeStepAndRedirect(
+          req as Request,
+          res,
+          CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+        );
       } else {
-        res.redirect("/claim/total-cost");
+        completeStepAndRedirect(req as Request, res, "/claim/total-cost");
       }
     }
   }
@@ -132,9 +137,13 @@ export class ClaimTypeAdaptor {
       };
       if (returnToCheckYourAnswers) {
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-        res.redirect(CLAIM_PATHS.CHECK_YOUR_ANSWERS);
+        completeStepAndRedirect(
+          req as Request,
+          res,
+          CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+        );
       } else {
-        res.redirect("/claim/total-cost");
+        completeStepAndRedirect(req as Request, res, "/claim/total-cost");
       }
     }
   }

@@ -1,6 +1,5 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "moj/components/multi-file-upload/macro.njk" import mojMultiFileUpload %}
 {%- from "govuk/components/error-summary/macro.njk" import govukErrorSummary -%}
@@ -8,28 +7,21 @@
 {% set pageTitle = pageHeading %}
 
 
-{% block content %}
+{% set backLink = backHref or "/claim/total-cost" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/claim/total-cost"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
     {% if errorSummaries and errorSummaries.evidenceError %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [{
-              text: errorSummaries.evidenceError.text,
-              href: "#documents"
-            }]
-          }) }}
-        {% endif %}
+      {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [{
+          text: errorSummaries.evidenceError.text,
+          href: "#documents"
+        }]
+      }) }}
+    {% endif %}
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-
-        
-
         <p class="govuk-body">You can upload:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>.jpg, .png, .pdf, .bmp</li>
@@ -86,6 +78,5 @@
         </form>
     </div>
   </div>
-</div>
 
 {% endblock %}

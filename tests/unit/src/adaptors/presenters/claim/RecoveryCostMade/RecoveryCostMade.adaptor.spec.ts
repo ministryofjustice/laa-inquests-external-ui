@@ -73,6 +73,7 @@ describe("RecoveryCostMade adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/recovery-costs",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 15);
     });
 
     it("saves No and redirects to pre-certificate costs", () => {
@@ -95,6 +96,7 @@ describe("RecoveryCostMade adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 14);
     });
 
     it("saves Don't know and redirects to pre-certificate costs", () => {
@@ -213,6 +215,7 @@ describe("RecoveryCostMade adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/recovery-costs",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 15);
     });
 
     it("marks a recovery cost made edit and keeps the return flag when returning to check your answers and No is selected", () => {
@@ -239,6 +242,7 @@ describe("RecoveryCostMade adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 14);
     });
 
     it("does not mark a recovery cost made edit in the normal forward journey", () => {

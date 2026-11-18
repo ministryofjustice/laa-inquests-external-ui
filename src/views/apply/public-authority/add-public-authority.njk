@@ -1,18 +1,13 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% set pageHeading = t("pages.apply.publicAuthority.title") %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/apply/deceased-details/further-information" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/apply/deceased-details/further-information"
-  }) }}
+{% block content %}
   {% if errorSummaries.noPublicAuthoritySelected %}
     {{ govukErrorSummary({
       titleText: "There is a problem",
@@ -57,8 +52,4 @@
       </form>
     </div>
   </div>
-</div>
-
-
-
 {% endblock %}

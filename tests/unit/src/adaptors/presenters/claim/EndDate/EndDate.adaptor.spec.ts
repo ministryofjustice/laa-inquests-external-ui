@@ -124,6 +124,7 @@ describe("EndDate adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/inquest-outcome");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -146,6 +147,7 @@ describe("EndDate adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
 
     it("preserves existing claim session data when saving the end date", () => {
@@ -217,6 +219,7 @@ describe("EndDate adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/inquest-outcome");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
       assert.equal(responseStub.render.callCount, 0);
     });
 

@@ -1,5 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { APPLY_JOURNEY_SEQUENCE } from "#src/infrastructure/config/journeySequences.js";
+import {
+  APPLY_JOURNEY_SEQUENCE,
+  CLAIM_JOURNEY_SEQUENCE,
+} from "#src/infrastructure/config/journeySequences.js";
 import { JOURNEY_NOT_STARTED } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 
@@ -98,4 +101,10 @@ export const applyJourneyGuard = createJourneyGuard({
   journeyType: "apply",
   journeyPrefix: "/apply",
   journeySequence: APPLY_JOURNEY_SEQUENCE,
+});
+
+export const claimJourneyGuard = createJourneyGuard({
+  journeyType: "claim",
+  journeyPrefix: "/claim",
+  journeySequence: CLAIM_JOURNEY_SEQUENCE,
 });

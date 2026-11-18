@@ -68,7 +68,12 @@ test.describe("Claim - pre-certificate costs", () => {
     test("renders the currency input", async ({ page }) => {
       const form = page.getByTestId("pre-certificate-costs-form");
 
-      await expect(form.getByLabel("Enter the total amount")).toBeVisible();
+      await expect(
+        form.getByLabel("Enter the total amount, in pounds"),
+      ).toBeVisible();
+      await expect(form.getByRole("textbox")).toHaveAccessibleName(
+        /, in pounds$/,
+      );
     });
 
     test("includes a csrf token in the form", async ({ page }) => {

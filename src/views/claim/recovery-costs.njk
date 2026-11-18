@@ -1,17 +1,12 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% set pageHeading = "What are the financial recovery costs?" %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = backHref or "/claim/inquest-outcome-recovery" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: backHref or "/claim/inquest-outcome-recovery"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if errorSummaries.costsInputError or errorSummaries.damagesInputError or errorSummaries.interestInputError or errorSummaries.previousPreCertificateCostsInputError %}
@@ -50,7 +45,7 @@
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />
         {{ govukInput({
           label: {
-            text: "Costs",
+            html: (t("pages.claim.recoveryCosts.costsLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
             classes: "govuk-label--s"
           },
           id: "costs",
@@ -63,7 +58,7 @@
         }) }}
         {{ govukInput({
           label: {
-            text: "Damages",
+            html: (t("pages.claim.recoveryCosts.damagesLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
             classes: "govuk-label--s"
           },
           id: "damages",
@@ -76,7 +71,7 @@
         }) }}
         {{ govukInput({
           label: {
-            text: "Interest",
+            html: (t("pages.claim.recoveryCosts.interestLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
             classes: "govuk-label--s"
           },
           id: "interest",
@@ -89,7 +84,7 @@
         }) }}
         {{ govukInput({
           label: {
-            text: "Previous pre-certificate costs",
+            html: (t("pages.claim.recoveryCosts.previousPreCertificateCostsLabel") | escape) ~ '<span class="govuk-visually-hidden">' ~ (t('common.inPounds') | escape) ~ '</span>',
             classes: "govuk-label--s"
           },
           id: "previous-pre-certificate-costs",
@@ -107,7 +102,6 @@
       </form>
     </div>
   </div>
-</div>
 
 {% endblock %}
 

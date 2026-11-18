@@ -1,5 +1,4 @@
 {% extends "base.njk" %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/date-input/macro.njk" import govukDateInput %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
@@ -7,24 +6,21 @@
 {% set pageTitle = pageHeading %}
 
 
+{% set backLink = backHref or "/apply/deceased-details/dod" %}
+
 {% block content %}
-<div class="govuk-width-container">
-    {{ govukBackLink({
-        text: "Back",
-        href: backHref or "/apply/deceased-details/dod"
-    }) }}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-one-half">
             {% if errorSummaries.dateOfBirthInputError %}
-            {{ govukErrorSummary({
-                titleText: "There is a problem",
-                errorList: [
-                    {
-                        text: errorSummaries.dateOfBirthInputError.text,
-                        href: "#deceased-date-of-birth"
-                    }
-                ]
-            }) }}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.dateOfBirthInputError.text,
+                            href: "#deceased-date-of-birth"
+                        }
+                    ]
+                }) }}
             {% endif %}
             <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
             <form data-testid="deceased-date-of-birth-form" action="/apply/deceased-details/dob" method="post">
@@ -63,5 +59,4 @@
             </form>
         </div>
     </div>
-</div>
 {% endblock %}

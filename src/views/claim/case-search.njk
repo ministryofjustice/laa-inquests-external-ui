@@ -1,17 +1,12 @@
 {% extends "base.njk" %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 {% set pageHeading = t("pages.claim.caseSearch.title") %}
 {% set pageTitle = pageHeading %}
 
-{% block content %}
+{% set backLink = "/claim" %}
 
-<div class="govuk-width-container">
-  {{ govukBackLink({
-    text: "Back",
-    href: "/claim"
-  }) }}
+{% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
@@ -43,6 +38,5 @@
       </form>
     </div>
   </div>
-</div>
 
 {% endblock %}

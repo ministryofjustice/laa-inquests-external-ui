@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class CannotClaimAdaptor {
   renderPage(req: Request, res: Response): void {
@@ -13,7 +14,7 @@ export class CannotClaimAdaptor {
         variant: "entry",
       });
     } else {
-      res.redirect("/claim");
+      completeStepAndRedirect(req, res, "/claim");
     }
   }
 }
