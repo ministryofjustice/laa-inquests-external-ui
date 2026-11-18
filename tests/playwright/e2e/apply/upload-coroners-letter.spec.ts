@@ -31,7 +31,12 @@ const uploadCoronersLetter = async (
 };
 
 test.describe("Apply - upload correspondence from the coroner", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, authorizeStep }) => {
+    await page.goto("/apply/office-accounts");
+    await page.getByRole("radio").first().check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/apply/client-details/name-and-dob");
+    await authorizeStep("/apply/upload-coroners-letter");
     await page.goto("/apply/upload-coroners-letter");
   });
 
@@ -156,6 +161,30 @@ test.describe("Apply - upload correspondence from the coroner", () => {
     await expect(
       page.getByTestId("coroners-letter-summary-list"),
     ).toContainText(MOCK_UPLOADED_FILE_NAME);
+  });
+
+  test("sends the selected office ID when uploading a letter", async ({
+    page,
+    authorizeStep,
+  }) => {
+    await page.goto("/apply/office-accounts");
+    await page
+      .getByRole("radio", { name: /2 Test Street, Manchester/ })
+      .check();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/apply/client-details/name-and-dob");
+
+    await authorizeStep("/apply/upload-coroners-letter");
+    await page.goto("/apply/upload-coroners-letter");
+    await page.locator('input[type="file"][name="documents"]').setInputFiles({
+      name: "coroners-letter.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("coroners letter content"),
+    });
+
+    await expect(page.getByTestId("uploaded-coroners-letter")).toContainText(
+      "test_coroners_letter_A002B.pdf",
+    );
   });
 
   test("preserves the uploaded filename and allows deletion after returning to the page", async ({

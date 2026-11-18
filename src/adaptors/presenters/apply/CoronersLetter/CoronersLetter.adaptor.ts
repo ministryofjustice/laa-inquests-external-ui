@@ -116,6 +116,7 @@ export class CoronersLetterAdaptor {
         buffer: file!.buffer,
         mimetype: file!.mimetype,
         originalname: file!.originalname,
+        officeId: req.session.selectedOfficeId!,
         accessToken: req.session.accessToken,
       });
 

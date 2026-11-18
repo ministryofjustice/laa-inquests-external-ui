@@ -37,6 +37,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
       }),
       body.originalname,
     );
+    formData.append("office_id", body.officeId);
 
     try {
       const response: AxiosResponse<unknown> = await postToInquestsApi<

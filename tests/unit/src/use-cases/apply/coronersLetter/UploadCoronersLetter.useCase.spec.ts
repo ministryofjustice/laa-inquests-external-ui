@@ -10,11 +10,13 @@ describe("UploadCoronersLetterUseCase", () => {
 
   const testCoronersLetterId = uuidv4();
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
+  const TEST_OFFICE_CODE = "A001B";
 
   const testCoronerLetter = {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
     originalname: testCoronersLetterFileName,
+    officeId: TEST_OFFICE_CODE,
     accessToken: "access-token-123",
   };
 
@@ -28,6 +30,7 @@ describe("UploadCoronersLetterUseCase", () => {
       status: "SUCCESS",
       coronersLetterId: testCoronersLetterId,
       coronersLetterFileName: testCoronersLetterFileName,
+      officeCode: TEST_OFFICE_CODE,
     });
 
     const result = await useCase.execute(testCoronerLetter);
@@ -45,6 +48,7 @@ describe("UploadCoronersLetterUseCase", () => {
       status: "SUCCESS",
       coronersLetterId: testCoronersLetterId,
       coronersLetterFileName: testCoronersLetterFileName,
+      officeCode: TEST_OFFICE_CODE,
     });
   });
 
