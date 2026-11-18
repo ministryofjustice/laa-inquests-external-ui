@@ -11,15 +11,15 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {% if errorSummaries.claimTypeInputError %}
-      {{ govukErrorSummary({
-        titleText: "There is a problem",
-        errorList: [
-          {
-            text: errorSummaries.claimTypeInputError.text,
-            href: "#claim-type"
-          }
-        ]
-      }) }}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.claimTypeInputError.text,
+                href: "#claim-type"
+              }
+            ]
+          }) }}
       {% endif %}
       <form data-testid="claim-type-form" action="/claim/type" method="post">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />

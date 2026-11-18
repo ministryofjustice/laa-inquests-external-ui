@@ -1,7 +1,7 @@
 import { test, expect } from "../../fixtures/index.js";
 
 test.describe("Claim - confirm reject", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, authorizeStep }) => {
     await page.goto("/claim/search");
     await page
       .getByTestId("case-search-form")
@@ -26,6 +26,7 @@ test.describe("Claim - confirm reject", () => {
     await page.getByLabel("Profit cost").check();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.waitForURL("**/claim/total-cost");
+    await authorizeStep("/claim/evidence");
     await page.goto("/claim/evidence");
     await Promise.all([
       page.waitForResponse(
@@ -40,6 +41,7 @@ test.describe("Claim - confirm reject", () => {
         buffer: Buffer.from("evidence content"),
       }),
     ]);
+    await authorizeStep("/claim/check-your-answers");
     await page.goto("/claim/check-your-answers");
 
     await page

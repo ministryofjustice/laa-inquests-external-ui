@@ -11,6 +11,7 @@ import {
   RECOVERY_COST_VALUE,
 } from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
+import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 
 export class RecoveryCostMadeAdaptor {
   formValidator: RecoveryCostMadeValidator;
@@ -73,7 +74,7 @@ export class RecoveryCostMadeAdaptor {
         preCertificateCosts: undefined,
       };
       this.#markEditWhenReturning(req);
-      res.redirect("/claim/recovery-costs");
+      completeStepAndRedirect(req as Request, res, "/claim/recovery-costs");
       return;
     }
 
@@ -86,7 +87,7 @@ export class RecoveryCostMadeAdaptor {
       recoveryPreCertificateCosts: undefined,
     };
     this.#markEditWhenReturning(req);
-    res.redirect("/claim/pre-cert-costs");
+    completeStepAndRedirect(req as Request, res, "/claim/pre-cert-costs");
   }
 
   // Keeps the return-to-check-your-answers trip routed via the dependent cost page.

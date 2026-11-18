@@ -1,3 +1,4 @@
+@forward "govuk-frontend/dist/govuk";
 @use "@ministryofjustice/frontend/moj/all";
 @use "govuk-frontend/dist/govuk/index";
 
@@ -32,4 +33,9 @@ body.js-enabled {
 // Remove bottom border from moj header
 .moj-header--no-border {
   border-bottom: 0;
+}
+
+.moj-multi-file-upload__dropzone:focus-within {
+  outline: 3px solid index.govuk-functional-colour("focus");
+  box-shadow: inset 0 0 0 4px index.govuk-functional-colour("focus-text");
 }

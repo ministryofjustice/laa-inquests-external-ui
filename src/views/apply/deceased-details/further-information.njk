@@ -12,19 +12,19 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% if errorSummaries.hasFurtherInformationInputError or errorSummaries.furtherInformationInputError %}
-            {{ govukErrorSummary({
-                titleText: "There is a problem",
-                errorList: [
-                    {
-                        text: errorSummaries.hasFurtherInformationInputError.text,
-                        href: "#deceased-has-further-information"
-                    } if errorSummaries.hasFurtherInformationInputError,
-                    {
-                        text: errorSummaries.furtherInformationInputError.text,
-                        href: "#deceased-further-information"
-                    } if errorSummaries.furtherInformationInputError
-                ]
-            }) }}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.hasFurtherInformationInputError.text,
+                            href: "#deceased-has-further-information"
+                        },
+                        {
+                            text: errorSummaries.furtherInformationInputError.text,
+                            href: "#deceased-further-information"
+                        }
+                    ] | selectattr("text")
+                }) }}
             {% endif %}
             <form data-testid="deceased-further-information-form" action="/apply/deceased-details/further-information" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />

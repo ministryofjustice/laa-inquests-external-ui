@@ -12,15 +12,15 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
       {% if errorSummaries.payingPartyInputError %}
-      {{ govukErrorSummary({
-        titleText: "There is a problem",
-        errorList: [
-          {
-            text: errorSummaries.payingPartyInputError.text,
-            href: "#paying-party"
-          }
-        ]
-      }) }}
+          {{ govukErrorSummary({
+            titleText: "There is a problem",
+            errorList: [
+              {
+                text: errorSummaries.payingPartyInputError.text,
+                href: "#paying-party"
+              }
+            ]
+          }) }}
       {% endif %}
       <form data-testid="paying-party-form" action="/claim/paying-party" method="post">
         <input type="hidden" name="_csrf" value="{{csrfToken}}" />

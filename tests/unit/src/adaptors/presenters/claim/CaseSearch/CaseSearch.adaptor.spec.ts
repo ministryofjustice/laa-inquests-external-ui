@@ -104,6 +104,7 @@ describe("CaseSearch adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/results");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 1);
       assert.equal(responseStub.render.callCount, 0);
     });
   });
@@ -404,6 +405,7 @@ describe("CaseSearch adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/type");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 3);
     });
 
     it("saves the selected client details from the session results", async () => {
@@ -497,6 +499,7 @@ describe("CaseSearch adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/results?selectionError=true");
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 1);
     });
   });
 });

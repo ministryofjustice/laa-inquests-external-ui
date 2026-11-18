@@ -10,16 +10,16 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% if errorSummaries %}
-            {{ govukErrorSummary({
-                titleText: "There is a problem",
-                errorList: [
-                    {
-                        text: errorSummaries.coronerReferenceInputError.text,
-                        href: "#deceased-coroner-reference"
-                    }
-                ]
-            }) }}
+            {% if errorSummaries.coronerReferenceInputError %}
+                {{ govukErrorSummary({
+                    titleText: "There is a problem",
+                    errorList: [
+                        {
+                            text: errorSummaries.coronerReferenceInputError.text,
+                            href: "#deceased-coroner-reference"
+                        }
+                    ]
+                }) }}
             {% endif %}
             <form data-testid="deceased-coroner-reference-form" action="/apply/deceased-details/coroner-reference" method="post">
                 <input type="hidden" name="_csrf" value={{csrfToken}} />

@@ -13,18 +13,15 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
     {% if errorSummaries and errorSummaries.evidenceError %}
-          {{ govukErrorSummary({
-            titleText: "There is a problem",
-            errorList: [{
-              text: errorSummaries.evidenceError.text,
-              href: "#documents"
-            }]
-          }) }}
-        {% endif %}
+      {{ govukErrorSummary({
+        titleText: "There is a problem",
+        errorList: [{
+          text: errorSummaries.evidenceError.text,
+          href: "#documents"
+        }]
+      }) }}
+    {% endif %}
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>
-
-        
-
         <p class="govuk-body">You can upload:</p>
         <ul class="govuk-list govuk-list--bullet">
           <li>.jpg, .png, .pdf, .bmp</li>

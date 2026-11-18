@@ -18,12 +18,12 @@
                     {
                         text: errorSummaries.hasClientRelationshipInputError.text,
                         href: "#deceased-has-client-relationship"
-                    } if errorSummaries.hasClientRelationshipInputError,
+                    },
                     {
                         text: errorSummaries.clientRelationshipInputError.text,
                         href: "#deceased-client-relationship"
-                    } if errorSummaries.clientRelationshipInputError
-                ]
+                    }
+                ] | selectattr("text")
             }) }}
             {% endif %}
             {% set familyMemberHint %}

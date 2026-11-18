@@ -74,6 +74,30 @@ describe("createAuthRouter", () => {
       assert.equal(res.redirect.firstCall.args[0], "/");
     });
 
+    it("preserves claim data when authorizing a later claim step", () => {
+      process.env.NODE_ENV = "test";
+      const router = createAuthRouter(express.Router(), authAdaptor);
+      const route = findRoute(router, "/test-login");
+      const req = stubInterface<Request>();
+      const res = stubInterface<Response>();
+      req.sessionID = "test-session-id";
+      req.session = { cookie: {} } as never;
+      req.session.claim = {
+        caseReference: "INQ-1",
+        type: "PAYMENT_ON_ACCOUNT",
+        lastCompletedStepIndex: 2,
+      };
+      req.query = { claimStep: "17" };
+
+      route?.stack[0].handle(req, res);
+
+      assert.deepEqual(req.session.claim, {
+        caseReference: "INQ-1",
+        type: "PAYMENT_ON_ACCOUNT",
+        lastCompletedStepIndex: 17,
+      });
+    });
+
     it("seeds both provider roles by default", () => {
       process.env.NODE_ENV = "test";
       const router = createAuthRouter(express.Router(), authAdaptor);

@@ -130,6 +130,7 @@ describe("PayingParty adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
+      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
     });
 
     it("preserves existing claim session data when saving", () => {

@@ -36,7 +36,7 @@
               text: errorSummaries.postcodeInputError.text,
               href: "#correspondence-postcode"
             }
-          ]
+          ] | selectattr("text")
         })
       }}
       {% endif %}

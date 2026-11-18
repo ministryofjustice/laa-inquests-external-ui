@@ -19,12 +19,12 @@
               {
                 text: errorSummaries.firstNameInputError.text,
                 href: "#deceased-first-name"
-              } if errorSummaries.firstNameInputError,
+              },
               {
                 text: errorSummaries.lastNameInputError.text,
                 href: "#deceased-last-name"
-              } if errorSummaries.lastNameInputError
-            ]
+              }
+            ] | selectattr("text")
         }) }}
       {% endif %}
       <h1 class="govuk-heading-l">{{ pageHeading }}</h1>

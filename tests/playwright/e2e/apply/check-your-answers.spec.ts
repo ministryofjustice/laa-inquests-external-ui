@@ -151,6 +151,27 @@ test.describe("Apply - check your answers", () => {
     await expect(officeAddressRowTitle).toBeVisible();
   });
 
+  test("includes the firm name in the selected office address", async ({
+    page,
+  }) => {
+    await page.goto("/apply/office-accounts?from=check-your-answers");
+
+    await page
+      .getByRole("radio", {
+        name: "Test Firm, 1 Test Street, Suite 2, London, Greater London, SW1A 1AA",
+      })
+      .check();
+
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page).toHaveURL("/apply/check-your-answers");
+
+    await expect(
+      page.getByTestId("provider-details-summary-list"),
+    ).toContainText(
+      "Test Firm, 1 Test Street, Suite 2, London, Greater London, SW1A 1AA",
+    );
+  });
+
   test("renders client details summary list", async ({ page }) => {
     await page.goto("/apply/check-your-answers");
 

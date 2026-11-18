@@ -114,9 +114,9 @@ test.describe("Provider can", () => {
           (response) =>
             response.url().includes("/apply/upload-coroners-letter/upload") &&
             response.request().method() === "POST" &&
-            response.status() === 201,
+            response.status() === 302,
         ),
-        page.setInputFiles("#documents", {
+        page.setInputFiles('input[type="file"][name="documents"]', {
           name: "dummy-coroners-letter.pdf",
           mimeType: "application/pdf",
           buffer: Buffer.from("dummy coroners letter content"),
