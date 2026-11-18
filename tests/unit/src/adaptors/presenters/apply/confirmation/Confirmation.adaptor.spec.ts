@@ -49,6 +49,23 @@ describe("Confirmation adaptor", () => {
     assert.equal(requestStub.session.apply?.lastCompletedStepIndex, 18);
   });
 
+  describe("processCheckYourAnswersForm", () => {
+    it("marks step complete and redirects to client declaration form", () => {
+      confirmationAdaptor.processCheckYourAnswersForm(
+        requestStub,
+        responseStub,
+      );
+
+      assert.equal(responseStub.redirect.callCount, 1);
+      const redirectArgs = responseStub.redirect.getCall(0).args;
+      assert.equal(redirectArgs[0], "/apply/confirmation/client-declaration");
+
+      const apply = (requestStub.session as Record<string, unknown>)
+        .apply as Record<string, unknown>;
+      assert.equal(apply?.lastCompletedStepIndex, 18);
+    });
+  });
+
   it("render check your answers page", () => {
     requestStub.session.selectedOfficeId = "0U651L";
     requestStub.session.selectedOfficeAddress =
