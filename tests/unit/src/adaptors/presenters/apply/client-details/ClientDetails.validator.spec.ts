@@ -204,6 +204,64 @@ describe("ClientDetailsValidator", () => {
           },
         });
       });
+      it("adds error message for first name starting with a spreadsheet formula character", () => {
+        ["=cmd", "+1", "-1", "@SUM(A1)", " =cmd", "＝cmd"].forEach((value) => {
+          const formValidator = new ClientDetailsValidator();
+          const errorSummaries = formValidator.validateClientName({
+            _csrf: "abcdefg",
+            "first-name": value,
+            "last-name": "fgdsfg",
+            "last-name-at-birth": "",
+            "name-change": "false",
+          });
+
+          assert.deepEqual(
+            errorSummaries,
+            {
+              firstNameInputError: {
+                text: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
+              },
+            },
+            `first name ${JSON.stringify(value)}`,
+          );
+        });
+      });
+      it("adds error message for last name starting with a spreadsheet formula character", () => {
+        ["=cmd", "+1", "-1", "@SUM(A1)", " =cmd", "＝cmd"].forEach((value) => {
+          const formValidator = new ClientDetailsValidator();
+          const errorSummaries = formValidator.validateClientName({
+            _csrf: "abcdefg",
+            "first-name": "fgdsfg",
+            "last-name": value,
+            "last-name-at-birth": "",
+            "name-change": "false",
+          });
+
+          assert.deepEqual(
+            errorSummaries,
+            {
+              lastNameInputError: {
+                text: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
+              },
+            },
+            `last name ${JSON.stringify(value)}`,
+          );
+        });
+      });
+      it("accepts names that only contain formula characters after the first character", () => {
+        ["O'Brien", "Smith-Jones", "Zoë", "a=b", " Jane"].forEach((value) => {
+          const formValidator = new ClientDetailsValidator();
+          const errorSummaries = formValidator.validateClientName({
+            _csrf: "abcdefg",
+            "first-name": value,
+            "last-name": value,
+            "last-name-at-birth": "",
+            "name-change": "false",
+          });
+
+          assert.deepEqual(errorSummaries, {}, `name ${JSON.stringify(value)}`);
+        });
+      });
       it("adds error message when no radio button has been selected for name change", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {

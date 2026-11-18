@@ -183,6 +183,9 @@ export const CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX =
 
 export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
+// Spreadsheet formula prefixes, optionally hidden behind leading whitespace or control characters.
+export const FORMULA_PREFIX_REGEX = /^[\s\p{Cc}\p{Cf}]*[=+\-@＝＋－＠]/v;
+
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
 export const MINIMUM_DATE_PART_VALUE = 0;
@@ -200,6 +203,9 @@ export const CLIENT_DETAILS_ERROR = {
     "First name(s) cannot exceed 100 characters",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Last name cannot exceed 100 characters",
+  FIRST_NAME_INVALID_CHARACTERS:
+    "First name(s) must not start with =, +, - or @",
+  LAST_NAME_INVALID_CHARACTERS: "Last name must not start with =, +, - or @",
   MISSING_FIRST_NAME: "Please enter your client's first name",
   MISSING_LAST_NAME: "Please enter your client's last name",
   MISSING_LAST_NAME_AT_BIRTH: "Please enter the client's birth name",
