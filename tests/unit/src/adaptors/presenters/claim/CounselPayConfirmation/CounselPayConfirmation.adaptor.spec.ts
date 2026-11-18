@@ -43,7 +43,7 @@ describe("CounselPayConfirmation adaptor", () => {
 
       adaptor.renderForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
       const viewModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.backHref, "/claim/check-your-answers");
@@ -88,14 +88,16 @@ describe("CounselPayConfirmation adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "counsel-bills-paid": "true" };
+      requestStub.session.claim = {};
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.counselBillsPaid, true);
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.counselBillsPaid, true);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/end-date");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 10);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 10);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -114,12 +116,12 @@ describe("CounselPayConfirmation adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
   });
 });

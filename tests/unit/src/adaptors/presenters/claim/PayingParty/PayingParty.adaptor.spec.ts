@@ -93,7 +93,7 @@ describe("PayingParty adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(responseStub.redirect.callCount, 0);
-      assert.equal(requestStub.session.claim?.payingParty, undefined);
+      assert.equal(requestStub.session.claim.payingParty, undefined);
       assert.equal(responseStub.render.callCount, 1);
       const renderArgs = responseStub.render.getCall(0).args;
       assert.equal(renderArgs[0], "claim/paying-party");
@@ -120,9 +120,9 @@ describe("PayingParty adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.payingParty, "Acme Ltd");
+      assert.equal(requestStub.session.claim.payingParty, "Acme Ltd");
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       assert.equal(responseStub.redirect.callCount, 1);
@@ -130,7 +130,7 @@ describe("PayingParty adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("preserves existing claim session data when saving", () => {
@@ -148,8 +148,8 @@ describe("PayingParty adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.payingParty, "Acme Ltd");
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim.payingParty, "Acme Ltd");
     });
   });
 });

@@ -243,9 +243,7 @@ describe("PublicAuthority adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/apply/upload-coroners-letter",
       );
-      const apply = (requestStub.session as Record<string, unknown>)
-        .apply as Record<string, unknown>;
-      assert.equal(apply?.lastCompletedStepIndex, 16);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 16);
     });
 
     it("falls back to API when session cache is empty", async () => {

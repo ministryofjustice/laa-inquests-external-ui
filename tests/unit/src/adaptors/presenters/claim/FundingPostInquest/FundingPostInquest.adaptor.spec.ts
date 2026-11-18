@@ -88,13 +88,13 @@ describe("FundingPostInquest adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.fundingPostInquest, "NO");
+      assert.equal(requestStub.session.claim.fundingPostInquest, "NO");
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("saves Yes and redirects to the recovery sub-flow", () => {
@@ -112,12 +112,12 @@ describe("FundingPostInquest adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.fundingPostInquest, "YES");
+      assert.equal(requestStub.session.claim.fundingPostInquest, "YES");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
 
     it("saves Don't know and redirects to the recovery sub-flow", () => {
@@ -135,12 +135,12 @@ describe("FundingPostInquest adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.fundingPostInquest, "DONT_KNOW");
+      assert.equal(requestStub.session.claim.fundingPostInquest, "DONT_KNOW");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
 
     it("re-renders the form with an error when no option is selected", () => {
@@ -186,14 +186,14 @@ describe("FundingPostInquest adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("continues down the sub-flow when Yes is selected even if the return flag is set", () => {
@@ -211,12 +211,12 @@ describe("FundingPostInquest adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
 
     it("preserves existing claim session data when saving", () => {
@@ -234,8 +234,8 @@ describe("FundingPostInquest adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.fundingPostInquest, "NO");
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim.fundingPostInquest, "NO");
     });
   });
 });

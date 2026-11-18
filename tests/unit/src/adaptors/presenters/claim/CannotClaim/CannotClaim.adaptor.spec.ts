@@ -43,7 +43,7 @@ describe("CannotClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 0);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 0);
     });
   });
 });

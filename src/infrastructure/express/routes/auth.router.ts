@@ -109,20 +109,17 @@ export function createAuthRouter(
       req.session.providerEmail = "test@example.com";
       req.session.roles = parseRolesQueryParam(req.query.role);
 
-      if (typeof req.query.applyStep === "string") {
-        const stepIndex = Number(req.query.applyStep);
-        if (!Number.isNaN(stepIndex)) {
-          req.session.apply = { lastCompletedStepIndex: stepIndex };
-        }
-      }
+      if (
+        typeof req.query.journeyStep === "string" &&
+        typeof req.query.journeyType === "string"
+      ) {
+        const stepIndex = Number(req.query.journeyStep);
+        const journeyType = Number(req.query.journeyType);
+        if (!Number.isNaN(stepIndex) && !Number.isNaN(journeyType)) {
+          (req.session as Record<string, unknown>).lastCompletedStepIndex =
+            stepIndex;
 
-      if (typeof req.query.claimStep === "string") {
-        const stepIndex = Number(req.query.claimStep);
-        if (!Number.isNaN(stepIndex)) {
-          req.session.claim = {
-            ...req.session.claim,
-            lastCompletedStepIndex: stepIndex,
-          };
+          (req.session as Record<string, unknown>).journeyType = journeyType;
         }
       }
 

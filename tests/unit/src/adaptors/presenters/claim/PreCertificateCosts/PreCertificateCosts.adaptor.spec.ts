@@ -29,7 +29,7 @@ describe("PreCertificateCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
 
     it("renders the pre-certificate costs form with csrf token, saved value and default back link", () => {
@@ -121,13 +121,13 @@ describe("PreCertificateCosts adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(responseStub.render.callCount, 0);
-      assert.equal(requestStub.session.claim?.preCertificateCosts, undefined);
+      assert.equal(requestStub.session.claim.preCertificateCosts, undefined);
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
 
     it("saves the pre-certificate costs to session and redirects to paying party", () => {
@@ -145,13 +145,13 @@ describe("PreCertificateCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.preCertificateCosts, "400");
+      assert.equal(requestStub.session.claim.preCertificateCosts, "400");
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/paying-party",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 16);
     });
 
     it("saves and redirects to check your answers, clearing the flags, when returning to check your answers", () => {
@@ -173,13 +173,13 @@ describe("PreCertificateCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.preCertificateCosts, "400");
+      assert.equal(requestStub.session.claim.preCertificateCosts, "400");
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       assert.equal(
-        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        requestStub.session.claim.recoveryCostMadeEditInProgress,
         undefined,
       );
       assert.equal(responseStub.redirect.callCount, 1);
@@ -187,7 +187,7 @@ describe("PreCertificateCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("preserves existing claim session data when saving", () => {
@@ -208,8 +208,8 @@ describe("PreCertificateCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.preCertificateCosts, "400");
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim.preCertificateCosts, "400");
     });
 
     it("saves a blank value and redirects to paying party when the field is missing", () => {
@@ -233,7 +233,7 @@ describe("PreCertificateCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/paying-party",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 16);
     });
 
     it("re-renders the form with an error when the field is not a valid amount", () => {

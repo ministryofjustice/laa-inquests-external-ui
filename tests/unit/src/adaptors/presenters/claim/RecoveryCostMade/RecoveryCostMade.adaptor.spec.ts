@@ -68,12 +68,12 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCostMade, "YES");
+      assert.equal(requestStub.session.claim.recoveryCostMade, "YES");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/recovery-costs",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 15);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 15);
     });
 
     it("saves No and redirects to pre-certificate costs", () => {
@@ -91,12 +91,12 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCostMade, "NO");
+      assert.equal(requestStub.session.claim.recoveryCostMade, "NO");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 14);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 14);
     });
 
     it("saves Don't know and redirects to pre-certificate costs", () => {
@@ -114,7 +114,7 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCostMade, "DONT_KNOW");
+      assert.equal(requestStub.session.claim.recoveryCostMade, "DONT_KNOW");
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",
@@ -136,8 +136,8 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCostMade, "YES");
-      assert.equal(requestStub.session.claim?.preCertificateCosts, undefined);
+      assert.equal(requestStub.session.claim.recoveryCostMade, "YES");
+      assert.equal(requestStub.session.claim.preCertificateCosts, undefined);
     });
 
     it("clears the financial recovery cost values when No is selected", () => {
@@ -160,12 +160,12 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCostMade, "NO");
-      assert.equal(requestStub.session.claim?.recoveryCosts, undefined);
-      assert.equal(requestStub.session.claim?.recoveryDamages, undefined);
-      assert.equal(requestStub.session.claim?.recoveryInterest, undefined);
+      assert.equal(requestStub.session.claim.recoveryCostMade, "NO");
+      assert.equal(requestStub.session.claim.recoveryCosts, undefined);
+      assert.equal(requestStub.session.claim.recoveryDamages, undefined);
+      assert.equal(requestStub.session.claim.recoveryInterest, undefined);
       assert.equal(
-        requestStub.session.claim?.recoveryPreCertificateCosts,
+        requestStub.session.claim.recoveryPreCertificateCosts,
         undefined,
       );
     });
@@ -188,7 +188,7 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCosts, "100");
+      assert.equal(requestStub.session.claim.recoveryCosts, "100");
     });
 
     it("marks a recovery cost made edit and keeps the return flag when returning to check your answers and Yes is selected", () => {
@@ -206,16 +206,16 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
       assert.equal(
-        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        requestStub.session.claim.recoveryCostMadeEditInProgress,
         true,
       );
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/recovery-costs",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 15);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 15);
     });
 
     it("marks a recovery cost made edit and keeps the return flag when returning to check your answers and No is selected", () => {
@@ -233,16 +233,16 @@ describe("RecoveryCostMade adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
       assert.equal(
-        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        requestStub.session.claim.recoveryCostMadeEditInProgress,
         true,
       );
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/pre-cert-costs",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 14);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 14);
     });
 
     it("does not mark a recovery cost made edit in the normal forward journey", () => {
@@ -261,7 +261,7 @@ describe("RecoveryCostMade adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(
-        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        requestStub.session.claim.recoveryCostMadeEditInProgress,
         undefined,
       );
     });

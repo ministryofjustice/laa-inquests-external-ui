@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import {
   APPLY_JOURNEY_SEQUENCE,
   CLAIM_JOURNEY_SEQUENCE,
+  JOURNEY_TYPES,
 } from "#src/infrastructure/config/journeySequences.js";
 import { JOURNEY_NOT_STARTED } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -9,22 +10,23 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 const STEP_NOT_IN_SEQUENCE = -1;
 const FIRST_STEP_INDEX = 0;
 const NEXT_STEP_OFFSET = 1;
+const QUERY_STRING_SEPARATOR = "?";
 
 interface JourneyGuardOptions {
-  journeyType: "apply" | "claim";
+  journeyType: JOURNEY_TYPES;
   journeyPrefix: string;
   journeySequence: readonly string[];
 }
 
 function getValidatedLastCompletedStep(
-  journeyState: unknown,
+  session: unknown,
   sequenceLength: number,
 ): number {
   const rawLastCompleted =
-    journeyState instanceof Object &&
-    "lastCompletedStepIndex" in journeyState &&
-    typeof journeyState.lastCompletedStepIndex === "number"
-      ? journeyState.lastCompletedStepIndex
+    session instanceof Object &&
+    "lastCompletedStepIndex" in session &&
+    typeof session.lastCompletedStepIndex === "number"
+      ? session.lastCompletedStepIndex
       : JOURNEY_NOT_STARTED;
 
   if (
@@ -37,10 +39,23 @@ function getValidatedLastCompletedStep(
   return JOURNEY_NOT_STARTED;
 }
 
+function getRedirectIndex(
+  lastCompletedStepIndex: number,
+  sequenceLength: number,
+): number {
+  return lastCompletedStepIndex >= FIRST_STEP_INDEX &&
+    lastCompletedStepIndex < sequenceLength - NEXT_STEP_OFFSET
+    ? lastCompletedStepIndex + NEXT_STEP_OFFSET
+    : FIRST_STEP_INDEX;
+}
+
 export function createJourneyGuard(options: JourneyGuardOptions) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const { journeyType, journeyPrefix, journeySequence } = options;
-    const { path: currentPath } = req;
+    const { originalUrl: fullPath } = req;
+
+    // Strip query parameters to get just the path
+    const [currentPath] = fullPath.split(QUERY_STRING_SEPARATOR);
 
     const relativePath = currentPath.startsWith(journeyPrefix)
       ? currentPath.slice(journeyPrefix.length)
@@ -55,9 +70,8 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
     }
 
     const sessionRecord = req.session as Record<string, unknown>;
-    const { [journeyType]: journeyState } = sessionRecord;
     const lastCompletedStepIndex: number = getValidatedLastCompletedStep(
-      journeyState,
+      sessionRecord,
       journeySequence.length,
     );
 
@@ -70,11 +84,10 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
       return;
     }
 
-    const redirectToIndex =
-      lastCompletedStepIndex >= FIRST_STEP_INDEX &&
-      lastCompletedStepIndex < journeySequence.length - NEXT_STEP_OFFSET
-        ? lastCompletedStepIndex + NEXT_STEP_OFFSET
-        : FIRST_STEP_INDEX;
+    const redirectToIndex = getRedirectIndex(
+      lastCompletedStepIndex,
+      journeySequence.length,
+    );
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- array access by computed index
     const lastCompletedUrl = journeySequence[redirectToIndex];
@@ -98,13 +111,13 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
 }
 
 export const applyJourneyGuard = createJourneyGuard({
-  journeyType: "apply",
+  journeyType: JOURNEY_TYPES.APPLY,
   journeyPrefix: "/apply",
   journeySequence: APPLY_JOURNEY_SEQUENCE,
 });
 
 export const claimJourneyGuard = createJourneyGuard({
-  journeyType: "claim",
+  journeyType: JOURNEY_TYPES.CLAIM,
   journeyPrefix: "/claim",
   journeySequence: CLAIM_JOURNEY_SEQUENCE,
 });

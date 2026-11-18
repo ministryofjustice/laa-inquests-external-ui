@@ -5,6 +5,7 @@ import {
   completeStepAndRedirect,
   markStepComplete,
 } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 describe("journeyStepHelper", () => {
   let responseStub: StubbedInstance<Response>;
@@ -22,6 +23,7 @@ describe("journeyStepHelper", () => {
         requestStub,
         responseStub,
         "/apply/client-details/name-and-dob",
+        JOURNEY_TYPES.APPLY,
       );
       assert.equal(responseStub.redirect.callCount, 1);
       const redirectArgs = responseStub.redirect.getCall(0).args;
@@ -33,10 +35,11 @@ describe("journeyStepHelper", () => {
         requestStub,
         responseStub,
         "/apply/client-details/name-and-dob",
+        JOURNEY_TYPES.APPLY,
       );
 
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 1);
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 1);
     });
 
     it("uses apply journey sequence for when redirectUrl starts with /apply", () => {
@@ -44,21 +47,32 @@ describe("journeyStepHelper", () => {
         requestStub,
         responseStub,
         "/apply/client-details/name-and-dob",
+        JOURNEY_TYPES.APPLY,
       );
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 1);
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 1);
     });
 
     it("uses claim journey sequence for when redirectUrl starts with /claim", () => {
-      completeStepAndRedirect(requestStub, responseStub, "/claim/type");
-      const claimState = (requestStub.session as any).claim;
-      assert.equal(claimState.lastCompletedStepIndex, 3);
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/claim/type",
+        JOURNEY_TYPES.CLAIM,
+      );
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 3);
     });
 
     it("sets lastStepCompleted as ZERO if res.redirect is first set", () => {
-      completeStepAndRedirect(requestStub, responseStub, "/apply");
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 0);
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/apply",
+        JOURNEY_TYPES.APPLY,
+      );
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 0);
     });
 
     it("strips query parameters when completing a step", () => {
@@ -66,46 +80,57 @@ describe("journeyStepHelper", () => {
         requestStub,
         responseStub,
         "/apply/client-details/name-and-dob?test=1",
+        JOURNEY_TYPES.APPLY,
       );
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 1);
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 1);
     });
   });
 
   describe("markStepComplete", () => {
     it("marks a valid journey step as complete", () => {
-      markStepComplete(requestStub, "/apply/office-accounts");
+      markStepComplete(
+        requestStub,
+        "/apply/office-accounts",
+        JOURNEY_TYPES.APPLY,
+      );
 
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 1);
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 1);
     });
 
     it("records the correct index for each journey step", () => {
-      markStepComplete(requestStub, "/apply/client-details/name-and-dob");
+      markStepComplete(
+        requestStub,
+        "/apply/client-details/name-and-dob",
+        JOURNEY_TYPES.APPLY,
+      );
 
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 2);
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 2);
     });
 
     it("throws for invalid URLs not in the journey sequence", () => {
       requestStub.session = { existingData: "test" } as any;
 
       assert.throws(() => {
-        markStepComplete(requestStub, "/invalid/path");
+        markStepComplete(requestStub, "/invalid/path", JOURNEY_TYPES.APPLY);
       }, /Unsupported pageToMark: \/invalid\/path/);
     });
 
     it("overwrites existing lastCompletedStepIndex", () => {
       requestStub.session = {
-        apply: {
-          lastCompletedStepIndex: 2,
-        },
+        lastCompletedStepIndex: 2,
       } as any;
 
-      markStepComplete(requestStub, "/apply/client-details/nino");
+      markStepComplete(
+        requestStub,
+        "/apply/client-details/nino",
+        JOURNEY_TYPES.APPLY,
+      );
 
-      const applyState = (requestStub.session as any).apply;
-      assert.equal(applyState.lastCompletedStepIndex, 3);
+      const sessionRecord = requestStub.session as any;
+      assert.equal(sessionRecord.lastCompletedStepIndex, 3);
     });
   });
 });

@@ -8,6 +8,7 @@ import type { ProceedingsFormData } from "../models/form.types.js";
 import type { ProceedingValidator } from "./Proceeding.validator.js";
 import type { Formatter } from "#src/utils/Formatter.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class ProceedingsAdaptor {
   formValidator: ProceedingValidator;
@@ -73,7 +74,12 @@ export class ProceedingsAdaptor {
         redirectUrl = "/apply/check-your-answers";
       }
 
-      completeStepAndRedirect(req as Request, res, redirectUrl);
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        redirectUrl,
+        JOURNEY_TYPES.APPLY,
+      );
     }
   }
 

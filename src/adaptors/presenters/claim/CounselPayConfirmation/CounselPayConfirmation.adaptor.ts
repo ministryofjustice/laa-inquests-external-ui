@@ -9,6 +9,7 @@ import { EMPTY_ARR_LENGTH } from "#src/infrastructure/locales/constants.js";
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class CounselPayConfirmationAdaptor {
   formValidator: CounselPayConfirmationValidator;
@@ -67,9 +68,15 @@ export class CounselPayConfirmationAdaptor {
           req as Request,
           res,
           CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+          JOURNEY_TYPES.CLAIM,
         );
       } else {
-        completeStepAndRedirect(req as Request, res, "/claim/end-date");
+        completeStepAndRedirect(
+          req as Request,
+          res,
+          "/claim/end-date",
+          JOURNEY_TYPES.CLAIM,
+        );
       }
     }
   }

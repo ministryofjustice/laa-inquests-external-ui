@@ -12,6 +12,7 @@ import {
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const RECOVERY_COST_MADE_ANSWER_HREF = "/claim/inquest-outcome-recovery";
 
@@ -29,7 +30,12 @@ export class PreCertificateCostsAdaptor {
 
   renderForm(req: Request, res: Response): void {
     if (!this.#hasRecoveryCostNotBeenMade(req)) {
-      completeStepAndRedirect(req, res, RECOVERY_COST_MADE_ANSWER_HREF);
+      completeStepAndRedirect(
+        req,
+        res,
+        RECOVERY_COST_MADE_ANSWER_HREF,
+        JOURNEY_TYPES.CLAIM,
+      );
       return;
     }
 
@@ -58,6 +64,7 @@ export class PreCertificateCostsAdaptor {
         req as Request,
         res,
         RECOVERY_COST_MADE_ANSWER_HREF,
+        JOURNEY_TYPES.CLAIM,
       );
       return;
     }
@@ -96,11 +103,17 @@ export class PreCertificateCostsAdaptor {
         req as Request,
         res,
         CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+        JOURNEY_TYPES.CLAIM,
       );
       return;
     }
 
-    completeStepAndRedirect(req as Request, res, "/claim/paying-party");
+    completeStepAndRedirect(
+      req as Request,
+      res,
+      "/claim/paying-party",
+      JOURNEY_TYPES.CLAIM,
+    );
   }
 
   #hasRecoveryCostNotBeenMade(req: Pick<Request, "session">): boolean {

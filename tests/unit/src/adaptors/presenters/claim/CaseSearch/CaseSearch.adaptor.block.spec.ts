@@ -63,8 +63,8 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     assert.equal(responseStub.redirect.callCount, 1);
     const [redirectUrl] = responseStub.redirect.getCall(0).args;
     assert.equal(redirectUrl, "/claim/type");
-    assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 3);
-    assert.notEqual(requestStub.session.claim?.claimBlocked, true);
+    assert.equal(requestStub.session.lastCompletedStepIndex, 3);
+    assert.notEqual(requestStub.session.claimBlocked, true);
   });
 
   it("redirects to /claim/cannot-claim and flags the session when blocked", async () => {
@@ -83,12 +83,12 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
 
     await adaptor.selectCase(requestStub, responseStub);
 
-    assert.equal(requestStub.session.claim?.caseReference, "12345");
-    assert.equal(requestStub.session.claim?.claimBlocked, true);
+    assert.equal(requestStub.session.claim.caseReference, "12345");
+    assert.equal(requestStub.session.claim.claimBlocked, true);
     assert.equal(responseStub.redirect.callCount, 1);
     const [redirectUrl] = responseStub.redirect.getCall(0).args;
     assert.equal(redirectUrl, "/claim/cannot-claim");
-    assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 2);
+    assert.equal(requestStub.session.lastCompletedStepIndex, 2);
   });
 
   it("saves the session before redirecting to /claim/cannot-claim", async () => {
@@ -130,7 +130,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
 
     await adaptor.selectCase(requestStub, responseStub);
 
-    assert.equal(requestStub.session.claim?.client, undefined);
+    assert.equal(requestStub.session.claim.client, undefined);
     assert.equal(responseStub.redirect.callCount, 1);
     const [redirectUrl] = responseStub.redirect.getCall(0).args;
     assert.equal(redirectUrl, "/claim/results?selectionError=true");

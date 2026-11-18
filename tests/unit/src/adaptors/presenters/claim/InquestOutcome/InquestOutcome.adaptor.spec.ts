@@ -116,13 +116,13 @@ describe("InquestOutcome adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.deepEqual(requestStub.session.claim?.inquestOutcomes, [
+      assert.deepEqual(requestStub.session.claim.inquestOutcomes, [
         "ACCIDENT_OR_MISADVENTURE",
       ]);
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/funding-post-inquest");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 12);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 12);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -144,7 +144,7 @@ describe("InquestOutcome adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("saves multiple selected outcomes to session as an array", () => {
@@ -164,7 +164,7 @@ describe("InquestOutcome adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.deepEqual(requestStub.session.claim?.inquestOutcomes, [
+      assert.deepEqual(requestStub.session.claim.inquestOutcomes, [
         "ACCIDENT_OR_MISADVENTURE",
       ]);
     });
@@ -216,9 +216,9 @@ describe("InquestOutcome adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.endDateDay, "21");
-      assert.deepEqual(requestStub.session.claim?.inquestOutcomes, [
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim.endDateDay, "21");
+      assert.deepEqual(requestStub.session.claim.inquestOutcomes, [
         "ACCIDENT_OR_MISADVENTURE",
       ]);
     });

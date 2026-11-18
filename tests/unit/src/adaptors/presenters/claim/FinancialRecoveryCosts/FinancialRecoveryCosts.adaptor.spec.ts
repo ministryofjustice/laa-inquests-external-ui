@@ -29,7 +29,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
 
     it("renders the recovery costs form with csrf token, saved values and default back link", () => {
@@ -127,13 +127,13 @@ describe("FinancialRecoveryCosts adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(responseStub.render.callCount, 0);
-      assert.equal(requestStub.session.claim?.recoveryCosts, undefined);
+      assert.equal(requestStub.session.claim.recoveryCosts, undefined);
       assert.equal(responseStub.redirect.callCount, 1);
       assert.equal(
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
 
     it("saves the four recovery values to session and redirects to paying party", () => {
@@ -156,11 +156,11 @@ describe("FinancialRecoveryCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCosts, "100");
-      assert.equal(requestStub.session.claim?.recoveryDamages, "200");
-      assert.equal(requestStub.session.claim?.recoveryInterest, "300");
+      assert.equal(requestStub.session.claim.recoveryCosts, "100");
+      assert.equal(requestStub.session.claim.recoveryDamages, "200");
+      assert.equal(requestStub.session.claim.recoveryInterest, "300");
       assert.equal(
-        requestStub.session.claim?.recoveryPreCertificateCosts,
+        requestStub.session.claim.recoveryPreCertificateCosts,
         "400",
       );
       assert.equal(responseStub.redirect.callCount, 1);
@@ -168,7 +168,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/paying-party",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 16);
     });
 
     it("saves and redirects to check your answers, clearing the flags, when returning to check your answers", () => {
@@ -195,13 +195,13 @@ describe("FinancialRecoveryCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.recoveryCosts, "100");
+      assert.equal(requestStub.session.claim.recoveryCosts, "100");
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       assert.equal(
-        requestStub.session.claim?.recoveryCostMadeEditInProgress,
+        requestStub.session.claim.recoveryCostMadeEditInProgress,
         undefined,
       );
       assert.equal(responseStub.redirect.callCount, 1);
@@ -209,7 +209,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("preserves existing claim session data when saving", () => {
@@ -235,8 +235,8 @@ describe("FinancialRecoveryCosts adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.recoveryCosts, "100");
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim.recoveryCosts, "100");
     });
 
     it("saves blank recovery values and redirects to paying party when submitted blank", () => {
@@ -260,7 +260,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/paying-party",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 16);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 16);
     });
 
     it("re-renders the form with an error when a value is not a valid amount", () => {
@@ -288,7 +288,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
           text: FINANCIAL_RECOVERY_COSTS_ERROR.INVALID_COSTS,
         },
       });
-      assert.equal(requestStub.session.claim?.recoveryCosts, undefined);
+      assert.equal(requestStub.session.claim.recoveryCosts, undefined);
     });
 
     it("redirects to inquest outcome recovery when recovery cost made is not Yes", () => {
@@ -312,7 +312,7 @@ describe("FinancialRecoveryCosts adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/inquest-outcome-recovery",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 13);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 13);
     });
   });
 });

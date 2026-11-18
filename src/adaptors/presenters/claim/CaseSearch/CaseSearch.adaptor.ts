@@ -17,6 +17,7 @@ import { SelectCaseUseCase } from "#src/use-cases/claim/SelectCase.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { saveSession } from "#src/infrastructure/express/session/sessionConcurrency.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class CaseSearchAdaptor {
   formValidator: CaseSearchValidator;
@@ -83,7 +84,12 @@ export class CaseSearchAdaptor {
       });
     } else {
       req.session.claim = { ...req.session.claim, caseReference };
-      completeStepAndRedirect(req as Request, res, "/claim/results");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/results",
+        JOURNEY_TYPES.CLAIM,
+      );
     }
   }
 
@@ -143,7 +149,12 @@ export class CaseSearchAdaptor {
           reason: "INVALID_INPUT_STATE",
         },
       });
-      completeStepAndRedirect(req, res, "/claim/results?selectionError=true");
+      completeStepAndRedirect(
+        req,
+        res,
+        "/claim/results?selectionError=true",
+        JOURNEY_TYPES.CLAIM,
+      );
     } else if (result.status === "BLOCKED") {
       session.claim = {
         ...claim,
@@ -161,7 +172,12 @@ export class CaseSearchAdaptor {
         },
       });
       await saveSession(req);
-      completeStepAndRedirect(req, res, "/claim/cannot-claim");
+      completeStepAndRedirect(
+        req,
+        res,
+        "/claim/cannot-claim",
+        JOURNEY_TYPES.CLAIM,
+      );
     } else {
       session.claim = {
         ...claim,
@@ -169,7 +185,7 @@ export class CaseSearchAdaptor {
         client: result.client,
       };
       await saveSession(req);
-      completeStepAndRedirect(req, res, "/claim/type");
+      completeStepAndRedirect(req, res, "/claim/type", JOURNEY_TYPES.CLAIM);
     }
   }
 }

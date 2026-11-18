@@ -7,6 +7,7 @@ import type { OfficeAccountsFormData } from "#src/adaptors/presenters/apply/mode
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { escapeHtml } from "#src/utils/html.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 interface OfficeAccountsUseCases {
   getProviderOffices: GetProviderOfficesUseCase;
@@ -104,7 +105,7 @@ export class OfficeAccountsAdaptor {
         req.session.returnToApplyCheckYourAnswers === true
           ? "/apply/check-your-answers"
           : "/apply/client-details/name-and-dob";
-      completeStepAndRedirect(req, res, redirectUrl);
+      completeStepAndRedirect(req, res, redirectUrl, JOURNEY_TYPES.APPLY);
     }
   }
 

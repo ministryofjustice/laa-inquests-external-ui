@@ -14,6 +14,7 @@ import {
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class ClaimTypeAdaptor {
   formValidator: ClaimTypeValidator;
@@ -78,18 +79,34 @@ export class ClaimTypeAdaptor {
         subtype: isPoa ? req.session.claim?.subtype : undefined,
       };
       if (isPoa) {
-        completeStepAndRedirect(req as Request, res, "/claim/subtype");
+        completeStepAndRedirect(
+          req as Request,
+          res,
+          "/claim/subtype",
+          JOURNEY_TYPES.CLAIM,
+        );
       } else if (isFinalBill) {
-        completeStepAndRedirect(req as Request, res, "/claim/total-cost");
+        completeStepAndRedirect(
+          req as Request,
+          res,
+          "/claim/total-cost",
+          JOURNEY_TYPES.CLAIM,
+        );
       } else if (returnToCheckYourAnswers) {
         this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
         completeStepAndRedirect(
           req as Request,
           res,
           CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+          JOURNEY_TYPES.CLAIM,
         );
       } else {
-        completeStepAndRedirect(req as Request, res, "/claim/total-cost");
+        completeStepAndRedirect(
+          req as Request,
+          res,
+          "/claim/total-cost",
+          JOURNEY_TYPES.CLAIM,
+        );
       }
     }
   }
@@ -141,9 +158,15 @@ export class ClaimTypeAdaptor {
           req as Request,
           res,
           CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+          JOURNEY_TYPES.CLAIM,
         );
       } else {
-        completeStepAndRedirect(req as Request, res, "/claim/total-cost");
+        completeStepAndRedirect(
+          req as Request,
+          res,
+          "/claim/total-cost",
+          JOURNEY_TYPES.CLAIM,
+        );
       }
     }
   }

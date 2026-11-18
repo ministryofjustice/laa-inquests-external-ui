@@ -4,6 +4,7 @@ import { PageFactory } from "#tests/playwright/fixtures/pages/PageFactory.js";
 import {
   APPLY_JOURNEY_SEQUENCE,
   CLAIM_JOURNEY_SEQUENCE,
+  JOURNEYS,
 } from "#src/infrastructure/config/journeySequences.js";
 
 interface TestFixtures {
@@ -25,12 +26,39 @@ export async function loginAtStepWithParams(
   // wipe it for other specs.
   await page.context().clearCookies();
 
-  const applyIndex = APPLY_JOURNEY_SEQUENCE.indexOf(journeyPath) - 1;
+  const path = journeyPath.split("?")[0];
+  let journeyType: number | undefined;
+  let stepIndex: number;
 
-  const applyStepQueryParam = journeyPath ? `applyStep=${applyIndex}` : "";
+  const journey = Object.entries(JOURNEYS).find(([_, steps]) =>
+    steps.includes(path),
+  );
+
+  if (journey) {
+    journeyType = Number(journey[0]);
+    stepIndex = journey[1].indexOf(path);
+  } else {
+    // Fallback: infer from URL path if not in JOURNEYS
+    const applyStepIndex = APPLY_JOURNEY_SEQUENCE.indexOf(path);
+    if (applyStepIndex >= 0) {
+      journeyType = 1; // JOURNEY_TYPES.APPLY
+      stepIndex = applyStepIndex;
+    } else {
+      const claimStepIndex = CLAIM_JOURNEY_SEQUENCE.indexOf(path);
+      journeyType = 2; // JOURNEY_TYPES.CLAIM
+      stepIndex = claimStepIndex;
+    }
+  }
+
+  const lastCompletedIndex = stepIndex > 0 ? stepIndex - 1 : -1;
+
+  const journeyParams =
+    journeyType !== undefined
+      ? `journeyStep=${lastCompletedIndex}&journeyType=${journeyType}`
+      : "";
 
   await page.request.get(
-    `/auth/test-login?${applyStepQueryParam}&${queryParams}`,
+    `/auth/test-login?${journeyParams}${queryParams ? `&${queryParams}` : ""}`,
     {
       maxRedirects: 0,
     },
@@ -42,26 +70,34 @@ const authorizeTestForJourneyStep = async (
   page: Page,
   pageUrl: string,
 ): Promise<void> => {
-  const path = pageUrl.split("?")[0];
-  let journeyType: "apply" | "claim";
+  const path = getAbstractedPage(pageUrl);
+  let journeyType: string | undefined;
   let stepIndex: number;
 
-  const applyStepIndex = APPLY_JOURNEY_SEQUENCE.indexOf(path);
-  if (applyStepIndex >= 0) {
-    journeyType = "apply";
-    stepIndex = applyStepIndex;
-  } else {
-    const claimStepIndex = CLAIM_JOURNEY_SEQUENCE.indexOf(path);
-    journeyType = "claim";
-    stepIndex = claimStepIndex;
-  }
+  const journey = Object.entries(JOURNEYS).find(([_, steps]) =>
+    steps.includes(path),
+  );
+  journeyType = journey ? journey[0] : undefined;
+  stepIndex = journey ? journey[1].indexOf(path) : 0;
 
   const lastCompletedIndex = stepIndex > 0 ? stepIndex - 1 : -1;
   await page.request.get(
-    `/auth/test-login?${journeyType}Step=${lastCompletedIndex}`,
+    `/auth/test-login?journeyStep=${lastCompletedIndex}&journeyType=${journeyType}`,
     { maxRedirects: 0 },
   );
 };
+
+function getAbstractedPage(pageToMark: string): string {
+  const noQueryUrl = pageToMark.split("?").at(0) ?? pageToMark;
+  const abstractedApplicationPage = noQueryUrl.replace(
+    /INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/v,
+    "INQ-[A-Z0-9]{3}-[A-Z0-9]{3}",
+  );
+  return abstractedApplicationPage.replace(
+    /INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/v,
+    "INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
+  );
+}
 
 export const test = base.extend<TestFixtures>({
   freshSession: [
