@@ -547,11 +547,9 @@ describe("Evidence adaptor", () => {
           callback();
         }) as Request["session"]["reload"];
         requestStub.session.save = ((callback: (err?: Error) => void): void => {
-          const claim = requestStub.session.claim;
-          assert.ok(claim);
-          storedEvidenceFiles = (claim.evidenceFiles ?? []).map((file) => ({
-            ...file,
-          }));
+          storedEvidenceFiles = (
+            requestStub.session.claim?.evidenceFiles ?? []
+          ).map((file) => ({ ...file }));
           callback();
         }) as Request["session"]["save"];
         return requestStub;
