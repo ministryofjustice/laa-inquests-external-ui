@@ -98,10 +98,12 @@ describe("Evidence adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.query = { from: "check-your-answers" };
+      requestStub.session.claim = {};
 
       adaptor.renderForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
     });
 
     it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
@@ -225,7 +227,7 @@ describe("Evidence adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -248,7 +250,7 @@ describe("Evidence adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/counsel-number");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 8);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 8);
       assert.equal(responseStub.render.callCount, 0);
     });
   });
@@ -328,7 +330,7 @@ describe("Evidence adaptor", () => {
 
       await adaptor.processEvidenceUpload(requestStub, responseStub);
 
-      assert.deepEqual(requestStub.session.claim?.evidenceFiles, [
+      assert.deepEqual(requestStub.session.claim.evidenceFiles, [
         {
           id: "existing-id",
           fileName: "existing-file.pdf",
@@ -365,7 +367,7 @@ describe("Evidence adaptor", () => {
 
       await adaptor.processEvidenceUpload(requestStub, responseStub);
 
-      assert.deepEqual(requestStub.session.claim?.evidenceFiles, [
+      assert.deepEqual(requestStub.session.claim.evidenceFiles, [
         {
           id: evidenceFileId,
           fileName: evidenceFileName,
@@ -502,7 +504,7 @@ describe("Evidence adaptor", () => {
       await adaptor.processEvidenceUpload(requestStub, responseStub);
 
       assert.equal(uploadEvidenceUseCase.execute.callCount, 0);
-      assert.deepEqual(requestStub.session.claim?.evidenceFiles, [
+      assert.deepEqual(requestStub.session.claim.evidenceFiles, [
         { id: "file-id-456", fileName: "keep.pdf" },
       ]);
       assert.equal(responseStub.redirect.callCount, 1);
@@ -545,9 +547,11 @@ describe("Evidence adaptor", () => {
           callback();
         }) as Request["session"]["reload"];
         requestStub.session.save = ((callback: (err?: Error) => void): void => {
-          storedEvidenceFiles = (
-            requestStub.session.claim?.evidenceFiles ?? []
-          ).map((file) => ({ ...file }));
+          const claim = requestStub.session.claim;
+          assert.ok(claim);
+          storedEvidenceFiles = (claim.evidenceFiles ?? []).map((file) => ({
+            ...file,
+          }));
           callback();
         }) as Request["session"]["save"];
         return requestStub;
@@ -666,7 +670,7 @@ describe("Evidence adaptor", () => {
 
       assert.equal(responseStub.status.calledWith(200), true);
       assert.equal(responseStub.json.calledWith({ success: true }), true);
-      assert.deepEqual(requestStub.session.claim?.evidenceFiles, [
+      assert.deepEqual(requestStub.session.claim.evidenceFiles, [
         { id: "file-id-456", fileName: "keep.pdf" },
       ]);
     });

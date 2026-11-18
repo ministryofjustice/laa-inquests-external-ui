@@ -48,7 +48,7 @@ describe("TotalClaim adaptor", () => {
 
       adaptor.renderForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim!.returnToCheckYourAnswers, true);
     });
 
     it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
@@ -157,11 +157,11 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/evidence");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 7);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 7);
 
-      assert.equal(requestStub.session.claim?.zeroVatTotal, "100.00");
-      assert.equal(requestStub.session.claim?.netTotal, "250.25");
-      assert.equal(requestStub.session.claim?.grossTotal, "400.30");
+      assert.equal(requestStub.session.claim!.zeroVatTotal, "100.00");
+      assert.equal(requestStub.session.claim!.netTotal, "250.25");
+      assert.equal(requestStub.session.claim!.grossTotal, "400.30");
     });
 
     it("redirects to check-your-answers and clears the flag when returnToCheckYourAnswers is set and submission is valid", () => {
@@ -184,9 +184,9 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim!.returnToCheckYourAnswers,
         undefined,
       );
     });
@@ -231,10 +231,10 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/inquest-outcome");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.subtype, undefined);
-      assert.equal(requestStub.session.claim?.grossTotal, "0");
+      assert.equal(requestStub.session.lastCompletedStepIndex, 11);
+      assert.equal(requestStub.session.claim!.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim!.subtype, undefined);
+      assert.equal(requestStub.session.claim!.grossTotal, "0");
     });
 
     it("treats 0.00 as a nil bill and redirects to /claim/inquest-outcome", () => {
@@ -253,8 +253,8 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/inquest-outcome");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
-      assert.equal(requestStub.session.claim?.subtype, undefined);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 11);
+      assert.equal(requestStub.session.claim!.subtype, undefined);
     });
 
     it("redirects to /claim/final-bill-template without setting a subtype when the gross amount is greater than 0", () => {
@@ -274,9 +274,9 @@ describe("TotalClaim adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectPath] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectPath, "/claim/final-bill-template");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 6);
-      assert.equal(requestStub.session.claim?.grossTotal, "1250.50");
-      assert.equal(requestStub.session.claim?.subtype, undefined);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 6);
+      assert.equal(requestStub.session.claim!.grossTotal, "1250.50");
+      assert.equal(requestStub.session.claim!.subtype, undefined);
     });
 
     it("re-renders with an error and does not redirect when the gross amount is invalid", () => {

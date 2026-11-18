@@ -12,6 +12,7 @@ import {
 import { CLAIM_PATHS } from "#src/infrastructure/express/routes/paths.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class PayingPartyAdaptor {
   formValidator: PayingPartyValidator;
@@ -75,6 +76,7 @@ export class PayingPartyAdaptor {
       req as Request,
       res,
       CLAIM_PATHS.CHECK_YOUR_ANSWERS,
+      JOURNEY_TYPES.CLAIM,
     );
   }
 

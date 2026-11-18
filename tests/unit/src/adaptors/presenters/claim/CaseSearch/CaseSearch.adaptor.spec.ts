@@ -97,14 +97,16 @@ describe("CaseSearch adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "case-reference": "ABC-12345" };
+      requestStub.session.claim = {};
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.caseReference, "ABC-12345");
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.caseReference, "ABC-12345");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/results");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 1);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 1);
       assert.equal(responseStub.render.callCount, 0);
     });
   });
@@ -185,7 +187,7 @@ describe("CaseSearch adaptor", () => {
 
       await adaptor.renderResults(requestStub, responseStub);
 
-      assert.deepEqual(requestStub.session.claim?.searchResults, [
+      assert.deepEqual(requestStub.session.claim.searchResults, [
         {
           reference: "1",
           clientName: "Jane Smith",
@@ -401,11 +403,11 @@ describe("CaseSearch adaptor", () => {
 
       await adaptor.selectCase(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.caseReference, "12345");
+      assert.equal(requestStub.session.claim.caseReference, "12345");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/type");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 3);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 3);
     });
 
     it("saves the selected client details from the session results", async () => {
@@ -427,7 +429,7 @@ describe("CaseSearch adaptor", () => {
 
       await adaptor.selectCase(requestStub, responseStub);
 
-      assert.deepEqual(requestStub.session.claim?.client, storedClient);
+      assert.deepEqual(requestStub.session.claim.client, storedClient);
     });
 
     it("saves the session before redirecting to /claim/type", async () => {
@@ -476,8 +478,8 @@ describe("CaseSearch adaptor", () => {
 
       await adaptor.selectCase(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.client, undefined);
-      assert.equal(requestStub.session.claim?.caseReference, undefined);
+      assert.equal(requestStub.session.claim.client, undefined);
+      assert.equal(requestStub.session.claim.caseReference, undefined);
     });
 
     it("redirects to the results page with a selection error when the selected case is not found", async () => {
@@ -499,7 +501,7 @@ describe("CaseSearch adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/results?selectionError=true");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 1);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 1);
     });
   });
 });

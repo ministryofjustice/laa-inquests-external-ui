@@ -11,6 +11,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { TotalClaimCostValidator } from "#src/adaptors/presenters/claim/TotalClaimCost/TotalClaimCost.validator.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class TotalClaimCostAdaptor {
   formValidator: TotalClaimCostValidator;
@@ -98,6 +99,7 @@ export class TotalClaimCostAdaptor {
           returnToCheckYourAnswers === true
             ? "/claim/check-your-answers"
             : "/claim/evidence",
+          JOURNEY_TYPES.CLAIM,
         );
       }
     }
@@ -134,12 +136,18 @@ export class TotalClaimCostAdaptor {
     };
 
     if (isNilBill) {
-      completeStepAndRedirect(req as Request, res, "/claim/inquest-outcome");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/inquest-outcome",
+        JOURNEY_TYPES.CLAIM,
+      );
     } else {
       completeStepAndRedirect(
         req as Request,
         res,
         "/claim/final-bill-template",
+        JOURNEY_TYPES.CLAIM,
       );
     }
   }

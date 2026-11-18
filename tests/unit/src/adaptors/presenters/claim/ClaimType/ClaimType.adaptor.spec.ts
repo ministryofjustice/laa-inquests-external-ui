@@ -38,7 +38,7 @@ describe("ClaimType adaptor", () => {
 
       adaptor.renderForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
     });
 
     it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
@@ -108,14 +108,16 @@ describe("ClaimType adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "claim-type": "PAYMENT_ON_ACCOUNT" };
+      requestStub.session.claim = {};
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "PAYMENT_ON_ACCOUNT");
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.type, "PAYMENT_ON_ACCOUNT");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 4);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 4);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -127,14 +129,16 @@ describe("ClaimType adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "claim-type": "FINAL_BILL" };
+      requestStub.session.claim = {};
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 5);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 5);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -153,7 +157,7 @@ describe("ClaimType adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.subtype, undefined);
+      assert.equal(requestStub.session.claim.subtype, undefined);
     });
 
     it("does not clear the subtype from the session when POA is selected", () => {
@@ -171,7 +175,7 @@ describe("ClaimType adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.subtype, "EXPERT_COST");
+      assert.equal(requestStub.session.claim.subtype, "EXPERT_COST");
     });
 
     it("redirects to /claim/check-your-answers and clears the flag when NIL_BILL is posted manually and flag is set", () => {
@@ -188,9 +192,9 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
     });
@@ -211,10 +215,10 @@ describe("ClaimType adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.subtype, undefined);
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim.subtype, undefined);
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       assert.equal(
@@ -237,8 +241,8 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 5);
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 5);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
     });
 
     it("redirects to /claim/subtype and preserves the flag when POA is selected and flag is set", () => {
@@ -255,8 +259,8 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/subtype");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 4);
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 4);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
     });
   });
 
@@ -292,7 +296,7 @@ describe("ClaimType adaptor", () => {
 
       adaptor.renderSubtypeForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
     });
 
     it("sets the back link to check-your-answers when returnToCheckYourAnswers is set", () => {
@@ -362,14 +366,16 @@ describe("ClaimType adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "claim-subtype": "PROFIT_COST" };
+      requestStub.session.claim = {};
 
       adaptor.processSubtypeForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.subtype, "PROFIT_COST");
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.subtype, "PROFIT_COST");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/total-cost");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 5);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 5);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -387,9 +393,9 @@ describe("ClaimType adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
     });

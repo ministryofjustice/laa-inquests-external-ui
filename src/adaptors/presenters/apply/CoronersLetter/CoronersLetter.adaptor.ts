@@ -25,6 +25,7 @@ import {
   resolveUploadFailureMessage,
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const HTTP_SUCCESS = 200;
 
@@ -73,7 +74,12 @@ export class CoronersLetterAdaptor {
     }
 
     req.session.returnToApplyCheckYourAnswers = undefined;
-    completeStepAndRedirect(req, res, "/apply/check-your-answers");
+    completeStepAndRedirect(
+      req,
+      res,
+      "/apply/check-your-answers",
+      JOURNEY_TYPES.APPLY,
+    );
   }
 
   async processCoronersLetterUpload(

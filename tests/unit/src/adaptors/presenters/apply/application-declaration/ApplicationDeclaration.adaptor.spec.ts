@@ -77,9 +77,7 @@ describe("ApplicationDeclaration adaptor", () => {
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/apply/office-accounts");
       assert.equal(responseStub.render.callCount, 0);
-      const apply = (requestStub.session as Record<string, unknown>)
-        .apply as Record<string, unknown>;
-      assert.equal(apply?.lastCompletedStepIndex, 0);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 0);
     });
   });
 });

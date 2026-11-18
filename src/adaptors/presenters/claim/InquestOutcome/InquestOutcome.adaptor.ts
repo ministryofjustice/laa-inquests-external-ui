@@ -11,6 +11,7 @@ import type {
 } from "./InquestOutcome.validator.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class InquestOutcomeAdaptor {
   formValidator: InquestOutcomeValidator;
@@ -83,12 +84,18 @@ export class InquestOutcomeAdaptor {
 
     if (this.navigationHelper.isReturningToCheckYourAnswers(req)) {
       this.navigationHelper.clearReturnToCheckYourAnswersFlag(req);
-      completeStepAndRedirect(req as Request, res, "/claim/check-your-answers");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/check-your-answers",
+        JOURNEY_TYPES.CLAIM,
+      );
     } else {
       completeStepAndRedirect(
         req as Request,
         res,
         "/claim/funding-post-inquest",
+        JOURNEY_TYPES.CLAIM,
       );
     }
   }

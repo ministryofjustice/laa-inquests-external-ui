@@ -39,7 +39,7 @@ describe("CounselNumber adaptor", () => {
 
       adaptor.renderForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
       const viewModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.backHref, "/claim/check-your-answers");
@@ -80,14 +80,16 @@ describe("CounselNumber adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "counsel-number": "0" };
+      requestStub.session.claim = {};
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.counselNumber, "0");
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.counselNumber, "0");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/end-date");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 10);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 10);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -99,14 +101,16 @@ describe("CounselNumber adaptor", () => {
 
       responseStub.locals = { csrfToken: "test-token" };
       requestStub.body = { "counsel-number": "3" };
+      requestStub.session.claim = {};
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.counselNumber, "3");
+      assert.ok(requestStub.session.claim);
+      assert.equal(requestStub.session.claim.counselNumber, "3");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/counsel-pay-confirmation");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 9);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 9);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -125,11 +129,11 @@ describe("CounselNumber adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.counselNumber, "3");
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.counselNumber, "3");
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/counsel-pay-confirmation");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 9);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 9);
     });
 
     it("redirects back to /claim/check-your-answers and clears the flag when a non-zero value already has a paid confirmation", () => {
@@ -148,14 +152,14 @@ describe("CounselNumber adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.counselNumber, "3");
+      assert.equal(requestStub.session.claim.counselNumber, "3");
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("clears any paid confirmation and returns to check your answers when changing to zero counsel", () => {
@@ -174,15 +178,15 @@ describe("CounselNumber adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.counselNumber, "0");
-      assert.equal(requestStub.session.claim?.counselBillsPaid, undefined);
+      assert.equal(requestStub.session.claim.counselNumber, "0");
+      assert.equal(requestStub.session.claim.counselBillsPaid, undefined);
       assert.equal(
-        requestStub.session.claim?.returnToCheckYourAnswers,
+        requestStub.session.claim.returnToCheckYourAnswers,
         undefined,
       );
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
   });
 });

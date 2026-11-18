@@ -7,6 +7,7 @@ import type { DeceasedDetailsValidator } from "./DeceasedDetails.validator.js";
 import type { Request, Response } from "express";
 import { getStringValue } from "#src/utils/sessionValue.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 type DeceasedDetailsStep =
   | "name"
@@ -486,9 +487,19 @@ export class DeceasedDetailsAdaptor {
   ): void {
     if (req.session.returnToApplyCheckYourAnswers === true) {
       req.session.returnToApplyCheckYourAnswers = undefined;
-      completeStepAndRedirect(req as Request, res, "/apply/check-your-answers");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/apply/check-your-answers",
+        JOURNEY_TYPES.APPLY,
+      );
     } else {
-      completeStepAndRedirect(req as Request, res, defaultHref);
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        defaultHref,
+        JOURNEY_TYPES.APPLY,
+      );
     }
   }
 

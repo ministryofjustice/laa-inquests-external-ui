@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { Formatter } from "#src/utils/Formatter.js";
 import { CORRESPONDENCE_ADDRESS_SOURCE } from "#src/infrastructure/locales/constants.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 import type { ClientDeclarationFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
@@ -94,7 +95,7 @@ export class ConfirmationAdaptor {
     const formattedCheckYourAnswersData =
       this.#toCheckYourAnswersViewModel(checkYourAnswersData);
 
-    markStepComplete(req, "/apply/check-your-answers");
+    markStepComplete(req, "/apply/check-your-answers", JOURNEY_TYPES.APPLY);
 
     res.render("apply/check-your-answers", {
       csrfToken,
@@ -159,11 +160,21 @@ export class ConfirmationAdaptor {
     });
     this.sessionHelper.clearFormData(req);
     session.applicationReferenceNumber = laaReference;
-    completeStepAndRedirect(req, res, "/apply/confirmation/success");
+    completeStepAndRedirect(
+      req,
+      res,
+      "/apply/confirmation/success",
+      JOURNEY_TYPES.APPLY,
+    );
   }
 
   processCheckYourAnswersForm(req: Request, res: Response): void {
-    completeStepAndRedirect(req, res, "/apply/confirmation/client-declaration");
+    completeStepAndRedirect(
+      req,
+      res,
+      "/apply/confirmation/client-declaration",
+      JOURNEY_TYPES.APPLY,
+    );
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {

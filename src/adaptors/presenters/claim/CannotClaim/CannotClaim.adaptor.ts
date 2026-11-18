@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class CannotClaimAdaptor {
   renderPage(req: Request, res: Response): void {
@@ -14,7 +15,7 @@ export class CannotClaimAdaptor {
         variant: "entry",
       });
     } else {
-      completeStepAndRedirect(req, res, "/claim");
+      completeStepAndRedirect(req, res, "/claim", JOURNEY_TYPES.CLAIM);
     }
   }
 }

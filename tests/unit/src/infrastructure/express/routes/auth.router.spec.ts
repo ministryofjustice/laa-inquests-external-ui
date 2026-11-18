@@ -85,17 +85,20 @@ describe("createAuthRouter", () => {
       req.session.claim = {
         caseReference: "INQ-1",
         type: "PAYMENT_ON_ACCOUNT",
-        lastCompletedStepIndex: 2,
       };
-      req.query = { claimStep: "17" };
+      req.query = { journeyStep: "17", journeyType: "2" };
 
       route?.stack[0].handle(req, res);
 
       assert.deepEqual(req.session.claim, {
         caseReference: "INQ-1",
         type: "PAYMENT_ON_ACCOUNT",
-        lastCompletedStepIndex: 17,
       });
+      assert.equal(
+        (req.session as Record<string, unknown>).lastCompletedStepIndex,
+        17,
+      );
+      assert.equal((req.session as Record<string, unknown>).journeyType, 2);
     });
 
     it("seeds both provider roles by default", () => {
