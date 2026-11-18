@@ -162,6 +162,10 @@ export class ConfirmationAdaptor {
     completeStepAndRedirect(req, res, "/apply/confirmation/success");
   }
 
+  processCheckYourAnswersForm(req: Request, res: Response): void {
+    completeStepAndRedirect(req, res, "/apply/confirmation/client-declaration");
+  }
+
   renderConfirmSuccess(req: Request, res: Response): void {
     const {
       locals: { csrfToken },

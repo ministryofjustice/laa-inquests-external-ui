@@ -436,10 +436,14 @@
           }) }}
         </div>
 
+      <form method="post" action="/apply/check-your-answers">
+        <input type="hidden" name="_csrf" value="{{ csrfToken }}">
         {{ govukButton({
           text: "Continue",
-          href: "/apply/confirmation/client-declaration"
+          element: "button",
+          type: "submit"
         }) }}
+      </form>
     </div>
   </div>
 
