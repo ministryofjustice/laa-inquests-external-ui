@@ -44,11 +44,6 @@ describe("Confirmation adaptor", () => {
     assert.equal(renderArgs[0], "apply/check-your-answers");
   });
 
-  it("marks step complete", () => {
-    confirmationAdaptor.renderCheckYourAnswers(requestStub, responseStub);
-    assert.equal(requestStub.session.lastCompletedStepIndex, 18);
-  });
-
   describe("processCheckYourAnswersForm", () => {
     it("marks step complete and redirects to client declaration form", () => {
       confirmationAdaptor.processCheckYourAnswersForm(

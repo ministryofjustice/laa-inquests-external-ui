@@ -14,10 +14,7 @@ import { ConfirmationSessionStateMapper } from "#src/use-cases/apply/confirmatio
 import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
-import {
-  completeStepAndRedirect,
-  markStepComplete,
-} from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface ConfirmationUseCases {
   buildCheckYourAnswers: BuildCheckYourAnswersUseCase;
@@ -94,8 +91,6 @@ export class ConfirmationAdaptor {
       this.buildCheckYourAnswersUseCase.execute(confirmationState);
     const formattedCheckYourAnswersData =
       this.#toCheckYourAnswersViewModel(checkYourAnswersData);
-
-    markStepComplete(req, "/apply/check-your-answers", JOURNEY_TYPES.APPLY);
 
     res.render("apply/check-your-answers", {
       csrfToken,
