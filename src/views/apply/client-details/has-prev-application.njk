@@ -48,7 +48,7 @@
           items: [
             {
               value: "true",
-              text: "Yes",
+              html: (t("common.yes") | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t("pages.apply.clientDetails.previousApplication.yesRevealHint") | escape) ~ '</span>',
               conditional: {
                 html:  govukInput({
                   id: "prev-laa-reference-input",

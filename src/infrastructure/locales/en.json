@@ -73,6 +73,17 @@
           "hint": "You will only be shown the proceedings that can be added to ones you have already selected."
         }
       },
+      "clientDetails": {
+        "nameAndDob": {
+          "yesRevealHint": "Selecting this option will reveal a field for your client's last name at birth."
+        },
+        "previousApplication": {
+          "yesRevealHint": "Selecting this option will reveal a field for a previous LAA reference."
+        },
+        "nino": {
+          "yesRevealHint": "Selecting this option will reveal a field for your client's National Insurance number."
+        }
+      },
       "publicAuthority": {
         "title": "Which public authorities are named as interested parties?",
         "search": {

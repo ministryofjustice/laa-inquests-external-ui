@@ -86,6 +86,27 @@ test.describe("Client details - name and dob", () => {
     await expect(page.url()).toContain("apply/client-details/nino");
   });
 
+  test("includes the revealed field in the yes radio's accessible name", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/apply/client-details/name-and-dob");
+
+    const form = page.getByTestId("client-details-form");
+    const yesRadio = form.locator('input[name="name-change"][value="true"]');
+
+    await expect(yesRadio).toHaveAccessibleName(
+      /^Yes\s+\.\s+Selecting this option will reveal a field for your client's last name at birth\.$/,
+    );
+
+    await yesRadio.check();
+    await expect(
+      form.getByLabel("What was your client's last name at birth?"),
+    ).toBeVisible();
+
+    await checkAccessibility();
+  });
+
   test.describe("render validation errors", () => {
     test("if first name input is missing", async ({ page }) => {
       await page.goto("/apply/client-details/name-and-dob");
