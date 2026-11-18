@@ -13,6 +13,7 @@ import {
   CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH,
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
+  FORMULA_PREFIX_REGEX,
   NINO_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
@@ -105,6 +106,27 @@ export class ClientDetailsValidator extends FormValidator {
     return errorSummaries;
   }
 
+  private validateNameFormulaPrefix(
+    firstName: string | undefined,
+    lastName: string | undefined,
+  ): Partial<ClientNameDobError> {
+    const errors: Partial<ClientNameDobError> = {};
+
+    if (typeof firstName === "string" && FORMULA_PREFIX_REGEX.test(firstName)) {
+      errors.firstNameInputError = {
+        text: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
+      };
+    }
+
+    if (typeof lastName === "string" && FORMULA_PREFIX_REGEX.test(lastName)) {
+      errors.lastNameInputError = {
+        text: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
+      };
+    }
+
+    return errors;
+  }
+
   validateClientName(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientNameDobError> {
@@ -140,6 +162,12 @@ export class ClientDetailsValidator extends FormValidator {
         text: CLIENT_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
       };
     }
+
+    const formulaPrefixErrors = this.validateNameFormulaPrefix(
+      firstName,
+      lastName,
+    );
+    Object.assign(errorSummaries, formulaPrefixErrors);
 
     if (typeof hasNameChanged !== "string") {
       errorSummaries.noRadioSelected = {
