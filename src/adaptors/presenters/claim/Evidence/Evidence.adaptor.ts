@@ -31,6 +31,7 @@ import {
   resolveUploadFailureMessage,
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { escapeHtml } from "#src/utils/html.js";
 const HTTP_SUCCESS = 200;
 
 export class EvidenceAdaptor {
@@ -404,7 +405,7 @@ export class EvidenceAdaptor {
     res.status(HTTP_CREATED).json({
       success: {
         messageText: `${file.originalname} uploaded`,
-        messageHtml: `${file.originalname} uploaded`,
+        messageHtml: `${escapeHtml(file.originalname)} uploaded`,
       },
       file: {
         filename: data.evidenceFileId,
