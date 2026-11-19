@@ -74,7 +74,7 @@ describe("EndDate adaptor", () => {
       const viewModel = responseStub.render.getCall(0)
         .args[1] as unknown as Record<string, unknown>;
       assert.equal(viewModel.backHref, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.returnToCheckYourAnswers, true);
+      assert.equal(requestStub.session.claim.returnToCheckYourAnswers, true);
     });
 
     it("renders the form with existing session values pre-populated", () => {
@@ -118,13 +118,13 @@ describe("EndDate adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.endDateDay, "21");
-      assert.equal(requestStub.session.claim?.endDateMonth, "3");
-      assert.equal(requestStub.session.claim?.endDateYear, "2026");
+      assert.equal(requestStub.session.claim.endDateDay, "21");
+      assert.equal(requestStub.session.claim.endDateMonth, "3");
+      assert.equal(requestStub.session.claim.endDateYear, "2026");
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/inquest-outcome");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 11);
       assert.equal(responseStub.render.callCount, 0);
     });
 
@@ -147,7 +147,7 @@ describe("EndDate adaptor", () => {
       assert.equal(responseStub.redirect.callCount, 1);
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/check-your-answers");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
 
     it("preserves existing claim session data when saving the end date", () => {
@@ -166,11 +166,11 @@ describe("EndDate adaptor", () => {
 
       adaptor.processForm(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.type, "FINAL_BILL");
-      assert.equal(requestStub.session.claim?.subtype, "POA");
-      assert.equal(requestStub.session.claim?.endDateDay, "1");
-      assert.equal(requestStub.session.claim?.endDateMonth, "6");
-      assert.equal(requestStub.session.claim?.endDateYear, "2025");
+      assert.equal(requestStub.session.claim.type, "FINAL_BILL");
+      assert.equal(requestStub.session.claim.subtype, "POA");
+      assert.equal(requestStub.session.claim.endDateDay, "1");
+      assert.equal(requestStub.session.claim.endDateMonth, "6");
+      assert.equal(requestStub.session.claim.endDateYear, "2025");
     });
 
     it("re-renders the form with an error when the date is empty", () => {
@@ -219,7 +219,7 @@ describe("EndDate adaptor", () => {
 
       const [redirectUrl] = responseStub.redirect.getCall(0).args;
       assert.equal(redirectUrl, "/claim/inquest-outcome");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 11);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 11);
       assert.equal(responseStub.render.callCount, 0);
     });
 

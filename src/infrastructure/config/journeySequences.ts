@@ -51,3 +51,13 @@ export const CLAIM_JOURNEY_SEQUENCE = [
   "/claim/confirmation/success",
   "/claim/confirmation/reject",
 ];
+
+export enum JOURNEY_TYPES {
+  APPLY = 1,
+  CLAIM = 2,
+}
+
+export const JOURNEYS = {
+  [JOURNEY_TYPES.APPLY]: APPLY_JOURNEY_SEQUENCE,
+  [JOURNEY_TYPES.CLAIM]: CLAIM_JOURNEY_SEQUENCE,
+};

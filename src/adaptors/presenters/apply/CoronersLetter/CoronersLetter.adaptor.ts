@@ -26,6 +26,7 @@ import {
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import { escapeHtml } from "#src/utils/html.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const HTTP_SUCCESS = 200;
 
@@ -74,7 +75,12 @@ export class CoronersLetterAdaptor {
     }
 
     req.session.returnToApplyCheckYourAnswers = undefined;
-    completeStepAndRedirect(req, res, "/apply/check-your-answers");
+    completeStepAndRedirect(
+      req,
+      res,
+      "/apply/check-your-answers",
+      JOURNEY_TYPES.APPLY,
+    );
   }
 
   async processCoronersLetterUpload(
@@ -117,6 +123,7 @@ export class CoronersLetterAdaptor {
         buffer: file!.buffer,
         mimetype: file!.mimetype,
         originalname: file!.originalname,
+        officeId: req.session.selectedOfficeId!,
         accessToken: req.session.accessToken,
       });
 

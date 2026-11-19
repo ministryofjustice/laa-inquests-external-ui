@@ -11,6 +11,7 @@ import { GetPublicAuthoritiesUseCase } from "#src/use-cases/apply/publicAuthorit
 import type { PublicAuthority } from "#src/infrastructure/express/session/index.types.js";
 import type { GetPublicAuthoritiesResponse } from "#src/adaptors/source/inquests-api/apply/GetPublicAuthorities/models/GetPublicAuthorities.types.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 interface PublicAuthorityUseCases {
   getPublicAuthorities: GetPublicAuthoritiesUseCase;
@@ -114,7 +115,12 @@ export class PublicAuthorityAdaptor {
         redirectUrl = "/apply/check-your-answers";
       }
 
-      completeStepAndRedirect(req as Request, res, redirectUrl);
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        redirectUrl,
+        JOURNEY_TYPES.APPLY,
+      );
     }
   }
 

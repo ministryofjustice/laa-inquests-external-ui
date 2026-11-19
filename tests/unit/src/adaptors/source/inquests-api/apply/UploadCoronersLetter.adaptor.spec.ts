@@ -14,6 +14,7 @@ describe("UploadCoronersLetterAdaptor", () => {
   let capturedEvents: Record<string, unknown>[];
   const testCoronersLetterId = uuidv4();
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
+  const TEST_OFFICE_CODE = "A002B";
 
   beforeEach(() => {
     axiosStub = stubInterface<AxiosInstance>();
@@ -70,6 +71,7 @@ describe("UploadCoronersLetterAdaptor", () => {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
     originalname: testCoronersLetterFileName,
+    officeId: TEST_OFFICE_CODE,
   };
 
   it("returns a successful response on successful upload", async () => {
@@ -169,6 +171,7 @@ describe("UploadCoronersLetterAdaptor", () => {
       "http://localhost/applications/upload-coroners-letter",
     );
     assert.instanceOf(actualBody, FormData);
+    assert.equal(actualBody.get("office_id"), TEST_OFFICE_CODE);
     const actualOptions = postCall.args[2] as {
       headers: Record<string, string>;
       validateStatus: (status: number) => boolean;

@@ -4,6 +4,7 @@ export const UploadCoronersLetterRequestSchema = z.object({
   buffer: z.instanceof(Buffer),
   mimetype: z.string(),
   originalname: z.string(),
+  officeId: z.string(),
 });
 
 export const UploadCoronersLetterApiResponseSchema = z.object({

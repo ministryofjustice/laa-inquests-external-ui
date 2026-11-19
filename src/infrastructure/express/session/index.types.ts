@@ -14,9 +14,12 @@ declare module "express-session" {
 
   interface SessionData extends Record<
     string,
-    Record<string, unknown> | string | boolean | undefined | null
+    Record<string, unknown> | string | boolean | number | undefined | null
   > {
     // This allows both specific properties and dynamic namespace access
+    lastCompletedStepIndex?: number;
+    journeyType?: number;
+    visitedJourneyPages?: string[];
     error: FormError;
     selectedProceeding?: Proceeding;
     proceedingOption?: Proceeding;
@@ -42,7 +45,6 @@ declare module "express-session" {
     claimReferenceNumber?: string;
     claimRejectionReasons?: ClaimRejectionReasonCode[] | string[];
     claim?: ClaimSession;
-    apply?: ApplySession;
     returnToApplyCheckYourAnswers?: boolean;
     claimDeclaration?: boolean;
     lifetime?: SessionLifetime;
@@ -56,7 +58,6 @@ interface FormError {
 }
 
 export interface ClaimSession {
-  lastCompletedStepIndex?: number;
   caseReference?: string;
   client?: ClaimClientDetails;
   searchResults?: ClaimClientDetails[];
@@ -84,10 +85,6 @@ export interface ClaimSession {
   preCertificateCosts?: string;
   recoveryCostMadeEditInProgress?: boolean;
   payingParty?: string;
-}
-
-export interface ApplySession {
-  lastCompletedStepIndex?: number;
 }
 
 export interface ClaimEvidenceFile {

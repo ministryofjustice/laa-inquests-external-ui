@@ -22,6 +22,7 @@ import {
 import { getStringValue } from "#src/utils/sessionValue.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 interface ClientDetailsUseCases {
   updateCorrespondenceRecipient: UpdateCorrespondenceRecipientUseCase;
@@ -447,6 +448,7 @@ export class ClientDetailsAdaptor {
         req as Request,
         res,
         "/apply/client-details/correspondence-address",
+        JOURNEY_TYPES.APPLY,
       );
     } else if (
       correspondenceAddressSource === "USE_CLIENT_HOME_ADDRESS" ||
@@ -746,9 +748,19 @@ export class ClientDetailsAdaptor {
   ): void {
     if (req.session.returnToApplyCheckYourAnswers === true) {
       req.session.returnToApplyCheckYourAnswers = undefined;
-      completeStepAndRedirect(req as Request, res, "/apply/check-your-answers");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/apply/check-your-answers",
+        JOURNEY_TYPES.APPLY,
+      );
     } else {
-      completeStepAndRedirect(req as Request, res, defaultHref);
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        defaultHref,
+        JOURNEY_TYPES.APPLY,
+      );
     }
   }
 

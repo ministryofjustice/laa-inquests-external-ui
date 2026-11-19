@@ -32,6 +32,7 @@ import {
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
 import { escapeHtml } from "#src/utils/html.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 const HTTP_SUCCESS = 200;
 
 export class EvidenceAdaptor {
@@ -88,9 +89,19 @@ export class EvidenceAdaptor {
         uploadedFiles: this.#buildUploadedFiles(req),
       });
     } else if (req.session.claim?.type === CLAIM_TYPE_VALUE.FINAL_BILL) {
-      completeStepAndRedirect(req, res, "/claim/counsel-number");
+      completeStepAndRedirect(
+        req,
+        res,
+        "/claim/counsel-number",
+        JOURNEY_TYPES.CLAIM,
+      );
     } else {
-      completeStepAndRedirect(req, res, "/claim/check-your-answers");
+      completeStepAndRedirect(
+        req,
+        res,
+        "/claim/check-your-answers",
+        JOURNEY_TYPES.CLAIM,
+      );
     }
   }
 

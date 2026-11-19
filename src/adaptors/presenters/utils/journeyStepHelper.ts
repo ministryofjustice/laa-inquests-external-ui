@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import {
-  APPLY_JOURNEY_SEQUENCE,
-  CLAIM_JOURNEY_SEQUENCE,
+  JOURNEYS,
+  type JOURNEY_TYPES,
 } from "#src/infrastructure/config/journeySequences.js";
 
 const ZERO = 0;
@@ -13,58 +13,60 @@ export function completeStepAndRedirect(
   req: Request,
   res: Response,
   redirectToUrl: string,
+  journeyType: JOURNEY_TYPES,
 ): void {
-  const noQueryUrl = redirectToUrl.split("?").at(ZERO)!;
+  const journey = getJourney(journeyType);
+  const newIndex = getPageIndex(redirectToUrl, journey);
 
-  const journey =
-    redirectToUrl.split("/").at(OFFSET) === "apply"
-      ? APPLY_JOURNEY_SEQUENCE
-      : CLAIM_JOURNEY_SEQUENCE;
+  const stepIndex = Math.max(newIndex - OFFSET, ZERO);
 
-  const stepIndex =
-    journey.indexOf(noQueryUrl) === ZERO
-      ? ZERO
-      : journey.indexOf(noQueryUrl) - OFFSET;
-
-  markStepComplete(req, journey[stepIndex]);
+  markStepComplete(req, journey[stepIndex], journeyType);
+  const sessionRecord = req.session as Record<string, unknown>;
+  const visitedJourneyPages: unknown[] = Array.isArray(
+    sessionRecord.visitedJourneyPages,
+  )
+    ? sessionRecord.visitedJourneyPages
+    : [];
+  visitedJourneyPages.push(redirectToUrl);
+  sessionRecord.visitedJourneyPages = visitedJourneyPages;
   res.redirect(redirectToUrl);
 }
 
 export function markStepComplete(
   req: Pick<Request, "session">,
   pageToMark: string,
+  journeyType: JOURNEY_TYPES,
 ): void {
-  const journeyType = pageToMark.split("/").at(OFFSET);
+  const journey = getJourney(journeyType);
 
   const sessionRecord = req.session as Record<string, unknown>;
 
-  if (journeyType === "apply") {
-    const stepIndex = (APPLY_JOURNEY_SEQUENCE as readonly string[]).indexOf(
-      pageToMark,
-    );
-
-    if (stepIndex < ZERO) {
-      throw new Error(`Invalid page to mark: ${pageToMark}`);
-    }
-
-    sessionRecord.apply = {
-      lastCompletedStepIndex: stepIndex,
-    };
-  } else if (journeyType === "claim") {
-    const stepIndex = (CLAIM_JOURNEY_SEQUENCE as readonly string[]).indexOf(
-      pageToMark,
-    );
-
-    if (stepIndex < ZERO) {
-      throw new Error(`Invalid page to mark: ${pageToMark}`);
-    }
-
-    const existingClaimData = sessionRecord.claim ?? {};
-    sessionRecord.claim = {
-      ...existingClaimData,
-      lastCompletedStepIndex: stepIndex,
-    };
-  } else {
+  const stepIndex = getPageIndex(pageToMark, journey);
+  if (stepIndex < ZERO) {
     throw new Error(`Unsupported pageToMark: ${pageToMark}`);
   }
+
+  sessionRecord.lastCompletedStepIndex = stepIndex;
+  sessionRecord.journeyType = journeyType;
+}
+
+function getJourney(journeyType: JOURNEY_TYPES): string[] {
+  if (!(journeyType in JOURNEYS)) {
+    throw new Error(`Unknown journey type: ${journeyType}`);
+  }
+
+  return JOURNEYS[journeyType];
+}
+
+function getPageIndex(pageToMark: string, journey: string[]): number {
+  const noQueryUrl = pageToMark.split("?").at(ZERO) ?? pageToMark;
+  const abstractedApplicationPage = noQueryUrl.replace(
+    /INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/v,
+    "INQ-[A-Z0-9]{3}-[A-Z0-9]{3}",
+  );
+  const abstractedPage = abstractedApplicationPage.replace(
+    /INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/v,
+    "INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
+  );
+  return journey.indexOf(abstractedPage);
 }

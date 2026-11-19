@@ -11,6 +11,7 @@ import {
   SESSION_EXPIRY_BUFFER_MS,
   SESSION_IDLE_TIMEOUT_MS,
 } from "#src/infrastructure/locales/constants.js";
+import { JOURNEYS } from "#src/infrastructure/config/journeySequences.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 
@@ -109,20 +110,30 @@ export function createAuthRouter(
       req.session.providerEmail = "test@example.com";
       req.session.roles = parseRolesQueryParam(req.query.role);
 
-      if (typeof req.query.applyStep === "string") {
-        const stepIndex = Number(req.query.applyStep);
-        if (!Number.isNaN(stepIndex)) {
-          req.session.apply = { lastCompletedStepIndex: stepIndex };
-        }
-      }
+      if (
+        typeof req.query.journeyStep === "string" &&
+        typeof req.query.journeyType === "string"
+      ) {
+        const stepIndex = Number(req.query.journeyStep);
+        const journeyType = Number(req.query.journeyType);
 
-      if (typeof req.query.claimStep === "string") {
-        const stepIndex = Number(req.query.claimStep);
-        if (!Number.isNaN(stepIndex)) {
-          req.session.claim = {
-            ...req.session.claim,
-            lastCompletedStepIndex: stepIndex,
-          };
+        if (!Number.isNaN(stepIndex) && !Number.isNaN(journeyType)) {
+          const {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unsafe-enum-assignment -- it's necessary
+            [journeyType as keyof typeof JOURNEYS]: journeyArray,
+          } = JOURNEYS;
+
+          const ZERO = 0;
+          const ONE = 1;
+          const lastVisitedPageIndex = stepIndex + ONE;
+
+          (req.session as Record<string, unknown>).visitedJourneyPages =
+            journeyArray.slice(ZERO, lastVisitedPageIndex + ONE);
+
+          (req.session as Record<string, unknown>).lastCompletedStepIndex =
+            stepIndex;
+
+          (req.session as Record<string, unknown>).journeyType = journeyType;
         }
       }
 

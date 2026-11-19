@@ -14,5 +14,11 @@ export function createApplicationDeclarationRouter(
       applicationDeclarationAdaptor.processForm(req, res);
     },
   );
+  applicationDeclarationRouter.get(
+    "/new-application",
+    (req: Request, res: Response): void => {
+      applicationDeclarationAdaptor.startNewApplication(req, res);
+    },
+  );
   return applicationDeclarationRouter;
 }

@@ -1,6 +1,5 @@
-@forward "govuk-frontend/dist/govuk";
 @use "@ministryofjustice/frontend/moj/all";
-@use "govuk-frontend/dist/govuk/index";
+@use "govuk-frontend/dist/govuk" as govuk;
 
 // Hide copy buttons if Javascript is disabled
 .copy-button {
@@ -27,7 +26,7 @@ body.js-enabled {
 
 // Override the default green confirmation panel background for rejected claims
 .govuk-panel.app-panel--rejected {
-  background-color: index.govuk-colour("red");
+  background-color: govuk.govuk-colour("red");
 }
 
 // Remove bottom border from moj header
@@ -36,6 +35,6 @@ body.js-enabled {
 }
 
 .moj-multi-file-upload__dropzone:focus-within {
-  outline: 3px solid index.govuk-functional-colour("focus");
-  box-shadow: inset 0 0 0 4px index.govuk-functional-colour("focus-text");
+  outline: 3px solid govuk.govuk-functional-colour("focus");
+  box-shadow: inset 0 0 0 4px govuk.govuk-functional-colour("focus-text");
 }

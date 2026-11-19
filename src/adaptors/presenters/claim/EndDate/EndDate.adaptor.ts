@@ -9,6 +9,7 @@ import type {
   EndDateValidator,
 } from "#src/adaptors/presenters/claim/EndDate/EndDate.validator.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class EndDateAdaptor {
   readonly #formValidator: EndDateValidator;
@@ -80,9 +81,19 @@ export class EndDateAdaptor {
     };
 
     if (req.session.claim.returnToCheckYourAnswers === true) {
-      completeStepAndRedirect(req as Request, res, "/claim/check-your-answers");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/check-your-answers",
+        JOURNEY_TYPES.CLAIM,
+      );
     } else {
-      completeStepAndRedirect(req as Request, res, "/claim/inquest-outcome");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/inquest-outcome",
+        JOURNEY_TYPES.CLAIM,
+      );
     }
   }
 

@@ -10,11 +10,13 @@ describe("UploadCoronersLetterUseCase", () => {
 
   const testCoronersLetterId = uuidv4();
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
+  const TEST_OFFICE_CODE = "A001B";
 
   const testCoronerLetter = {
     buffer: Buffer.from("coroners-letter-content"),
     mimetype: "application/pdf",
     originalname: testCoronersLetterFileName,
+    officeId: TEST_OFFICE_CODE,
     accessToken: "access-token-123",
   };
 

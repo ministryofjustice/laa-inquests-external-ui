@@ -183,6 +183,7 @@ const accessibilityStatementAdaptor = new AccessibilityStatementAdaptor();
 
 indexRouter.use(
   "/accessibility-statement",
+  requireAuth,
   createAccessibilityStatementRouter(
     express.Router(),
     accessibilityStatementAdaptor,
@@ -219,6 +220,7 @@ indexRouter.post("/", (req: Request, res: Response): void => {
 
 const applicationDeclarationAdaptor = new ApplicationDeclarationAdaptor(
   new ValidateBeforeYouStartDeclarationUseCase(),
+  new SessionHelper(),
 );
 
 const clientDetailsFormValidator = new ClientDetailsValidator();

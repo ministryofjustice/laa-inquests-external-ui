@@ -29,6 +29,7 @@ import {
 import { setupRateLimiter } from "./infrastructure/express/middleware/security/setupRateLimiter.js";
 import { createSessionStore } from "./infrastructure/express/session/sessionStore.js";
 import { globalAccessGuard } from "./infrastructure/express/middleware/accessControl/globalAccessGuard.js";
+import { globalAuthGuard } from "./infrastructure/express/middleware/accessControl/globalAuthGuard.js";
 import { viewContext } from "./infrastructure/express/middleware/accessControl/viewContext.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 import crypto from "node:crypto";
@@ -158,6 +159,7 @@ app.use(helmet(helmetConfig));
 setupNunjucks(app);
 
 app.use(viewContext);
+app.use(globalAuthGuard);
 app.use(globalAccessGuard);
 app.use(setupNavigationData);
 

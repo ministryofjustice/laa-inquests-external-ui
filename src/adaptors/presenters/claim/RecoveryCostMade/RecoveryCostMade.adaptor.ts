@@ -12,6 +12,7 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { ClaimNavigationHelper } from "#src/adaptors/presenters/claim/ClaimNavigation.helper.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class RecoveryCostMadeAdaptor {
   formValidator: RecoveryCostMadeValidator;
@@ -74,7 +75,12 @@ export class RecoveryCostMadeAdaptor {
         preCertificateCosts: undefined,
       };
       this.#markEditWhenReturning(req);
-      completeStepAndRedirect(req as Request, res, "/claim/recovery-costs");
+      completeStepAndRedirect(
+        req as Request,
+        res,
+        "/claim/recovery-costs",
+        JOURNEY_TYPES.CLAIM,
+      );
       return;
     }
 
@@ -87,7 +93,12 @@ export class RecoveryCostMadeAdaptor {
       recoveryPreCertificateCosts: undefined,
     };
     this.#markEditWhenReturning(req);
-    completeStepAndRedirect(req as Request, res, "/claim/pre-cert-costs");
+    completeStepAndRedirect(
+      req as Request,
+      res,
+      "/claim/pre-cert-costs",
+      JOURNEY_TYPES.CLAIM,
+    );
   }
 
   // Keeps the return-to-check-your-answers trip routed via the dependent cost page.

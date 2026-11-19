@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { Formatter } from "#src/utils/Formatter.js";
 import { CORRESPONDENCE_ADDRESS_SOURCE } from "#src/infrastructure/locales/constants.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 import type { ApplySubmitPort } from "#src/ports/source/inquests-api/SubmitApplication.port.js";
 import type { SessionHelper } from "#src/infrastructure/express/session/sessionHelpers.js";
 import type { ClientDeclarationFormData } from "#src/adaptors/presenters/apply/models/form.types.js";
@@ -13,10 +14,7 @@ import { ConfirmationSessionStateMapper } from "#src/use-cases/apply/confirmatio
 import { ValidateClientDeclarationUseCase } from "#src/use-cases/apply/confirmation/ValidateClientDeclaration.useCase.js";
 import { SubmitApplicationUseCase } from "#src/use-cases/apply/confirmation/SubmitApplication.useCase.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
-import {
-  completeStepAndRedirect,
-  markStepComplete,
-} from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 
 interface ConfirmationUseCases {
   buildCheckYourAnswers: BuildCheckYourAnswersUseCase;
@@ -94,8 +92,6 @@ export class ConfirmationAdaptor {
     const formattedCheckYourAnswersData =
       this.#toCheckYourAnswersViewModel(checkYourAnswersData);
 
-    markStepComplete(req, "/apply/check-your-answers");
-
     res.render("apply/check-your-answers", {
       csrfToken,
       ...formattedCheckYourAnswersData,
@@ -159,7 +155,21 @@ export class ConfirmationAdaptor {
     });
     this.sessionHelper.clearFormData(req);
     session.applicationReferenceNumber = laaReference;
-    completeStepAndRedirect(req, res, "/apply/confirmation/success");
+    completeStepAndRedirect(
+      req,
+      res,
+      "/apply/confirmation/success",
+      JOURNEY_TYPES.APPLY,
+    );
+  }
+
+  processCheckYourAnswersForm(req: Request, res: Response): void {
+    completeStepAndRedirect(
+      req,
+      res,
+      "/apply/confirmation/client-declaration",
+      JOURNEY_TYPES.APPLY,
+    );
   }
 
   renderConfirmSuccess(req: Request, res: Response): void {

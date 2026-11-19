@@ -4,6 +4,7 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 import type { ValidateBeforeYouStartDeclarationUseCase } from "#src/use-cases/common/validateDeclaration/ValidateBeforeYouStartDeclaration.useCase.js";
 import type { ClaimDeclarationFormData } from "#src/adaptors/source/inquests-api/claim/ClaimDeclaration/models/ClaimDeclaration.types.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 export class ClaimDeclarationAdaptor {
   validateBeforeYouStartDeclarationUseCase: ValidateBeforeYouStartDeclarationUseCase;
@@ -53,6 +54,6 @@ export class ClaimDeclarationAdaptor {
         event: "claim_declaration_submitted",
       },
     });
-    completeStepAndRedirect(req, res, "/claim/search");
+    completeStepAndRedirect(req, res, "/claim/search", JOURNEY_TYPES.CLAIM);
   }
 }

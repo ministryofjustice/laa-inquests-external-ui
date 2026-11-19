@@ -32,6 +32,10 @@ export interface RoutePolicy {
 
 export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   {
+    prefix: "/accessibility-statement",
+    allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
+  },
+  {
     prefix: "/cookies",
     allowedRoles: [APP_ROLES.APPLICATION_USER, APP_ROLES.CLAIMS_USER],
   },
@@ -47,13 +51,7 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   },
 ];
 
-const PUBLIC_EXACT_PATHS: readonly string[] = [
-  "/health",
-  "/status",
-  "/error",
-  "/accessibility-statement",
-  "/cookies",
-];
+const PUBLIC_EXACT_PATHS: readonly string[] = ["/health", "/status"];
 
 const PUBLIC_PREFIXES: readonly string[] = ["/auth"];
 

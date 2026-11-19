@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import {
-  APPLY_JOURNEY_SEQUENCE,
-  CLAIM_JOURNEY_SEQUENCE,
+  JOURNEY_TYPES,
+  JOURNEYS,
 } from "#src/infrastructure/config/journeySequences.js";
 import { JOURNEY_NOT_STARTED } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
 import { logger } from "#src/infrastructure/logging/logger.js";
@@ -9,22 +9,21 @@ import { logger } from "#src/infrastructure/logging/logger.js";
 const STEP_NOT_IN_SEQUENCE = -1;
 const FIRST_STEP_INDEX = 0;
 const NEXT_STEP_OFFSET = 1;
+const ZERO = 0;
 
 interface JourneyGuardOptions {
-  journeyType: "apply" | "claim";
-  journeyPrefix: string;
   journeySequence: readonly string[];
 }
 
 function getValidatedLastCompletedStep(
-  journeyState: unknown,
+  session: unknown,
   sequenceLength: number,
 ): number {
   const rawLastCompleted =
-    journeyState instanceof Object &&
-    "lastCompletedStepIndex" in journeyState &&
-    typeof journeyState.lastCompletedStepIndex === "number"
-      ? journeyState.lastCompletedStepIndex
+    session instanceof Object &&
+    "lastCompletedStepIndex" in session &&
+    typeof session.lastCompletedStepIndex === "number"
+      ? session.lastCompletedStepIndex
       : JOURNEY_NOT_STARTED;
 
   if (
@@ -39,15 +38,10 @@ function getValidatedLastCompletedStep(
 
 export function createJourneyGuard(options: JourneyGuardOptions) {
   return (req: Request, res: Response, next: NextFunction): void => {
-    const { journeyType, journeyPrefix, journeySequence } = options;
-    const { path: currentPath } = req;
+    const { journeySequence } = options;
+    const { originalUrl: currentPath } = req;
 
-    const relativePath = currentPath.startsWith(journeyPrefix)
-      ? currentPath.slice(journeyPrefix.length)
-      : currentPath;
-
-    const currentStepUrl = `${journeyPrefix}${relativePath}`;
-    const currentIndex = journeySequence.indexOf(currentStepUrl);
+    const currentIndex = getPageIndex(currentPath, journeySequence);
 
     if (currentIndex === STEP_NOT_IN_SEQUENCE) {
       next();
@@ -55,29 +49,46 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
     }
 
     const sessionRecord = req.session as Record<string, unknown>;
-    const { [journeyType]: journeyState } = sessionRecord;
     const lastCompletedStepIndex: number = getValidatedLastCompletedStep(
-      journeyState,
+      sessionRecord,
       journeySequence.length,
     );
+
+    const journeyType = parseInt(
+      Object.entries(JOURNEYS)
+        .find(([key, value]) => value === journeySequence)
+        ?.at(ZERO) as string,
+      10,
+    );
+
+    const isAllowedJourneyType =
+      (!isNaN(journeyType) && journeyType === sessionRecord.journeyType) ||
+      currentIndex === FIRST_STEP_INDEX;
 
     const isAllowedStep =
       currentIndex === FIRST_STEP_INDEX ||
       currentIndex <= lastCompletedStepIndex + NEXT_STEP_OFFSET;
 
-    if (isAllowedStep) {
+    const isCurrentPath = checkCurrentPath(
+      currentPath,
+      sessionRecord,
+      currentIndex,
+    );
+
+    if (isAllowedStep && isAllowedJourneyType && isCurrentPath) {
       next();
       return;
     }
 
-    const redirectToIndex =
-      lastCompletedStepIndex >= FIRST_STEP_INDEX &&
-      lastCompletedStepIndex < journeySequence.length - NEXT_STEP_OFFSET
-        ? lastCompletedStepIndex + NEXT_STEP_OFFSET
-        : FIRST_STEP_INDEX;
+    const redirectToIndex = getRedirectIndex(
+      lastCompletedStepIndex,
+      journeySequence,
+      isAllowedJourneyType,
+    );
 
     // eslint-disable-next-line @typescript-eslint/prefer-destructuring -- array access by computed index
     const lastCompletedUrl = journeySequence[redirectToIndex];
+    const redirectUrl = replaceIdRegexesInUrl(lastCompletedUrl, currentPath);
 
     logger.logInfo({
       functionName: "journey_guard",
@@ -89,22 +100,85 @@ export function createJourneyGuard(options: JourneyGuardOptions) {
         current_path: currentPath,
         current_index: currentIndex,
         last_completed_index: lastCompletedStepIndex,
-        redirect_to: lastCompletedUrl,
+        redirect_to: redirectUrl,
       },
     });
 
-    res.redirect(lastCompletedUrl);
+    res.redirect(redirectUrl);
   };
 }
 
+function getRedirectIndex(
+  lastCompletedStepIndex: number,
+  journeySequence: readonly string[],
+  isAllowedJourneyType: boolean,
+): number {
+  return lastCompletedStepIndex >= FIRST_STEP_INDEX &&
+    lastCompletedStepIndex < journeySequence.length - NEXT_STEP_OFFSET &&
+    isAllowedJourneyType
+    ? lastCompletedStepIndex + NEXT_STEP_OFFSET
+    : FIRST_STEP_INDEX;
+}
+
+function checkCurrentPath(
+  currentPath: string,
+  session: Record<string, unknown>,
+  currentIndex: number,
+): boolean {
+  const { visitedJourneyPages } = session;
+  const { lastCompletedStepIndex } = session;
+  if (visitedJourneyPages instanceof Array) {
+    return (
+      visitedJourneyPages.includes(
+        currentPath.split("?").at(ZERO) ?? currentPath,
+      ) ||
+      lastCompletedStepIndex === JOURNEY_NOT_STARTED ||
+      currentIndex === FIRST_STEP_INDEX
+    );
+  }
+  return true;
+}
+
+function getPageIndex(pageToMark: string, journey: readonly string[]): number {
+  const noQueryUrl = pageToMark.split("?").at(ZERO) ?? pageToMark;
+  const abstractedApplicationPage = noQueryUrl.replace(
+    /INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/v,
+    "INQ-[A-Z0-9]{3}-[A-Z0-9]{3}",
+  );
+  const abstractedPage = abstractedApplicationPage.replace(
+    /INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/v,
+    "INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
+  );
+  return journey.indexOf(abstractedPage);
+}
+
+function replaceIdRegexesInUrl(
+  redirectUrlPattern: string,
+  currentPath: string,
+): string {
+  const applicationIdMatch = /INQ-[A-Z0-9]{3}-[A-Z0-9]{3}/v.exec(currentPath);
+  const specificApplicationUrl =
+    applicationIdMatch === null
+      ? redirectUrlPattern
+      : redirectUrlPattern.replace(
+          "INQ-[A-Z0-9]{3}-[A-Z0-9]{3}",
+          applicationIdMatch[ZERO],
+        );
+  const claimIdMatch = /INQC-[A-Z0-9]{4}-[A-Z0-9]{4}/v.exec(currentPath);
+  const specificClaimUrl =
+    claimIdMatch === null
+      ? specificApplicationUrl
+      : specificApplicationUrl.replace(
+          "INQC-[A-Z0-9]{4}-[A-Z0-9]{4}",
+          claimIdMatch[ZERO],
+        );
+  return specificClaimUrl;
+}
+
 export const applyJourneyGuard = createJourneyGuard({
-  journeyType: "apply",
-  journeyPrefix: "/apply",
-  journeySequence: APPLY_JOURNEY_SEQUENCE,
+  journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
 });
 
 export const claimJourneyGuard = createJourneyGuard({
-  journeyType: "claim",
-  journeyPrefix: "/claim",
-  journeySequence: CLAIM_JOURNEY_SEQUENCE,
+  journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM],
 });

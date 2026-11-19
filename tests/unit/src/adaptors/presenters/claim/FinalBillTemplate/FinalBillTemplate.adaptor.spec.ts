@@ -108,7 +108,7 @@ describe("FinalBillTemplate adaptor", () => {
       adaptor.processForm(requestStub, responseStub);
 
       assert.equal(responseStub.redirect.getCall(0).args[0], "/claim/evidence");
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 7);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 7);
     });
 
     it("redirects to /claim/check-your-answers when returning from that page", () => {
@@ -123,7 +123,7 @@ describe("FinalBillTemplate adaptor", () => {
         responseStub.redirect.getCall(0).args[0],
         "/claim/check-your-answers",
       );
-      assert.equal(requestStub.session.claim?.lastCompletedStepIndex, 17);
+      assert.equal(requestStub.session.lastCompletedStepIndex, 17);
     });
   });
 
@@ -164,6 +164,7 @@ describe("FinalBillTemplate adaptor", () => {
       const requestStub = stubInterface<Request>();
       responseStub.locals = { csrfToken: "test-token" };
       responseStub.status.returns(responseStub);
+      requestStub.session.claim = {};
       requestStub.file = {
         buffer: Buffer.from("test"),
         mimetype:
@@ -178,7 +179,8 @@ describe("FinalBillTemplate adaptor", () => {
       await adaptor.processTemplateUpload(requestStub, responseStub);
 
       assert.equal(responseStub.status.getCall(0).args[0], HTTP_CREATED);
-      assert.deepEqual(requestStub.session.claim?.finalBillCostTemplate, {
+      assert.ok(requestStub.session.claim);
+      assert.deepEqual(requestStub.session.claim.finalBillCostTemplate, {
         costTemplateId: "template-id-123",
         costTemplateFilename: "cost-template.xlsx",
         costTemplateFileSize: 4,
@@ -315,7 +317,7 @@ describe("FinalBillTemplate adaptor", () => {
 
       await adaptor.processTemplateDelete(requestStub, responseStub);
 
-      assert.equal(requestStub.session.claim?.finalBillCostTemplate, undefined);
+      assert.equal(requestStub.session.claim.finalBillCostTemplate, undefined);
       assert.equal(responseStub.json.getCall(0).args[0].success, true);
     });
   });

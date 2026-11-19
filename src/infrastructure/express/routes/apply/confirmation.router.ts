@@ -12,6 +12,13 @@ export function createConfirmationRouter(
     },
   );
 
+  confirmationRouter.post(
+    "/check-your-answers",
+    (req: Request, res: Response): void => {
+      confirmationAdaptor.processCheckYourAnswersForm(req, res);
+    },
+  );
+
   confirmationRouter.get(
     "/confirmation/client-declaration",
     (req: Request, res: Response): void => {

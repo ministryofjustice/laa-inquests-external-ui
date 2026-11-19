@@ -4,6 +4,10 @@ import { stubInterface } from "ts-sinon";
 import type { Request, Response } from "express";
 import { createJourneyGuard } from "#src/infrastructure/express/middleware/accessControl/journeyGuard.js";
 import { JOURNEY_NOT_STARTED } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import {
+  JOURNEY_TYPES,
+  JOURNEYS,
+} from "#src/infrastructure/config/journeySequences.js";
 
 const TEST_JOURNEY_SEQUENCE = [
   "/apply/step-1",
@@ -24,7 +28,7 @@ describe("journeyGuard middleware", () => {
     nextSpy = sinon.spy();
 
     requestStub.session = {};
-    requestStub.path = "/apply/step-1";
+    requestStub.originalUrl = "/apply/step-1";
 
     responseStub.redirect = sinon.spy();
   });
@@ -32,9 +36,7 @@ describe("journeyGuard middleware", () => {
   describe("createJourneyGuard factory", () => {
     it("creates a middleware function", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       assert(typeof middleware === "function");
@@ -42,15 +44,11 @@ describe("journeyGuard middleware", () => {
 
     it("creates independent middleware instances", () => {
       const middleware1 = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       const middleware2 = createJourneyGuard({
-        journeyType: "claim",
-        journeyPrefix: "/claim",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM],
       });
 
       assert.notStrictEqual(middleware1, middleware2);
@@ -60,12 +58,10 @@ describe("journeyGuard middleware", () => {
   describe("step access control", () => {
     it("allows access to the first step", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -74,15 +70,14 @@ describe("journeyGuard middleware", () => {
 
     it("allows access to step immediately after last completed step", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 0 },
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-2";
+      requestStub.originalUrl = "/apply/step-2";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -91,15 +86,14 @@ describe("journeyGuard middleware", () => {
 
     it("allows access to already-completed steps", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 2 },
+        lastCompletedStepIndex: 2,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-2";
+      requestStub.originalUrl = "/apply/step-2";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -108,15 +102,14 @@ describe("journeyGuard middleware", () => {
 
     it("redirects when attempting to skip one step", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 0 },
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-3";
+      requestStub.originalUrl = "/apply/client-details/name-and-dob";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -124,21 +117,20 @@ describe("journeyGuard middleware", () => {
       assert((responseStub.redirect as any).calledOnce);
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
-        "/apply/step-2",
+        "/apply/office-accounts",
       );
     });
 
     it("redirects when attempting to skip multiple steps", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 0 },
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/confirmation";
+      requestStub.originalUrl = "/apply/client-details/name-and-dob";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -146,7 +138,7 @@ describe("journeyGuard middleware", () => {
       assert((responseStub.redirect as any).calledOnce);
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
-        "/apply/step-2",
+        "/apply/office-accounts",
       );
     });
   });
@@ -154,13 +146,11 @@ describe("journeyGuard middleware", () => {
   describe("session state handling", () => {
     it("treats missing lastCompletedStepIndex as JOURNEY_NOT_STARTED", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
-      requestStub.session = { apply: {} };
-      requestStub.path = "/apply/step-1";
+      requestStub.session = { journeyType: JOURNEY_TYPES.APPLY };
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -169,13 +159,11 @@ describe("journeyGuard middleware", () => {
 
     it("treats missing apply state as JOURNEY_NOT_STARTED", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {};
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -184,15 +172,14 @@ describe("journeyGuard middleware", () => {
 
     it("treats non-numeric lastCompletedStepIndex as JOURNEY_NOT_STARTED", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: "invalid" },
+        lastCompletedStepIndex: "invalid",
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -201,15 +188,14 @@ describe("journeyGuard middleware", () => {
 
     it("allows access to next step after completing a later step in sequence", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 3 },
+        lastCompletedStepIndex: 3,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-3";
+      requestStub.originalUrl = "/apply/step-3";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -217,15 +203,88 @@ describe("journeyGuard middleware", () => {
     });
   });
 
+  describe("Current path handling", () => {
+    it("allows access when current path is included in visitedJourneyPages", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 1,
+        journeyType: JOURNEY_TYPES.APPLY,
+        visitedJourneyPages: [
+          "/apply",
+          "/apply/office-accounts",
+          "/apply/client-details/name-and-dob",
+        ],
+      };
+      ((requestStub.originalUrl = "/apply/office-accounts"),
+        middleware(requestStub as any, responseStub, nextSpy));
+
+      assert(nextSpy.calledOnce);
+    });
+
+    it("allows access when current path is the first step", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.APPLY,
+        visitedJourneyPages: [],
+      };
+      requestStub.originalUrl = "/apply";
+
+      middleware(requestStub as any, responseStub, nextSpy);
+
+      assert(nextSpy.calledOnce);
+    });
+
+    it("allows access when completePages is undefined and accessing the first step", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.APPLY,
+      };
+      requestStub.originalUrl = "/apply";
+
+      middleware(requestStub as any, responseStub, nextSpy);
+
+      assert(nextSpy.calledOnce);
+    });
+
+    it("redirects when current path is not included in visitedJourneyPages and is not the first step", () => {
+      const middleware = createJourneyGuard({
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
+      });
+
+      requestStub.session = {
+        lastCompletedStepIndex: 0,
+        journeyType: JOURNEY_TYPES.APPLY,
+        visitedJourneyPages: ["/apply", "/apply/office-accounts"],
+      };
+      ((requestStub.originalUrl = "/apply/client-details/name-and-dob"),
+        middleware(requestStub as any, responseStub, nextSpy));
+
+      assert((responseStub.redirect as any).calledOnce);
+      assert.strictEqual(
+        (responseStub.redirect as any).firstCall.args[0],
+        "/apply/office-accounts",
+      );
+    });
+  });
+
   describe("path handling", () => {
     it("allows access to paths not in the journey sequence", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
-      requestStub.path = "/apply/some-utility-endpoint";
+      requestStub.originalUrl = "/apply/some-utility-endpoint";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -235,13 +294,11 @@ describe("journeyGuard middleware", () => {
 
     it("correctly handles journey prefix in path matching", () => {
       const middleware = createJourneyGuard({
-        journeyType: "claim",
-        journeyPrefix: "/claim",
-        journeySequence: ["/claim/step-1", "/claim/step-2"] as const,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM],
       });
 
-      requestStub.session = { claim: {} };
-      requestStub.path = "/claim/step-1";
+      requestStub.session = { journeyType: JOURNEY_TYPES.CLAIM };
+      requestStub.originalUrl = "/claim/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -250,14 +307,12 @@ describe("journeyGuard middleware", () => {
 
     it("handles paths with trailing slashes", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
-      requestStub.session = { apply: {} };
+      requestStub.session = { journeyType: JOURNEY_TYPES.APPLY };
       // Path has trailing slash but not in sequence
-      requestStub.path = "/apply/step-1/";
+      requestStub.originalUrl = "/apply/step-1/";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -269,16 +324,14 @@ describe("journeyGuard middleware", () => {
   describe("journey type isolation", () => {
     it("uses correct session property for apply journey", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        claim: { lastCompletedStepIndex: 3 },
-        apply: {},
+        lastCompletedStepIndex: -1,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -287,16 +340,14 @@ describe("journeyGuard middleware", () => {
 
     it("uses correct session property for claim journey", () => {
       const middleware = createJourneyGuard({
-        journeyType: "claim",
-        journeyPrefix: "/claim",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.CLAIM],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 3 },
-        claim: {},
+        lastCompletedStepIndex: -1,
+        journeyType: JOURNEY_TYPES.CLAIM,
       };
-      requestStub.path = "/claim/step-1";
+      requestStub.originalUrl = "/claim/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -307,15 +358,14 @@ describe("journeyGuard middleware", () => {
   describe("boundary conditions", () => {
     it("allows access to final step after completing penultimate step", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 3 },
+        lastCompletedStepIndex: 3,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/confirmation";
+      requestStub.originalUrl = "/apply/confirmation";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -324,15 +374,14 @@ describe("journeyGuard middleware", () => {
 
     it("allows access to final step", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 4 },
+        lastCompletedStepIndex: 4,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/confirmation";
+      requestStub.originalUrl = "/apply/confirmation";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -341,16 +390,15 @@ describe("journeyGuard middleware", () => {
 
     it("redirects to first step when lastCompletedStepIndex is out of bounds", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       // lastCompletedStepIndex beyond sequence length
       requestStub.session = {
-        apply: { lastCompletedStepIndex: 999 },
+        lastCompletedStepIndex: 999,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-3";
+      requestStub.originalUrl = "/apply/client-details/name-and-dob";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -358,22 +406,21 @@ describe("journeyGuard middleware", () => {
       assert((responseStub.redirect as any).calledOnce);
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
-        "/apply/step-1",
+        "/apply",
       );
     });
 
     it("redirects to first step when lastCompletedStepIndex is negative", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       // lastCompletedStepIndex is negative
       requestStub.session = {
-        apply: { lastCompletedStepIndex: -999 },
+        lastCompletedStepIndex: -999,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-2";
+      requestStub.originalUrl = "/apply/office-accounts";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
@@ -381,7 +428,7 @@ describe("journeyGuard middleware", () => {
       assert((responseStub.redirect as any).calledOnce);
       assert.strictEqual(
         (responseStub.redirect as any).firstCall.args[0],
-        "/apply/step-1",
+        "/apply",
       );
     });
   });
@@ -393,15 +440,14 @@ describe("journeyGuard middleware", () => {
 
     it("correctly represents no steps completed", () => {
       const middleware = createJourneyGuard({
-        journeyType: "apply",
-        journeyPrefix: "/apply",
-        journeySequence: TEST_JOURNEY_SEQUENCE,
+        journeySequence: JOURNEYS[JOURNEY_TYPES.APPLY],
       });
 
       requestStub.session = {
-        apply: { lastCompletedStepIndex: JOURNEY_NOT_STARTED },
+        lastCompletedStepIndex: JOURNEY_NOT_STARTED,
+        journeyType: JOURNEY_TYPES.APPLY,
       };
-      requestStub.path = "/apply/step-1";
+      requestStub.originalUrl = "/apply/step-1";
 
       middleware(requestStub as any, responseStub, nextSpy);
 
