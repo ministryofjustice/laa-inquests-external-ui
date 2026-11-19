@@ -48,7 +48,7 @@
           items: [
             {
               value: "PERSON",
-              text: "Yes, a person",
+              html: (t("pages.apply.clientDetails.correspondenceRecipient.personLabel") | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t("pages.apply.clientDetails.correspondenceRecipient.personRevealHint") | escape) ~ '</span>',
               conditional: {
                 html: govukInput({
                   id: "correspondence-recipient-person-name",
@@ -66,7 +66,7 @@
             },
             {
               value: "ORGANISATION",
-              text: "Yes, an organisation",
+              html: (t("pages.apply.clientDetails.correspondenceRecipient.organisationLabel") | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t("pages.apply.clientDetails.correspondenceRecipient.organisationRevealHint") | escape) ~ '</span>',
               conditional: {
                 html: govukInput({
                   id: "correspondence-recipient-organisation-name",

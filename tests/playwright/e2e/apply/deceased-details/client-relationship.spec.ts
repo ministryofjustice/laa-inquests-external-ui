@@ -79,6 +79,28 @@ test.describe("Provider can", () => {
     );
   });
 
+  test("includes the revealed field in the yes radio's accessible name", async ({
+    checkAccessibility,
+  }) => {
+    const yesRadio = form.locator(
+      'input[name="deceased-has-client-relationship"][value="true"]',
+    );
+
+    await expect(yesRadio).toHaveAccessibleName(
+      /^Yes, my client is a family member\s+\.\s+Selecting this option will reveal a field for your client's relationship to the deceased\.$/,
+    );
+
+    await yesRadio.check();
+    await expect(
+      form.getByRole("textbox", {
+        name: "My client is the deceased's:",
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await checkAccessibility();
+  });
+
   test("shows an error when no radio option is selected", async ({ page }) => {
     await continueToNextPage(form, page);
 
