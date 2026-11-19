@@ -23,7 +23,6 @@ describe("UploadCoronersLetterAdaptor", () => {
       data: {
         coronersLetterId: testCoronersLetterId,
         coronersLetterFileName: testCoronersLetterFileName,
-        officeCode: TEST_OFFICE_CODE,
       },
     });
 
@@ -58,7 +57,6 @@ describe("UploadCoronersLetterAdaptor", () => {
     status: "SUCCESS",
     coronersLetterId: testCoronersLetterId,
     coronersLetterFileName: testCoronersLetterFileName,
-    officeCode: TEST_OFFICE_CODE,
   };
 
   const expectedRejectedResponse: UploadCoronersLetterResponse = {

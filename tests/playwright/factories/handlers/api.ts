@@ -212,7 +212,6 @@ export const apiHandlers = [
               officeId === "A002B"
                 ? "test_coroners_letter_A002B.pdf"
                 : coronersLetterFileName,
-            officeCode: officeId,
           },
           { status: 201 },
         );

@@ -10,5 +10,4 @@ export const UploadCoronersLetterRequestSchema = z.object({
 export const UploadCoronersLetterApiResponseSchema = z.object({
   coronersLetterId: z.string(),
   coronersLetterFileName: z.string(),
-  officeCode: z.string(),
 });
