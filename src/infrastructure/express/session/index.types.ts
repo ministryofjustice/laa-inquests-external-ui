@@ -19,6 +19,7 @@ declare module "express-session" {
     // This allows both specific properties and dynamic namespace access
     lastCompletedStepIndex?: number;
     journeyType?: number;
+    visitedJourneyPages?: string[];
     error: FormError;
     selectedProceeding?: Proceeding;
     proceedingOption?: Proceeding;

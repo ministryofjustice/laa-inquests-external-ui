@@ -11,6 +11,7 @@ import {
   SESSION_EXPIRY_BUFFER_MS,
   SESSION_IDLE_TIMEOUT_MS,
 } from "#src/infrastructure/locales/constants.js";
+import { JOURNEYS } from "#src/infrastructure/config/journeySequences.js";
 
 const MILLISECONDS_IN_A_SECOND = 1000;
 
@@ -115,7 +116,20 @@ export function createAuthRouter(
       ) {
         const stepIndex = Number(req.query.journeyStep);
         const journeyType = Number(req.query.journeyType);
+
         if (!Number.isNaN(stepIndex) && !Number.isNaN(journeyType)) {
+          const {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-unsafe-enum-assignment -- it's necessary
+            [journeyType as keyof typeof JOURNEYS]: journeyArray,
+          } = JOURNEYS;
+
+          const ZERO = 0;
+          const ONE = 1;
+          const lastVisitedPageIndex = stepIndex + ONE;
+
+          (req.session as Record<string, unknown>).visitedJourneyPages =
+            journeyArray.slice(ZERO, lastVisitedPageIndex + ONE);
+
           (req.session as Record<string, unknown>).lastCompletedStepIndex =
             stepIndex;
 

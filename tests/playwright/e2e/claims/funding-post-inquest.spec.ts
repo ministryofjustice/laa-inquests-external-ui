@@ -1,6 +1,9 @@
 import { test, expect } from "../../fixtures/index.js";
 import { FUNDING_POST_INQUEST_ERROR } from "#src/infrastructure/locales/constants.js";
-import { validateCSRFToken } from "../../utils/govuk-validators.js";
+import {
+  continueToNextPage,
+  validateCSRFToken,
+} from "../../utils/govuk-validators.js";
 
 test.describe("Claim - funding post-inquest", () => {
   test.beforeEach(async ({ page }) => {

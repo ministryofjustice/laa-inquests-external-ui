@@ -85,6 +85,33 @@ describe("journeyStepHelper", () => {
       const sessionRecord = requestStub.session as any;
       assert.equal(sessionRecord.lastCompletedStepIndex, 1);
     });
+
+    it("adds the redirected URL to visitedJourneyPages in session when no previous completed pages exist", () => {
+      requestStub.session.visitedJourneyPages = undefined;
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/apply",
+        JOURNEY_TYPES.APPLY,
+      );
+      const session = requestStub.session as any;
+      assert.deepEqual(session.visitedJourneyPages, ["/apply"]);
+    });
+
+    it("adds the redirected URL to visitedJourneyPages in session when previous completed pages exist", () => {
+      requestStub.session.visitedJourneyPages = ["/apply"];
+      completeStepAndRedirect(
+        requestStub,
+        responseStub,
+        "/apply/client-details/name-and-dob",
+        JOURNEY_TYPES.APPLY,
+      );
+      const session = requestStub.session as any;
+      assert.deepEqual(session.visitedJourneyPages, [
+        "/apply",
+        "/apply/client-details/name-and-dob",
+      ]);
+    });
   });
 
   describe("markStepComplete", () => {
