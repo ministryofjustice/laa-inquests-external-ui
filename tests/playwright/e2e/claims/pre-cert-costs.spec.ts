@@ -23,17 +23,18 @@ test.describe("Claim - pre-certificate costs", () => {
     await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
   });
 
-  test("redirects to inquest outcome recovery when the recovery cost has been made", async ({
+  test("redirects to recovery costswhen the recovery cost has been made", async ({
     page,
   }) => {
     await page.goto("/claim/inquest-outcome-recovery");
     const recoveryForm = page.getByTestId("inquest-outcome-recovery-form");
     await recoveryForm.getByLabel("Yes", { exact: true }).check();
     await recoveryForm.getByRole("button", { name: "Continue" }).click();
+    await page.waitForLoadState("domcontentloaded");
 
     await page.goto("/claim/pre-cert-costs");
 
-    await expect(page).toHaveURL("/claim/inquest-outcome-recovery");
+    await expect(page).toHaveURL("/claim/recovery-costs");
   });
 
   test.describe("page content", () => {
