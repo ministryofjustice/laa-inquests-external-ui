@@ -12,7 +12,6 @@ export type UploadCoronersLetterResponse =
       status: "SUCCESS";
       coronersLetterId: string;
       coronersLetterFileName: string;
-      officeCode: string;
     }
   | { status: "FILE_SCAN_FOUND_VIRUS" }
   | { status: "UPLOAD_REJECTED" };

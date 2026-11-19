@@ -85,7 +85,6 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
           status: "SUCCESS",
           coronersLetterId: parsed.data.coronersLetterId,
           coronersLetterFileName: parsed.data.coronersLetterFileName,
-          officeCode: parsed.data.officeCode,
         };
       }
 

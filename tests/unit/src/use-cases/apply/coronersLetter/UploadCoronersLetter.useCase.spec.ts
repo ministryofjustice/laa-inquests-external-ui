@@ -30,7 +30,6 @@ describe("UploadCoronersLetterUseCase", () => {
       status: "SUCCESS",
       coronersLetterId: testCoronersLetterId,
       coronersLetterFileName: testCoronersLetterFileName,
-      officeCode: TEST_OFFICE_CODE,
     });
 
     const result = await useCase.execute(testCoronerLetter);
@@ -48,7 +47,6 @@ describe("UploadCoronersLetterUseCase", () => {
       status: "SUCCESS",
       coronersLetterId: testCoronersLetterId,
       coronersLetterFileName: testCoronersLetterFileName,
-      officeCode: TEST_OFFICE_CODE,
     });
   });
 
