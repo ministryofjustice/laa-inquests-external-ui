@@ -37,6 +37,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
       }),
       body.originalname,
     );
+    formData.append("office_id", body.officeId);
 
     try {
       const response: AxiosResponse<unknown> = await postToInquestsApi<
@@ -84,6 +85,7 @@ export class UploadCoronersLetterAdaptor implements UploadCoronersLetterPort {
           status: "SUCCESS",
           coronersLetterId: parsed.data.coronersLetterId,
           coronersLetterFileName: parsed.data.coronersLetterFileName,
+          officeCode: parsed.data.officeCode,
         };
       }
 

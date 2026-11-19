@@ -190,6 +190,14 @@ export const apiHandlers = [
     async ({ request }) => {
       const formData = await request.formData();
       const uploaded = formData.get("file");
+      const officeId = formData.get("office_id");
+
+      if (typeof officeId !== "string" || officeId === "") {
+        return HttpResponse.json(
+          { detail: [{ loc: ["body", "office_id"] }] },
+          { status: 422 },
+        );
+      }
 
       if (uploaded instanceof File && uploaded.name === VIRUS_FILE_NAME) {
         return HttpResponse.json(
@@ -200,7 +208,11 @@ export const apiHandlers = [
         return HttpResponse.json(
           {
             coronersLetterId,
-            coronersLetterFileName,
+            coronersLetterFileName:
+              officeId === "A002B"
+                ? "test_coroners_letter_A002B.pdf"
+                : coronersLetterFileName,
+            officeCode: officeId,
           },
           { status: 201 },
         );

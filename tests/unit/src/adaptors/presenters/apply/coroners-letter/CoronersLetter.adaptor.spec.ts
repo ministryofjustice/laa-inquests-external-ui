@@ -24,6 +24,7 @@ describe("Coroners Letter adaptor", () => {
 
   const testCoronersLetterId = uuidv4();
   const testCoronersLetterFileName = "test-coroners-letter.pdf";
+  const TEST_OFFICE_CODE = "A001B";
 
   beforeEach(() => {
     uploadCoronersLetterUseCase = stubInterface<UploadCoronersLetterUseCase>();
@@ -265,6 +266,7 @@ describe("Coroners Letter adaptor", () => {
         status: "SUCCESS",
         coronersLetterId: testCoronersLetterId,
         coronersLetterFileName: testCoronersLetterFileName,
+        officeCode: TEST_OFFICE_CODE,
       });
       const adaptor = buildAdaptor();
       const responseStub = stubInterface<Response>();
@@ -310,6 +312,7 @@ describe("Coroners Letter adaptor", () => {
         status: "SUCCESS",
         coronersLetterId: testCoronersLetterId,
         coronersLetterFileName: testCoronersLetterFileName,
+        officeCode: TEST_OFFICE_CODE,
       });
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();
@@ -339,6 +342,7 @@ describe("Coroners Letter adaptor", () => {
         status: "SUCCESS",
         coronersLetterId: testCoronersLetterId,
         coronersLetterFileName: testCoronersLetterFileName,
+        officeCode: TEST_OFFICE_CODE,
       });
       const requestStub = stubInterface<Request>();
       const responseStub = stubInterface<Response>();

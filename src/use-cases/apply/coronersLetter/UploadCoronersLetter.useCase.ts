@@ -5,6 +5,7 @@ interface UploadCoronersLetterInput {
   buffer: Buffer;
   mimetype: string;
   originalname: string;
+  officeId: string;
   accessToken?: string;
 }
 
@@ -18,10 +19,10 @@ export class UploadCoronersLetterUseCase {
   async execute(
     input: UploadCoronersLetterInput,
   ): Promise<UploadCoronersLetterResponse> {
-    const { buffer, mimetype, originalname, accessToken } = input;
+    const { buffer, mimetype, originalname, officeId, accessToken } = input;
 
     return await this.uploadCoronersLetterPort.uploadCoronersLetter(
-      { buffer, mimetype, originalname },
+      { buffer, mimetype, originalname, officeId },
       accessToken,
     );
   }
