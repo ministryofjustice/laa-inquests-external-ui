@@ -52,4 +52,20 @@ export function testFilenameUploadErrors(
       await checkAccessibility();
     });
   }
+
+  test("shows a filename containing HTML as text without injecting elements", async ({
+    page,
+  }) => {
+    const extension = validFileName.split(".").at(-1);
+    const hostileName = `<img src=x onerror=alert(1)>.${extension}`;
+
+    await page.setInputFiles('input[type="file"][name="documents"]', {
+      name: hostileName,
+      mimeType: validMimeType,
+      buffer: Buffer.from("file content"),
+    });
+
+    await expect(page.locator(errorSelector)).toContainText(hostileName);
+    await expect(page.locator('main img[src="x"]')).toHaveCount(0);
+  });
 }

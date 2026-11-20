@@ -101,6 +101,34 @@ describe("UploadCoronersLetterValidator", () => {
 
         assert.deepEqual(errorSummaries, {});
       });
+
+      for (const originalname of [
+        "<img src=x onerror=alert(1)>.pdf",
+        "letter'\".pdf",
+        "C:\\fakepath\\letter.pdf",
+        "..\\letter.pdf",
+        "letter.pdf\n",
+        "létter.pdf",
+        "",
+      ]) {
+        it(`rejects the file name ${JSON.stringify(originalname)} even though the request bypassed the browser`, () => {
+          const validator = new UploadCoronersLetterValidator();
+          const file = {
+            size: 5 * 1024 * 1024,
+            mimetype: validMimeType,
+            originalname,
+          } as Express.Multer.File;
+
+          const errorSummaries =
+            validator.validateCoronersLetterUploadFile(file);
+
+          assert.deepEqual(errorSummaries, {
+            coronersLetterError: {
+              text: `${originalname} has an invalid filename. Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-`,
+            },
+          });
+        });
+      }
     });
 
     describe("when file has an invalid type", () => {

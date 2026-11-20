@@ -23,6 +23,7 @@ import {
   resolveUploadFailureMessage,
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { escapeHtml } from "#src/utils/html.js";
 import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 const HTTP_SUCCESS = 200;
 
@@ -383,7 +384,7 @@ export class FinalBillTemplateAdaptor {
       res.status(HTTP_CREATED).json({
         success: {
           messageText: `${file.originalname} uploaded`,
-          messageHtml: `${file.originalname} uploaded`,
+          messageHtml: `${escapeHtml(file.originalname)} uploaded`,
         },
         file: {
           filename: data.evidenceFileId,

@@ -25,6 +25,7 @@ import {
   resolveUploadFailureMessage,
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 import { completeStepAndRedirect } from "#src/adaptors/presenters/utils/journeyStepHelper.js";
+import { escapeHtml } from "#src/utils/html.js";
 import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 
 const HTTP_SUCCESS = 200;
@@ -397,7 +398,7 @@ export class CoronersLetterAdaptor {
       res.status(HTTP_CREATED).json({
         success: {
           messageText: `${data.coronersLetterFileName} uploaded`,
-          messageHtml: `${data.coronersLetterFileName} uploaded`,
+          messageHtml: `${escapeHtml(data.coronersLetterFileName)} uploaded`,
         },
         file: {
           filename: data.coronersLetterId,
