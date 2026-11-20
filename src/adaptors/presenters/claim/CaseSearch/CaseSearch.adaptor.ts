@@ -182,6 +182,7 @@ export class CaseSearchAdaptor {
       session.claim = {
         ...claim,
         caseReference: selectedReference,
+        officeId: result.officeId,
         client: result.client,
       };
       await saveSession(req);

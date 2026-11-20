@@ -439,6 +439,29 @@ describe("CaseSearch adaptor", () => {
       assert.deepEqual(requestStub.session.claim.client, storedClient);
     });
 
+    it("saves the office of the selected case to session", async () => {
+      const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
+      selectCaseUseCase.execute.resolves({
+        status: "ALLOWED",
+        client: storedClient,
+        officeId: "0U651L",
+      });
+      const adaptor = buildAdaptor(
+        stubInterface<SearchCasesPort>(),
+        stubInterface<ListClaimsPort>(),
+        selectCaseUseCase,
+      );
+
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubRequest();
+      requestStub.params = { reference: "12345" };
+      requestStub.session.claim = { searchResults: [storedSearchResult] };
+
+      await adaptor.selectCase(requestStub, responseStub);
+
+      assert.equal(requestStub.session.claim.officeId, "0U651L");
+    });
+
     it("saves the session before redirecting to /claim/type", async () => {
       const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
       selectCaseUseCase.execute.resolves({

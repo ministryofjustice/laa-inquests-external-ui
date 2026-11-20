@@ -59,6 +59,7 @@ interface FormError {
 
 export interface ClaimSession {
   caseReference?: string;
+  officeId?: string;
   client?: ClaimClientDetails;
   searchResults?: ClaimSearchResult[];
   claimBlocked?: boolean;
