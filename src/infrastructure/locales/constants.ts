@@ -717,7 +717,7 @@ export const CLAIM_FINAL_BILL_TEMPLATE_ERROR = {
   FILE_REQUIRED: "Upload the LAA cost claim evidence template",
   FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
   FILE_IS_EMPTY: "{filename} is empty",
-  INVALID_FILE_TYPE: "{filename} must be an Excel spreadsheet",
+  INVALID_FILE_TYPE: "{filename} must be a valid .xlsx file",
   FILE_SCAN_FOUND_VIRUS: "{filename} contains a virus",
   MACROS_NOT_ALLOWED: "{filename} must not contain macros",
   ONLY_ONE_FILE_ALLOWED:

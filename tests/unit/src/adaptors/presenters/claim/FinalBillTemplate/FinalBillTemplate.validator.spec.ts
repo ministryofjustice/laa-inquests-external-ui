@@ -50,7 +50,7 @@ describe("FinalBillTemplateValidator", () => {
 
       assert.deepEqual(result, {
         templateError: {
-          text: "file1.pdf must be an Excel spreadsheet",
+          text: "file1.pdf must be a valid .xlsx file",
         },
       });
     });
@@ -110,7 +110,7 @@ describe("FinalBillTemplateValidator", () => {
 
       assert.deepEqual(result, {
         templateError: {
-          text: "cost-template.xls must be an Excel spreadsheet",
+          text: "cost-template.xls must be a valid .xlsx file",
         },
       });
     });

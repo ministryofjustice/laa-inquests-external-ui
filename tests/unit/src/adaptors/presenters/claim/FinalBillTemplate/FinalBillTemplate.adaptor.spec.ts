@@ -266,7 +266,7 @@ describe("FinalBillTemplate adaptor", () => {
         HTTP_UNPROCESSABLE_CONTENT,
       );
       assert.deepEqual(responseStub.json.getCall(0).args[0], {
-        error: { message: "cost-template.xlsx must be an Excel spreadsheet" },
+        error: { message: "cost-template.xlsx must be a valid .xlsx file" },
         file: { filename: "", originalname: "cost-template.xlsx" },
       });
     });

@@ -24,7 +24,7 @@ test.describe("Claim - final bill template", () => {
   testFilenameUploadErrors(
     "cost-template.xlsx",
     xlsxMimeType,
-    "an Excel spreadsheet",
+    "a valid .xlsx file",
     ".moj-multi-file-upload__error",
   );
 
@@ -398,7 +398,7 @@ test.describe("Claim - final bill template", () => {
 
     expect(response.status()).toBe(422);
     await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
-      "cost-template.xls must be an Excel spreadsheet",
+      "cost-template.xls must be a valid .xlsx file",
     );
     await checkAccessibility();
   });
@@ -445,7 +445,7 @@ test.describe("Claim - final bill template", () => {
 
     expect(response.status()).toBe(422);
     await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
-      "mismatch-template.xlsx must be an Excel spreadsheet",
+      "mismatch-template.xlsx must be a valid .xlsx file",
     );
   });
 
