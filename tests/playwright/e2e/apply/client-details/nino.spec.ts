@@ -51,6 +51,26 @@ test.describe("Client details - NINO page", () => {
 
     await checkAccessibility();
   });
+  test("includes the revealed field in the yes radio's accessible name", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/apply/client-details/nino");
+
+    const ninoForm = page.getByTestId("nino-form");
+    const yesRadio = ninoForm.locator('input[name="has-nino"][value="true"]');
+
+    await expect(yesRadio).toHaveAccessibleName(
+      /^Yes\s+\.\s+Selecting this option will reveal a field for your client's National Insurance number\.$/,
+    );
+
+    await yesRadio.check();
+    await expect(
+      ninoForm.getByLabel("Enter your client's National Insurance number"),
+    ).toBeVisible();
+
+    await checkAccessibility();
+  });
   test.describe("render validation errors", () => {
     test("if no radio selected for nino input", async ({ page }) => {
       await page.goto("/apply/client-details/nino");

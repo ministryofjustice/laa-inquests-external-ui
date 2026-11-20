@@ -30,6 +30,30 @@ test.describe("Previous application", () => {
 
     await checkAccessibility();
   });
+  test("includes the revealed field in the yes radio's accessible name", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/apply/client-details/has-prev-application");
+
+    const form = page.getByTestId("has-prev-application-form");
+    const yesRadio = form.locator(
+      'input[name="has-prev-application"][value="true"]',
+    );
+
+    await expect(yesRadio).toHaveAccessibleName(
+      /^Yes\s+\.\s+Selecting this option will reveal a field for a previous LAA reference\.$/,
+    );
+
+    await yesRadio.check();
+    await expect(
+      form.getByLabel(
+        "Enter the LAA reference for any previous applications (optional)",
+      ),
+    ).toBeVisible();
+
+    await checkAccessibility();
+  });
   test("renders expected input fields and labels in form", async ({ page }) => {
     await page.goto("/apply/client-details/has-prev-application");
     const prevApplicationStatusForm = await page.getByTestId(
