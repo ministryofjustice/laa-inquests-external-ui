@@ -1,6 +1,9 @@
 import type { ListClaimsPort } from "#src/ports/source/inquests-api/ListClaims.port.js";
 import type { ClaimSummary } from "#src/adaptors/source/inquests-api/claim/ListClaims/models/ListClaims.types.js";
-import type { ClaimClientDetails } from "#src/infrastructure/express/session/index.types.js";
+import type {
+  ClaimClientDetails,
+  ClaimSearchResult,
+} from "#src/infrastructure/express/session/index.types.js";
 import {
   BLOCKING_CLAIM_STATUSES,
   BLOCKING_CLAIM_TYPES,
@@ -8,28 +11,29 @@ import {
 
 export type SelectCaseResult =
   | { status: "NOT_FOUND" }
-  | { status: "ALLOWED"; client: ClaimClientDetails }
-  | { status: "BLOCKED"; client: ClaimClientDetails };
+  | { status: "ALLOWED"; client: ClaimClientDetails; officeId: string }
+  | { status: "BLOCKED"; client: ClaimClientDetails; officeId: string };
 
 export class SelectCaseUseCase {
   constructor(private readonly listClaimsPort: ListClaimsPort) {}
 
   async execute(
     laaReference: string,
-    searchResults: ClaimClientDetails[],
+    searchResults: ClaimSearchResult[],
     accessToken: string | undefined,
   ): Promise<SelectCaseResult> {
-    const client = searchResults.find(
+    const selected = searchResults.find(
       (result) => result.reference === laaReference,
     );
 
-    if (client === undefined) {
+    if (selected === undefined) {
       return { status: "NOT_FOUND" };
     } else {
+      const { officeId, ...client } = selected;
       const isBlocked = await this.#isClaimBlocked(laaReference, accessToken);
       return isBlocked
-        ? { status: "BLOCKED", client }
-        : { status: "ALLOWED", client };
+        ? { status: "BLOCKED", client, officeId }
+        : { status: "ALLOWED", client, officeId };
     }
   }
 
