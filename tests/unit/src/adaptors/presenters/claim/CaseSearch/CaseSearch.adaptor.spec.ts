@@ -386,7 +386,6 @@ describe("CaseSearch adaptor", () => {
       clientFirstName: "Jane",
       clientLastName: "Smith",
       dateOfBirth: "01/01/2000",
-      officeId: "0U651L",
     };
     const storedSearchResult = { ...storedClient, officeId: "0U651L" };
 
@@ -395,6 +394,7 @@ describe("CaseSearch adaptor", () => {
       selectCaseUseCase.execute.resolves({
         status: "ALLOWED",
         client: storedClient,
+        officeId: "0U651L",
       });
       const adaptor = buildAdaptor(
         stubInterface<SearchCasesPort>(),
@@ -421,6 +421,7 @@ describe("CaseSearch adaptor", () => {
       selectCaseUseCase.execute.resolves({
         status: "ALLOWED",
         client: storedClient,
+        officeId: "0U651L",
       });
       const adaptor = buildAdaptor(
         stubInterface<SearchCasesPort>(),
@@ -443,6 +444,7 @@ describe("CaseSearch adaptor", () => {
       selectCaseUseCase.execute.resolves({
         status: "ALLOWED",
         client: storedClient,
+        officeId: "0U651L",
       });
       const adaptor = buildAdaptor(
         stubInterface<SearchCasesPort>(),

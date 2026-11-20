@@ -42,6 +42,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     selectCaseUseCase.execute.resolves({
       status: "ALLOWED",
       client: storedClient,
+      officeId: "0U651L",
     });
     const adaptor = buildAdaptor(selectCaseUseCase);
 
@@ -73,6 +74,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     selectCaseUseCase.execute.resolves({
       status: "BLOCKED",
       client: storedClient,
+      officeId: "0U651L",
     });
     const adaptor = buildAdaptor(selectCaseUseCase);
 
@@ -97,6 +99,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     selectCaseUseCase.execute.resolves({
       status: "BLOCKED",
       client: storedClient,
+      officeId: "0U651L",
     });
     const adaptor = buildAdaptor(selectCaseUseCase);
 

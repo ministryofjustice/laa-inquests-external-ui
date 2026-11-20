@@ -10,6 +10,7 @@ const storedClient = {
   clientLastName: "Smith",
   dateOfBirth: "01/01/2000",
 };
+const storedSearchResult = { ...storedClient, officeId: "0U651L" };
 
 describe("SelectCaseUseCase", () => {
   let listClaimsPort: StubbedInstance<ListClaimsPort>;
@@ -22,14 +23,18 @@ describe("SelectCaseUseCase", () => {
   });
 
   it("returns NOT_FOUND when the reference is not in the search results", async () => {
-    const result = await useCase.execute("INQ-2", [storedClient], "token-123");
+    const result = await useCase.execute(
+      "INQ-2",
+      [storedSearchResult],
+      "token-123",
+    );
 
     assert.deepEqual(result, { status: "NOT_FOUND" });
     assert.equal(listClaimsPort.listClaims.callCount, 0);
   });
 
   it("queries both the unassessed and assessed claim lists", async () => {
-    await useCase.execute("INQ-1", [storedClient], "access-token-123");
+    await useCase.execute("INQ-1", [storedSearchResult], "access-token-123");
 
     assert.equal(
       listClaimsPort.listClaims.calledWith("INQ-1", false, "access-token-123"),
@@ -44,11 +49,15 @@ describe("SelectCaseUseCase", () => {
   it("returns ALLOWED with the selected client when there are no claims", async () => {
     const result = await useCase.execute(
       "INQ-1",
-      [storedClient],
+      [storedSearchResult],
       "access-token-123",
     );
 
-    assert.deepEqual(result, { status: "ALLOWED", client: storedClient });
+    assert.deepEqual(result, {
+      status: "ALLOWED",
+      client: storedClient,
+      officeId: "0U651L",
+    });
   });
 
   it("returns BLOCKED when a submitted final bill exists", async () => {
@@ -58,11 +67,15 @@ describe("SelectCaseUseCase", () => {
 
     const result = await useCase.execute(
       "INQ-1",
-      [storedClient],
+      [storedSearchResult],
       "access-token-123",
     );
 
-    assert.deepEqual(result, { status: "BLOCKED", client: storedClient });
+    assert.deepEqual(result, {
+      status: "BLOCKED",
+      client: storedClient,
+      officeId: "0U651L",
+    });
   });
 
   it("returns BLOCKED when a pay-in-full nil bill exists", async () => {
@@ -72,11 +85,15 @@ describe("SelectCaseUseCase", () => {
 
     const result = await useCase.execute(
       "INQ-1",
-      [storedClient],
+      [storedSearchResult],
       "access-token-123",
     );
 
-    assert.deepEqual(result, { status: "BLOCKED", client: storedClient });
+    assert.deepEqual(result, {
+      status: "BLOCKED",
+      client: storedClient,
+      officeId: "0U651L",
+    });
   });
 
   it("returns ALLOWED when only a payment on account claim is submitted", async () => {
@@ -86,11 +103,15 @@ describe("SelectCaseUseCase", () => {
 
     const result = await useCase.execute(
       "INQ-1",
-      [storedClient],
+      [storedSearchResult],
       "access-token-123",
     );
 
-    assert.deepEqual(result, { status: "ALLOWED", client: storedClient });
+    assert.deepEqual(result, {
+      status: "ALLOWED",
+      client: storedClient,
+      officeId: "0U651L",
+    });
   });
 
   it("returns ALLOWED when a final bill has been rejected", async () => {
@@ -100,11 +121,15 @@ describe("SelectCaseUseCase", () => {
 
     const result = await useCase.execute(
       "INQ-1",
-      [storedClient],
+      [storedSearchResult],
       "access-token-123",
     );
 
-    assert.deepEqual(result, { status: "ALLOWED", client: storedClient });
+    assert.deepEqual(result, {
+      status: "ALLOWED",
+      client: storedClient,
+      officeId: "0U651L",
+    });
   });
 
   it("propagates the port error unchanged", async () => {
@@ -112,7 +137,8 @@ describe("SelectCaseUseCase", () => {
     listClaimsPort.listClaims.rejects(portError);
 
     await assert.rejects(
-      async () => useCase.execute("INQ-1", [storedClient], "access-token-123"),
+      async () =>
+        useCase.execute("INQ-1", [storedSearchResult], "access-token-123"),
       (error: unknown) => {
         assert.equal(error, portError);
         return true;
