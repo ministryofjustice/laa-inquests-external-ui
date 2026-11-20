@@ -449,6 +449,78 @@ test.describe("Claim - final bill template", () => {
     );
   });
 
+  test("clears a previous invalid-file-type error row when a valid file is uploaded next", async ({
+    page,
+  }) => {
+    const [rejected] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "mismatch-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("not really a spreadsheet"),
+      }),
+    ]);
+    expect(rejected.status()).toBe(422);
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "mismatch-template.xlsx must be a valid .xlsx file",
+    );
+
+    const [accepted] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+    expect(accepted.status()).toBe(201);
+
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveCount(0);
+    await expect(
+      page
+        .locator(".moj-multi-file-upload__message")
+        .filter({ hasText: "cost-template.xlsx" }),
+    ).toBeVisible();
+  });
+
+  test("clears a previous client-side too-large error row on the next attempt", async ({
+    page,
+  }) => {
+    await page.setInputFiles("#documents", {
+      name: "cost-template.xlsx",
+      mimeType: xlsxMimeType,
+      buffer: Buffer.alloc(11 * 1024 * 1024),
+    });
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "cost-template.xlsx must be smaller than 10MB",
+    );
+
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("fake spreadsheet content"),
+      }),
+    ]);
+
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveCount(0);
+  });
+
   test.describe("without JavaScript", () => {
     test.use({ javaScriptEnabled: false });
 

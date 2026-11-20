@@ -272,4 +272,32 @@ test.describe("Claim - evidence", () => {
     );
     await checkAccessibility();
   });
+  test("keeps a previous file's error visible after a different file uploads successfully for claims evidence uploads", async ({
+    page,
+  }) => {
+    await page.setInputFiles("#documents", {
+      name: "too-big.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.alloc(11 * 1024 * 1024),
+    });
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "too-big.pdf must be smaller than 10MB",
+    );
+
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveCount(1);
+  });
 });
