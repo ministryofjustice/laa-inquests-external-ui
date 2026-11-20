@@ -145,7 +145,7 @@ test.describe("Previous application", () => {
       CLIENT_DETAILS_ERROR.HAS_PREV_APPLICATION_NOT_SELECTED,
     );
   });
-  test("renders error message and summary when input selected but no reference provided", async ({
+  test("continues to home address page when yes is selected and the optional reference is left empty", async ({
     page,
   }) => {
     await page.goto("/apply/client-details/has-prev-application");
@@ -161,20 +161,8 @@ test.describe("Previous application", () => {
     await yesRadio.click();
     await continueButton.click();
 
-    await expect(page).toHaveURL(/apply\/client-details\/has-prev-application/);
-    await expect(errorSummary).toBeVisible();
-    await expect(errorSummary).toContainText("There is a problem");
-    await expect(errorSummary).toContainText(
-      CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
-    );
-
-    const errorMessageElement = prevApplicationStatusForm.locator(
-      "#prev-laa-reference-input-error",
-    );
-    await expect(errorMessageElement).toBeVisible();
-    await expect(errorMessageElement).toContainText(
-      CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
-    );
+    await expect(page).toHaveURL(/apply\/client-details\/home-address/);
+    await expect(errorSummary).not.toBeVisible();
   });
   test("renders error message and summary when reference provided exceeds max character length", async ({
     page,
