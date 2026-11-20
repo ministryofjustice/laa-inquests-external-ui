@@ -167,6 +167,30 @@ test.describe("Claim - evidence", () => {
     ).toBeVisible();
   });
 
+  test("shows an invalid file type error when the API rejects the file content", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "mismatch-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("spreadsheet renamed to pdf"),
+      }),
+    ]);
+
+    expect(response.status()).toBe(422);
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "mismatch-evidence.pdf must be a JPG, PNG, BMP or PDF",
+    );
+    await checkAccessibility();
+  });
+
   test("redirects to /claim/check-your-answers when continue is clicked with an uploaded file", async ({
     page,
   }) => {
@@ -247,5 +271,33 @@ test.describe("Claim - evidence", () => {
       "test-evidence.pdf must be smaller than 10MB",
     );
     await checkAccessibility();
+  });
+  test("keeps a previous file's error visible after a different file uploads successfully for claims evidence uploads", async ({
+    page,
+  }) => {
+    await page.setInputFiles("#documents", {
+      name: "too-big.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.alloc(11 * 1024 * 1024),
+    });
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "too-big.pdf must be smaller than 10MB",
+    );
+
+    await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/upload") &&
+          r.request().method() === "POST" &&
+          r.status() === 201,
+      ),
+      page.setInputFiles("#documents", {
+        name: "test-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("fake evidence content"),
+      }),
+    ]);
+
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveCount(1);
   });
 });

@@ -717,8 +717,9 @@ export const CLAIM_FINAL_BILL_TEMPLATE_ERROR = {
   FILE_REQUIRED: "Upload the LAA cost claim evidence template",
   FILE_TOO_LARGE: "{filename} must be smaller than 10MB",
   FILE_IS_EMPTY: "{filename} is empty",
-  INVALID_FILE_TYPE: "{filename} must be an Excel spreadsheet",
+  INVALID_FILE_TYPE: "{filename} must be a valid .xlsx file",
   FILE_SCAN_FOUND_VIRUS: "{filename} contains a virus",
+  MACROS_NOT_ALLOWED: "{filename} must not contain macros",
   ONLY_ONE_FILE_ALLOWED:
     "You can only upload one file. Delete the existing file before uploading a new one",
 };
@@ -728,8 +729,10 @@ export const CLAIM_FINAL_BILL_TEMPLATE_TOO_SMALL_FILE_SIZE_BYTES = 0;
 
 export const CLAIM_FINAL_BILL_TEMPLATE_ALLOWED_FILE_TYPES = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-excel",
 ];
+
+// Code the inquests API returns when an uploaded spreadsheet contains macros.
+export const MACROS_NOT_ALLOWED_REJECTION_CODE = "MACROS_NOT_ALLOWED";
 
 export const CLIENT_DECLARATION_ERROR = {
   NO_CONFIRMATION:
