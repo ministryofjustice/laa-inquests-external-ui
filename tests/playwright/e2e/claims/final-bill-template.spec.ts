@@ -70,8 +70,9 @@ test.describe("Claim - final bill template", () => {
       }),
     ).toHaveAttribute("href", "#");
 
-    await expect(page.getByText(".excel")).toBeVisible();
+    await expect(page.getByText(".xlsx", { exact: true })).toBeVisible();
     await expect(page.getByText("10mb max")).toBeVisible();
+    await expect(page.locator("#documents")).toHaveAttribute("accept", ".xlsx");
   });
 
   test("renders upload new files section with MOJ multi file upload", async ({
@@ -376,5 +377,102 @@ test.describe("Claim - final bill template", () => {
       "cost-template.xlsx must be smaller than 10MB",
     );
     await checkAccessibility();
+  });
+
+  test("rejects a legacy .xls spreadsheet before uploading it", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "cost-template.xls",
+        mimeType: "application/vnd.ms-excel",
+        buffer: Buffer.from("legacy spreadsheet content"),
+      }),
+    ]);
+
+    expect(response.status()).toBe(422);
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "cost-template.xls must be an Excel spreadsheet",
+    );
+    await checkAccessibility();
+  });
+
+  test("shows a macro error when the API rejects a macro-enabled spreadsheet", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "macro-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("macro spreadsheet content"),
+      }),
+    ]);
+
+    expect(response.status()).toBe(422);
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "macro-template.xlsx must not contain macros",
+    );
+    await checkAccessibility();
+  });
+
+  test("shows an invalid file type error when the API rejects the file content", async ({
+    page,
+  }) => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/final-bill-template/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "mismatch-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("not really a spreadsheet"),
+      }),
+    ]);
+
+    expect(response.status()).toBe(422);
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "mismatch-template.xlsx must be an Excel spreadsheet",
+    );
+  });
+
+  test.describe("without JavaScript", () => {
+    test.use({ javaScriptEnabled: false });
+
+    test("shows a macro error in the error summary when the API rejects a macro-enabled spreadsheet", async ({
+      page,
+    }) => {
+      await page.setInputFiles("#documents", {
+        name: "macro-template.xlsx",
+        mimeType: xlsxMimeType,
+        buffer: Buffer.from("macro spreadsheet content"),
+      });
+      const [response] = await Promise.all([
+        page.waitForResponse(
+          (r) =>
+            r.url().includes("/claim/final-bill-template/upload") &&
+            r.request().method() === "POST",
+        ),
+        page.getByRole("button", { name: "Upload file", exact: true }).click(),
+      ]);
+
+      expect(response.status()).toBe(400);
+      await expect(page.locator(".govuk-error-summary")).toContainText(
+        "macro-template.xlsx must not contain macros",
+      );
+    });
   });
 });

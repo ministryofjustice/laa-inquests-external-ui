@@ -99,15 +99,20 @@ describe("FinalBillTemplateValidator", () => {
       assert.deepEqual(result, {});
     });
 
-    it("returns no error for a valid legacy xls file", () => {
+    it("returns an invalid file type error for a legacy xls file", () => {
       const validator = new FinalBillTemplateValidator();
 
       const result = validator.validateTemplateUploadFile({
         mimetype: "application/vnd.ms-excel",
+        originalname: "cost-template.xls",
         size: 100,
       } as Express.Multer.File);
 
-      assert.deepEqual(result, {});
+      assert.deepEqual(result, {
+        templateError: {
+          text: "cost-template.xls must be an Excel spreadsheet",
+        },
+      });
     });
 
     it("returns error when a template has already been uploaded", () => {

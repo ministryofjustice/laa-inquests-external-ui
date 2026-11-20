@@ -211,6 +211,83 @@ describe("FinalBillTemplate adaptor", () => {
         HTTP_SERVICE_UNAVAILABLE,
       );
     });
+
+    const buildUploadStubs = (
+      uploadMode?: string,
+    ): {
+      requestStub: StubbedInstance<Request>;
+      responseStub: StubbedInstance<Response>;
+    } => {
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.body = uploadMode === undefined ? {} : { uploadMode };
+      requestStub.file = {
+        buffer: Buffer.from("test"),
+        mimetype:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        originalname: "cost-template.xlsx",
+        size: 4,
+      } as Express.Multer.File;
+      return { requestStub, responseStub };
+    };
+
+    it("returns a macro error with 422 when the API rejects a macro-enabled spreadsheet", async () => {
+      uploadEvidenceUseCase.execute.resolves({
+        status: "FILE_REJECTED",
+        code: "MACROS_NOT_ALLOWED",
+      });
+      const { requestStub, responseStub } = buildUploadStubs();
+
+      await buildAdaptor().processTemplateUpload(requestStub, responseStub);
+
+      assert.equal(
+        responseStub.status.getCall(0).args[0],
+        HTTP_UNPROCESSABLE_CONTENT,
+      );
+      assert.deepEqual(responseStub.json.getCall(0).args[0], {
+        error: { message: "cost-template.xlsx must not contain macros" },
+        file: { filename: "", originalname: "cost-template.xlsx" },
+      });
+    });
+
+    it("returns an invalid file type error with 422 when the API rejects the file content", async () => {
+      uploadEvidenceUseCase.execute.resolves({
+        status: "FILE_REJECTED",
+        code: "CONTENT_MISMATCH",
+      });
+      const { requestStub, responseStub } = buildUploadStubs();
+
+      await buildAdaptor().processTemplateUpload(requestStub, responseStub);
+
+      assert.equal(
+        responseStub.status.getCall(0).args[0],
+        HTTP_UNPROCESSABLE_CONTENT,
+      );
+      assert.deepEqual(responseStub.json.getCall(0).args[0], {
+        error: { message: "cost-template.xlsx must be an Excel spreadsheet" },
+        file: { filename: "", originalname: "cost-template.xlsx" },
+      });
+    });
+
+    it("re-renders the page with a macro error and 400 for a no-js upload the API rejects", async () => {
+      uploadEvidenceUseCase.execute.resolves({
+        status: "FILE_REJECTED",
+        code: "MACROS_NOT_ALLOWED",
+      });
+      const { requestStub, responseStub } = buildUploadStubs("html");
+
+      await buildAdaptor().processTemplateUpload(requestStub, responseStub);
+
+      assert.equal(responseStub.status.getCall(0).args[0], HTTP_BAD_REQUEST);
+      const [view, viewModel] = responseStub.render.getCall(0)
+        .args as unknown as [string, { errorSummaries: unknown }];
+      assert.equal(view, "claim/final-bill-template");
+      assert.deepEqual(viewModel.errorSummaries, {
+        templateError: { text: "cost-template.xlsx must not contain macros" },
+      });
+    });
   });
 
   describe("processTemplateUpload validation reporting", () => {

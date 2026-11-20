@@ -167,6 +167,30 @@ test.describe("Claim - evidence", () => {
     ).toBeVisible();
   });
 
+  test("shows an invalid file type error when the API rejects the file content", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (r) =>
+          r.url().includes("/claim/evidence/upload") &&
+          r.request().method() === "POST",
+      ),
+      page.setInputFiles("#documents", {
+        name: "mismatch-evidence.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from("spreadsheet renamed to pdf"),
+      }),
+    ]);
+
+    expect(response.status()).toBe(422);
+    await expect(page.locator(".moj-multi-file-upload__error")).toHaveText(
+      "mismatch-evidence.pdf must be a JPG, PNG, BMP or PDF",
+    );
+    await checkAccessibility();
+  });
+
   test("redirects to /claim/check-your-answers when continue is clicked with an uploaded file", async ({
     page,
   }) => {
