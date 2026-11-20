@@ -14,6 +14,7 @@ describe("UploadEvidenceUseCase", () => {
     buffer: Buffer.from("evidence-content"),
     mimetype: "application/pdf",
     originalname: evidenceFileName,
+    officeId: "0U651L",
     accessToken: "access-token-123",
   };
 
@@ -42,6 +43,23 @@ describe("UploadEvidenceUseCase", () => {
       evidenceFileId,
       evidenceFileName,
     });
+  });
+
+  it("passes the required inputs of the claim case to the port", async () => {
+    uploadEvidencePort.uploadEvidence.resolves({ status: "UPLOAD_REJECTED" });
+
+    await useCase.execute(uploadInput);
+
+    assert.equal(uploadEvidencePort.uploadEvidence.calledOnce, true);
+    assert.deepEqual(uploadEvidencePort.uploadEvidence.getCall(0).args, [
+      {
+        buffer: Buffer.from("evidence-content"),
+        mimetype: "application/pdf",
+        originalname: evidenceFileName,
+        officeId: "0U651L",
+      },
+      "access-token-123",
+    ]);
   });
 
   it("returns UPLOAD_REJECTED when the port rejects the upload", async () => {

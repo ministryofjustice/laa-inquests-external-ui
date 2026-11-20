@@ -134,10 +134,31 @@ export class EvidenceAdaptor {
       });
       this.#handleValidationFailure(req, res, errors, isNoJs);
     } else {
+      const officeId = req.session.claim?.officeId;
+      if (officeId === undefined || officeId === "") {
+        logger.logWarn({
+          functionName: "evidenceAdaptor_processEvidenceUpload",
+          message: "Evidence upload blocked: no claim case office in session",
+          request: req,
+          extraContext: {
+            event: "claim_evidence_upload_missing_office",
+            no_js_upload: isNoJs,
+          },
+        });
+        this.#handleUploadFailure({
+          req,
+          res,
+          result: { status: "UPLOAD_REJECTED" },
+          isNoJsUpload: isNoJs,
+        });
+        return;
+      }
+
       const result = await this.uploadEvidenceUseCase.execute({
         buffer: file!.buffer,
         mimetype: file!.mimetype,
         originalname: file!.originalname,
+        officeId,
         accessToken: req.session.accessToken,
       });
 

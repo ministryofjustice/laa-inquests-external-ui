@@ -164,7 +164,7 @@ describe("FinalBillTemplate adaptor", () => {
       const requestStub = stubInterface<Request>();
       responseStub.locals = { csrfToken: "test-token" };
       responseStub.status.returns(responseStub);
-      requestStub.session.claim = {};
+      requestStub.session.claim = { officeId: "0U651L" };
       requestStub.file = {
         buffer: Buffer.from("test"),
         mimetype:
@@ -187,6 +187,54 @@ describe("FinalBillTemplate adaptor", () => {
       });
     });
 
+    it("uploads the template against the office of the selected claim case", async () => {
+      uploadEvidenceUseCase.execute.resolves({ status: "UPLOAD_REJECTED" });
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.session.claim = { officeId: "0U651L" };
+      requestStub.file = {
+        buffer: Buffer.from("test"),
+        mimetype:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        originalname: "cost-template.xlsx",
+        size: 4,
+      } as Express.Multer.File;
+
+      await adaptor.processTemplateUpload(requestStub, responseStub);
+
+      assert.equal(
+        uploadEvidenceUseCase.execute.getCall(0).args[0].officeId,
+        "0U651L",
+      );
+    });
+
+    it("does not upload and shows the upload error when no claim case office is in session", async () => {
+      const adaptor = buildAdaptor();
+      const responseStub = stubInterface<Response>();
+      const requestStub = stubInterface<Request>();
+      responseStub.locals = { csrfToken: "test-token" };
+      responseStub.status.returns(responseStub);
+      requestStub.session.claim = {};
+      requestStub.file = {
+        buffer: Buffer.from("test"),
+        mimetype:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        originalname: "cost-template.xlsx",
+        size: 4,
+      } as Express.Multer.File;
+
+      await adaptor.processTemplateUpload(requestStub, responseStub);
+
+      assert.equal(uploadEvidenceUseCase.execute.callCount, 0);
+      assert.equal(
+        responseStub.status.getCall(0).args[0],
+        HTTP_SERVICE_UNAVAILABLE,
+      );
+    });
+
     it("returns a service unavailable error when the upload fails", async () => {
       uploadEvidenceUseCase.execute.resolves({
         status: "UPLOAD_REJECTED",
@@ -196,6 +244,7 @@ describe("FinalBillTemplate adaptor", () => {
       const requestStub = stubInterface<Request>();
       responseStub.locals = { csrfToken: "test-token" };
       responseStub.status.returns(responseStub);
+      requestStub.session.claim = { officeId: "0U651L" };
       requestStub.file = {
         buffer: Buffer.from("test"),
         mimetype:
