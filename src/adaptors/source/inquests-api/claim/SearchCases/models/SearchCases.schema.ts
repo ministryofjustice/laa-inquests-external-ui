@@ -9,6 +9,7 @@ export const SearchCaseSchema = z.object({
   firmName: z.string().nullable(),
   firmNumber: z.string(),
   overallDecision: z.string(),
+  officeId: z.string(),
 });
 
 export const SearchCasesResponseSchema = z.array(SearchCaseSchema);

@@ -109,7 +109,7 @@ export class CaseSearchAdaptor {
 
     session.claim = {
       ...session.claim,
-      searchResults: this.formatter.formatClientDetails(cases),
+      searchResults: this.formatter.formatSearchResults(cases),
     };
     // express-session can flush the response before its own save completes
     await saveSession(req);

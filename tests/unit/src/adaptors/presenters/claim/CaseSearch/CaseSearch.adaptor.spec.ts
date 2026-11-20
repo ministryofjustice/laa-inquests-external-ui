@@ -122,6 +122,7 @@ describe("CaseSearch adaptor", () => {
         firmName: "test firm",
         firmNumber: "0A123B",
         overallDecision: "GRANTED",
+        officeId: "0U651L",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
       searchCasesUseCase.execute.resolves([mockCase]);
@@ -168,6 +169,7 @@ describe("CaseSearch adaptor", () => {
         firmName: "test firm",
         firmNumber: "0A123B",
         overallDecision: "GRANTED",
+        officeId: "0U651L",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
       searchCasesUseCase.execute.resolves([mockCase]);
@@ -194,6 +196,7 @@ describe("CaseSearch adaptor", () => {
           clientFirstName: "Jane",
           clientLastName: "Smith",
           dateOfBirth: "01/01/2000",
+          officeId: "0U651L",
         },
       ]);
     });
@@ -315,6 +318,7 @@ describe("CaseSearch adaptor", () => {
         firmName: null,
         firmNumber: "0B456C",
         overallDecision: "GRANTED",
+        officeId: "0U651L",
       };
       const searchCasesUseCase = stubInterface<SearchCasesUseCase>();
       searchCasesUseCase.execute.resolves([mockCase]);
@@ -382,7 +386,9 @@ describe("CaseSearch adaptor", () => {
       clientFirstName: "Jane",
       clientLastName: "Smith",
       dateOfBirth: "01/01/2000",
+      officeId: "0U651L",
     };
+    const storedSearchResult = { ...storedClient, officeId: "0U651L" };
 
     it("saves the case reference to session and redirects to /claim/type", async () => {
       const selectCaseUseCase = stubInterface<SelectCaseUseCase>();
@@ -399,7 +405,7 @@ describe("CaseSearch adaptor", () => {
       const responseStub = stubInterface<Response>();
       const requestStub = stubRequest();
       requestStub.params = { reference: "12345" };
-      requestStub.session.claim = { searchResults: [storedClient] };
+      requestStub.session.claim = { searchResults: [storedSearchResult] };
 
       await adaptor.selectCase(requestStub, responseStub);
 
@@ -425,7 +431,7 @@ describe("CaseSearch adaptor", () => {
       const responseStub = stubInterface<Response>();
       const requestStub = stubRequest();
       requestStub.params = { reference: "12345" };
-      requestStub.session.claim = { searchResults: [storedClient] };
+      requestStub.session.claim = { searchResults: [storedSearchResult] };
 
       await adaptor.selectCase(requestStub, responseStub);
 
@@ -451,7 +457,7 @@ describe("CaseSearch adaptor", () => {
       });
       const requestStub = stubInterface<Request>();
       requestStub.params = { reference: "12345" };
-      requestStub.session.claim = { searchResults: [storedClient] };
+      requestStub.session.claim = { searchResults: [storedSearchResult] };
       requestStub.session.save = ((callback: (err?: Error) => void): void => {
         calls.push("save");
         callback();

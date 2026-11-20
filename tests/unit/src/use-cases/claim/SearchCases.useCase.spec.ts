@@ -23,6 +23,7 @@ describe("SearchCasesUseCase", () => {
         firmName: "test firm",
         firmNumber: "0A123B",
         overallDecision: "GRANTED",
+        officeId: "0U651L",
       },
     ];
     searchCasesPort.searchCases.resolves(mockCases);

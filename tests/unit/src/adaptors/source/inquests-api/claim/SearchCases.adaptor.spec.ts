@@ -34,6 +34,7 @@ describe("SearchCasesAdaptor", () => {
           firmName: "Test Firm",
           firmNumber: "0A123B",
           overallDecision: "GRANTED",
+          officeId: "0U651L",
         },
       ],
     });

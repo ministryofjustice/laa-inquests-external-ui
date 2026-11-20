@@ -60,7 +60,7 @@ interface FormError {
 export interface ClaimSession {
   caseReference?: string;
   client?: ClaimClientDetails;
-  searchResults?: ClaimClientDetails[];
+  searchResults?: ClaimSearchResult[];
   claimBlocked?: boolean;
   type?: string;
   subtype?: string;
@@ -105,6 +105,10 @@ export interface ClaimClientDetails {
   clientFirstName: string;
   clientLastName: string;
   dateOfBirth: string;
+}
+
+export interface ClaimSearchResult extends ClaimClientDetails {
+  officeId: string;
 }
 
 export interface Proceeding {
