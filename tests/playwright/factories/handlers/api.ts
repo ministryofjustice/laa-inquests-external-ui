@@ -121,6 +121,7 @@ export const apiHandlers = [
           firmName: "Test Firm",
           firmNumber: "123",
           overallDecision: "GRANTED",
+          officeId: "0U651L",
         },
       ]);
     }
@@ -136,6 +137,7 @@ export const apiHandlers = [
           firmName: "Test Firm",
           firmNumber: "123",
           overallDecision: "GRANTED",
+          officeId: "0U651L",
         },
       ]);
     }
@@ -151,6 +153,7 @@ export const apiHandlers = [
           firmName: "Test Firm",
           firmNumber: "123",
           overallDecision: "GRANTED",
+          officeId: "0U651L",
         },
       ]);
     }
@@ -166,6 +169,7 @@ export const apiHandlers = [
           firmName: "Seed",
           firmNumber: "Seed",
           overallDecision: "GRANTED",
+          officeId: "0U651L",
         },
       ]);
     }
@@ -230,6 +234,14 @@ export const apiHandlers = [
       const uploaded = formData.get("file");
       const claimEvidenceFileName =
         uploaded instanceof File ? uploaded.name : evidenceFileName;
+      const officeId = formData.get("office_id");
+
+      if (typeof officeId !== "string" || officeId === "") {
+        return HttpResponse.json(
+          { detail: [{ loc: ["body", "office_id"] }] },
+          { status: 422 },
+        );
+      }
 
       if (
         uploaded instanceof File &&

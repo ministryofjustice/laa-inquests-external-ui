@@ -16,6 +16,7 @@ describe("CaseSearchFormatter", () => {
           firmName: "test firm",
           firmNumber: "0A123B",
           overallDecision: "GRANTED",
+          officeId: "0U651L",
         },
       ]);
 
@@ -44,6 +45,7 @@ describe("CaseSearchFormatter", () => {
           firmName: null,
           firmNumber: "0B456C",
           overallDecision: "REFUSED",
+          officeId: "0U651L",
         },
       ]);
 
@@ -54,6 +56,28 @@ describe("CaseSearchFormatter", () => {
       const formatter = new CaseSearchFormatter();
       const rows = formatter.formatCases([]);
       assert.deepEqual(rows, []);
+    });
+  });
+
+  describe("formatSearchResults", () => {
+    it("keeps the office of the application", () => {
+      const formatter = new CaseSearchFormatter();
+
+      const [result] = formatter.formatSearchResults([
+        {
+          laaReference: "INQ-YYY-001",
+          clientFirstName: "Jane",
+          clientLastName: "Smith",
+          clientDateOfBirth: "2000-01-01",
+          dateSubmitted: "2026-06-30T15:59:32.622897",
+          firmName: "test firm",
+          firmNumber: "0A123B",
+          overallDecision: "GRANTED",
+          officeId: "0U651L",
+        },
+      ]);
+
+      assert.equal(result.officeId, "0U651L");
     });
   });
 });

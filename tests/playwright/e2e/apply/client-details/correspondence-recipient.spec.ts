@@ -53,6 +53,40 @@ test.describe("Client details - correspondence recipient", () => {
     await expect(form.locator("#correspondence-recipient-error")).toBeVisible();
   });
 
+  test("includes the revealed fields in the yes radios' accessible names", async ({
+    page,
+    checkAccessibility,
+  }) => {
+    await page.goto("/apply/client-details/correspondence-recipient");
+
+    const form = page.getByTestId("correspondence-recipient-form");
+    const person = form.locator(
+      'input[name="correspondence-recipient"][value="PERSON"]',
+    );
+    const organisation = form.locator(
+      'input[name="correspondence-recipient"][value="ORGANISATION"]',
+    );
+
+    await expect(person).toHaveAccessibleName(
+      /^Yes, a person\s+\.\s+Selecting this option will reveal a field for the person's name\.$/,
+    );
+    await expect(organisation).toHaveAccessibleName(
+      /^Yes, an organisation\s+\.\s+Selecting this option will reveal a field for the organisation's name\.$/,
+    );
+
+    await person.check();
+    await expect(
+      form.getByRole("textbox", { name: "Person's name", exact: true }),
+    ).toBeVisible();
+    await checkAccessibility();
+
+    await organisation.check();
+    await expect(
+      form.getByRole("textbox", { name: "Organisation name", exact: true }),
+    ).toBeVisible();
+    await checkAccessibility();
+  });
+
   test("shows validation error when person is selected and name is empty", async ({
     page,
   }) => {

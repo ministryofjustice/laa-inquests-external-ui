@@ -43,7 +43,7 @@
                     items: [
                         {
                             value: "true",
-                            text: "Yes",
+                            html: (t("common.yes") | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t("pages.apply.deceasedDetails.furtherInformation.yesRevealHint") | escape) ~ '</span>',
                             conditional: {
                                 html:  govukTextarea({
                                     id: "deceased-further-information",

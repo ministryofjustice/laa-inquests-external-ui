@@ -39,6 +39,7 @@ import { requestContextMiddleware } from "#src/infrastructure/logging/requestCon
 import processCookies from "./infrastructure/express/middleware/cookies/cookies.js";
 import { sessionLifetimeGuard } from "#src/infrastructure/express/middleware/auth/sessionLifetimeGuard.js";
 import { setupNavigationData } from "#src/infrastructure/express/middleware/nunjucks/setupNavigationData.js";
+import { cacheControl } from "./infrastructure/express/middleware/cacheControl/cacheControl.js";
 
 const RANDOMBYTES = 16;
 const TRUST_FIRST_PROXY = 1;
@@ -73,6 +74,7 @@ app.set("view engine", "njk");
 initializeI18nextSync();
 
 app.use(requestContextMiddleware);
+app.use(cacheControl);
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(config.paths.static));

@@ -5,6 +5,7 @@ interface UploadEvidenceInput {
   buffer: Buffer;
   mimetype: string;
   originalname: string;
+  officeId: string;
   accessToken?: string;
 }
 
@@ -16,10 +17,10 @@ export class UploadEvidenceUseCase {
   }
 
   async execute(input: UploadEvidenceInput): Promise<UploadEvidenceResponse> {
-    const { buffer, mimetype, originalname, accessToken } = input;
+    const { buffer, mimetype, originalname, officeId, accessToken } = input;
 
     return await this.uploadEvidencePort.uploadEvidence(
-      { buffer, mimetype, originalname },
+      { buffer, mimetype, originalname, officeId },
       accessToken,
     );
   }

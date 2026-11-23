@@ -33,7 +33,7 @@ test.describe("Provider can", () => {
     );
     await validateCSRFToken(form);
     await validateContinueButton(form);
-    const yesRadio = form.getByRole("radio", { name: "Yes", exact: true });
+    const yesRadio = form.getByRole("radio", { name: /^Yes\b/ });
     const noRadio = form.getByRole("radio", { name: "No", exact: true });
     const dontKnowRadio = form.getByRole("radio", {
       name: "Don't know",
@@ -60,6 +60,28 @@ test.describe("Provider can", () => {
     await expect(page.url()).toContain("apply/public-authority");
   });
 
+  test("includes the revealed field in the yes radio's accessible name", async ({
+    checkAccessibility,
+  }) => {
+    const yesRadio = form.locator(
+      'input[name="deceased-has-further-information"][value="true"]',
+    );
+
+    await expect(yesRadio).toHaveAccessibleName(
+      /^Yes\s+\.\s+Selecting this option will reveal a field for details of linked or bridged inquests\.$/,
+    );
+
+    await yesRadio.check();
+    await expect(
+      form.getByRole("textbox", {
+        name: "Enter details of any linked or bridged inquests you are aware of (optional)",
+        exact: true,
+      }),
+    ).toBeVisible();
+
+    await checkAccessibility();
+  });
+
   test("Don't know continues to the public authority page", async ({
     page,
   }) => {
@@ -72,7 +94,7 @@ test.describe("Provider can", () => {
   test("continues when Yes is selected without entering details", async ({
     page,
   }) => {
-    await form.getByRole("radio", { name: "Yes", exact: true }).check();
+    await form.getByRole("radio", { name: /^Yes\b/ }).check();
 
     await continueToNextPage(form, page);
     await expect(page).toHaveURL(/apply\/public-authority/);

@@ -73,6 +73,32 @@
           "hint": "You will only be shown the proceedings that can be added to ones you have already selected."
         }
       },
+      "clientDetails": {
+        "nameAndDob": {
+          "yesRevealHint": "Selecting this option will reveal a field for your client's last name at birth."
+        },
+        "previousApplication": {
+          "yesRevealHint": "Selecting this option will reveal a field for a previous LAA reference."
+        },
+        "correspondenceRecipient": {
+          "personLabel": "Yes, a person",
+          "personRevealHint": "Selecting this option will reveal a field for the person's name.",
+          "organisationLabel": "Yes, an organisation",
+          "organisationRevealHint": "Selecting this option will reveal a field for the organisation's name."
+        },
+        "nino": {
+          "yesRevealHint": "Selecting this option will reveal a field for your client's National Insurance number."
+        }
+      },
+      "deceasedDetails": {
+        "furtherInformation": {
+          "yesRevealHint": "Selecting this option will reveal a field for details of linked or bridged inquests."
+        },
+        "clientRelationship": {
+          "yesLabel": "Yes, my client is a family member",
+          "yesRevealHint": "Selecting this option will reveal a field for your client's relationship to the deceased."
+        }
+      },
       "publicAuthority": {
         "title": "Which public authorities are named as interested parties?",
         "search": {

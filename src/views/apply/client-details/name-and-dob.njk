@@ -85,7 +85,7 @@
           items: [
             {
               value: "true",
-              text: "Yes",
+              html: (t("common.yes") | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t("pages.apply.clientDetails.nameAndDob.yesRevealHint") | escape) ~ '</span>',
               id: "name-change",
               conditional: {
                 html:  govukInput({

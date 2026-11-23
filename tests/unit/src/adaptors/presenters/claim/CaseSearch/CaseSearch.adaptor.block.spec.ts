@@ -15,6 +15,7 @@ const storedClient = {
   clientLastName: "Smith",
   dateOfBirth: "01/01/2000",
 };
+const storedSearchResult = { ...storedClient, officeId: "0U651L" };
 
 function stubRequest(): StubbedInstance<Request> {
   const requestStub = stubInterface<Request>();
@@ -41,13 +42,14 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     selectCaseUseCase.execute.resolves({
       status: "ALLOWED",
       client: storedClient,
+      officeId: "0U651L",
     });
     const adaptor = buildAdaptor(selectCaseUseCase);
 
     const responseStub = stubInterface<Response>();
     const requestStub = stubRequest();
     requestStub.params = { reference: "12345" };
-    requestStub.session.claim = { searchResults: [storedClient] };
+    requestStub.session.claim = { searchResults: [storedSearchResult] };
     requestStub.session.accessToken = "access-token-123";
 
     await adaptor.selectCase(requestStub, responseStub);
@@ -55,7 +57,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     assert.equal(
       selectCaseUseCase.execute.calledOnceWith(
         "12345",
-        [storedClient],
+        [storedSearchResult],
         "access-token-123",
       ),
       true,
@@ -72,13 +74,14 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     selectCaseUseCase.execute.resolves({
       status: "BLOCKED",
       client: storedClient,
+      officeId: "0U651L",
     });
     const adaptor = buildAdaptor(selectCaseUseCase);
 
     const responseStub = stubInterface<Response>();
     const requestStub = stubRequest();
     requestStub.params = { reference: "12345" };
-    requestStub.session.claim = { searchResults: [storedClient] };
+    requestStub.session.claim = { searchResults: [storedSearchResult] };
     requestStub.session.accessToken = "access-token-123";
 
     await adaptor.selectCase(requestStub, responseStub);
@@ -96,6 +99,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     selectCaseUseCase.execute.resolves({
       status: "BLOCKED",
       client: storedClient,
+      officeId: "0U651L",
     });
     const adaptor = buildAdaptor(selectCaseUseCase);
 
@@ -106,7 +110,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     });
     const requestStub = stubInterface<Request>();
     requestStub.params = { reference: "12345" };
-    requestStub.session.claim = { searchResults: [storedClient] };
+    requestStub.session.claim = { searchResults: [storedSearchResult] };
     requestStub.session.save = ((callback: (err?: Error) => void): void => {
       calls.push("save");
       callback();
@@ -145,7 +149,7 @@ describe("CaseSearch adaptor - selectCase claim block", () => {
     const responseStub = stubInterface<Response>();
     const requestStub = stubInterface<Request>();
     requestStub.params = { reference: "12345" };
-    requestStub.session.claim = { searchResults: [storedClient] };
+    requestStub.session.claim = { searchResults: [storedSearchResult] };
     requestStub.session.accessToken = "access-token-123";
 
     await assert.rejects(

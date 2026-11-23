@@ -46,7 +46,7 @@
           items: [
             {
               value: "true",
-              text: "Yes",
+              html: (t("common.yes") | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t("pages.apply.clientDetails.nino.yesRevealHint") | escape) ~ '</span>',
               conditional: {
                 html:  govukInput({
                   id: "nino-input",
