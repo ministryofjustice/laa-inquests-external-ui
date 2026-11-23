@@ -27,6 +27,7 @@ async function uploadEvidence(page: Page): Promise<void> {
 
 test.describe("Claim - confirm and submit", () => {
   test.beforeEach(async ({ page, authorizeStep }) => {
+    await searchAndSelectCase(page, "INQ-YYY-001");
     await page.goto("/claim/type");
     await page.getByLabel("Payment on account (POA)").check();
     await page.getByRole("button", { name: "Continue" }).click();
@@ -356,20 +357,6 @@ test.describe("Claim - confirm and submit", () => {
       .click();
 
     await expect(page).toHaveURL("/claim/confirmation/success");
-  });
-
-  test("redirects to the claim start page when no case has been selected", async ({
-    page,
-  }) => {
-    await uploadEvidence(page);
-    await page.goto("/claim/check-your-answers");
-
-    await page
-      .getByTestId("confirm-and-submit-form")
-      .getByRole("button", { name: "Finish and submit claim" })
-      .click();
-
-    await expect(page).toHaveURL("/claim");
   });
 
   test("displays a 'There is a problem' error summary when claim evidence is missing", async ({
@@ -903,5 +890,22 @@ test.describe("Claim - confirm and submit", () => {
         page.getByTestId("financial-recovery-costs-summary-list"),
       ).toHaveCount(0);
     });
+  });
+});
+
+test.describe("Claim - confirm and submit without a selected case", () => {
+  test("redirects to the claim start page when no case has been selected", async ({
+    page,
+    authorizeStep,
+  }) => {
+    await authorizeStep("/claim/check-your-answers");
+    await page.goto("/claim/check-your-answers");
+
+    await page
+      .getByTestId("confirm-and-submit-form")
+      .getByRole("button", { name: "Finish and submit claim" })
+      .click();
+
+    await expect(page).toHaveURL("/claim");
   });
 });

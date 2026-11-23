@@ -44,6 +44,44 @@ test.describe("Apply - check your answers", () => {
     await checkAccessibility();
   });
 
+  for (const payload of [
+    "<img src=x onerror=alert(1)>",
+    '"><script>alert(1)</script>',
+    "x' onmouseover='alert(1)",
+    '<a href="//evil.example\\path">click',
+  ]) {
+    test(`renders linked case details containing ${payload} as plain text`, async ({
+      page,
+      authorizeStep,
+    }) => {
+      await page.goto("/apply/deceased-details/further-information");
+
+      await page.getByLabel("Yes").click();
+      await page
+        .getByLabel(
+          "Enter details of any linked or bridged inquests you are aware of (optional)",
+        )
+        .fill(payload);
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await authorizeStep("/apply/check-your-answers");
+
+      await page.goto("/apply/check-your-answers");
+
+      const linkedCaseDetailsSummary = page.getByTestId(
+        "linked-case-details-summary-list",
+      );
+      await expect(
+        linkedCaseDetailsSummary.locator(".govuk-summary-list__value"),
+      ).toHaveText(payload);
+      await expect(
+        linkedCaseDetailsSummary.locator(
+          ".govuk-summary-list__value :is(img, script, a)",
+        ),
+      ).toHaveCount(0);
+    });
+  }
+
   test("does not render linked case details summary list when no is selected", async ({
     page,
     authorizeStep,

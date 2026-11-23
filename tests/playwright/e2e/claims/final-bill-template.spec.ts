@@ -1,13 +1,14 @@
 import { test, expect } from "../../fixtures/index.js";
 import type { Page } from "@playwright/test";
 import { testFilenameUploadErrors } from "../../utils/upload-validation.js";
+import { searchAndSelectCase } from "../../utils/claim-journey.js";
 import { CLAIM_FINAL_BILL_TEMPLATE_ERROR } from "#src/infrastructure/locales/constants.js";
 
 const xlsxMimeType =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 async function goToFinalBillTemplate(page: Page): Promise<void> {
-  await page.goto("/claim/type");
+  await searchAndSelectCase(page, "INQ-YYY-001");
   await page.getByLabel("Final bill").check();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.waitForURL("**/claim/total-cost");

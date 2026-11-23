@@ -33,7 +33,7 @@ export class CookiesAdaptor {
     }
 
     res.render("main/cookies", {
-      returnTo: req.session.returnTo ?? "/",
+      returnTo: this.#returnUrl(req.session.returnTo),
       success,
     });
   }

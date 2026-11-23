@@ -1,5 +1,5 @@
 import type { SearchCase } from "#src/adaptors/source/inquests-api/claim/SearchCases/models/SearchCases.types.js";
-import type { ClaimClientDetails } from "#src/infrastructure/express/session/index.types.js";
+import type { ClaimSearchResult } from "#src/infrastructure/express/session/index.types.js";
 import { formatISODateDDMMYYYY } from "#src/utils/dateFormatter.js";
 
 export interface FormattedCase {
@@ -29,13 +29,14 @@ export class CaseSearchFormatter {
     }));
   }
 
-  formatClientDetails(cases: SearchCase[]): ClaimClientDetails[] {
-    return this.formatCases(cases).map((c) => ({
+  formatSearchResults(cases: SearchCase[]): ClaimSearchResult[] {
+    return this.formatCases(cases).map((c, index) => ({
       reference: c.reference,
       clientName: c.clientName,
       clientFirstName: c.clientFirstName,
       clientLastName: c.clientLastName,
       dateOfBirth: c.dateOfBirth,
+      officeId: cases[index].officeId,
     }));
   }
 }

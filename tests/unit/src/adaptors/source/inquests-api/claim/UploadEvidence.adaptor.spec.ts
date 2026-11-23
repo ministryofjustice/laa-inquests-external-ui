@@ -18,6 +18,7 @@ describe("UploadEvidenceAdaptor", () => {
     buffer: Buffer.from("evidence-content"),
     mimetype: "application/pdf",
     originalname: evidenceFileName,
+    officeId: "0U651L",
   };
 
   beforeEach(() => {
@@ -84,6 +85,13 @@ describe("UploadEvidenceAdaptor", () => {
     assert.equal(typeof options.validateStatus, "function");
   });
 
+  it("sends the office of the claim case as office_id", async () => {
+    await adaptor.uploadEvidence(submitBodyRaw, "token-123");
+
+    const formData = axiosStub.post.getCall(0).args[1] as FormData;
+    assert.equal(formData.get("office_id"), "0U651L");
+  });
+
   it("returns UPLOAD_REJECTED when upstream responds with a non-created status", async () => {
     axiosStub.post.resolves({ status: 500, data: {} });
 
@@ -106,6 +114,21 @@ describe("UploadEvidenceAdaptor", () => {
       status: "FILE_SCAN_FOUND_VIRUS",
     });
     assert.equal(capturedEvents.length, 0);
+  });
+
+  it("returns UPLOAD_REJECTED and alerts Sentry when the API rejects the request", async () => {
+    axiosStub.post.resolves({
+      status: 422,
+      data: { detail: [{ loc: ["body", "office_id"], msg: "Field required" }] },
+    });
+
+    const result = await adaptor.uploadEvidence(submitBodyRaw, "token-123");
+    await Sentry.flush();
+
+    assert.deepEqual(result, {
+      status: "UPLOAD_REJECTED",
+    });
+    assert.equal(capturedEvents.length, 1);
   });
 
   it("returns UPLOAD_REJECTED on unexpected exception", async () => {

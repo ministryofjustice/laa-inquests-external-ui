@@ -4,6 +4,8 @@ import {
   MultiFileUpload,
   type MultiFileUploadConfig,
   type MultiFileUploadInstance,
+  type UploadResponseFile,
+  type UploadResponseSuccess,
 } from "@ministryofjustice/frontend/moj/components/multi-file-upload/multi-file-upload.mjs";
 import {
   CLAIM_EVIDENCE_ERROR,
@@ -18,7 +20,7 @@ import {
 import { escapeHtml } from "#src/utils/html.js";
 import { initialiseCoronersLetterUpload } from "#src/infrastructure/build/coronersLetterUpload.js";
 
-const COPY_RESET_DELAY_MS = 4000;
+const COPY_RESET_DELAY_MS = 10000;
 
 interface FileSizeLimit {
   maxFileSizeBytes: number;
@@ -35,7 +37,7 @@ function renderClientSideUploadError(
   const $row = upload.getFileRow(file);
   const $message = $row.querySelector(".moj-multi-file-upload__message");
   if ($message !== null) {
-    $message.innerHTML = upload.getErrorHtml(new Error(escapeHtml(message)));
+    $message.innerHTML = upload.getErrorHtml(new Error(message));
   }
 
   upload.$feedbackContainer.classList.remove("moj-hidden");
@@ -104,6 +106,38 @@ class SizeValidatedMultiFileUpload extends MultiFileUpload {
         this.#onUploadComplete();
       };
     }
+  }
+
+  // The widget interpolates filenames and server messages straight into innerHTML, so
+  // these overrides escape them (or set them as text) before they reach the DOM.
+  override getFileRow({ name }: File): HTMLElement {
+    const $row = super.getFileRow(new File([], ""));
+    const $filename = $row.querySelector(".moj-multi-file-upload__filename");
+    if ($filename !== null) {
+      $filename.textContent = name;
+    }
+    return $row;
+  }
+
+  override getDeleteButton(file: UploadResponseFile): HTMLElement {
+    const { originalname } = file;
+    const $button = super.getDeleteButton({ ...file, originalname: "" });
+    const $label = $button.querySelector(".govuk-visually-hidden");
+    if ($label !== null) {
+      $label.textContent = originalname;
+    }
+    return $button;
+  }
+
+  override getSuccessHtml(success: UploadResponseSuccess): string {
+    return super.getSuccessHtml({
+      ...success,
+      messageHtml: escapeHtml(success.messageText),
+    });
+  }
+
+  override getErrorHtml(error: Error): string {
+    return super.getErrorHtml(new Error(escapeHtml(error.message)));
   }
 
   override uploadFiles(files: FileList): void {
