@@ -43,13 +43,25 @@ declare module "@ministryofjustice/frontend/moj/components/multi-file-upload/mul
     $feedbackContainer: HTMLElement;
     $status: HTMLElement;
     config: MultiFileUploadConfig;
-    getFileRow: (file: File) => HTMLElement;
-    getErrorHtml: (error: Error) => string;
-    // Method (not property) form is required so the subclass can override it and call super.uploadFile.
+    // Method (not property) form is required so the subclass can override these and call super.
     /* eslint-disable @typescript-eslint/method-signature-style -- see comment above */
+    getFileRow(file: File): HTMLElement;
+    getErrorHtml(error: Error): string;
+    getSuccessHtml(success: UploadResponseSuccess): string;
+    getDeleteButton(file: UploadResponseFile): HTMLElement;
     uploadFiles(files: FileList): void;
     uploadFile(file: File): void;
     /* eslint-enable @typescript-eslint/method-signature-style */
+  }
+
+  export interface UploadResponseSuccess {
+    messageText: string;
+    messageHtml: string;
+  }
+
+  export interface UploadResponseFile {
+    filename: string;
+    originalname: string;
   }
 
   type MultiFileUploadConstructor = new (

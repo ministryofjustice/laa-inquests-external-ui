@@ -131,5 +131,23 @@ describe("FinalBillTemplateValidator", () => {
         },
       });
     });
+
+    it("rejects a template whose file name contains HTML even though the request bypassed the browser", () => {
+      const validator = new FinalBillTemplateValidator();
+      const originalname = "<img src=x onerror=alert(1)>.xlsx";
+
+      const result = validator.validateTemplateUploadFile({
+        originalname,
+        mimetype:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        size: 100,
+      } as Express.Multer.File);
+
+      assert.deepEqual(result, {
+        templateError: {
+          text: `${originalname} has an invalid filename. Filenames should only include the letters a-z and A-Z, numbers 0-9, spaces, and the characters .!()_-`,
+        },
+      });
+    });
   });
 });

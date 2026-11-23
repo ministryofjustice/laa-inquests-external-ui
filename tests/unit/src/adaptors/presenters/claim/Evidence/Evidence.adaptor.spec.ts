@@ -389,6 +389,34 @@ describe("Evidence adaptor", () => {
       });
     });
 
+    it("HTML-escapes the file name in the JSON messageHtml for js uploads", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = setupFileRequest();
+      requestStub.session.claim = { officeId: "0U651L" };
+      requestStub.file!.originalname = "<img src=x onerror=alert(1)>.pdf";
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+      uploadEvidenceUseCase.execute.resolves({
+        status: "SUCCESS",
+        evidenceFileId,
+        evidenceFileName,
+      });
+
+      await adaptor.processEvidenceUpload(requestStub, responseStub);
+
+      const [body] = responseStub.json.getCall(0).args as [
+        { success: { messageHtml: string } },
+      ];
+      assert.equal(
+        body.success.messageHtml,
+        "&lt;img src=x onerror=alert(1)&gt;.pdf uploaded",
+      );
+    });
+
     it("uploads the evidence against the office of the selected claim case", async () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,

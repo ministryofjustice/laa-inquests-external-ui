@@ -78,6 +78,26 @@ describe("Cookies adaptor", () => {
     ]);
   });
 
+  for (const unsafeReturnTo of [
+    "//evil.example/path",
+    "/\\evil.example",
+    "https://evil.example",
+    "javascript:alert(1)",
+  ]) {
+    it(`falls back to the home page for the unsafe returnTo ${unsafeReturnTo}`, () => {
+      requestStub.cookies = { cookies_policy: { has_tracking_consent: true } };
+      requestStub.query = { saved: "true" };
+      requestStub.session.returnTo = unsafeReturnTo;
+
+      cookiesAdaptor.renderCookiesPage(requestStub, responseStub);
+
+      assert.deepEqual(responseStub.render.firstCall.args, [
+        "main/cookies",
+        { returnTo: "/", success: true },
+      ]);
+    });
+  }
+
   it("defaults returnTo to the home page when not provided", () => {
     requestStub.cookies = { cookies_policy: { has_tracking_consent: true } };
     requestStub.query = { saved: "true" };
