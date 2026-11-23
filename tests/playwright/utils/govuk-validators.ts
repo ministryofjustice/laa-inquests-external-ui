@@ -92,11 +92,10 @@ export async function validateMojHeader(page: Page): Promise<void> {
   });
   await expect(navigation).toBeVisible();
 
-  // Validate account name link
-  const accountNameLink = navigation.getByRole("link", {
-    name: PROVIDER_DISPLAY_NAME,
-  });
-  await expect(accountNameLink).toBeVisible();
+  await expect(navigation.getByText(PROVIDER_DISPLAY_NAME)).toBeVisible();
+  await expect(
+    navigation.getByRole("link", { name: PROVIDER_DISPLAY_NAME }),
+  ).toHaveCount(0);
 
   // Validate sign out link
   const signOutLink = navigation.getByRole("link", { name: "Sign out" });

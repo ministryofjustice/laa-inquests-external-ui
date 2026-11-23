@@ -92,10 +92,10 @@ test.describe("Home page", () => {
     const navigation = header.getByRole("navigation", {
       name: "Account navigation",
     });
-    const navLinks = navigation.getByRole("link");
+    const navItems = navigation.getByRole("listitem");
 
-    await expect(navLinks.nth(0)).toHaveText(PROVIDER_DISPLAY_NAME);
-    await expect(navLinks.nth(1)).toHaveText("Sign out");
+    await expect(navItems.nth(0)).toHaveText(PROVIDER_DISPLAY_NAME);
+    await expect(navItems.nth(1)).toHaveText("Sign out");
   });
 
   test("should display the authenticated user name in the header", async ({
@@ -105,9 +105,20 @@ test.describe("Home page", () => {
     const navigation = header.getByRole("navigation", {
       name: "Account navigation",
     });
-    const accountLink = navigation.getByRole("link").nth(0);
+    await expect(navigation.getByText(PROVIDER_DISPLAY_NAME)).toBeVisible();
+  });
 
-    await expect(accountLink).toHaveText(PROVIDER_DISPLAY_NAME);
+  test("should not present the authenticated user name as a link", async ({
+    page,
+  }) => {
+    const header = page.getByRole("banner");
+    const navigation = header.getByRole("navigation", {
+      name: "Account navigation",
+    });
+    const navLinks = navigation.getByRole("link");
+
+    await expect(navLinks).toHaveCount(1);
+    await expect(navLinks.nth(0)).toHaveText("Sign out");
   });
 
   test("should show error summary if you do not select a journey type", async ({
