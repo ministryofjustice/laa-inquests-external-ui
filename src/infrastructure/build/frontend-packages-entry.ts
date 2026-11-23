@@ -20,7 +20,7 @@ import {
 import { escapeHtml } from "#src/utils/html.js";
 import { initialiseCoronersLetterUpload } from "#src/infrastructure/build/coronersLetterUpload.js";
 
-const COPY_RESET_DELAY_MS = 4000;
+const COPY_RESET_DELAY_MS = 10000;
 
 interface FileSizeLimit {
   maxFileSizeBytes: number;

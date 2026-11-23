@@ -24,6 +24,20 @@ body.js-enabled {
   box-shadow: none;
 }
 
+.govuk-button--secondary.disable-click {
+  &,
+  &:hover,
+  &:active {
+    color: govuk.govuk-colour("white");
+    background-color: transparent;
+  }
+
+  &:focus {
+    color: govuk.govuk-functional-colour("focus-text");
+    background-color: govuk.govuk-functional-colour("focus");
+  }
+}
+
 // Override the default green confirmation panel background for rejected claims
 .govuk-panel.app-panel--rejected {
   background-color: govuk.govuk-colour("red");
