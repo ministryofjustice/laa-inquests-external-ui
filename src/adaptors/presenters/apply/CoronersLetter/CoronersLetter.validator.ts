@@ -6,6 +6,7 @@ import {
   CORONERS_LETTER_ERROR,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { validateUploadedFileName } from "#src/adaptors/presenters/claim/common/fileUploadValidator.utils.js";
 
 export class UploadCoronersLetterValidator extends FormValidator {
   validateCoronersLetterSelection(
@@ -48,6 +49,10 @@ export class UploadCoronersLetterValidator extends FormValidator {
   }
 
   #validateFile(fileInput: Express.Multer.File): string | undefined {
+    const fileNameError = validateUploadedFileName(fileInput.originalname);
+    if (fileNameError !== undefined) {
+      return fileNameError;
+    }
     if (!CORONERS_LETTER_ALLOWED_FILE_TYPES.includes(fileInput.mimetype)) {
       return CORONERS_LETTER_ERROR.INVALID_FILE_TYPE.replace(
         "{filename}",

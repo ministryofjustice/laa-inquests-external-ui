@@ -313,6 +313,7 @@ describe("Evidence adaptor", () => {
       const requestStub = setupFileRequest();
       requestStub.body.uploadMode = "html";
       requestStub.session.claim = {
+        officeId: "0U651L",
         evidenceFiles: [
           {
             id: "existing-id",
@@ -354,7 +355,7 @@ describe("Evidence adaptor", () => {
         deleteEvidenceUseCase,
       );
       const requestStub = setupFileRequest();
-      requestStub.session.claim = {};
+      requestStub.session.claim = { officeId: "0U651L" };
 
       const responseStub = stubInterface<Response>();
       responseStub.status.returns(responseStub);
@@ -386,6 +387,75 @@ describe("Evidence adaptor", () => {
           originalname: evidenceFileName,
         },
       });
+    });
+
+    it("HTML-escapes the file name in the JSON messageHtml for js uploads", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = setupFileRequest();
+      requestStub.session.claim = { officeId: "0U651L" };
+      requestStub.file!.originalname = "<img src=x onerror=alert(1)>.pdf";
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+      uploadEvidenceUseCase.execute.resolves({
+        status: "SUCCESS",
+        evidenceFileId,
+        evidenceFileName,
+      });
+
+      await adaptor.processEvidenceUpload(requestStub, responseStub);
+
+      const [body] = responseStub.json.getCall(0).args as [
+        { success: { messageHtml: string } },
+      ];
+      assert.equal(
+        body.success.messageHtml,
+        "&lt;img src=x onerror=alert(1)&gt;.pdf uploaded",
+      );
+    });
+
+    it("uploads the evidence against the office of the selected claim case", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = setupFileRequest();
+      requestStub.session.claim = { officeId: "0U651L" };
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+      uploadEvidenceUseCase.execute.resolves({ status: "UPLOAD_REJECTED" });
+
+      await adaptor.processEvidenceUpload(requestStub, responseStub);
+
+      assert.equal(
+        uploadEvidenceUseCase.execute.getCall(0).args[0].officeId,
+        "0U651L",
+      );
+    });
+
+    it("does not upload and shows the upload error when no claim case office is in session", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = setupFileRequest();
+      requestStub.body = { uploadMode: "html" };
+      requestStub.session.claim = {};
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+
+      await adaptor.processEvidenceUpload(requestStub, responseStub);
+
+      assert.equal(uploadEvidenceUseCase.execute.callCount, 0);
+      assert.equal(
+        responseStub.status.calledWith(HTTP_SERVICE_UNAVAILABLE),
+        true,
+      );
     });
 
     it("re-renders the evidence page for no-js uploads with validation errors", async () => {
@@ -457,6 +527,7 @@ describe("Evidence adaptor", () => {
       );
       const requestStub = setupFileRequest();
       requestStub.body.uploadMode = "html";
+      requestStub.session.claim = { officeId: "0U651L" };
       const responseStub = stubInterface<Response>();
       responseStub.status.returns(responseStub);
       responseStub.locals = { csrfToken: "csrf-token" };
@@ -490,6 +561,7 @@ describe("Evidence adaptor", () => {
         deleteEvidenceUseCase,
       );
       const requestStub = setupFileRequest();
+      requestStub.session.claim = { officeId: "0U651L" };
       const responseStub = stubInterface<Response>();
       responseStub.status.returns(responseStub);
 
@@ -566,11 +638,12 @@ describe("Evidence adaptor", () => {
           originalname: fileName,
           size: 16,
         } as Express.Multer.File;
-        requestStub.session.claim = { evidenceFiles: [] };
+        requestStub.session.claim = { officeId: "0U651L", evidenceFiles: [] };
         requestStub.session.reload = ((
           callback: (err?: Error) => void,
         ): void => {
           requestStub.session.claim = {
+            officeId: "0U651L",
             evidenceFiles: storedEvidenceFiles.map((file) => ({ ...file })),
           };
           callback();

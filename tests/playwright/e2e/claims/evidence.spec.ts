@@ -1,9 +1,12 @@
 import { CLAIM_EVIDENCE_ERROR } from "#src/infrastructure/locales/constants.js";
 import { test, expect } from "../../fixtures/index.js";
 import { testFilenameUploadErrors } from "../../utils/upload-validation.js";
+import { searchAndSelectCase } from "../../utils/claim-journey.js";
 
 test.describe("Claim - evidence", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, authorizeStep }) => {
+    await searchAndSelectCase(page, "INQ-YYY-001");
+    await authorizeStep("/claim/evidence");
     await page.goto("/claim/evidence");
   });
 

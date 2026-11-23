@@ -20,6 +20,14 @@ const OPERATION = "upload_evidence";
 const UPSTREAM_METHOD = "POST";
 const UPSTREAM_ROUTE = "/claims/evidence";
 
+function isRequestValidationError(data: unknown): boolean {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    Array.isArray((data as { detail?: unknown }).detail)
+  );
+}
+
 export class UploadEvidenceAdaptor implements UploadEvidencePort {
   constructor(
     private readonly http: AxiosInstance,
@@ -39,6 +47,7 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
       }),
       body.originalname,
     );
+    formData.append("office_id", body.officeId);
 
     try {
       const response: AxiosResponse<unknown> = await postToInquestsApi<
@@ -110,7 +119,12 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
             code: fileRejection.data.detail.code,
           };
         }
+      }
 
+      if (
+        response.status === HTTP_UNPROCESSABLE_CONTENT &&
+        !isRequestValidationError(response.data)
+      ) {
         logger.logWarn({
           functionName: "upload_evidence_adaptor",
           message: "Evidence upload rejected by file scan",

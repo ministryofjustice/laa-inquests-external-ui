@@ -24,6 +24,7 @@ import {
   resolveUploadFailureMessage,
 } from "#src/adaptors/presenters/claim/common/fileUploadPresenter.utils.js";
 import { completeStepAndRedirect } from "../../utils/journeyStepHelper.js";
+import { escapeHtml } from "#src/utils/html.js";
 import { JOURNEY_TYPES } from "#src/infrastructure/config/journeySequences.js";
 const HTTP_SUCCESS = 200;
 
@@ -122,10 +123,32 @@ export class FinalBillTemplateAdaptor {
       });
       this.#handleValidationFailure(req, res, errors, isNoJs);
     } else {
+      const officeId = req.session.claim?.officeId;
+      if (officeId === undefined || officeId === "") {
+        logger.logWarn({
+          functionName: "finalBillTemplateAdaptor_processTemplateUpload",
+          message:
+            "Final bill template upload blocked: no claim case office in session",
+          request: req,
+          extraContext: {
+            event: "claim_final_bill_template_upload_missing_office",
+            no_js_upload: isNoJs,
+          },
+        });
+        this.#handleUploadFailure({
+          req,
+          res,
+          result: { status: "UPLOAD_REJECTED" },
+          isNoJsUpload: isNoJs,
+        });
+        return;
+      }
+
       const result = await this.uploadEvidenceUseCase.execute({
         buffer: file!.buffer,
         mimetype: file!.mimetype,
         originalname: file!.originalname,
+        officeId,
         accessToken: req.session.accessToken,
       });
 
@@ -411,7 +434,7 @@ export class FinalBillTemplateAdaptor {
       res.status(HTTP_CREATED).json({
         success: {
           messageText: `${file.originalname} uploaded`,
-          messageHtml: `${file.originalname} uploaded`,
+          messageHtml: `${escapeHtml(file.originalname)} uploaded`,
         },
         file: {
           filename: data.evidenceFileId,

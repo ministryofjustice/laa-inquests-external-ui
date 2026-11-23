@@ -55,7 +55,7 @@
                     items: [
                     {
                         value: "true",
-                        text: "Yes, my client is a family member",
+                        html: (t("pages.apply.deceasedDetails.clientRelationship.yesLabel") | escape) ~ '<span class="govuk-visually-hidden">. ' ~ (t("pages.apply.deceasedDetails.clientRelationship.yesRevealHint") | escape) ~ '</span>',
                         conditional: {
                             html:  govukInput({
                                 id: "deceased-client-relationship",
