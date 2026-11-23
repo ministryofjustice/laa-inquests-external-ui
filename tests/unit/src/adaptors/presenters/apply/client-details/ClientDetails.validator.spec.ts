@@ -457,7 +457,7 @@ describe("ClientDetailsValidator", () => {
           },
         });
       });
-      it("adds error message if yes radio is selected but no reference provided", () => {
+      it("returns no errors if yes radio is selected and the optional reference is empty", () => {
         const formValidator = new ClientDetailsValidator();
         const formBody = {
           _csrf: "abcdefg",
@@ -466,11 +466,18 @@ describe("ClientDetailsValidator", () => {
         };
         const errorSummaries =
           formValidator.validatePrevApplicationReference(formBody);
-        assert.deepEqual(errorSummaries, {
-          referenceInputError: {
-            text: CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
-          },
-        });
+        assert.deepEqual(errorSummaries, {});
+      });
+      it("returns no errors if yes radio is selected and the reference is 35 characters", () => {
+        const formValidator = new ClientDetailsValidator();
+        const formBody = {
+          _csrf: "abcdefg",
+          "has-prev-application": "true",
+          "prev-laa-reference-input": "a".repeat(35),
+        };
+        const errorSummaries =
+          formValidator.validatePrevApplicationReference(formBody);
+        assert.deepEqual(errorSummaries, {});
       });
       it("adds error message if reference exceeds 35 characters", () => {
         const formValidator = new ClientDetailsValidator();

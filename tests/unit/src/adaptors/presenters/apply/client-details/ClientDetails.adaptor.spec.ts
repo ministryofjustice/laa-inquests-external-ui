@@ -630,6 +630,30 @@ describe("Client details adaptor", () => {
     assert.equal(requestStub.session.prevLaaReferenceInput, null);
   });
 
+  it("process has prev application form redirects to home address when yes is selected and the optional reference is empty", () => {
+    const formValidator = new ClientDetailsValidator();
+    const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
+    const responseStub = stubInterface<Response>();
+    const requestStub = stubInterface<Request>();
+
+    requestStub.body = {
+      "has-prev-application": "true",
+      "prev-laa-reference-input": "",
+    };
+
+    clientDetailsAdaptor.processHasPrevApplicationForm(
+      requestStub,
+      responseStub,
+    );
+
+    assert.equal(responseStub.render.callCount, 0);
+    assert.equal(responseStub.redirect.callCount, 1);
+    assert.equal(
+      responseStub.redirect.getCall(0).args[0],
+      "/apply/client-details/home-address",
+    );
+  });
+
   it("process has prev application form sets boolean value and reference in session when previous application does exist", () => {
     const formValidator = new ClientDetailsValidator();
     const clientDetailsAdaptor = new ClientDetailsAdaptor(formValidator);
