@@ -157,7 +157,7 @@ test.describe("Claim - confirm and submit", () => {
     ).toBeVisible();
   });
 
-  test("View link opens the file inline in a new tab", async ({ page }) => {
+  test("View link opens the file inline in the same tab", async ({ page }) => {
     await uploadEvidence(page);
     await page.goto("/claim/check-your-answers");
 
@@ -169,7 +169,7 @@ test.describe("Claim - confirm and submit", () => {
       "href",
       `/claim/evidence/${EVIDENCE_FILE_ID}/view`,
     );
-    await expect(viewLink).toHaveAttribute("target", "_blank");
+    await expect(viewLink).not.toHaveAttribute("target", "_blank");
   });
 
   test("Download link points to the download route without opening a new tab", async ({
