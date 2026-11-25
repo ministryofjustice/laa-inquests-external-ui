@@ -554,6 +554,36 @@ describe("Evidence adaptor", () => {
       });
     });
 
+    it("returns an invalid file type error with 422 when the API rejects the file content", async () => {
+      const adaptor = new EvidenceAdaptor(
+        uploadEvidenceValidator,
+        uploadEvidenceUseCase,
+        deleteEvidenceUseCase,
+      );
+      const requestStub = setupFileRequest();
+      requestStub.session.claim = { officeId: "0U651L" };
+      const responseStub = stubInterface<Response>();
+      responseStub.status.returns(responseStub);
+
+      uploadEvidenceUseCase.execute.resolves({
+        status: "FILE_REJECTED",
+        code: "CONTENT_MISMATCH",
+      });
+
+      await adaptor.processEvidenceUpload(requestStub, responseStub);
+
+      assert.equal(
+        responseStub.status.calledWith(HTTP_UNPROCESSABLE_CONTENT),
+        true,
+      );
+      assert.deepEqual(responseStub.json.getCall(0).args[0], {
+        error: {
+          message: "test-evidence.pdf must be a JPG, PNG, BMP or PDF",
+        },
+        file: { filename: "", originalname: "test-evidence.pdf" },
+      });
+    });
+
     it("deletes evidence in no-js flow when delete input is posted via upload form", async () => {
       const adaptor = new EvidenceAdaptor(
         uploadEvidenceValidator,
