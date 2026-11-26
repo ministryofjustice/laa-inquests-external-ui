@@ -8,8 +8,14 @@ export const SERVICE_UNAVAILABLE_MESSAGE =
 export const BEFORE_YOU_START_DECLARATION_ERROR =
   "Confirm you have read and agree to the declaration";
 
+export const CASE_REFERENCE_MAX_CHARACTER_LENGTH = 50;
+
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
+  CASE_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Case reference must be 50 characters or less",
+  CASE_REFERENCE_INVALID_CHARACTERS:
+    "Case reference must not contain line breaks or control characters",
   NO_RESULTS: "There are no results that match the search criteria",
   SELECTION_FAILED:
     "There was a problem selecting the case. Select the case again.",
@@ -17,6 +23,10 @@ export const CASE_SEARCH_ERROR = {
 
 export const PAYING_PARTY_ERROR = {
   MISSING_PAYING_PARTY: "Enter the name of the paying party",
+  PAYING_PARTY_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Paying party must be 100 characters or less",
+  INVALID_PAYING_PARTY_CHARACTERS:
+    "Paying party must include a letter or number, and only use letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
 };
 
 export const CLAIM_TYPE_ERROR = {
@@ -178,13 +188,30 @@ export const HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX = /^[A-Z\s\-']+$/iv;
 
 export const HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX = /^[A-Z0-9\s]+$/iv;
 
-export const CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX =
-  /^(?:[\p{L}\p{N}\s'.,\-]|&)+$/v;
-
 export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
-// Spreadsheet formula prefixes, optionally hidden behind leading whitespace or control characters.
-export const FORMULA_PREFIX_REGEX = /^[\s\p{Cc}\p{Cf}]*[=+\-@＝＋－＠]/v;
+// Shared free-text rules, mirrored by the API's validated types. A letter keeps its
+// combining marks so an accent typed as a separate mark passes, but a bare mark does not.
+// Words: letters, spaces, hyphens and apostrophes, starting with a letter (which also rules
+// out spreadsheet formula prefixes). Used for people's names and relationship descriptions.
+export const WORDS_ALLOWED_CHARACTERS_REGEX =
+  /^\p{L}\p{M}*(?:\p{L}\p{M}*|[ '\-])*$/v;
+
+// Party names (the paying party, a "care of" recipient, whether a person or an organisation)
+// allow a little punctuation ("Smith & Co., Ltd") but need a letter or number.
+export const PARTY_NAME_ALLOWED_CHARACTERS_REGEX =
+  /^(?:[ '.,\-]|&)*(?:\p{L}\p{M}*|\p{N})(?:\p{L}\p{M}*|\p{N}|[ '.,\-]|&)*$/v;
+
+// Prose keeps its line breaks and tabs but rejects angle brackets and other control or format characters.
+export const PROSE_UNSAFE_CHARACTERS_REGEX = /[<>]|[[\p{Cc}\p{Cf}]--[\n\r\t]]/v;
+
+// Any control or format character (line breaks, tabs, zero-width and direction marks), for single-line values.
+export const CONTROL_CHARACTERS_REGEX = /[\p{Cc}\p{Cf}]/v;
+
+// Reference text (coroner's reference): empty, or starting with a letter or digit. No `i` flag,
+// so "ſ" is not folded to "s" and the rule matches the API's ASCII-only one.
+export const REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX =
+  /^(?:[A-Za-z0-9][A-Za-z0-9 .\/\-]*)?$/v;
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
@@ -204,8 +231,13 @@ export const CLIENT_DETAILS_ERROR = {
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Last name cannot exceed 100 characters",
   FIRST_NAME_INVALID_CHARACTERS:
-    "First name(s) must not start with =, +, - or @",
-  LAST_NAME_INVALID_CHARACTERS: "Last name must not start with =, +, - or @",
+    "First name(s) must only include letters, spaces, hyphens and apostrophes",
+  LAST_NAME_INVALID_CHARACTERS:
+    "Last name must only include letters, spaces, hyphens and apostrophes",
+  LAST_NAME_AT_BIRTH_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Last name at birth cannot exceed 100 characters",
+  LAST_NAME_AT_BIRTH_INVALID_CHARACTERS:
+    "Last name at birth must only include letters, spaces, hyphens and apostrophes",
   MISSING_FIRST_NAME: "Please enter your client's first name",
   MISSING_LAST_NAME: "Please enter your client's last name",
   MISSING_LAST_NAME_AT_BIRTH: "Please enter the client's birth name",
@@ -223,6 +255,8 @@ export const CLIENT_DETAILS_ERROR = {
   INVALID_NINO: "You must enter a valid National Insurance Number",
   APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Application cannot exceed 35 characters",
+  APPLICATION_REFERENCE_INVALID_CHARACTERS:
+    "Reference must start with a letter or number and only include letters, numbers, spaces, full stops, forward slashes and hyphens",
   CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS:
     "Either select if your client has no fixed abode or enter the client's home address",
   MISSING_HOME_ADDRESS_LINE_1:
@@ -287,13 +321,13 @@ export const CLIENT_DETAILS_ERROR = {
   CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Person's name must be 100 characters or less",
   CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS:
-    "Person's name must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
+    "Person's name must include a letter or number, and only use letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
   MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME:
     "Please enter the organisation name",
   CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Organisation name must be 100 characters or less",
   CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS:
-    "Organisation name must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
+    "Organisation name must include a letter or number, and only use letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
 };
 
 export const CORRESPONDENCE_ADDRESS_SOURCE = {
@@ -314,6 +348,10 @@ export const DECEASED_DETAILS_ERROR = {
     "First name must be 100 characters or less",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Last name must be 100 characters or less",
+  FIRST_NAME_INVALID_CHARACTERS:
+    "First name must only include letters, spaces, hyphens and apostrophes",
+  LAST_NAME_INVALID_CHARACTERS:
+    "Last name must only include letters, spaces, hyphens and apostrophes",
   MISSING_DATE_OF_DEATH_INPUT: "Please enter date of death",
   NON_NUMERIC_DATE_OF_DEATH:
     "Please enter date of death in the format expected",
@@ -333,12 +371,18 @@ export const DECEASED_DETAILS_ERROR = {
     "Relationship to deceased must be a maximum of 70 characters and a minimum of 1.",
   RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Relationship must be 70 characters or less",
+  RELATIONSHIP_INVALID_CHARACTERS:
+    "Relationship must only include letters, spaces, hyphens and apostrophes",
   CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Coroner reference must be 50 characters or less",
+  CORONER_REFERENCE_INVALID_CHARACTERS:
+    "Coroner reference must start with a letter or number and only include letters, numbers, spaces, full stops, forward slashes and hyphens",
   FURTHER_INFORMATION_SELECTION_REQUIRED:
     "Select yes if there are any other applications for legal aid being made by family members for an inquest arising from this same incident",
   FURTHER_INFORMATION_MIN_MAX:
     "Linked case details must be between 2 and 500 characters",
+  FURTHER_INFORMATION_INVALID_CHARACTERS:
+    "Linked case details must not include < or > or control characters",
 };
 
 export const END_DATE_ERROR = {
@@ -476,8 +520,11 @@ export const PROCEEDING_ERROR = {
   NO_PROCEEDINGS_IN_LIST: "A case must have a minimum of 1 proceeding",
 };
 
+// Anchored at both ends, ASCII only and with spaces only between the blocks, as in the API.
+// `i` with `v` would otherwise let "ſ" pass as "s". At most 3 spaces per gap keeps a value
+// within the API's 15 character limit. Callers normalise (NFC, trim) first, as the API does.
 export const NINO_REGEX =
-  /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
+  /^(?=\p{ASCII}+$)(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}[ ]{0,3}[0-9]{6}[ ]{0,3}[A-D]$/iv;
 
 export const UK_POSTCODE_REGEX =
   /^(GIR\s?0AA|[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2})$/iv;

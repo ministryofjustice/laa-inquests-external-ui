@@ -9,14 +9,14 @@ import type {
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
-  CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX,
   CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH,
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
-  FORMULA_PREFIX_REGEX,
   NINO_REGEX,
+  REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { normaliseFreeText } from "#src/utils/textRules.js";
 import {
   validateAddressFields,
   validateNoFixedAbodeConflict,
@@ -106,27 +106,6 @@ export class ClientDetailsValidator extends FormValidator {
     return errorSummaries;
   }
 
-  private validateNameFormulaPrefix(
-    firstName: string | undefined,
-    lastName: string | undefined,
-  ): Partial<ClientNameDobError> {
-    const errors: Partial<ClientNameDobError> = {};
-
-    if (typeof firstName === "string" && FORMULA_PREFIX_REGEX.test(firstName)) {
-      errors.firstNameInputError = {
-        text: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
-      };
-    }
-
-    if (typeof lastName === "string" && FORMULA_PREFIX_REGEX.test(lastName)) {
-      errors.lastNameInputError = {
-        text: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
-      };
-    }
-
-    return errors;
-  }
-
   validateClientName(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientNameDobError> {
@@ -139,35 +118,25 @@ export class ClientDetailsValidator extends FormValidator {
       "name-change": hasNameChanged,
     } = formBody;
 
-    if (this.validateFormInputValue(firstName)) {
-      errorSummaries.firstNameInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
-      };
+    const firstNameError = this.validateWordsInput(firstName, {
+      missing: CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
+      invalidCharacters: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    });
+    if (firstNameError !== undefined) {
+      errorSummaries.firstNameInputError = firstNameError;
     }
 
-    if (this.validateFormInputValue(firstName, false)) {
-      errorSummaries.firstNameInputError = {
-        text: CLIENT_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
+    const lastNameError = this.validateWordsInput(lastName, {
+      missing: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
+      invalidCharacters: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    });
+    if (lastNameError !== undefined) {
+      errorSummaries.lastNameInputError = lastNameError;
     }
-
-    if (this.validateFormInputValue(lastName)) {
-      errorSummaries.lastNameInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
-      };
-    }
-
-    if (this.validateFormInputValue(lastName, false)) {
-      errorSummaries.lastNameInputError = {
-        text: CLIENT_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
-    }
-
-    const formulaPrefixErrors = this.validateNameFormulaPrefix(
-      firstName,
-      lastName,
-    );
-    Object.assign(errorSummaries, formulaPrefixErrors);
 
     if (typeof hasNameChanged !== "string") {
       errorSummaries.noRadioSelected = {
@@ -175,14 +144,17 @@ export class ClientDetailsValidator extends FormValidator {
       };
     }
 
-    if (
-      typeof hasNameChanged === "string" &&
-      hasNameChanged === "true" &&
-      this.validateFormInputValue(lastNameAtBirth)
-    ) {
-      errorSummaries.noBirthNameSpecified = {
-        text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
-      };
+    if (hasNameChanged === "true") {
+      const lastNameAtBirthError = this.validateWordsInput(lastNameAtBirth, {
+        missing: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
+        invalidCharacters:
+          CLIENT_DETAILS_ERROR.LAST_NAME_AT_BIRTH_INVALID_CHARACTERS,
+        exceedsMaxLength:
+          CLIENT_DETAILS_ERROR.LAST_NAME_AT_BIRTH_EXCEEDS_MAX_CHARACTER_LENGTH,
+      });
+      if (lastNameAtBirthError !== undefined) {
+        errorSummaries.noBirthNameSpecified = lastNameAtBirthError;
+      }
     }
     return errorSummaries;
   }
@@ -200,23 +172,18 @@ export class ClientDetailsValidator extends FormValidator {
       };
     }
 
-    if (
-      typeof hasNino === "string" &&
-      hasNino === "true" &&
-      this.validateFormInputValue(ninoInput)
-    ) {
-      errorSummaries.ninoInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_NINO,
-      };
-    } else if (
-      typeof hasNino === "string" &&
-      hasNino === "true" &&
-      typeof ninoInput === "string" &&
-      !NINO_REGEX.test(ninoInput)
-    ) {
-      errorSummaries.ninoInputError = {
-        text: CLIENT_DETAILS_ERROR.INVALID_NINO,
-      };
+    if (hasNino === "true" && typeof ninoInput === "string") {
+      const nino = normaliseFreeText(ninoInput);
+
+      if (nino === "") {
+        errorSummaries.ninoInputError = {
+          text: CLIENT_DETAILS_ERROR.MISSING_NINO,
+        };
+      } else if (!NINO_REGEX.test(nino)) {
+        errorSummaries.ninoInputError = {
+          text: CLIENT_DETAILS_ERROR.INVALID_NINO,
+        };
+      }
     }
 
     return errorSummaries;
@@ -239,13 +206,20 @@ export class ClientDetailsValidator extends FormValidator {
 
     const MAX_REF_LENGTH = 35;
     if (
-      typeof hasPrevApplication === "string" &&
       hasPrevApplication === "true" &&
-      this.exceedsMaxLength(prevApplicationRef, MAX_REF_LENGTH)
+      typeof prevApplicationRef === "string"
     ) {
-      errorSummaries.referenceInputError = {
-        text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
+      const reference = normaliseFreeText(prevApplicationRef);
+
+      if (!REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX.test(reference)) {
+        errorSummaries.referenceInputError = {
+          text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_INVALID_CHARACTERS,
+        };
+      } else if (this.exceedsMaxLength(reference, MAX_REF_LENGTH)) {
+        errorSummaries.referenceInputError = {
+          text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+        };
+      }
     }
     return errorSummaries;
   }
@@ -383,42 +357,26 @@ export class ClientDetailsValidator extends FormValidator {
   #validateCorrespondenceRecipientPersonName(
     personName: string | undefined,
   ): string | undefined {
-    if (this.validateFormInputValue(personName)) {
-      return CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME;
-    }
-
-    if (this.validateFormInputValue(personName, false)) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH;
-    }
-
-    if (
-      typeof personName === "string" &&
-      !CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX.test(personName)
-    ) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS;
-    }
-
-    return undefined;
+    return this.validatePartyNameInput(personName, {
+      missing:
+        CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
+      invalidCharacters:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    })?.text;
   }
 
   #validateCorrespondenceRecipientOrganisationName(
     organisationName: string | undefined,
   ): string | undefined {
-    if (this.validateFormInputValue(organisationName)) {
-      return CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME;
-    }
-
-    if (this.validateFormInputValue(organisationName, false)) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH;
-    }
-
-    if (
-      typeof organisationName === "string" &&
-      !CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX.test(organisationName)
-    ) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS;
-    }
-
-    return undefined;
+    return this.validatePartyNameInput(organisationName, {
+      missing:
+        CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
+      invalidCharacters:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    })?.text;
   }
 }
