@@ -1,0 +1,31 @@
+import {
+  ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX,
+  PERSON_NAME_ALLOWED_CHARACTERS_REGEX,
+  PROSE_UNSAFE_CHARACTERS_REGEX,
+} from "#src/infrastructure/locales/constants.js";
+
+/**
+ * Trim, fold curly apostrophes and compose accents, as the API does before it validates,
+ * so a value the UI accepts is not rejected by the API (iOS types curly apostrophes).
+ */
+export function normaliseFreeText(value: string): string {
+  return value
+    .replaceAll("\u2018", "'")
+    .replaceAll("\u2019", "'")
+    .normalize("NFC")
+    .trim();
+}
+
+export function isPersonName(value: string): boolean {
+  return PERSON_NAME_ALLOWED_CHARACTERS_REGEX.test(normaliseFreeText(value));
+}
+
+export function isOrganisationName(value: string): boolean {
+  return ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX.test(
+    normaliseFreeText(value),
+  );
+}
+
+export function hasUnsafeProseCharacters(value: string): boolean {
+  return PROSE_UNSAFE_CHARACTERS_REGEX.test(value);
+}

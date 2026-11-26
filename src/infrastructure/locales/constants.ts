@@ -183,6 +183,19 @@ export const CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX =
 
 export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
+// Shared free-text rules, mirrored by the API's validated types. A letter keeps its
+// combining marks so an accent typed as a separate mark passes, but a bare mark does not.
+// Names start with a letter, which also rules out spreadsheet formula prefixes.
+export const PERSON_NAME_ALLOWED_CHARACTERS_REGEX =
+  /^\p{L}\p{M}*(?:\p{L}\p{M}*|[ '\-])*$/v;
+
+// Organisation names allow a little punctuation ("Smith & Co., Ltd") but need a letter or digit.
+export const ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX =
+  /^(?:[ '.,\-]|&)*(?:\p{L}\p{M}*|\p{N})(?:\p{L}\p{M}*|\p{N}|[ '.,\-]|&)*$/v;
+
+// Prose keeps its line breaks and tabs but rejects angle brackets and other control or format characters.
+export const PROSE_UNSAFE_CHARACTERS_REGEX = /[<>]|[[\p{Cc}\p{Cf}]--[\n\r\t]]/v;
+
 // Spreadsheet formula prefixes, optionally hidden behind leading whitespace or control characters.
 export const FORMULA_PREFIX_REGEX = /^[\s\p{Cc}\p{Cf}]*[=+\-@＝＋－＠]/v;
 
