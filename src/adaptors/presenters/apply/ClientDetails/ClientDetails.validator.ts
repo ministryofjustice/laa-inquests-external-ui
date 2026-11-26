@@ -13,10 +13,11 @@ import {
   CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH,
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
-  FORMULA_PREFIX_REGEX,
+  MAX_CHARACTER_LENGTH,
   NINO_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
+import { isPersonName, normaliseFreeText } from "#src/utils/textRules.js";
 import {
   validateAddressFields,
   validateNoFixedAbodeConflict,
@@ -106,25 +107,33 @@ export class ClientDetailsValidator extends FormValidator {
     return errorSummaries;
   }
 
-  private validateNameFormulaPrefix(
-    firstName: string | undefined,
-    lastName: string | undefined,
-  ): Partial<ClientNameDobError> {
-    const errors: Partial<ClientNameDobError> = {};
-
-    if (typeof firstName === "string" && FORMULA_PREFIX_REGEX.test(firstName)) {
-      errors.firstNameInputError = {
-        text: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
-      };
+  private validatePersonName(
+    value: string | undefined,
+    messages: {
+      missing: string;
+      invalidCharacters: string;
+      exceedsMaxLength: string;
+    },
+  ): { text: string } | undefined {
+    if (typeof value !== "string") {
+      return undefined;
     }
 
-    if (typeof lastName === "string" && FORMULA_PREFIX_REGEX.test(lastName)) {
-      errors.lastNameInputError = {
-        text: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
-      };
+    const name = normaliseFreeText(value);
+
+    if (name === "") {
+      return { text: messages.missing };
     }
 
-    return errors;
+    if (!isPersonName(name)) {
+      return { text: messages.invalidCharacters };
+    }
+
+    if (name.length > MAX_CHARACTER_LENGTH) {
+      return { text: messages.exceedsMaxLength };
+    }
+
+    return undefined;
   }
 
   validateClientName(
@@ -139,35 +148,25 @@ export class ClientDetailsValidator extends FormValidator {
       "name-change": hasNameChanged,
     } = formBody;
 
-    if (this.validateFormInputValue(firstName)) {
-      errorSummaries.firstNameInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
-      };
+    const firstNameError = this.validatePersonName(firstName, {
+      missing: CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
+      invalidCharacters: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    });
+    if (firstNameError !== undefined) {
+      errorSummaries.firstNameInputError = firstNameError;
     }
 
-    if (this.validateFormInputValue(firstName, false)) {
-      errorSummaries.firstNameInputError = {
-        text: CLIENT_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
+    const lastNameError = this.validatePersonName(lastName, {
+      missing: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
+      invalidCharacters: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    });
+    if (lastNameError !== undefined) {
+      errorSummaries.lastNameInputError = lastNameError;
     }
-
-    if (this.validateFormInputValue(lastName)) {
-      errorSummaries.lastNameInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
-      };
-    }
-
-    if (this.validateFormInputValue(lastName, false)) {
-      errorSummaries.lastNameInputError = {
-        text: CLIENT_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
-    }
-
-    const formulaPrefixErrors = this.validateNameFormulaPrefix(
-      firstName,
-      lastName,
-    );
-    Object.assign(errorSummaries, formulaPrefixErrors);
 
     if (typeof hasNameChanged !== "string") {
       errorSummaries.noRadioSelected = {
@@ -175,14 +174,17 @@ export class ClientDetailsValidator extends FormValidator {
       };
     }
 
-    if (
-      typeof hasNameChanged === "string" &&
-      hasNameChanged === "true" &&
-      this.validateFormInputValue(lastNameAtBirth)
-    ) {
-      errorSummaries.noBirthNameSpecified = {
-        text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
-      };
+    if (hasNameChanged === "true") {
+      const lastNameAtBirthError = this.validatePersonName(lastNameAtBirth, {
+        missing: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
+        invalidCharacters:
+          CLIENT_DETAILS_ERROR.LAST_NAME_AT_BIRTH_INVALID_CHARACTERS,
+        exceedsMaxLength:
+          CLIENT_DETAILS_ERROR.LAST_NAME_AT_BIRTH_EXCEEDS_MAX_CHARACTER_LENGTH,
+      });
+      if (lastNameAtBirthError !== undefined) {
+        errorSummaries.noBirthNameSpecified = lastNameAtBirthError;
+      }
     }
     return errorSummaries;
   }

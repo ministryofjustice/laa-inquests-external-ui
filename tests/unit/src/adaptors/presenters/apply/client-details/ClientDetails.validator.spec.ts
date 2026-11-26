@@ -204,8 +204,25 @@ describe("ClientDetailsValidator", () => {
           },
         });
       });
-      it("adds error message for first name starting with a spreadsheet formula character", () => {
-        ["=cmd", "+1", "-1", "@SUM(A1)", " =cmd", "＝cmd"].forEach((value) => {
+      const NOT_ALLOWED_IN_A_NAME = [
+        ["a formula prefix", "=cmd"],
+        ["a plus prefix", "+1"],
+        ["a hyphen prefix", "-1"],
+        ["an at prefix", "@SUM(A1)"],
+        ["a formula prefix behind a space", " =cmd"],
+        ["a full-width formula prefix", "＝cmd"],
+        ["an equals sign inside the name", "a=b"],
+        ["a digit", "Smith1"],
+        ["a full stop", "O.Brien"],
+        ["angle brackets", "<b>Smith</b>"],
+        ["a semicolon", "Jane;Doe"],
+        ["a double quote", 'Jane"'],
+        ["an ampersand", "Smith & Co"],
+        ["a newline", "Jane\nDoe"],
+        ["a zero-width character", "Smi\u200bth"],
+      ];
+      NOT_ALLOWED_IN_A_NAME.forEach(([reason, value]) => {
+        it(`adds error message for a first name containing ${reason}`, () => {
           const formValidator = new ClientDetailsValidator();
           const errorSummaries = formValidator.validateClientName({
             _csrf: "abcdefg",
@@ -215,19 +232,13 @@ describe("ClientDetailsValidator", () => {
             "name-change": "false",
           });
 
-          assert.deepEqual(
-            errorSummaries,
-            {
-              firstNameInputError: {
-                text: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
-              },
+          assert.deepEqual(errorSummaries, {
+            firstNameInputError: {
+              text: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
             },
-            `first name ${JSON.stringify(value)}`,
-          );
+          });
         });
-      });
-      it("adds error message for last name starting with a spreadsheet formula character", () => {
-        ["=cmd", "+1", "-1", "@SUM(A1)", " =cmd", "＝cmd"].forEach((value) => {
+        it(`adds error message for a last name containing ${reason}`, () => {
           const formValidator = new ClientDetailsValidator();
           const errorSummaries = formValidator.validateClientName({
             _csrf: "abcdefg",
@@ -237,19 +248,26 @@ describe("ClientDetailsValidator", () => {
             "name-change": "false",
           });
 
-          assert.deepEqual(
-            errorSummaries,
-            {
-              lastNameInputError: {
-                text: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
-              },
+          assert.deepEqual(errorSummaries, {
+            lastNameInputError: {
+              text: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
             },
-            `last name ${JSON.stringify(value)}`,
-          );
+          });
         });
       });
-      it("accepts names that only contain formula characters after the first character", () => {
-        ["O'Brien", "Smith-Jones", "Zoë", "a=b", " Jane"].forEach((value) => {
+      const ALLOWED_IN_A_NAME = [
+        ["O'Brien", "a straight apostrophe"],
+        ["O\u2019Donald", "a curly apostrophe"],
+        ["Smith-Jones", "a hyphen"],
+        ["Jean Luc", "a space"],
+        ["Zoë", "a composed accent"],
+        ["Jose\u0301", "an accent typed as a separate mark"],
+        ["Łukasz", "a letter that has no accented form"],
+        ["李明", "non-Latin letters"],
+        [" Jane ", "surrounding whitespace"],
+      ];
+      ALLOWED_IN_A_NAME.forEach(([value, reason]) => {
+        it(`accepts names containing ${reason}`, () => {
           const formValidator = new ClientDetailsValidator();
           const errorSummaries = formValidator.validateClientName({
             _csrf: "abcdefg",
@@ -259,7 +277,81 @@ describe("ClientDetailsValidator", () => {
             "name-change": "false",
           });
 
-          assert.deepEqual(errorSummaries, {}, `name ${JSON.stringify(value)}`);
+          assert.deepEqual(errorSummaries, {});
+        });
+      });
+      it("treats a first name and last name made only of whitespace as missing", () => {
+        const formValidator = new ClientDetailsValidator();
+        const errorSummaries = formValidator.validateClientName({
+          _csrf: "abcdefg",
+          "first-name": "   ",
+          "last-name": " \t ",
+          "last-name-at-birth": "",
+          "name-change": "false",
+        });
+
+        assert.deepEqual(errorSummaries, {
+          firstNameInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
+          },
+          lastNameInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
+          },
+        });
+      });
+      it("accepts names of exactly 100 characters, ignoring surrounding whitespace", () => {
+        const formValidator = new ClientDetailsValidator();
+        const errorSummaries = formValidator.validateClientName({
+          _csrf: "abcdefg",
+          "first-name": `  ${"a".repeat(100)} `,
+          "last-name": "a".repeat(100),
+          "last-name-at-birth": "",
+          "name-change": "false",
+        });
+
+        assert.deepEqual(errorSummaries, {});
+      });
+      describe("last name at birth", () => {
+        const validateBirthName = (
+          birthName: string,
+          nameChange = "true",
+        ): ReturnType<ClientDetailsValidator["validateClientName"]> =>
+          new ClientDetailsValidator().validateClientName({
+            _csrf: "abcdefg",
+            "first-name": "fgdsfg",
+            "last-name": "fgdsfg",
+            "last-name-at-birth": birthName,
+            "name-change": nameChange,
+          });
+
+        it("accepts a valid last name at birth", () => {
+          assert.deepEqual(validateBirthName("O\u2019Neill-Smith"), {});
+        });
+        it("adds error message when it is whitespace only", () => {
+          assert.deepEqual(validateBirthName("   "), {
+            noBirthNameSpecified: {
+              text: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
+            },
+          });
+        });
+        it("adds error message when it exceeds the max character length", () => {
+          assert.deepEqual(validateBirthName("a".repeat(101)), {
+            noBirthNameSpecified: {
+              text: CLIENT_DETAILS_ERROR.LAST_NAME_AT_BIRTH_EXCEEDS_MAX_CHARACTER_LENGTH,
+            },
+          });
+        });
+        NOT_ALLOWED_IN_A_NAME.forEach(([reason, value]) => {
+          it(`adds error message when it contains ${reason}`, () => {
+            assert.deepEqual(validateBirthName(value), {
+              noBirthNameSpecified: {
+                text: CLIENT_DETAILS_ERROR.LAST_NAME_AT_BIRTH_INVALID_CHARACTERS,
+              },
+            });
+          });
+        });
+        it("is ignored when the client has not changed their last name", () => {
+          assert.deepEqual(validateBirthName("=cmd", "false"), {});
         });
       });
       it("adds error message when no radio button has been selected for name change", () => {

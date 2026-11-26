@@ -196,9 +196,6 @@ export const ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX =
 // Prose keeps its line breaks and tabs but rejects angle brackets and other control or format characters.
 export const PROSE_UNSAFE_CHARACTERS_REGEX = /[<>]|[[\p{Cc}\p{Cf}]--[\n\r\t]]/v;
 
-// Spreadsheet formula prefixes, optionally hidden behind leading whitespace or control characters.
-export const FORMULA_PREFIX_REGEX = /^[\s\p{Cc}\p{Cf}]*[=+\-@＝＋－＠]/v;
-
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
 export const MINIMUM_DATE_PART_VALUE = 0;
@@ -217,8 +214,13 @@ export const CLIENT_DETAILS_ERROR = {
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Last name cannot exceed 100 characters",
   FIRST_NAME_INVALID_CHARACTERS:
-    "First name(s) must not start with =, +, - or @",
-  LAST_NAME_INVALID_CHARACTERS: "Last name must not start with =, +, - or @",
+    "First name(s) must only include letters, spaces, hyphens and apostrophes",
+  LAST_NAME_INVALID_CHARACTERS:
+    "Last name must only include letters, spaces, hyphens and apostrophes",
+  LAST_NAME_AT_BIRTH_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Last name at birth cannot exceed 100 characters",
+  LAST_NAME_AT_BIRTH_INVALID_CHARACTERS:
+    "Last name at birth must only include letters, spaces, hyphens and apostrophes",
   MISSING_FIRST_NAME: "Please enter your client's first name",
   MISSING_LAST_NAME: "Please enter your client's last name",
   MISSING_LAST_NAME_AT_BIRTH: "Please enter the client's birth name",
