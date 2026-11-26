@@ -185,8 +185,9 @@ export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
 // Shared free-text rules, mirrored by the API's validated types. A letter keeps its
 // combining marks so an accent typed as a separate mark passes, but a bare mark does not.
-// Names start with a letter, which also rules out spreadsheet formula prefixes.
-export const PERSON_NAME_ALLOWED_CHARACTERS_REGEX =
+// Words: letters, spaces, hyphens and apostrophes, starting with a letter (which also rules
+// out spreadsheet formula prefixes). Used for people's names and relationship descriptions.
+export const WORDS_ALLOWED_CHARACTERS_REGEX =
   /^\p{L}\p{M}*(?:\p{L}\p{M}*|[ '\-])*$/v;
 
 // Organisation names allow a little punctuation ("Smith & Co., Ltd") but need a letter or digit.
@@ -195,6 +196,11 @@ export const ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX =
 
 // Prose keeps its line breaks and tabs but rejects angle brackets and other control or format characters.
 export const PROSE_UNSAFE_CHARACTERS_REGEX = /[<>]|[[\p{Cc}\p{Cf}]--[\n\r\t]]/v;
+
+// Reference text (coroner's reference): empty, or starting with a letter or digit. No `i` flag,
+// so "ſ" is not folded to "s" and the rule matches the API's ASCII-only one.
+export const REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX =
+  /^(?:[A-Za-z0-9][A-Za-z0-9 .\/\-]*)?$/v;
 
 export const DATE_MONTH_INDEX_OFFSET = 1;
 
@@ -329,6 +335,10 @@ export const DECEASED_DETAILS_ERROR = {
     "First name must be 100 characters or less",
   LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Last name must be 100 characters or less",
+  FIRST_NAME_INVALID_CHARACTERS:
+    "First name must only include letters, spaces, hyphens and apostrophes",
+  LAST_NAME_INVALID_CHARACTERS:
+    "Last name must only include letters, spaces, hyphens and apostrophes",
   MISSING_DATE_OF_DEATH_INPUT: "Please enter date of death",
   NON_NUMERIC_DATE_OF_DEATH:
     "Please enter date of death in the format expected",
@@ -348,8 +358,12 @@ export const DECEASED_DETAILS_ERROR = {
     "Relationship to deceased must be a maximum of 70 characters and a minimum of 1.",
   RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Relationship must be 70 characters or less",
+  RELATIONSHIP_INVALID_CHARACTERS:
+    "Relationship must only include letters, spaces, hyphens and apostrophes",
   CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Coroner reference must be 50 characters or less",
+  CORONER_REFERENCE_INVALID_CHARACTERS:
+    "Coroner reference must start with a letter or number and only include letters, numbers, spaces, full stops, forward slashes and hyphens",
   FURTHER_INFORMATION_SELECTION_REQUIRED:
     "Select yes if there are any other applications for legal aid being made by family members for an inquest arising from this same incident",
   FURTHER_INFORMATION_MIN_MAX:

@@ -1,7 +1,7 @@
 import {
   ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX,
-  PERSON_NAME_ALLOWED_CHARACTERS_REGEX,
   PROSE_UNSAFE_CHARACTERS_REGEX,
+  WORDS_ALLOWED_CHARACTERS_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 
 /**
@@ -16,8 +16,9 @@ export function normaliseFreeText(value: string): string {
     .trim();
 }
 
-export function isPersonName(value: string): boolean {
-  return PERSON_NAME_ALLOWED_CHARACTERS_REGEX.test(normaliseFreeText(value));
+/** Letters, spaces, hyphens and apostrophes: a person's name, or a relationship description. */
+export function isWordsText(value: string): boolean {
+  return WORDS_ALLOWED_CHARACTERS_REGEX.test(normaliseFreeText(value));
 }
 
 export function isOrganisationName(value: string): boolean {

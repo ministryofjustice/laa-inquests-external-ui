@@ -119,6 +119,66 @@ describe("DeceasedDetails.validator", () => {
         },
       });
     });
+
+    [
+      ["a formula prefix", "=cmd"],
+      ["a digit", "Smith1"],
+      ["angle brackets", "<b>Smith</b>"],
+      ["a newline", "Jane\nDoe"],
+    ].forEach(([reason, value]) => {
+      it(`Adds errors when first and last name contain ${reason}`, () => {
+        const errorSummaries = formValidator.validateName({
+          "deceased-first-name": value,
+          "deceased-last-name": value,
+        });
+        assert.deepEqual(errorSummaries, {
+          firstNameInputError: {
+            text: DECEASED_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
+          },
+          lastNameInputError: {
+            text: DECEASED_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
+          },
+        });
+      });
+    });
+
+    it("Adds missing errors when first and last name are only whitespace", () => {
+      const errorSummaries = formValidator.validateName({
+        "deceased-first-name": "  ",
+        "deceased-last-name": "\t",
+      });
+      assert.deepEqual(errorSummaries, {
+        firstNameInputError: {
+          text: DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
+        },
+        lastNameInputError: { text: DECEASED_DETAILS_ERROR.MISSING_LAST_NAME },
+      });
+    });
+
+    [
+      "O'Brien",
+      "O\u2019Donald",
+      "Smith-Jones",
+      "Zoë",
+      "Jose\u0301",
+      "李明",
+    ].forEach((value) => {
+      it(`Accepts the name ${JSON.stringify(value)}`, () => {
+        const errorSummaries = formValidator.validateName({
+          "deceased-first-name": value,
+          "deceased-last-name": ` ${value} `,
+        });
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
+
+    it("Accepts names of exactly 100 characters", () => {
+      const errorSummaries = formValidator.validateName({
+        "deceased-first-name": "a".repeat(100),
+        "deceased-last-name": "b".repeat(100),
+      });
+      assert.deepEqual(errorSummaries, {});
+    });
   });
 
   describe("validateDeceasedDateOfDeath", () => {
@@ -517,6 +577,80 @@ describe("DeceasedDetails.validator", () => {
         },
       });
     });
+
+    [
+      ["a formula prefix", "=cmd"],
+      ["a slash", "Husband/Wife"],
+      ["brackets", "Son (adopted)"],
+      ["angle brackets", "<b>Spouse</b>"],
+      ["a digit", "Aunt2"],
+      ["a newline", "Step\nfather"],
+    ].forEach(([reason, value]) => {
+      it(`returns an error when relationship contains ${reason}`, () => {
+        const errorSummaries = formValidator.validateClientRelationship({
+          _csrf: "abcdefg",
+          "deceased-has-client-relationship": "true",
+          "deceased-client-relationship": value,
+        });
+
+        assert.deepEqual(errorSummaries, {
+          clientRelationshipInputError: {
+            text: DECEASED_DETAILS_ERROR.RELATIONSHIP_INVALID_CHARACTERS,
+          },
+        });
+      });
+    });
+
+    it("returns a missing error when relationship is only whitespace", () => {
+      const errorSummaries = formValidator.validateClientRelationship({
+        _csrf: "abcdefg",
+        "deceased-has-client-relationship": "true",
+        "deceased-client-relationship": "   ",
+      });
+
+      assert.deepEqual(errorSummaries, {
+        clientRelationshipInputError: {
+          text: DECEASED_DETAILS_ERROR.RELATIONSHIP_REQUIRED_MIN_MAX,
+        },
+      });
+    });
+
+    [
+      "Spouse",
+      "Mother-in-law",
+      "Partner's brother",
+      "Child\u2019s guardian",
+    ].forEach((value) => {
+      it(`returns no error for the relationship ${JSON.stringify(value)}`, () => {
+        const errorSummaries = formValidator.validateClientRelationship({
+          _csrf: "abcdefg",
+          "deceased-has-client-relationship": "true",
+          "deceased-client-relationship": ` ${value} `,
+        });
+
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
+
+    it("returns no error when relationship is exactly 70 characters", () => {
+      const errorSummaries = formValidator.validateClientRelationship({
+        _csrf: "abcdefg",
+        "deceased-has-client-relationship": "true",
+        "deceased-client-relationship": "a".repeat(70),
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
+
+    it("ignores the relationship text when no is selected", () => {
+      const errorSummaries = formValidator.validateClientRelationship({
+        _csrf: "abcdefg",
+        "deceased-has-client-relationship": "false",
+        "deceased-client-relationship": "=cmd",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
   });
 
   describe("validateCoronerReference", () => {
@@ -539,6 +673,49 @@ describe("DeceasedDetails.validator", () => {
         coronerReferenceInputError: {
           text: DECEASED_DETAILS_ERROR.CORONER_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
         },
+      });
+    });
+
+    [
+      ["a formula prefix", "=cmd"],
+      ["a leading hyphen", "-COR-1"],
+      ["a leading full stop", ".COR-1"],
+      ["an underscore", "COR_1"],
+      ["a semicolon", "COR;1"],
+      ["angle brackets", "<script>alert(1)</script>"],
+      ["a newline", "COR\n1"],
+      ["an accented letter", "CÖR-1"],
+      ["a long s", "\u017F1"],
+    ].forEach(([reason, value]) => {
+      it(`returns an error when coroner reference contains ${reason}`, () => {
+        const errorSummaries = formValidator.validateCoronerReference({
+          _csrf: "abcdefg",
+          "deceased-coroner-reference": value,
+        });
+
+        assert.deepEqual(errorSummaries, {
+          coronerReferenceInputError: {
+            text: DECEASED_DETAILS_ERROR.CORONER_REFERENCE_INVALID_CHARACTERS,
+          },
+        });
+      });
+    });
+
+    [
+      "COR-2025-001",
+      "2025/123",
+      "AB 12.34",
+      "a",
+      "  COR-1  ",
+      "a".repeat(50),
+    ].forEach((value) => {
+      it(`returns no error for the coroner reference ${JSON.stringify(value)}`, () => {
+        const errorSummaries = formValidator.validateCoronerReference({
+          _csrf: "abcdefg",
+          "deceased-coroner-reference": value,
+        });
+
+        assert.deepEqual(errorSummaries, {});
       });
     });
   });

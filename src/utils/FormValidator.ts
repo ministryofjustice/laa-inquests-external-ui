@@ -4,6 +4,7 @@ import {
   MAX_CHARACTER_LENGTH,
   MINIMUM_DATE_PART_VALUE,
 } from "#src/infrastructure/locales/constants.js";
+import { isWordsText, normaliseFreeText } from "#src/utils/textRules.js";
 
 export interface DateParts {
   day?: string;
@@ -17,6 +18,41 @@ export class FormValidator {
     maxLength: number,
   ): boolean {
     return typeof inputValue === "string" && inputValue.length > maxLength;
+  }
+
+  /**
+   * Checks a text input made of words (a person's name, a relationship) the way the API does:
+   * trimmed, then required, then limited to letters, spaces, hyphens and apostrophes, then
+   * capped in length. Returns the first failure.
+   */
+  protected validateWordsInput(
+    value: string | undefined,
+    messages: {
+      missing: string;
+      invalidCharacters: string;
+      exceedsMaxLength: string;
+    },
+    maxLength = MAX_CHARACTER_LENGTH,
+  ): { text: string } | undefined {
+    if (typeof value !== "string") {
+      return undefined;
+    }
+
+    const name = normaliseFreeText(value);
+
+    if (name === "") {
+      return { text: messages.missing };
+    }
+
+    if (!isWordsText(name)) {
+      return { text: messages.invalidCharacters };
+    }
+
+    if (name.length > maxLength) {
+      return { text: messages.exceedsMaxLength };
+    }
+
+    return undefined;
   }
 
   protected validateFormInputValue(

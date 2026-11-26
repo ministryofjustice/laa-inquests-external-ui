@@ -2,7 +2,7 @@ import { expect } from "chai";
 import {
   hasUnsafeProseCharacters,
   isOrganisationName,
-  isPersonName,
+  isWordsText,
   normaliseFreeText,
 } from "#src/utils/textRules.js";
 
@@ -31,7 +31,7 @@ describe("normaliseFreeText()", () => {
   });
 });
 
-describe("isPersonName()", () => {
+describe("isWordsText()", () => {
   const valid: TextCase[] = [
     { value: "Smith", reason: "plain letters" },
     { value: "O'Donald", reason: "a straight apostrophe" },
@@ -69,13 +69,13 @@ describe("isPersonName()", () => {
 
   valid.forEach(({ value, reason }) => {
     it(`accepts ${reason}`, () => {
-      expect(isPersonName(value)).to.equal(true);
+      expect(isWordsText(value)).to.equal(true);
     });
   });
 
   invalid.forEach(({ value, reason }) => {
     it(`rejects ${reason}`, () => {
-      expect(isPersonName(value)).to.equal(false);
+      expect(isWordsText(value)).to.equal(false);
     });
   });
 });

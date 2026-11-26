@@ -13,11 +13,10 @@ import {
   CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH,
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
-  MAX_CHARACTER_LENGTH,
   NINO_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
-import { isPersonName, normaliseFreeText } from "#src/utils/textRules.js";
+import { normaliseFreeText } from "#src/utils/textRules.js";
 import {
   validateAddressFields,
   validateNoFixedAbodeConflict,
@@ -107,35 +106,6 @@ export class ClientDetailsValidator extends FormValidator {
     return errorSummaries;
   }
 
-  private validatePersonName(
-    value: string | undefined,
-    messages: {
-      missing: string;
-      invalidCharacters: string;
-      exceedsMaxLength: string;
-    },
-  ): { text: string } | undefined {
-    if (typeof value !== "string") {
-      return undefined;
-    }
-
-    const name = normaliseFreeText(value);
-
-    if (name === "") {
-      return { text: messages.missing };
-    }
-
-    if (!isPersonName(name)) {
-      return { text: messages.invalidCharacters };
-    }
-
-    if (name.length > MAX_CHARACTER_LENGTH) {
-      return { text: messages.exceedsMaxLength };
-    }
-
-    return undefined;
-  }
-
   validateClientName(
     formBody: Partial<ClientDetailsFormData>,
   ): Partial<ClientNameDobError> {
@@ -148,7 +118,7 @@ export class ClientDetailsValidator extends FormValidator {
       "name-change": hasNameChanged,
     } = formBody;
 
-    const firstNameError = this.validatePersonName(firstName, {
+    const firstNameError = this.validateWordsInput(firstName, {
       missing: CLIENT_DETAILS_ERROR.MISSING_FIRST_NAME,
       invalidCharacters: CLIENT_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
       exceedsMaxLength:
@@ -158,7 +128,7 @@ export class ClientDetailsValidator extends FormValidator {
       errorSummaries.firstNameInputError = firstNameError;
     }
 
-    const lastNameError = this.validatePersonName(lastName, {
+    const lastNameError = this.validateWordsInput(lastName, {
       missing: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME,
       invalidCharacters: CLIENT_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
       exceedsMaxLength:
@@ -175,7 +145,7 @@ export class ClientDetailsValidator extends FormValidator {
     }
 
     if (hasNameChanged === "true") {
-      const lastNameAtBirthError = this.validatePersonName(lastNameAtBirth, {
+      const lastNameAtBirthError = this.validateWordsInput(lastNameAtBirth, {
         missing: CLIENT_DETAILS_ERROR.MISSING_LAST_NAME_AT_BIRTH,
         invalidCharacters:
           CLIENT_DETAILS_ERROR.LAST_NAME_AT_BIRTH_INVALID_CHARACTERS,

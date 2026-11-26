@@ -5,9 +5,11 @@ import {
   DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
   DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
   EMPTY_ARR_LENGTH,
+  REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type { DateParts } from "#src/utils/FormValidator.js";
+import { normaliseFreeText } from "#src/utils/textRules.js";
 import type {
   DeceasedClientRelationshipError,
   DeceasedCoronerReferenceError,
@@ -25,28 +27,24 @@ export class DeceasedDetailsValidator extends FormValidator {
     const { "deceased-first-name": firstName, "deceased-last-name": lastName } =
       formBody;
 
-    if (this.validateFormInputValue(firstName)) {
-      errorSummaries.firstNameInputError = {
-        text: DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
-      };
+    const firstNameError = this.validateWordsInput(firstName, {
+      missing: DECEASED_DETAILS_ERROR.MISSING_FIRST_NAME,
+      invalidCharacters: DECEASED_DETAILS_ERROR.FIRST_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        DECEASED_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    });
+    if (firstNameError !== undefined) {
+      errorSummaries.firstNameInputError = firstNameError;
     }
 
-    if (this.validateFormInputValue(firstName, false)) {
-      errorSummaries.firstNameInputError = {
-        text: DECEASED_DETAILS_ERROR.FIRST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
-    }
-
-    if (this.validateFormInputValue(lastName)) {
-      errorSummaries.lastNameInputError = {
-        text: DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
-      };
-    }
-
-    if (this.validateFormInputValue(lastName, false)) {
-      errorSummaries.lastNameInputError = {
-        text: DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
+    const lastNameError = this.validateWordsInput(lastName, {
+      missing: DECEASED_DETAILS_ERROR.MISSING_LAST_NAME,
+      invalidCharacters: DECEASED_DETAILS_ERROR.LAST_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        DECEASED_DETAILS_ERROR.LAST_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    });
+    if (lastNameError !== undefined) {
+      errorSummaries.lastNameInputError = lastNameError;
     }
 
     return errorSummaries;
@@ -169,19 +167,19 @@ export class DeceasedDetailsValidator extends FormValidator {
       return errorSummaries;
     }
 
-    if (this.validateFormInputValue(clientRelationship)) {
-      errorSummaries.clientRelationshipInputError = {
-        text: DECEASED_DETAILS_ERROR.RELATIONSHIP_REQUIRED_MIN_MAX,
-      };
-    } else if (
-      this.exceedsMaxLength(
-        clientRelationship,
-        DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
-      )
-    ) {
-      errorSummaries.clientRelationshipInputError = {
-        text: DECEASED_DETAILS_ERROR.RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
+    const relationshipError = this.validateWordsInput(
+      clientRelationship,
+      {
+        missing: DECEASED_DETAILS_ERROR.RELATIONSHIP_REQUIRED_MIN_MAX,
+        invalidCharacters:
+          DECEASED_DETAILS_ERROR.RELATIONSHIP_INVALID_CHARACTERS,
+        exceedsMaxLength:
+          DECEASED_DETAILS_ERROR.RELATIONSHIP_EXCEEDS_MAX_CHARACTER_LENGTH,
+      },
+      DECEASED_RELATIONSHIP_MAX_CHARACTER_LENGTH,
+    );
+    if (relationshipError !== undefined) {
+      errorSummaries.clientRelationshipInputError = relationshipError;
     }
 
     return errorSummaries;
@@ -193,9 +191,19 @@ export class DeceasedDetailsValidator extends FormValidator {
     const errorSummaries: Partial<DeceasedCoronerReferenceError> = {};
     const { "deceased-coroner-reference": coronerReference } = formBody;
 
-    if (
+    if (typeof coronerReference !== "string") {
+      return errorSummaries;
+    }
+
+    const normalizedCoronerReference = normaliseFreeText(coronerReference);
+
+    if (!REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX.test(normalizedCoronerReference)) {
+      errorSummaries.coronerReferenceInputError = {
+        text: DECEASED_DETAILS_ERROR.CORONER_REFERENCE_INVALID_CHARACTERS,
+      };
+    } else if (
       this.exceedsMaxLength(
-        coronerReference,
+        normalizedCoronerReference,
         DECEASED_CORONER_REFERENCE_MAX_CHARACTER_LENGTH,
       )
     ) {
