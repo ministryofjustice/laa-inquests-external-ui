@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import {
   hasUnsafeProseCharacters,
-  isOrganisationName,
+  isPartyName,
   isWordsText,
   normaliseFreeText,
 } from "#src/utils/textRules.js";
@@ -80,7 +80,7 @@ describe("isWordsText()", () => {
   });
 });
 
-describe("isOrganisationName()", () => {
+describe("isPartyName()", () => {
   const valid: TextCase[] = [
     {
       value: "Smith & Co. Solicitors, Ltd",
@@ -112,13 +112,13 @@ describe("isOrganisationName()", () => {
 
   valid.forEach(({ value, reason }) => {
     it(`accepts ${reason}`, () => {
-      expect(isOrganisationName(value)).to.equal(true);
+      expect(isPartyName(value)).to.equal(true);
     });
   });
 
   invalid.forEach(({ value, reason }) => {
     it(`rejects ${reason}`, () => {
-      expect(isOrganisationName(value)).to.equal(false);
+      expect(isPartyName(value)).to.equal(false);
     });
   });
 });

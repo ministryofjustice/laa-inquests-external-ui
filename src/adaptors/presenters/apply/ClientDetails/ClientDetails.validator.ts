@@ -9,7 +9,6 @@ import type {
 } from "#src/adaptors/presenters/apply/models/form.types.js";
 import {
   CLIENT_DETAILS_ERROR,
-  CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX,
   CORRESPONDENCE_TOWN_OR_CITY_MAX_LENGTH,
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
@@ -358,42 +357,26 @@ export class ClientDetailsValidator extends FormValidator {
   #validateCorrespondenceRecipientPersonName(
     personName: string | undefined,
   ): string | undefined {
-    if (this.validateFormInputValue(personName)) {
-      return CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME;
-    }
-
-    if (this.validateFormInputValue(personName, false)) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH;
-    }
-
-    if (
-      typeof personName === "string" &&
-      !CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX.test(personName)
-    ) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS;
-    }
-
-    return undefined;
+    return this.validatePartyNameInput(personName, {
+      missing:
+        CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
+      invalidCharacters:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    })?.text;
   }
 
   #validateCorrespondenceRecipientOrganisationName(
     organisationName: string | undefined,
   ): string | undefined {
-    if (this.validateFormInputValue(organisationName)) {
-      return CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME;
-    }
-
-    if (this.validateFormInputValue(organisationName, false)) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH;
-    }
-
-    if (
-      typeof organisationName === "string" &&
-      !CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX.test(organisationName)
-    ) {
-      return CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS;
-    }
-
-    return undefined;
+    return this.validatePartyNameInput(organisationName, {
+      missing:
+        CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
+      invalidCharacters:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS,
+      exceedsMaxLength:
+        CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH,
+    })?.text;
   }
 }

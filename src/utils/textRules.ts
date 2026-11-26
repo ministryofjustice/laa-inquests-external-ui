@@ -1,5 +1,5 @@
 import {
-  ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX,
+  PARTY_NAME_ALLOWED_CHARACTERS_REGEX,
   PROSE_UNSAFE_CHARACTERS_REGEX,
   WORDS_ALLOWED_CHARACTERS_REGEX,
 } from "#src/infrastructure/locales/constants.js";
@@ -21,10 +21,9 @@ export function isWordsText(value: string): boolean {
   return WORDS_ALLOWED_CHARACTERS_REGEX.test(normaliseFreeText(value));
 }
 
-export function isOrganisationName(value: string): boolean {
-  return ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX.test(
-    normaliseFreeText(value),
-  );
+/** A person or organisation named on a letter: letters, numbers, spaces and ' . , & -. */
+export function isPartyName(value: string): boolean {
+  return PARTY_NAME_ALLOWED_CHARACTERS_REGEX.test(normaliseFreeText(value));
 }
 
 export function hasUnsafeProseCharacters(value: string): boolean {

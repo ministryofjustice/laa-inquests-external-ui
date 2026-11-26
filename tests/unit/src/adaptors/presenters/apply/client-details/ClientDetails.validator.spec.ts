@@ -1545,6 +1545,72 @@ describe("ClientDetailsValidator", () => {
 
         assert.deepEqual(errorSummaries, {});
       });
+
+      [
+        {
+          type: "PERSON",
+          field: "correspondence-recipient-person-name",
+          errorKey: "recipientPersonNameInputError",
+          missing:
+            CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_PERSON_NAME,
+          invalid:
+            CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS,
+        },
+        {
+          type: "ORGANISATION",
+          field: "correspondence-recipient-organisation-name",
+          errorKey: "recipientOrganisationNameInputError",
+          missing:
+            CLIENT_DETAILS_ERROR.MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME,
+          invalid:
+            CLIENT_DETAILS_ERROR.CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS,
+        },
+      ].forEach(({ type, field, errorKey, missing, invalid }) => {
+        describe(`${type} recipient name matches the API rule`, () => {
+          const validate = (value: string): unknown =>
+            new ClientDetailsValidator().validateCorrespondenceRecipient({
+              _csrf: "abcdefg",
+              "correspondence-recipient": type,
+              [field]: value,
+            });
+
+          it("treats a name made only of whitespace as missing", () => {
+            assert.deepEqual(validate("  \t "), {
+              [errorKey]: { text: missing },
+            });
+          });
+
+          [
+            ["punctuation only", "..."],
+            ["an ampersand only", "&"],
+            ["a hyphen with spaces only", " - "],
+            ["a formula", "=SUM(A1)"],
+            ["angle brackets", "<b>Smith</b>"],
+            ["a tab inside the name", "Acme\tLtd"],
+            ["a newline inside the name", "Acme\nLtd"],
+            ["a non-breaking space inside the name", "Acme\u00a0Ltd"],
+            ["a zero-width character", "Acme\u200bLtd"],
+          ].forEach(([reason, value]) => {
+            it(`adds error when the name contains ${reason}`, () => {
+              assert.deepEqual(validate(value), {
+                [errorKey]: { text: invalid },
+              });
+            });
+          });
+
+          [
+            "Smith & Co., Ltd",
+            "O\u2019Brien",
+            "Mu\u0308ller",
+            "  Acme Ltd  ",
+            `  ${"a".repeat(100)}  `,
+          ].forEach((value) => {
+            it(`returns no errors for the name ${JSON.stringify(value.trim().slice(0, 30))}`, () => {
+              assert.deepEqual(validate(value), {});
+            });
+          });
+        });
+      });
     });
   });
 });

@@ -4,12 +4,22 @@ import {
   MAX_CHARACTER_LENGTH,
   MINIMUM_DATE_PART_VALUE,
 } from "#src/infrastructure/locales/constants.js";
-import { isWordsText, normaliseFreeText } from "#src/utils/textRules.js";
+import {
+  isPartyName,
+  isWordsText,
+  normaliseFreeText,
+} from "#src/utils/textRules.js";
 
 export interface DateParts {
   day?: string;
   month?: string;
   year?: string;
+}
+
+export interface TextInputMessages {
+  missing: string;
+  invalidCharacters: string;
+  exceedsMaxLength: string;
 }
 
 export class FormValidator {
@@ -27,28 +37,45 @@ export class FormValidator {
    */
   protected validateWordsInput(
     value: string | undefined,
-    messages: {
-      missing: string;
-      invalidCharacters: string;
-      exceedsMaxLength: string;
-    },
+    messages: TextInputMessages,
     maxLength = MAX_CHARACTER_LENGTH,
+  ): { text: string } | undefined {
+    return this.validateTextInput(value, isWordsText, messages, maxLength);
+  }
+
+  /**
+   * The same checks for the name of a person or organisation on a letter (the paying party,
+   * a "care of" recipient): letters, numbers, spaces and a little punctuation.
+   */
+  protected validatePartyNameInput(
+    value: string | undefined,
+    messages: TextInputMessages,
+    maxLength = MAX_CHARACTER_LENGTH,
+  ): { text: string } | undefined {
+    return this.validateTextInput(value, isPartyName, messages, maxLength);
+  }
+
+  private validateTextInput(
+    value: string | undefined,
+    isAllowed: (text: string) => boolean,
+    messages: TextInputMessages,
+    maxLength: number,
   ): { text: string } | undefined {
     if (typeof value !== "string") {
       return undefined;
     }
 
-    const name = normaliseFreeText(value);
+    const text = normaliseFreeText(value);
 
-    if (name === "") {
+    if (text === "") {
       return { text: messages.missing };
     }
 
-    if (!isWordsText(name)) {
+    if (!isAllowed(text)) {
       return { text: messages.invalidCharacters };
     }
 
-    if (name.length > maxLength) {
+    if (text.length > maxLength) {
       return { text: messages.exceedsMaxLength };
     }
 

@@ -26,7 +26,7 @@ export const PAYING_PARTY_ERROR = {
   PAYING_PARTY_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Paying party must be 100 characters or less",
   INVALID_PAYING_PARTY_CHARACTERS:
-    "Paying party must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
+    "Paying party must include a letter or number, and only use letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
 };
 
 export const CLAIM_TYPE_ERROR = {
@@ -188,9 +188,6 @@ export const HOME_TOWN_OR_CITY_ALLOWED_CHARACTERS_REGEX = /^[A-Z\s\-']+$/iv;
 
 export const HOME_POSTCODE_ALLOWED_CHARACTERS_REGEX = /^[A-Z0-9\s]+$/iv;
 
-export const CORRESPONDENCE_RECIPIENT_ALLOWED_CHARACTERS_REGEX =
-  /^(?:[\p{L}\p{N}\s'.,\-]|&)+$/v;
-
 export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 
 // Shared free-text rules, mirrored by the API's validated types. A letter keeps its
@@ -200,8 +197,9 @@ export const ALPHANUMERIC_CHARACTER_REGEX = /[A-Z0-9]/iv;
 export const WORDS_ALLOWED_CHARACTERS_REGEX =
   /^\p{L}\p{M}*(?:\p{L}\p{M}*|[ '\-])*$/v;
 
-// Organisation names allow a little punctuation ("Smith & Co., Ltd") but need a letter or digit.
-export const ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX =
+// Party names (the paying party, a "care of" recipient, whether a person or an organisation)
+// allow a little punctuation ("Smith & Co., Ltd") but need a letter or number.
+export const PARTY_NAME_ALLOWED_CHARACTERS_REGEX =
   /^(?:[ '.,\-]|&)*(?:\p{L}\p{M}*|\p{N})(?:\p{L}\p{M}*|\p{N}|[ '.,\-]|&)*$/v;
 
 // Prose keeps its line breaks and tabs but rejects angle brackets and other control or format characters.
@@ -323,13 +321,13 @@ export const CLIENT_DETAILS_ERROR = {
   CORRESPONDENCE_RECIPIENT_PERSON_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Person's name must be 100 characters or less",
   CORRESPONDENCE_RECIPIENT_PERSON_NAME_INVALID_CHARACTERS:
-    "Person's name must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
+    "Person's name must include a letter or number, and only use letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
   MISSING_CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME:
     "Please enter the organisation name",
   CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Organisation name must be 100 characters or less",
   CORRESPONDENCE_RECIPIENT_ORGANISATION_NAME_INVALID_CHARACTERS:
-    "Organisation name must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
+    "Organisation name must include a letter or number, and only use letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
 };
 
 export const CORRESPONDENCE_ADDRESS_SOURCE = {
