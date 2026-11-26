@@ -491,8 +491,11 @@ export const PROCEEDING_ERROR = {
   NO_PROCEEDINGS_IN_LIST: "A case must have a minimum of 1 proceeding",
 };
 
+// Anchored at both ends, ASCII only and with spaces only between the blocks, as in the API.
+// `i` with `v` would otherwise let "ſ" pass as "s". At most 3 spaces per gap keeps a value
+// within the API's 15 character limit. Callers normalise (NFC, trim) first, as the API does.
 export const NINO_REGEX =
-  /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}\s*[0-9]{6}\s*[A-D]{1}/iv;
+  /^(?=\p{ASCII}+$)(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEG-HJ-TW-Z]{2}[ ]{0,3}[0-9]{6}[ ]{0,3}[A-D]$/iv;
 
 export const UK_POSTCODE_REGEX =
   /^(GIR\s?0AA|[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2})$/iv;

@@ -494,6 +494,25 @@ describe("ClientDetailsValidator", () => {
         { nino: "NT123456A", reason: "NT cannot be prefix" },
         { nino: "ZZ123456A", reason: "ZZ cannot be prefix" },
         { nino: "PP123456E", reason: "A, B, C or D must be last letter" },
+        {
+          nino: "PP123456A<script>alert(1)</script>",
+          reason: "markup after the last letter",
+        },
+        {
+          nino: "PP123456AX",
+          reason: "extra characters after the last letter",
+        },
+        {
+          nino: "PP123456A\nPP123456A",
+          reason: "a second value after a newline",
+        },
+        { nino: "PP\t123456A", reason: "a tab between blocks" },
+        {
+          nino: "PP\u00a0123456A",
+          reason: "a non-breaking space between blocks",
+        },
+        { nino: "PP    123456A", reason: "more than 3 spaces between blocks" },
+        { nino: "\u017FA123456A", reason: "a long s standing in for S" },
       ];
 
       invalidNinoTests.forEach(({ nino, reason }) => {
@@ -520,6 +539,13 @@ describe("ClientDetailsValidator", () => {
         { nino: "PP123456D", reason: "A, B, C or D being last letter" },
         { nino: "pp123456d", reason: "being case insensitive" },
         { nino: "PP 123456 A", reason: "allows whitespace between blocks" },
+        { nino: "PP   123456   A", reason: "allowing up to 3 spaces per gap" },
+        { nino: "  PP123456A  ", reason: "ignoring surrounding whitespace" },
+        {
+          nino: "\u212AA123456A",
+          reason:
+            "the Kelvin sign, which normalises to a plain K as in the API",
+        },
       ];
 
       validNinoTests.forEach(({ nino, reason }) => {
@@ -532,6 +558,20 @@ describe("ClientDetailsValidator", () => {
           };
           const errorSummaries = formValidator.validateNino(formBody);
           assert.deepEqual(errorSummaries, {});
+        });
+      });
+
+      it("adds missing error message when the nino is only whitespace", () => {
+        const formValidator = new ClientDetailsValidator();
+        const errorSummaries = formValidator.validateNino({
+          _csrf: "abcdefg",
+          "has-nino": "true",
+          "nino-input": "   ",
+        });
+        assert.deepEqual(errorSummaries, {
+          ninoInputError: {
+            text: CLIENT_DETAILS_ERROR.MISSING_NINO,
+          },
         });
       });
     });

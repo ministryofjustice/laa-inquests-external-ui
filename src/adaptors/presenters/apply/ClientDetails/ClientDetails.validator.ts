@@ -202,23 +202,18 @@ export class ClientDetailsValidator extends FormValidator {
       };
     }
 
-    if (
-      typeof hasNino === "string" &&
-      hasNino === "true" &&
-      this.validateFormInputValue(ninoInput)
-    ) {
-      errorSummaries.ninoInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_NINO,
-      };
-    } else if (
-      typeof hasNino === "string" &&
-      hasNino === "true" &&
-      typeof ninoInput === "string" &&
-      !NINO_REGEX.test(ninoInput)
-    ) {
-      errorSummaries.ninoInputError = {
-        text: CLIENT_DETAILS_ERROR.INVALID_NINO,
-      };
+    if (hasNino === "true" && typeof ninoInput === "string") {
+      const nino = normaliseFreeText(ninoInput);
+
+      if (nino === "") {
+        errorSummaries.ninoInputError = {
+          text: CLIENT_DETAILS_ERROR.MISSING_NINO,
+        };
+      } else if (!NINO_REGEX.test(nino)) {
+        errorSummaries.ninoInputError = {
+          text: CLIENT_DETAILS_ERROR.INVALID_NINO,
+        };
+      }
     }
 
     return errorSummaries;
