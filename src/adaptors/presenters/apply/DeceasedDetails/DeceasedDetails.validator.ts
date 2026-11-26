@@ -9,7 +9,10 @@ import {
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import type { DateParts } from "#src/utils/FormValidator.js";
-import { normaliseFreeText } from "#src/utils/textRules.js";
+import {
+  hasUnsafeProseCharacters,
+  normaliseFreeText,
+} from "#src/utils/textRules.js";
 import type {
   DeceasedClientRelationshipError,
   DeceasedCoronerReferenceError,
@@ -235,17 +238,24 @@ export class DeceasedDetailsValidator extends FormValidator {
 
     if (
       hasFurtherInformation === "true" &&
-      typeof furtherInformation === "string" &&
-      furtherInformation.length > EMPTY_ARR_LENGTH &&
-      this.validateMinMaxLength(
-        furtherInformation,
-        DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
-        DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH,
-      )
+      typeof furtherInformation === "string"
     ) {
-      errorSummaries.furtherInformationInputError = {
-        text: DECEASED_DETAILS_ERROR.FURTHER_INFORMATION_MIN_MAX,
-      };
+      if (hasUnsafeProseCharacters(furtherInformation)) {
+        errorSummaries.furtherInformationInputError = {
+          text: DECEASED_DETAILS_ERROR.FURTHER_INFORMATION_INVALID_CHARACTERS,
+        };
+      } else if (
+        furtherInformation.length > EMPTY_ARR_LENGTH &&
+        this.validateMinMaxLength(
+          furtherInformation,
+          DECEASED_FURTHER_INFORMATION_MIN_CHARACTER_LENGTH,
+          DECEASED_FURTHER_INFORMATION_MAX_CHARACTER_LENGTH,
+        )
+      ) {
+        errorSummaries.furtherInformationInputError = {
+          text: DECEASED_DETAILS_ERROR.FURTHER_INFORMATION_MIN_MAX,
+        };
+      }
     }
 
     return errorSummaries;

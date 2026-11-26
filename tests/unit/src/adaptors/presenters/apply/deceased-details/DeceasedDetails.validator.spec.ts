@@ -770,5 +770,59 @@ describe("DeceasedDetails.validator", () => {
         },
       });
     });
+
+    [
+      ["a less-than sign", "a < b"],
+      ["a greater-than sign", "a > b"],
+      ["a script tag", "<script>alert(1)</script>"],
+      ["a control character", "bell\u0007"],
+      ["a null byte", "null\u0000byte"],
+      ["a zero-width character", "zero\u200bwidth"],
+      ["a right-to-left override", "\u202etxt.exe"],
+    ].forEach(([reason, value]) => {
+      it(`returns an error when information contains ${reason}`, () => {
+        const errorSummaries = formValidator.validateFurtherInformation({
+          _csrf: "abcdefg",
+          "deceased-has-further-information": "true",
+          "deceased-further-information": value,
+        });
+
+        assert.deepEqual(errorSummaries, {
+          furtherInformationInputError: {
+            text: DECEASED_DETAILS_ERROR.FURTHER_INFORMATION_INVALID_CHARACTERS,
+          },
+        });
+      });
+    });
+
+    [
+      "Linked case INQ-123; the family member's inquest (see notes) & more.",
+      "line one\nline two",
+      "line one\r\nline two",
+      "column\tone",
+      "Zoë 李明 \u2019s case",
+      "=SUM(A1) +1 @x -2",
+      "a".repeat(500),
+    ].forEach((value) => {
+      it(`returns no error for the information ${JSON.stringify(value.slice(0, 40))}`, () => {
+        const errorSummaries = formValidator.validateFurtherInformation({
+          _csrf: "abcdefg",
+          "deceased-has-further-information": "true",
+          "deceased-further-information": value,
+        });
+
+        assert.deepEqual(errorSummaries, {});
+      });
+    });
+
+    it("ignores the information text when no is selected", () => {
+      const errorSummaries = formValidator.validateFurtherInformation({
+        _csrf: "abcdefg",
+        "deceased-has-further-information": "false",
+        "deceased-further-information": "<script>",
+      });
+
+      assert.deepEqual(errorSummaries, {});
+    });
   });
 });

@@ -379,6 +379,8 @@ export const DECEASED_DETAILS_ERROR = {
     "Select yes if there are any other applications for legal aid being made by family members for an inquest arising from this same incident",
   FURTHER_INFORMATION_MIN_MAX:
     "Linked case details must be between 2 and 500 characters",
+  FURTHER_INFORMATION_INVALID_CHARACTERS:
+    "Linked case details must not include < or > or control characters",
 };
 
 export const END_DATE_ERROR = {
