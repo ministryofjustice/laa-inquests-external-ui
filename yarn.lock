@@ -2410,13 +2410,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"connect-redis@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "connect-redis@npm:10.0.0"
+"connect-redis@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "connect-redis@npm:11.0.0"
   peerDependencies:
     express-session: ">=1"
     redis: ">=5"
-  checksum: 10c0/effe2806fb6a2f0a1b8902728203dd2214fa1510e42cad7652927524582be162a95d4353adde8c7dbe4a015cc88766cd94fa2b43548b8fdca4e1e7b01baf48c5
+  checksum: 10c0/688500f09a3782702101d1aac8fdf70bb34fb4166d4b48c7f2090d1252b89e0c544fc753f54db232c827f0793c88f2137702ab6c232f63a1f053b24473c372d5
   languageName: node
   linkType: hard
 
@@ -4166,7 +4166,7 @@ __metadata:
     compression: "npm:^1.8.2"
     concurrently: "npm:^10.0.7"
     connect-livereload: "npm:^0.6.1"
-    connect-redis: "npm:^10.0.0"
+    connect-redis: "npm:^11.0.0"
     cookie-parser: "npm:~1.4.6"
     cross-env: "npm:^10.1.0"
     csrf-sync: "npm:^4.2.1"
@@ -5145,27 +5145,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.16.0":
-  version: 6.16.0
-  resolution: "qs@npm:6.16.0"
-  dependencies:
-    es-define-property: "npm:^1.0.1"
-    side-channel: "npm:^1.1.1"
-  checksum: 10c0/eb3e31992fbd70e31a1791e571ed817d70975de7d3bfcbbbec93d77d1dd305877e9e8fdbcc62303c228ee5c3606685622cd6231c042dbc4790bb4e7c65fcbe18
-  languageName: node
-  linkType: hard
-
-"qs@npm:^6.16.1":
-  version: 6.16.1
-  resolution: "qs@npm:6.16.1"
-  dependencies:
-    es-define-property: "npm:^1.0.1"
-    side-channel: "npm:^1.1.1"
-  checksum: 10c0/84ee9124b251ab2953132fbea1d70c966aa6e6496cccabedbbb83afa412bf4177bddebc779ca3ddafe23da83b2f593d530b41be6a726e971404fabb20ff22c94
-  languageName: node
-  linkType: hard
-
-"qs@npm:^6.17.1":
+"qs@npm:^6.16.0, qs@npm:^6.16.1, qs@npm:^6.17.1":
   version: 6.17.1
   resolution: "qs@npm:6.17.1"
   dependencies:

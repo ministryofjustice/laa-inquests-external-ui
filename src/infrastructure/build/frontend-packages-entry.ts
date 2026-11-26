@@ -27,6 +27,11 @@ interface FileSizeLimit {
   fileTooLargeMessage: string;
 }
 
+interface MultiFileUploadBehaviour {
+  sizeLimit: FileSizeLimit;
+  clearFailedRowsOnNewAttempt: boolean;
+}
+
 // Mirrors the row/error markup the widget renders for a server-rejected file, since the
 // ingress blocks oversized or invalid files before they would reach server-side validation.
 function renderClientSideUploadError(
@@ -77,16 +82,19 @@ function clearStaleValidationError(root: Element): void {
 // each request finish (and persist its session change) before the next one starts.
 class SizeValidatedMultiFileUpload extends MultiFileUpload {
   readonly #sizeLimit: FileSizeLimit;
+  readonly #clearFailedRowsOnNewAttempt: boolean;
   readonly #pendingFiles: File[] = [];
   #isUploading = false;
 
   constructor(
     root: Element,
     config: MultiFileUploadConfig,
-    sizeLimit: FileSizeLimit,
+    behaviour: MultiFileUploadBehaviour,
   ) {
     super(root, config);
+    const { sizeLimit, clearFailedRowsOnNewAttempt } = behaviour;
     this.#sizeLimit = sizeLimit;
+    this.#clearFailedRowsOnNewAttempt = clearFailedRowsOnNewAttempt;
 
     // Detect upload completion by wrapping the widget's own exit/error hooks, which fire once the
     // XHR resolves. The base class populates these hooks with no-ops, so wrapping is safe.
@@ -141,8 +149,23 @@ class SizeValidatedMultiFileUpload extends MultiFileUpload {
   }
 
   override uploadFiles(files: FileList): void {
+    if (this.#clearFailedRowsOnNewAttempt) {
+      this.#clearFailedUploadRows();
+    }
     this.#pendingFiles.push(...Array.from(files));
     this.#processNextFile();
+  }
+
+  // A row only gets `.moj-multi-file-upload__error` once its own XHR (or client-side check)
+  // has failed; in-flight rows and successfully uploaded rows are left alone.
+  #clearFailedUploadRows(): void {
+    this.$feedbackContainer
+      .querySelectorAll(".moj-multi-file-upload__row")
+      .forEach(($row) => {
+        if ($row.querySelector(".moj-multi-file-upload__error") !== null) {
+          $row.remove();
+        }
+      });
   }
 
   #processNextFile(): void {
@@ -189,7 +212,7 @@ class SizeValidatedMultiFileUpload extends MultiFileUpload {
 
 function resolveUploadConfig(): {
   uploadRouteBase: string;
-  sizeLimit: FileSizeLimit;
+  behaviour: MultiFileUploadBehaviour;
 } {
   const isFinalBillTemplatePage = window.location.pathname.startsWith(
     "/claim/final-bill-template",
@@ -201,25 +224,34 @@ function resolveUploadConfig(): {
   if (isFinalBillTemplatePage) {
     return {
       uploadRouteBase: "/claim/final-bill-template",
-      sizeLimit: {
-        maxFileSizeBytes: CLAIM_FINAL_BILL_TEMPLATE_MAX_FILE_SIZE_BYTES,
-        fileTooLargeMessage: CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_TOO_LARGE,
+      behaviour: {
+        sizeLimit: {
+          maxFileSizeBytes: CLAIM_FINAL_BILL_TEMPLATE_MAX_FILE_SIZE_BYTES,
+          fileTooLargeMessage: CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_TOO_LARGE,
+        },
+        clearFailedRowsOnNewAttempt: true,
       },
     };
   } else if (isCoronersLetterPage) {
     return {
       uploadRouteBase: "/apply/upload-coroners-letter",
-      sizeLimit: {
-        maxFileSizeBytes: CORONERS_LETTER_MAX_FILE_SIZE_BYTES,
-        fileTooLargeMessage: CORONERS_LETTER_ERROR.FILE_TOO_LARGE,
+      behaviour: {
+        sizeLimit: {
+          maxFileSizeBytes: CORONERS_LETTER_MAX_FILE_SIZE_BYTES,
+          fileTooLargeMessage: CORONERS_LETTER_ERROR.FILE_TOO_LARGE,
+        },
+        clearFailedRowsOnNewAttempt: false,
       },
     };
   } else {
     return {
       uploadRouteBase: "/claim/evidence",
-      sizeLimit: {
-        maxFileSizeBytes: CLAIM_EVIDENCE_MAX_FILE_SIZE_BYTES,
-        fileTooLargeMessage: CLAIM_EVIDENCE_ERROR.FILE_TOO_LARGE,
+      behaviour: {
+        sizeLimit: {
+          maxFileSizeBytes: CLAIM_EVIDENCE_MAX_FILE_SIZE_BYTES,
+          fileTooLargeMessage: CLAIM_EVIDENCE_ERROR.FILE_TOO_LARGE,
+        },
+        clearFailedRowsOnNewAttempt: false,
       },
     };
   }
@@ -241,7 +273,7 @@ function initialiseMultiFileUpload(): void {
         ? `?_csrf=${encodeURIComponent(csrfToken)}`
         : "";
 
-    const { uploadRouteBase, sizeLimit } = resolveUploadConfig();
+    const { uploadRouteBase, behaviour } = resolveUploadConfig();
 
     // Constructed for its side effects (registers DOM listeners); the instance is not retained.
     // eslint-disable-next-line no-new -- see comment above
@@ -265,7 +297,7 @@ function initialiseMultiFileUpload(): void {
           },
         },
       },
-      sizeLimit,
+      behaviour,
     );
   }
 }

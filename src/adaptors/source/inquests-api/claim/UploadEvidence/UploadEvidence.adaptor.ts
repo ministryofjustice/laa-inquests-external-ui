@@ -5,7 +5,10 @@ import type {
   UploadEvidenceRequest,
   UploadEvidenceResponse,
 } from "./models/UploadEvidence.types.js";
-import { UploadEvidenceApiResponseSchema } from "./models/UploadEvidence.schema.js";
+import {
+  UploadEvidenceApiResponseSchema,
+  UploadEvidenceFileRejectionSchema,
+} from "./models/UploadEvidence.schema.js";
 import {
   HTTP_CREATED,
   HTTP_UNPROCESSABLE_CONTENT,
@@ -94,6 +97,28 @@ export class UploadEvidenceAdaptor implements UploadEvidencePort {
           evidenceFileId: parsed.data.claimEvidenceId,
           evidenceFileName: parsed.data.claimEvidenceFileName,
         };
+      }
+
+      if (response.status === HTTP_UNPROCESSABLE_CONTENT) {
+        const fileRejection = UploadEvidenceFileRejectionSchema.safeParse(
+          response.data,
+        );
+        if (fileRejection.success) {
+          logger.logWarn({
+            functionName: "upload_evidence_adaptor",
+            message: "Evidence upload rejected by file content check",
+            extraContext: {
+              event: "outbound_api_call",
+              operation: OPERATION,
+              upstream_status_code: response.status,
+              rejection_code: fileRejection.data.detail.code,
+            },
+          });
+          return {
+            status: "FILE_REJECTED",
+            code: fileRejection.data.detail.code,
+          };
+        }
       }
 
       if (

@@ -7,6 +7,7 @@ import {
   HTTP_INTERNAL_SERVER_ERROR,
   HTTP_SERVICE_UNAVAILABLE,
   HTTP_UNPROCESSABLE_CONTENT,
+  MACROS_NOT_ALLOWED_REJECTION_CODE,
   SERVICE_UNAVAILABLE_MESSAGE,
 } from "#src/infrastructure/locales/constants.js";
 import type { UploadEvidenceUseCase } from "#src/use-cases/claim/UploadEvidence.useCase.js";
@@ -349,24 +350,51 @@ export class FinalBillTemplateAdaptor {
     isNoJsUpload: boolean;
   }): void {
     const { req, res, result, isNoJsUpload } = options;
-    const message = resolveUploadFailureMessage(
-      result,
-      CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
-        "{filename}",
-        () => req.file!.originalname,
-      ),
-      SERVICE_UNAVAILABLE_MESSAGE,
-    );
+    const { message, jsStatusCode, noJsStatusCode } =
+      this.#resolveUploadFailure(req, result);
 
     if (isNoJsUpload) {
-      this.#renderNoJsError(req, res, message, HTTP_SERVICE_UNAVAILABLE);
+      this.#renderNoJsError(req, res, message, noJsStatusCode);
     } else {
       this.#renderJsonUploadError(
         res,
         message,
         req.file?.originalname,
-        HTTP_SERVICE_UNAVAILABLE,
+        jsStatusCode,
       );
+    }
+  }
+
+  #resolveUploadFailure(
+    req: Request,
+    result: UploadEvidenceResponse,
+  ): { message: string; jsStatusCode: number; noJsStatusCode: number } {
+    if (result.status === "FILE_REJECTED") {
+      const rejectionMessage =
+        result.code === MACROS_NOT_ALLOWED_REJECTION_CODE
+          ? CLAIM_FINAL_BILL_TEMPLATE_ERROR.MACROS_NOT_ALLOWED
+          : CLAIM_FINAL_BILL_TEMPLATE_ERROR.INVALID_FILE_TYPE;
+      return {
+        message: rejectionMessage.replace(
+          "{filename}",
+          () => req.file!.originalname,
+        ),
+        jsStatusCode: HTTP_UNPROCESSABLE_CONTENT,
+        noJsStatusCode: HTTP_BAD_REQUEST,
+      };
+    } else {
+      return {
+        message: resolveUploadFailureMessage(
+          result,
+          CLAIM_FINAL_BILL_TEMPLATE_ERROR.FILE_SCAN_FOUND_VIRUS.replace(
+            "{filename}",
+            () => req.file!.originalname,
+          ),
+          SERVICE_UNAVAILABLE_MESSAGE,
+        ),
+        jsStatusCode: HTTP_SERVICE_UNAVAILABLE,
+        noJsStatusCode: HTTP_SERVICE_UNAVAILABLE,
+      };
     }
   }
 

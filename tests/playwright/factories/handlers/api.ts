@@ -30,6 +30,25 @@ const FORCE_REJECTED_LAA_REFERENCE = "INQ-YYY-299";
 // block. The GET claims handler returns an active final bill for this reference.
 const FORCE_BLOCKED_LAA_REFERENCE = "INQ-YYY-BLOCKED";
 const VIRUS_FILE_NAME = "virus.pdf";
+// Matches the API's virus-check rejection, whose detail is a plain string.
+const VIRUS_REJECTION_BODY = { detail: "Uploaded file failed virus check" };
+// Sentinel file names that make the claim evidence upload return the API's
+// file-check rejection, whose detail is an object with a code.
+const FILE_CHECK_REJECTIONS: Record<string, { code: string; message: string }> =
+  {
+    "macro-template.xlsx": {
+      code: "MACROS_NOT_ALLOWED",
+      message: "Macro-enabled spreadsheets are not allowed",
+    },
+    "mismatch-template.xlsx": {
+      code: "CONTENT_MISMATCH",
+      message: "File content does not match its file extension",
+    },
+    "mismatch-evidence.pdf": {
+      code: "CONTENT_MISMATCH",
+      message: "File content does not match its file extension",
+    },
+  };
 
 export const apiHandlers = [
   http.get("*/applications/public-bodies", ({ request }) => {
@@ -247,8 +266,16 @@ export const apiHandlers = [
         uploaded instanceof File &&
         (uploaded.name === VIRUS_FILE_NAME || uploaded.name === "virus.xlsx")
       ) {
+        return HttpResponse.json(VIRUS_REJECTION_BODY, { status: 422 });
+      }
+
+      const fileCheckRejection =
+        uploaded instanceof File
+          ? FILE_CHECK_REJECTIONS[uploaded.name]
+          : undefined;
+      if (fileCheckRejection !== undefined) {
         return HttpResponse.json(
-          { errorCode: "FILE_SCAN_FOUND_VIRUS" },
+          { detail: fileCheckRejection },
           { status: 422 },
         );
       }
