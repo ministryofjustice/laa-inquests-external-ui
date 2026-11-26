@@ -23,6 +23,10 @@ export const CASE_SEARCH_ERROR = {
 
 export const PAYING_PARTY_ERROR = {
   MISSING_PAYING_PARTY: "Enter the name of the paying party",
+  PAYING_PARTY_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Paying party must be 100 characters or less",
+  INVALID_PAYING_PARTY_CHARACTERS:
+    "Paying party must only include letters, numbers, spaces, apostrophes, commas, full stops, hyphens and ampersands",
 };
 
 export const CLAIM_TYPE_ERROR = {
