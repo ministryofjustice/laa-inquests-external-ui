@@ -8,4 +8,5 @@ export type UploadEvidenceRequest = z.infer<typeof UploadEvidenceRequestSchema>;
 export type UploadEvidenceResponse =
   | { status: "SUCCESS"; evidenceFileId: string; evidenceFileName: string }
   | { status: "FILE_SCAN_FOUND_VIRUS" }
+  | { status: "FILE_REJECTED"; code: string }
   | { status: "UPLOAD_REJECTED" };

@@ -16,7 +16,7 @@ test.describe("Home page", () => {
   });
 
   test("should display correct navigation content", async ({ page }) => {
-    await expect(validateMojHeader(page)).resolves.not.toThrow();
+    await validateMojHeader(page);
   });
 
   test("should display the service name in service navigation", async ({
@@ -73,13 +73,14 @@ test.describe("Home page", () => {
     await expect(banner).toBeVisible();
     await expect(banner.locator(".govuk-tag")).toHaveText("Beta");
     await expect(banner).toContainText(
-      "This is a new service – your feedback will help us to improve it.",
+      "This is a new service – your feedback (opens in new tab) will help us to improve it.",
     );
 
     await expect(feedbackLink).toHaveAttribute(
       "href",
       "https://www.smartsurvey.co.uk/t/WZA6Z8/",
     );
+    await expect(feedbackLink).toHaveAttribute("target", "_blank");
   });
 
   test("should have the correct link for sign out button", async ({ page }) => {
@@ -87,15 +88,32 @@ test.describe("Home page", () => {
     await expect(signOutLink).toHaveAttribute("href", "/auth/logout");
   });
 
+  test("should have a single banner landmark", async ({ page }) => {
+    await expect(page.getByRole("banner")).toHaveCount(1);
+  });
+
+  test("should not repeat the landmark type in the account navigation label", async ({
+    page,
+  }) => {
+    const header = page.getByRole("banner");
+    await expect(
+      header.getByRole("navigation", { name: "Account", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: /navigation/i }),
+    ).toHaveCount(0);
+  });
+
   test("navigation items should be in correct order", async ({ page }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
-      name: "Account navigation",
+      name: "Account",
+      exact: true,
     });
-    const navLinks = navigation.getByRole("link");
+    const navItems = navigation.getByRole("listitem");
 
-    await expect(navLinks.nth(0)).toHaveText(PROVIDER_DISPLAY_NAME);
-    await expect(navLinks.nth(1)).toHaveText("Sign out");
+    await expect(navItems.nth(0)).toHaveText(PROVIDER_DISPLAY_NAME);
+    await expect(navItems.nth(1)).toHaveText("Sign out");
   });
 
   test("should display the authenticated user name in the header", async ({
@@ -103,11 +121,24 @@ test.describe("Home page", () => {
   }) => {
     const header = page.getByRole("banner");
     const navigation = header.getByRole("navigation", {
-      name: "Account navigation",
+      name: "Account",
+      exact: true,
     });
-    const accountLink = navigation.getByRole("link").nth(0);
+    await expect(navigation.getByText(PROVIDER_DISPLAY_NAME)).toBeVisible();
+  });
 
-    await expect(accountLink).toHaveText(PROVIDER_DISPLAY_NAME);
+  test("should not present the authenticated user name as a link", async ({
+    page,
+  }) => {
+    const header = page.getByRole("banner");
+    const navigation = header.getByRole("navigation", {
+      name: "Account",
+      exact: true,
+    });
+    const navLinks = navigation.getByRole("link");
+
+    await expect(navLinks).toHaveCount(1);
+    await expect(navLinks.nth(0)).toHaveText("Sign out");
   });
 
   test("should show error summary if you do not select a journey type", async ({

@@ -237,16 +237,6 @@ export class ClientDetailsValidator extends FormValidator {
       };
     }
 
-    if (
-      typeof hasPrevApplication === "string" &&
-      hasPrevApplication === "true" &&
-      this.validateFormInputValue(prevApplicationRef)
-    ) {
-      errorSummaries.referenceInputError = {
-        text: CLIENT_DETAILS_ERROR.MISSING_PREV_APPLICATION_REF,
-      };
-    }
-
     const MAX_REF_LENGTH = 35;
     if (
       typeof hasPrevApplication === "string" &&

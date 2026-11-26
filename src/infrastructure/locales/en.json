@@ -18,6 +18,7 @@
     "mainNav": {},
     "header": {
       "organisationLabel": "Legal Aid Agency",
+      "accountNavigationLabel": "Account",
       "signOut": "Sign out"
     },
     "footer": {
@@ -30,7 +31,7 @@
   "components": {
     "phaseBanner": {
       "feedbackText": "This is a new service – your ",
-      "feedbackLinkTextHTML": "<a class='govuk-link' href='https://www.smartsurvey.co.uk/t/WZA6Z8/' target='_blank' rel='noopener noreferrer'>feedback</a> will help us to improve it."
+      "feedbackLinkTextHTML": "<a class='govuk-link' href='https://www.smartsurvey.co.uk/t/WZA6Z8/' target='_blank' rel='noopener noreferrer'>feedback (opens in new tab)</a> will help us to improve it."
     },
     "cookieBanner": {
       "heading": "Cookies on",
