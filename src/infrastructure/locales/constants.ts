@@ -244,6 +244,8 @@ export const CLIENT_DETAILS_ERROR = {
   INVALID_NINO: "You must enter a valid National Insurance Number",
   APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
     "Application cannot exceed 35 characters",
+  APPLICATION_REFERENCE_INVALID_CHARACTERS:
+    "Reference must start with a letter or number and only include letters, numbers, spaces, full stops, forward slashes and hyphens",
   CONFLICTING_NO_FIXED_ABODE_AND_HOME_ADDRESS:
     "Either select if your client has no fixed abode or enter the client's home address",
   MISSING_HOME_ADDRESS_LINE_1:

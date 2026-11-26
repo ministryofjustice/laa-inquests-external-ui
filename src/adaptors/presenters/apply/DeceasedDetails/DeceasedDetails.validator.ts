@@ -197,7 +197,9 @@ export class DeceasedDetailsValidator extends FormValidator {
 
     const normalizedCoronerReference = normaliseFreeText(coronerReference);
 
-    if (!REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX.test(normalizedCoronerReference)) {
+    if (
+      !REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX.test(normalizedCoronerReference)
+    ) {
       errorSummaries.coronerReferenceInputError = {
         text: DECEASED_DETAILS_ERROR.CORONER_REFERENCE_INVALID_CHARACTERS,
       };

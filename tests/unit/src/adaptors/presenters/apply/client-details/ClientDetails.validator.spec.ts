@@ -626,6 +626,56 @@ describe("ClientDetailsValidator", () => {
           },
         });
       });
+      [
+        ["a formula prefix", "=cmd"],
+        ["a leading hyphen", "-INQ-1"],
+        ["an underscore", "INQ_1"],
+        ["a comma", "INQ,001"],
+        ["a semicolon", "INQ;1"],
+        ["angle brackets", "<b>INQ</b>"],
+        ["a newline", "INQ\n1"],
+        ["an accented letter", "INQ-É1"],
+        ["a long s", "\u017F1"],
+      ].forEach(([reason, value]) => {
+        it(`adds error message if reference contains ${reason}`, () => {
+          const formValidator = new ClientDetailsValidator();
+          const errorSummaries = formValidator.validatePrevApplicationReference(
+            {
+              _csrf: "abcdefg",
+              "has-prev-application": "true",
+              "prev-laa-reference-input": value,
+            },
+          );
+          assert.deepEqual(errorSummaries, {
+            referenceInputError: {
+              text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_INVALID_CHARACTERS,
+            },
+          });
+        });
+      });
+      ["INQ-ABC-123", "INQ/2025/001", "AB 12.34", "  INQ-1  "].forEach(
+        (value) => {
+          it(`returns no errors for the reference ${JSON.stringify(value)}`, () => {
+            const formValidator = new ClientDetailsValidator();
+            const errorSummaries =
+              formValidator.validatePrevApplicationReference({
+                _csrf: "abcdefg",
+                "has-prev-application": "true",
+                "prev-laa-reference-input": value,
+              });
+            assert.deepEqual(errorSummaries, {});
+          });
+        },
+      );
+      it("ignores the reference when no is selected", () => {
+        const formValidator = new ClientDetailsValidator();
+        const errorSummaries = formValidator.validatePrevApplicationReference({
+          _csrf: "abcdefg",
+          "has-prev-application": "false",
+          "prev-laa-reference-input": "=cmd",
+        });
+        assert.deepEqual(errorSummaries, {});
+      });
     });
 
     describe("validateHomeAddress", () => {

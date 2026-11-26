@@ -14,6 +14,7 @@ import {
   CORRESPONDENCE_ADDRESS_SOURCE,
   CORRESPONDENCE_RECIPIENT_TYPE,
   NINO_REGEX,
+  REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX,
 } from "#src/infrastructure/locales/constants.js";
 import { FormValidator } from "#src/utils/FormValidator.js";
 import { normaliseFreeText } from "#src/utils/textRules.js";
@@ -206,13 +207,20 @@ export class ClientDetailsValidator extends FormValidator {
 
     const MAX_REF_LENGTH = 35;
     if (
-      typeof hasPrevApplication === "string" &&
       hasPrevApplication === "true" &&
-      this.exceedsMaxLength(prevApplicationRef, MAX_REF_LENGTH)
+      typeof prevApplicationRef === "string"
     ) {
-      errorSummaries.referenceInputError = {
-        text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
-      };
+      const reference = normaliseFreeText(prevApplicationRef);
+
+      if (!REFERENCE_TEXT_ALLOWED_CHARACTERS_REGEX.test(reference)) {
+        errorSummaries.referenceInputError = {
+          text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_INVALID_CHARACTERS,
+        };
+      } else if (this.exceedsMaxLength(reference, MAX_REF_LENGTH)) {
+        errorSummaries.referenceInputError = {
+          text: CLIENT_DETAILS_ERROR.APPLICATION_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH,
+        };
+      }
     }
     return errorSummaries;
   }
