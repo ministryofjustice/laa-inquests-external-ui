@@ -116,6 +116,38 @@ describe("UploadEvidenceAdaptor", () => {
     assert.equal(capturedEvents.length, 0);
   });
 
+  it("returns FILE_SCAN_FOUND_VIRUS when the 422 detail is the virus check message", async () => {
+    axiosStub.post.resolves({
+      status: 422,
+      data: { detail: "Uploaded file failed virus check" },
+    });
+
+    const result = await adaptor.uploadEvidence(submitBodyRaw, "token-123");
+
+    assert.deepEqual(result, { status: "FILE_SCAN_FOUND_VIRUS" });
+  });
+
+  it("returns FILE_REJECTED with the code when the API rejects the file content, without alerting Sentry", async () => {
+    axiosStub.post.resolves({
+      status: 422,
+      data: {
+        detail: {
+          code: "MACROS_NOT_ALLOWED",
+          message: "Macro-enabled spreadsheets are not allowed",
+        },
+      },
+    });
+
+    const result = await adaptor.uploadEvidence(submitBodyRaw, "token-123");
+    await Sentry.flush();
+
+    assert.deepEqual(result, {
+      status: "FILE_REJECTED",
+      code: "MACROS_NOT_ALLOWED",
+    });
+    assert.equal(capturedEvents.length, 0);
+  });
+
   it("returns UPLOAD_REJECTED and alerts Sentry when the API rejects the request", async () => {
     axiosStub.post.resolves({
       status: 422,

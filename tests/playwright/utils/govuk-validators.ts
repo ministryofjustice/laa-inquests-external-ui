@@ -74,7 +74,8 @@ export async function validateYesNoRadioWithConditionalInput(
 }
 
 export async function validateMojHeader(page: Page): Promise<void> {
-  const header = page.getByRole("banner").first();
+  await expect(page.getByRole("banner")).toHaveCount(1);
+  const header = page.getByRole("banner");
   await expect(header).toBeVisible();
 
   // Validate Legal Aid Agency organization label
@@ -88,15 +89,15 @@ export async function validateMojHeader(page: Page): Promise<void> {
 
   // Validate account navigation
   const navigation = header.getByRole("navigation", {
-    name: "Account navigation",
+    name: "Account",
+    exact: true,
   });
   await expect(navigation).toBeVisible();
 
-  // Validate account name link
-  const accountNameLink = navigation.getByRole("link", {
-    name: PROVIDER_DISPLAY_NAME,
-  });
-  await expect(accountNameLink).toBeVisible();
+  await expect(navigation.getByText(PROVIDER_DISPLAY_NAME)).toBeVisible();
+  await expect(
+    navigation.getByRole("link", { name: PROVIDER_DISPLAY_NAME }),
+  ).toHaveCount(0);
 
   // Validate sign out link
   const signOutLink = navigation.getByRole("link", { name: "Sign out" });

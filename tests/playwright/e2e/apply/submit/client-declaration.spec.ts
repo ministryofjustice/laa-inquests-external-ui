@@ -56,7 +56,7 @@ test.describe("Provider can", () => {
     const lists = await form.getByRole("list").all();
     await expect(lists[0].getByRole("listitem")).toHaveText([
       `they, ${firstName} ${surname}, have instructed you, Test Firm, to represent them`,
-      "they have read and agree to the Legal Aid Agency privacy policy",
+      "they have read and agree to the Legal Aid Agency privacy policy (opens in new tab)",
       "the information they have given is complete and correct",
     ]);
 
