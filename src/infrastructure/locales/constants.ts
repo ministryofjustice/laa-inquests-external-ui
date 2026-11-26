@@ -8,8 +8,14 @@ export const SERVICE_UNAVAILABLE_MESSAGE =
 export const BEFORE_YOU_START_DECLARATION_ERROR =
   "Confirm you have read and agree to the declaration";
 
+export const CASE_REFERENCE_MAX_CHARACTER_LENGTH = 50;
+
 export const CASE_SEARCH_ERROR = {
   MISSING_CASE_REFERENCE: "Case reference is required",
+  CASE_REFERENCE_EXCEEDS_MAX_CHARACTER_LENGTH:
+    "Case reference must be 50 characters or less",
+  CASE_REFERENCE_INVALID_CHARACTERS:
+    "Case reference must not contain line breaks or control characters",
   NO_RESULTS: "There are no results that match the search criteria",
   SELECTION_FAILED:
     "There was a problem selecting the case. Select the case again.",
@@ -196,6 +202,9 @@ export const ORGANISATION_NAME_ALLOWED_CHARACTERS_REGEX =
 
 // Prose keeps its line breaks and tabs but rejects angle brackets and other control or format characters.
 export const PROSE_UNSAFE_CHARACTERS_REGEX = /[<>]|[[\p{Cc}\p{Cf}]--[\n\r\t]]/v;
+
+// Any control or format character (line breaks, tabs, zero-width and direction marks), for single-line values.
+export const CONTROL_CHARACTERS_REGEX = /[\p{Cc}\p{Cf}]/v;
 
 // Reference text (coroner's reference): empty, or starting with a letter or digit. No `i` flag,
 // so "ſ" is not folded to "s" and the rule matches the API's ASCII-only one.
